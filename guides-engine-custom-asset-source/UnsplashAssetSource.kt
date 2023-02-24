@@ -182,6 +182,6 @@ class UnsplashAssetSource : AssetSource(sourceId = "ly.img.asset.source.unsplash
 	// highlight-translateToAssetResult
 
 	companion object {
-		private const val BASE_URL = "https://us-central1-cesdk-ab4f3.cloudfunctions.net/photos"
+		private const val BASE_URL = "" // INSERT YOUR UNSPLASH PROXY URL HERE
 	}
 }

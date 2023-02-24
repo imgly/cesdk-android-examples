@@ -44,7 +44,7 @@ fun spotColors() = CoroutineScope(Dispatchers.Main).launch {
 
 	// highlight-apply-text
 	engine.block.setColorSpot(text, property = "fill/solid/color", name = "Yellow")
-	engine.block.setColorSpot(text, property =  "stroke/color", name = "Crayola-Pink-Flamingo", tint = 0.5F)
+	engine.block.setColorSpot(text, property = "stroke/color", name = "Crayola-Pink-Flamingo", tint = 0.5F)
 	engine.block.setStrokeEnabled(text, enabled = true)
 
 	engine.block.setColorSpot(text, property = "backgroundColor/color", name = "Pantone-ColorOfTheYear-2022", tint = 0.9F)

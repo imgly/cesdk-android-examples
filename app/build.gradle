@@ -31,6 +31,7 @@ android {
                 "../engine-guides-save-scene-to-blob",
                 "../engine-guides-save-scene-to-string",
                 "../engine-guides-spot-colors",
+                "../engine-guides-text-with-emojis",
                 "../guides-engine-custom-asset-source",
                 "../guides-engine-exporting-blocks",
                 "../guides-engine-modifying-scenes",
