@@ -1,7 +1,8 @@
 import ly.img.engine.*
 
 fun createSceneFromScratch() {
-    val engine = Engine.also { it.start() }
+    val engine = Engine(id = "ly.img.engine.example")
+    engine.start()
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-create

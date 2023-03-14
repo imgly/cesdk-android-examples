@@ -3,7 +3,8 @@ import kotlinx.coroutines.*
 import ly.img.engine.*
 
 fun saveSceneToString() = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.also { it.start() }
+    val engine = Engine(id = "ly.img.engine.example")
+    engine.start()
     engine.bindOffscreen(width = 100, height = 100)
 
     val sceneUri = Uri.parse("https://cdn.img.ly/packages/imgly/cesdk-js/latest/assets/templates/cesdk_postcard_1.scene")

@@ -2,7 +2,8 @@ import android.net.Uri
 import ly.img.engine.Engine
 
 fun uriResolver() {
-	val engine = Engine.also { it.start() }
+	val engine = Engine(id = "ly.img.engine.example")
+	engine.start()
 	engine.bindOffscreen(width = 100, height = 100)
 
 	// highlight-get-absolute-base-path

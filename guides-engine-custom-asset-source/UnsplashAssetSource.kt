@@ -6,7 +6,8 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 fun customAssetSource() = CoroutineScope(Dispatchers.Main).launch {
-	val engine = Engine.also { it.start() }
+	val engine = Engine(id = "ly.img.engine.example")
+	engine.start()
 	engine.bindOffscreen(width = 100, height = 100)
 
 	// highlight-unsplash-definition
@@ -182,6 +183,6 @@ class UnsplashAssetSource : AssetSource(sourceId = "ly.img.asset.source.unsplash
 	// highlight-translateToAssetResult
 
 	companion object {
-		private const val BASE_URL = "https://us-central1-cesdk-ab4f3.cloudfunctions.net/photos"
+		private const val BASE_URL = "" // INSERT YOUR UNSPLASH PROXY URL HERE
 	}
 }
