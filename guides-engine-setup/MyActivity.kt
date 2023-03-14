@@ -8,7 +8,7 @@ import ly.img.engine.*
 class MyActivity : AppCompatActivity() {
 
 	// highlight-setup
-	private val engine = Engine
+	private val engine = Engine(id = "ly.img.engine.example")
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
