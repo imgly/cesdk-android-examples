@@ -6,11 +6,12 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 fun customAssetSource() = CoroutineScope(Dispatchers.Main).launch {
-	val engine = Engine.also { it.start() }
+	val engine = Engine(id = "ly.img.engine.example")
+	engine.start()
 	engine.bindOffscreen(width = 100, height = 100)
 
 	// highlight-unsplash-definition
-	val source = UnsplashAssetSource()
+	val source = UnsplashAssetSource("") // INSERT YOUR UNSPLASH PROXY URL HERE
 	engine.asset.addSource(source)
 	// highlight-unsplash-definition
 
@@ -34,7 +35,7 @@ fun customAssetSource() = CoroutineScope(Dispatchers.Main).launch {
 	// highlight-add-asset-to-source
 	val asset = AssetDefinition(
 		id = "ocean-waves-1",
-		labels = mapOf(
+		label = mapOf(
 			"en" to "relaxing ocean waves",
 			"es" to "olas del mar relajantes"
 		),
@@ -57,7 +58,7 @@ fun customAssetSource() = CoroutineScope(Dispatchers.Main).launch {
 }
 
 // highlight-unsplash-source-creation
-class UnsplashAssetSource : AssetSource(sourceId = "ly.img.asset.source.unsplash") {
+class UnsplashAssetSource(private val baseUrl: String) : AssetSource(sourceId = "ly.img.asset.source.unsplash") {
 // highlight-unsplash-source-creation
 
 	override suspend fun getGroups(): List<String>? = null
@@ -84,10 +85,10 @@ class UnsplashAssetSource : AssetSource(sourceId = "ly.img.asset.source.unsplash
 	private suspend fun FindAssetsQuery.getPopularList(): FindAssetsResult {
 		val queryParams = listOf(
 			"order_by" to "popular",
-			"page" to page,
-			"perPage" to perPage
+			"page" to page + 1,
+			"per_page" to perPage
 		).joinToString(separator = "&") { (key, value) -> "$key=$value" }
-		val assetsArray = getResponseAsString("$BASE_URL/photos?$queryParams").let(::JSONArray)
+		val assetsArray = getResponseAsString("$baseUrl/photos?$queryParams").let(::JSONArray)
 		return FindAssetsResult(
 			assets = (0 until assetsArray.length()).map { assetsArray.getJSONObject(it).toAsset() },
 			currentPage = page,
@@ -99,11 +100,11 @@ class UnsplashAssetSource : AssetSource(sourceId = "ly.img.asset.source.unsplash
 	private suspend fun FindAssetsQuery.getSearchList(): FindAssetsResult {
 		val queryParams = listOf(
 			"query" to query,
-			"page" to page,
-			"perPage" to perPage
+			"page" to page + 1,
+			"per_page" to perPage
 		).joinToString(separator = "&") { (key, value) -> "$key=$value" }
 		// highlight-unsplash-result-mapping
-		val response = getResponseAsString("$BASE_URL/search/photos?$queryParams").let(::JSONObject)
+		val response = getResponseAsString("$baseUrl/search/photos?$queryParams").let(::JSONObject)
 		val assetsArray = response.getJSONArray("results")
 		val total = response.getInt("total")
 		val totalPages = response.getInt("total_pages")
@@ -180,8 +181,4 @@ class UnsplashAssetSource : AssetSource(sourceId = "ly.img.asset.source.unsplash
 		// highlight-result-utm
 	)
 	// highlight-translateToAssetResult
-
-	companion object {
-		private const val BASE_URL = "https://us-central1-cesdk-ab4f3.cloudfunctions.net/photos"
-	}
 }

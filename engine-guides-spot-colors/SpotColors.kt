@@ -2,7 +2,8 @@ import kotlinx.coroutines.*
 import ly.img.engine.*
 
 fun spotColors() = CoroutineScope(Dispatchers.Main).launch {
-	val engine = Engine.also { it.start() }
+	val engine = Engine(id = "ly.img.engine.example")
+	engine.start()
 	engine.bindOffscreen(width = 100, height = 100)
 
 	// highlight-setup
@@ -44,7 +45,7 @@ fun spotColors() = CoroutineScope(Dispatchers.Main).launch {
 
 	// highlight-apply-text
 	engine.block.setColorSpot(text, property = "fill/solid/color", name = "Yellow")
-	engine.block.setColorSpot(text, property =  "stroke/color", name = "Crayola-Pink-Flamingo", tint = 0.5F)
+	engine.block.setColorSpot(text, property = "stroke/color", name = "Crayola-Pink-Flamingo", tint = 0.5F)
 	engine.block.setStrokeEnabled(text, enabled = true)
 
 	engine.block.setColorSpot(text, property = "backgroundColor/color", name = "Pantone-ColorOfTheYear-2022", tint = 0.9F)

@@ -11,7 +11,7 @@ import ly.img.engine.*
 @Composable
 fun MyComposable() {
 	// highlight-setup
-	val engine = Engine
+	val engine = remember { Engine(id = "ly.img.engine.example") }
 	engine.start(LocalSavedStateRegistryOwner.current)
 	// highlight-setup
 	// highlight-bind

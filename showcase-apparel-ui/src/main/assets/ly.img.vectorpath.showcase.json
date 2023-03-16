@@ -1,0 +1,348 @@
+{
+  "version": "1.0.0",
+  "id": "ly.img.vectorpath.showcase",
+  "assets": [
+    {
+      "id": "//ly.img.ubq/shapes/rect",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Rectangle",
+        "de": "Rechteck"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/shapes/imgly_sticker_shapes_rect.png",
+        "vectorPath": "M0 0 H49 V48 H0 Z",
+        "blockType": "//ly.img.ubq/shapes/rect",
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "id": "//ly.img.ubq/shapes/line",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Line",
+        "de": "Linie"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/shapes/imgly_sticker_shapes_line.png",
+        "vectorPath": "M 0.46601942,2.5631068 2.5631068,0.40776699 48.563819,45.433327 46.463094,47.534052 Z",
+        "blockType": "//ly.img.ubq/shapes/line",
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "id": "//ly.img.ubq/shapes/star",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Star",
+        "de": "Stern"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/shapes/imgly_sticker_shapes_star.png",
+        "vectorPath": "M 39.711903,46.387704 24.668153,38.563606 9.6943185,46.520692 12.486703,29.795456 0.29189577,18.013368 17.061434,15.500702 24.498463,0.26188542 32.070223,15.434208 48.861367,17.798189 36.771434,29.687866 Z",
+        "blockType": "//ly.img.ubq/shapes/star",
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "id": "//ly.img.ubq/shapes/polygon",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Polygon",
+        "de": "Mehreck"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/shapes/imgly_sticker_shapes_polygon.png",
+        "vectorPath": "M 1.72,19.78 25,2.86 48.28,19.78 39.4,47.14 H 10.6 Z",
+        "blockType": "//ly.img.ubq/shapes/polygon",
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "id": "//ly.img.ubq/shapes/ellipse",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Ellipse",
+        "de": "Ellipse"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/shapes/imgly_sticker_shapes_ellipse.png",
+        "vectorPath": "M 24.514851,0.15762151 C 17.313087,0.1706061 10.492185,3.3604477 5.9098221,8.8583909 h -0.00208 C 5.8049221,8.9681634 5.7874174,9.0285573 5.6953768,9.1406562 2.2472747,13.373786 0.3592754,18.64301 0.34247093,24.080101 0.34328511,37.29065 11.165151,47.999715 24.514851,48.000522 37.865365,48.000854 48.688502,37.291456 48.689316,24.080101 48.689651,10.867942 37.866178,0.15728921 24.514851,0.15762151 Z",
+        "blockType": "//ly.img.ubq/shapes/ellipse",
+        "width": 48,
+        "height": 48
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths/badge",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Badge",
+        "de": "Abzeichen"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/shapes/imgly_sticker_shapes_badge.png",
+        "vectorPath": "M 49.92,6.494 L54.29,0 57.46,7.147 62.89,1.521 64.77,9.107 71.1,4.505 71.63,12.3 78.66,8.873 77.83,16.65 85.35,14.49 83.19,22.01 90.97,21.18 87.54,28.21 95.34,28.74 90.73,35.07 98.32,36.95 92.69,42.38 99.84,45.55 93.35,49.92 99.84,54.29 92.69,57.46 98.32,62.89 90.73,64.77 95.34,71.1 87.54,71.63 90.97,78.66 83.19,77.83 85.35,85.35 77.83,83.19 78.66,90.97 71.63,87.54 71.1,95.34 64.77,90.73 62.89,98.32 57.46,92.69 54.29,99.84 49.92,93.35 45.55,99.84 42.38,92.69 36.95,98.32 35.07,90.73 28.74,95.34 28.21,87.54 21.18,90.97 22.01,83.19 14.49,85.35 16.65,77.83 8.873,78.66 12.3,71.63 4.505,71.1 9.107,64.77 1.521,62.89 7.147,57.46 0,54.29 6.494,49.92 0,45.55 7.147,42.38 1.521,36.95 9.107,35.07 4.505,28.74 12.3,28.21 8.873,21.18 16.65,22.01 14.49,14.49 22.01,16.65 21.18,8.873 28.21,12.3 28.74,4.505 35.07,9.107 36.95,1.521 42.38,7.147 45.55,0z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 100,
+        "height": 100
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths/arrow3",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Arrow to the right with rounded corners",
+        "de": "Pfeil nach rechts mit abgerundeten Ecken"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/shapes/imgly_sticker_shapes_arrow03.png",
+        "vectorPath": "M 6.005859375 44.296875 h 71.005859375 L 54.98046875 66.318359375 c -2.34375 2.34375 -2.34375 6.15234375 0.0 8.49609375 c 2.34375 2.34375 6.15234375 2.34375 8.49609375 0.0 l 30.52734375 -30.517578125 l 6.005859375 -6.005859375 l -6.005859375 -6.005859375 L 63.466796875 1.7578125 c -1.171875 -1.171875 -2.705078125 -1.7578125 -4.248046875 -1.7578125 C 57.685546875 0.0 56.15234375 0.5859375 54.98046875 1.7578125 c -2.34375 2.34375 -2.34375 6.15234375 0.0 8.49609375 l 22.03125 22.03125 H 6.005859375 c -3.3203125 0.0 -6.005859375 2.6953125 -6.005859375 6.005859375 C 0.0 41.6015625 2.685546875 44.296875 6.005859375 44.296875 z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 100,
+        "height": 77
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths/arrow4",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Arrow to the right with fletching on the left side",
+        "de": "Pfeil nach rechts mit Befiederung am linken Ende"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/shapes/imgly_sticker_shapes_arrow04.png",
+        "vectorPath": "M 82.71 0.0 L 75.77 5.88 83.23 13.34 29.33 13.34 23.17 5.62 0.0 5.62 9.13 17.29 0.0 28.97 23.17 28.97 29.33 21.25 83.23 21.25 75.77 28.71 82.71 34.59 100.0 17.29z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 100,
+        "height": 35
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths/arrow5",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Arrow to the right with a wide shaft",
+        "de": "Pfeil nach rechts mit einem breiten Schaft"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/shapes/imgly_sticker_shapes_arrow05.png",
+        "vectorPath": "M 100.0 30.49 L 54.88 0.0 54.88 15.85 0.0 15.85 0.0 45.12 54.88 45.12 54.88 60.98 100.0 30.49",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 100,
+        "height": 61
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths.abstract/frame",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Frame",
+        "de": "Rahmen"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/abstract/frame.png",
+        "vectorPath": "M0 0v93.35h66V0Zm62.44 62.61H16.33A12.76 12.76 0 0 1 3.56 49.85V3.74h58.88Z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 66,
+        "height": 93
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths.abstract/halfcircle",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Half Circle",
+        "de": "Halbkreis"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/abstract/halfcircle.png",
+        "vectorPath": "M44.75 0A44.76 44.76 0 0 0 0 44.75h89.5A44.75 44.75 0 0 0 44.75 0Z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 89,
+        "height": 44
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths.abstract/organic1",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Organic 1",
+        "de": "Organisch 1"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/abstract/organic1.png",
+        "vectorPath": "M23.94 56.54c3.82-.06 7.68-.68 11.38.24 4.41 1.09 8 4.23 12.23 5.93 6.15 2.48 12.88 1.64 19.15.15 5.09-1.21 11.58-1.61 15.72-5.13 2.42-2.07 3.77-5.08 5.58-7.73 6.24-9.32 10.83-19.42-1.64-25.72-3.34-1.68-7-2.66-10.14-4.77-4.22-2.85-7.12-7.68-11.91-9.35-2-.69-4.13-.79-6-1.76-2.55-1.4-4.03-4.16-6.38-5.89C49.1.42 45.36.14 41.84 0 36-.19 33.23 1.59 28.22 3.52s-10 1-13.56 5.89c-1.4 1.9-1.83 4.33-2.78 6.49-1.29 2.94-3.51 5.34-5.48 7.88C3.15 28 .49 32.88.06 38.19-1 51 12.31 56.47 23.16 56.54Z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 94,
+        "height": 64
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths.abstract/organic4",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Organic 4",
+        "de": "Organisch 4"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/abstract/organic4.png",
+        "vectorPath": "M24.55 55.21c.89 1.21 1.8 2.39 2.78 3.52 2.83 3.32 5.93 6.64 10 8.29 7.45 3 17 0 23.25 5.06 3.51 2.86 6.41 8.3 10.79 7.12a7.31 7.31 0 0 0 3-1.9c7.82-7.42 8.79-20.92 2.13-29.39-8.3-10.51-6.65-23.62-18.82-31.45C47.61 10 29.15-1.26 17.15.12c-6.47.74-11.68 3-14.34 9.26-1.59 3.75-3 7.73-2.79 11.8.32 7.44 7.55 10 11.73 15C16.42 41.89 20 49 24.55 55.21Z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 80,
+        "height": 79
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths.abstract/quartercircle",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Quarter Circle",
+        "de": "Viertelkreis"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/abstract/quartercircle.png",
+        "vectorPath": "M91.4 0A91.4 91.4 0 0 0 0 91.4h91.4Z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 91,
+        "height": 91
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths.abstract/quartercircle-outline",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Quarter Circle Outline",
+        "de": "Viertelkreis Kontur"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/abstract/quartercircle-outline.png",
+        "vectorPath": "M90.67 2.54V0C40.58 0 0 41 0 91.51h2.52c0-49.05 39.55-88.97 88.15-88.97Z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 90,
+        "height": 91
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths.abstract/rectanglemask",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Rectangle Mask",
+        "de": "Rechteck Maske"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/abstract/rectanglemask.png",
+        "vectorPath": "M0 0v70.52h99.73V0Zm49.86 59.47L25.65 35.26l24.21-24.21 24.21 24.21Z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 99,
+        "height": 70
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths.abstract/roundmask",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Round Mask",
+        "de": "Runde Maske"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/abstract/roundmask.png",
+        "vectorPath": "M0 0v70.45h99.63V0Zm49.81 57.44A22.22 22.22 0 1 1 72 35.22a22.21 22.21 0 0 1-22.19 22.22Z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 99,
+        "height": 70
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths.abstract/wiggle",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Wiggle",
+        "de": "Wackeln"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/abstract/wiggle.png",
+        "vectorPath": "M85.12 7.56c-2.78 0-4.18-1.72-5.41-3.23s-2.1-2.59-4-2.59-2.93 1.2-4 2.59S69 7.56 66.2 7.56 62 5.84 60.8 4.33s-2.11-2.59-4.06-2.59-2.92 1.2-4.05 2.59-2.63 3.23-5.4 3.23-4.18-1.72-5.41-3.23-2.1-2.59-4.05-2.59-2.92 1.2-4 2.59-2.63 3.23-5.41 3.23S24.2 5.84 23 4.33s-2.1-2.59-4-2.59-3 1.2-4.14 2.59-2.62 3.23-5.4 3.23-4.18-1.72-5.41-3.23S2 1.74 0 1.74V0c2.78 0 4.17 1.72 5.4 3.23s2.11 2.59 4.06 2.59 2.92-1.2 4-2.59S16.14 0 18.92 0s4.17 1.72 5.4 3.23 2.1 2.59 4.05 2.59 2.93-1.2 4.05-2.59S35.05 0 37.83 0s4.17 1.72 5.4 3.23 2.1 2.59 4.06 2.59 2.92-1.2 4.05-2.59S54 0 56.74 0s4.18 1.72 5.41 3.23 2.1 2.59 4.05 2.59 2.93-1.2 4-2.59S72.88 0 75.66 0s4.17 1.72 5.4 3.23 2.11 2.59 4.06 2.59 2.92-1.2 4-2.59S91.8 0 94.57 0v1.74c-1.95 0-2.92 1.2-4 2.59s-2.67 3.23-5.45 3.23Z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 94,
+        "height": 7
+      }
+    },
+    {
+      "id": "//ly.img.cesdk.vectorpaths.abstract/ziczac",
+      "groups": [
+        "//ly.img.cesdk.vectorpaths/category/vectorpaths"
+      ],
+      "label": {
+        "en": "Ziczac",
+        "de": "Zickzack"
+      },
+      "tags": {},
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.vectorpath/thumbnails/abstract/ziczac.png",
+        "vectorPath": "m25.47 6.95-8.36-5.14-8.35 5.14L0 1.56.81.25l7.95 4.89L17.11 0l8.36 5.14L33.83 0l8.35 5.14L50.54 0l8.35 5.14L67.25 0l8.36 5.14L83.56.25l.81 1.31-8.76 5.39-8.36-5.14-8.36 5.14-8.35-5.14-8.36 5.14-8.35-5.14-8.36 5.14z",
+        "blockType": "//ly.img.ubq/vector_path",
+        "width": 84,
+        "height": 6
+      }
+    }
+  ]
+}

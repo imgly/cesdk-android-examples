@@ -11,11 +11,25 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        // highlight-maven-dependency
         maven { url "https://artifactory.img.ly/artifactory/maven" }
-        // highlight-maven-dependency
     }
 }
 
 rootProject.name = "CE.SDK Showcases"
 include ':app'
+include ':showcase-apparel-ui'
+
+// Internal use only
+def useLocalEngine = {
+    def propertiesFile = new File(rootDir, "local.properties")
+    if (!propertiesFile.exists()) return false
+    def properties = new Properties()
+    properties.load(propertiesFile.newDataInputStream())
+    properties.containsKey("useLocalEngine") && properties.getProperty("useLocalEngine").toBoolean()
+}
+
+if (System.getenv("UBQ_USE_LOCAL_ENGINE") == "true" || useLocalEngine()) {
+    include ':ubq-android-engine'
+    project(':ubq-android-engine').projectDir = new File('../../bindings/android')
+}
+// Internal use only
