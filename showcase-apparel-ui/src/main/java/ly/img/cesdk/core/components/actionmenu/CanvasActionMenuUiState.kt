@@ -23,10 +23,13 @@ data class CanvasActionMenuUiState(
 
 internal fun createCanvasActionMenuUiState(designBlock: DesignBlock, engine: Engine): CanvasActionMenuUiState? {
     if (engine.isGrouped(designBlock)) return null
+    val boundingBoxRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(designBlock))
+    // After process death, the bounding box isn't calculated correctly until the surface has been created.
+    if (boundingBoxRect.width().isNaN() || boundingBoxRect.height().isNaN()) return null
     val isMoveAllowed = engine.isMoveAllowed(designBlock)
     return CanvasActionMenuUiState(
         selectedBlock = designBlock,
-        selectedBlockRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(designBlock)),
+        selectedBlockRect = boundingBoxRect,
         selectedBlockRotation = engine.block.getRotation(designBlock),
         canBringForward = if (isMoveAllowed) engine.canBringForward(designBlock) else null,
         canBringBackward = if (isMoveAllowed) engine.canSendBackward(designBlock) else null,

@@ -204,6 +204,7 @@ fun ApparelUi(
         ) {
             BoxWithConstraints {
                 EngineCanvasView(
+                    engine = viewModel.engine,
                     passTouches = !uiState.isInPreviewMode,
                     onMoveStart = { viewModel.onEvent(Event.OnCanvasMove(true)) },
                     onMoveEnd = { viewModel.onEvent(Event.OnCanvasMove(false)) },

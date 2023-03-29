@@ -30,7 +30,8 @@ fun SheetHeader(
     Box(
         Modifier
             .fillMaxWidth()
-            .height(UiDefaults.sheetHeaderHeight)) {
+            .height(UiDefaults.sheetHeaderHeight)
+    ) {
         actionContent?.let {
             Box(
                 Modifier
