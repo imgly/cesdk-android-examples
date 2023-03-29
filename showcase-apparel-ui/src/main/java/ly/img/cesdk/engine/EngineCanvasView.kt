@@ -16,17 +16,17 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.viewinterop.AndroidView
-import ly.img.cesdk.Environment
 import ly.img.cesdk.core.theme.surface1
+import ly.img.engine.Engine
 
 @Composable
 fun EngineCanvasView(
+    engine: Engine,
     passTouches: Boolean,
     onMoveStart: () -> Unit,
     onMoveEnd: () -> Unit,
     loadScene: () -> Unit,
 ) {
-    val engine = Environment.getEngine()
     engine.start(LocalSavedStateRegistryOwner.current)
     engine.setClearColor(MaterialTheme.colorScheme.surface1)
 

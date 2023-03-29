@@ -48,7 +48,7 @@ import ly.img.cesdk.engine.zoomToSelectedText
 class ApparelUiViewModel : ViewModel() {
 
     private var firstLoad = true
-    private val engine = Environment.getEngine()
+    val engine = Environment.getEngine()
 
     private val _isSceneLoaded = MutableStateFlow(false)
     private val _isPreviewMode = MutableStateFlow(false)
