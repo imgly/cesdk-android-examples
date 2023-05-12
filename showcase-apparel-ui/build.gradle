@@ -15,11 +15,6 @@ android {
         consumerProguardFiles "consumer-rules.pro"
     }
 
-    buildTypes.each {
-        it.buildConfigField 'String', 'UNSPLASH_HOST', "\"${System.env.CESDK_AND_UNSPLASH_HOST ?: ""}\""
-        it.buildConfigField 'String', 'LICENSE', "\"${System.env.CESDK_APP_STORE_LICENSE ?: ""}\""
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -39,19 +34,5 @@ android {
 }
 
 dependencies {
-    implementation findProject(":ubq-android-engine") ?: libs.cesdk.engine
-
-    implementation platform(libs.compose.bom)
-    implementation libs.compose.material3
-    implementation(libs.compose.activity) {
-        because "BackHandler"
-    }
-    implementation libs.compose.viewmodel
-
-    implementation libs.kotlin.coroutines
-
-    implementation libs.coil.compose
-
-    implementation libs.colormath
-    implementation libs.colormath.compose
+    api project(":showcase-editor-ui")
 }
