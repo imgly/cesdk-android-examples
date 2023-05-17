@@ -7,8 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import ly.img.cesdk.ApparelUi
-import ly.img.cesdk.PostcardUi
+import ly.img.cesdk.apparel.ApparelUi
 import ly.img.cesdk.core.theme.ShowcaseTheme
 
 class ShowcaseActivity : ComponentActivity() {
@@ -34,16 +33,6 @@ class ShowcaseActivity : ComponentActivity() {
                             goBack = { navController.popBackStack() }
                         )
                     }
-                    composable(
-                        route = Screen.PostcardUi.routeScheme
-                    ) {
-                        val scene = requireNotNull(it.arguments?.getString("0"))
-                        val sceneUri = Uri.parse("file:///android_asset/scenes/$scene.scene")
-                        PostcardUi(
-                            sceneUri = sceneUri,
-                            goBack = { navController.popBackStack() }
-                        )
-                    }
                 }
             }
         }
@@ -57,8 +46,6 @@ sealed class Screen(val routeScheme: String) {
             acc.replace("{$index}", arg.toString())
         }
     }
-
     object Showcases : Screen("showcases")
     object ApparelUi : Screen("apparel-ui?scene={0}")
-    object PostcardUi : Screen("post-greeting-cards?scene={0}")
 }

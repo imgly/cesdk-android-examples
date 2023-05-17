@@ -34,15 +34,6 @@ fun Showcases(navigateTo: (String) -> Unit) {
                     }
                 )
             }
-            item {
-                ShowcaseItem(
-                    title = "Post- & Greeting-Card UI",
-                    subtitle = "Built to facilitate optimal card design, from changing accent colors to selecting fonts.",
-                    onClick = {
-                        navigateTo(Screen.PostcardUi.getRoute("bonjour_paris"))
-                    }
-                )
-            }
         }
     }
 }

@@ -16,7 +16,6 @@ android {
         ndk {
             abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
         }
-        resourceConfigurations += ['en']
     }
 
     sourceSets {
@@ -59,7 +58,6 @@ android {
         release {
             signingConfig signingConfigs.release
             minifyEnabled true
-            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -84,7 +82,6 @@ android {
 
 dependencies {
     implementation project(":showcase-apparel-ui")
-    implementation project(":showcase-postcard-ui")
     implementation findProject(":ubq-android-engine") ?: libs.cesdk.engine
 
     implementation platform(libs.compose.bom)
