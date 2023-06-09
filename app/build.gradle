@@ -33,15 +33,15 @@ android {
                 "../engine-guides-save-scene-to-string",
                 "../engine-guides-spot-colors",
                 "../engine-guides-text-with-emojis",
-                "../guides-engine-custom-asset-source",
-                "../guides-engine-exporting-blocks",
-                "../guides-engine-modifying-scenes",
-                "../guides-scopes",
-                "../guides-store-metadata",
-                "../guides-uri-resolver",
-                "../guides-using-effects",
-                "../guides-using-fills",
-                "../guides-engine-text-properties"
+                "../engine-guides-custom-asset-source",
+                "../engine-guides-exporting-blocks",
+                "../engine-guides-modifying-scenes",
+                "../engine-guides-scopes",
+                "../engine-guides-store-metadata",
+                "../engine-guides-uri-resolver",
+                "../engine-guides-using-effects",
+                "../engine-guides-using-fills",
+                "../engine-guides-text-properties"
             ]
         }
     }
