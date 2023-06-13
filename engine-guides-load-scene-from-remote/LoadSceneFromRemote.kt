@@ -8,7 +8,7 @@ fun loadSceneFromRemote() = CoroutineScope(Dispatchers.Main).launch {
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-url
-    val sceneUri = Uri.parse("https://cdn.img.ly/packages/imgly/cesdk-js/latest/assets/templates/cesdk_postcard_1.scene")
+    val sceneUri = Uri.parse("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
     // highlight-url
 
     // highlight-load

@@ -36,9 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.cesdk.core.components.LibraryImageCard
 import ly.img.cesdk.core.iconpack.Erroroutline
+import ly.img.cesdk.core.iconpack.Folder
 import ly.img.cesdk.core.iconpack.IconPack
 import ly.img.cesdk.core.iconpack.Search
-import ly.img.cesdk.core.iconpack.iconpack.Folder
 import ly.img.cesdk.editorui.R
 import ly.img.cesdk.library.LibraryViewModel
 import ly.img.engine.Asset

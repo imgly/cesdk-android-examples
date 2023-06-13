@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import ly.img.engine.BlendMode
+import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
@@ -46,6 +47,14 @@ fun Engine.deselectAllBlocks() {
     block.findAllSelected().forEach {
         block.setSelected(it, false)
     }
+}
+
+fun Engine.resetHistory() {
+    val oldHistory = editor.getActiveHistory()
+    val newHistory = editor.createHistory()
+    editor.addUndoStep()
+    editor.setActiveHistory(newHistory)
+    editor.destroyHistory(oldHistory)
 }
 
 fun Engine.overrideAndRestore(designBlock: DesignBlock, vararg scopes: String, action: (DesignBlock) -> Unit) {
@@ -204,6 +213,8 @@ fun Engine.addText(path: String, size: Float) {
     block.setHeightMode(textBlock, SizeMode.AUTO)
     addBlockToPage(textBlock)
 }
+
+fun Engine.canResetCrop(designBlock: DesignBlock) = block.getContentFillMode(designBlock) == ContentFillMode.CROP
 
 suspend fun Engine.zoomToPage(pageIndex: Int, insets: Rect) {
     zoomToBlock(getPage(pageIndex), insets)
