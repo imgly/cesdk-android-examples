@@ -2,6 +2,8 @@ package ly.img.cesdk.editorui
 
 import android.net.Uri
 import androidx.compose.ui.graphics.Color
+import ly.img.cesdk.dock.options.crop.getNormalizedDegrees
+import ly.img.cesdk.dock.options.crop.getRotationDegrees
 import ly.img.cesdk.dock.options.format.HorizontalAlignment
 import ly.img.cesdk.dock.options.format.VerticalAlignment
 import ly.img.cesdk.engine.FONT_BASE_PATH
@@ -9,6 +11,7 @@ import ly.img.cesdk.engine.bringForward
 import ly.img.cesdk.engine.bringToFront
 import ly.img.cesdk.engine.delete
 import ly.img.cesdk.engine.duplicate
+import ly.img.cesdk.engine.overrideAndRestore
 import ly.img.cesdk.engine.sendBackward
 import ly.img.cesdk.engine.sendToBack
 import ly.img.cesdk.engine.toEngineColor
@@ -55,6 +58,10 @@ fun handleBlockEvent(engine: Engine, block: DesignBlock, fontFamilyMap: Map<Stri
         is BlockEvent.OnChangeLetterSpacing -> engine.block.setFloat(block, "text/letterSpacing", event.spacing)
         is BlockEvent.OnChangeLineHeight -> engine.block.setFloat(block, "text/lineHeight", event.height)
         is BlockEvent.OnChangeSizeMode -> onChangeSizeMode(engine, block, event.sizeMode)
+        is BlockEvent.OnResetCrop -> onResetCrop(engine, block)
+        is BlockEvent.OnFlipCropHorizontal -> onFlipCropHorizontal(engine, block)
+        is BlockEvent.OnCropRotate -> onCropRotate(engine, block, event.scaleRatio)
+        is BlockEvent.OnCropStraighten -> onCropStraighten(engine, block, event.angle, event.scaleRatio)
     }
 }
 
@@ -181,4 +188,42 @@ private fun onChangeBlendMode(engine: Engine, designBlock: DesignBlock, blendMod
     if (engine.block.getBlendMode(designBlock) == blendMode) return
     engine.block.setBlendMode(designBlock, blendMode)
     engine.editor.addUndoStep()
+}
+
+private fun onResetCrop(engine: Engine, designBlock: DesignBlock) {
+    engine.overrideAndRestore(designBlock, "design/style") {
+        // Reset crop requires "design/style" scope but crop UI should be based on "content/replace".
+        engine.block.resetCrop(it)
+    }
+    engine.editor.addUndoStep()
+}
+
+private fun onFlipCropHorizontal(engine: Engine, designBlock: DesignBlock) {
+    engine.block.flipCropHorizontal(designBlock)
+    engine.editor.addUndoStep()
+}
+
+private fun onCropRotate(engine: Engine, designBlock: DesignBlock, scaleRatio: Float) {
+    val normalizedDegrees = getNormalizedDegrees(engine, designBlock, offset = -90)
+    onCropRotateDegrees(engine, designBlock, scaleRatio, normalizedDegrees)
+}
+
+private fun onCropStraighten(engine: Engine, designBlock: DesignBlock, angle: Float, scaleRatio: Float) {
+    val rotationDegrees = getRotationDegrees(engine, designBlock) + angle
+    onCropRotateDegrees(engine, designBlock, scaleRatio, rotationDegrees, addUndo = false)
+}
+
+private fun onCropRotateDegrees(
+    engine: Engine,
+    designBlock: DesignBlock,
+    scaleRatio: Float,
+    angle: Float,
+    addUndo: Boolean = true
+) {
+    val cropRotationRadians = angle * (Math.PI.toFloat() / 180f)
+    engine.block.setCropRotation(designBlock, cropRotationRadians)
+    engine.block.adjustCropToFillFrame(designBlock, scaleRatio)
+    if (addUndo) {
+        engine.editor.addUndoStep()
+    }
 }

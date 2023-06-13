@@ -61,10 +61,10 @@
     <string name="cesdk_next_page">Next Page</string>
     <string name="cesdk_previous_page">Previous</string>
     <string name="cesdk_opacity">Opacity</string>
-    <string name="cesdk_to_front">To Front</string>
-    <string name="cesdk_to_back">To Back</string>
-    <string name="cesdk_forward">Forward</string>
-    <string name="cesdk_backward">Backward</string>
+    <string name="cesdk_to_front">Bring to Front</string>
+    <string name="cesdk_to_back">Send to Back</string>
+    <string name="cesdk_forward">Bring Forward</string>
+    <string name="cesdk_backward">Send Backward</string>
 
     <string name="cesdk_blendmode">Blendmode</string>
     <string name="cesdk_blendmode_pass_through">Pass Through</string>
@@ -136,5 +136,11 @@
     <string name="cesdk_fill_color">Fill Color</string>
     <string name="cesdk_stroke_color">Stroke Color</string>
     <string name="cesdk_hue">Hue</string>
+
+    <string name="cesdk_crop">Crop</string>
+    <string name="cesdk_straighten">Straighten</string>
+    <string name="cesdk_reset">Reset</string>
+    <string name="cesdk_rotate">Rotate 90°</string>
+    <string name="cesdk_flip">Flip</string>
 
 </resources>

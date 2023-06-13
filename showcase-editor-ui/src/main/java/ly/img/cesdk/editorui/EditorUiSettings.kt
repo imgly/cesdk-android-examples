@@ -15,7 +15,7 @@ internal fun setSettingsForEditorUi(engine: Engine) {
     engine.editor.setSettingBoolean("touch/dragStartCanSelect", false)
     engine.editor.setSettingEnum("touch/pinchAction", TOUCH_ACTION_ZOOM)
     engine.editor.setSettingEnum("touch/rotateAction", TOUCH_ACTION_NONE)
-    engine.editor.setSettingBoolean("doubleClickToCropEnabled", false)
+    engine.editor.setSettingBoolean("doubleClickToCropEnabled", true)
     engine.editor.setSettingString("basePath", BASE_PATH)
     engine.editor.setSettingEnum(ROLE, ROLE_ADOPTER)
     engine.editor.setSettingEnum("doubleClickSelectionMode", DOUBLE_CLICK_SELECTION_MODE_DIRECT)

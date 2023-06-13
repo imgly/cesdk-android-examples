@@ -78,4 +78,11 @@ interface BlockEvent : Event {
     data class OnChangeFont(val font: FontData) : BlockEvent
     data class OnChangeFontSize(val fontSize: Float) : BlockEvent
     // endregion
+
+    // region Crop Events
+    object OnFlipCropHorizontal : BlockEvent
+    object OnResetCrop : BlockEvent
+    data class OnCropRotate(val scaleRatio: Float) : BlockEvent
+    data class OnCropStraighten(val angle: Float, val scaleRatio: Float) : BlockEvent
+    // endregion
 }

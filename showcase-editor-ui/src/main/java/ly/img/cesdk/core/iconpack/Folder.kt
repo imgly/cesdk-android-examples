@@ -1,4 +1,4 @@
-package ly.img.cesdk.core.iconpack.iconpack
+package ly.img.cesdk.core.iconpack
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
@@ -9,7 +9,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import ly.img.cesdk.core.iconpack.IconPack
 
 val IconPack.Folder: ImageVector
     get() {

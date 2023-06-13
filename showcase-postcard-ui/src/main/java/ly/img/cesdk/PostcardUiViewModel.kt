@@ -16,7 +16,6 @@ import ly.img.cesdk.bottomsheet.message_size.MessageSize
 import ly.img.cesdk.bottomsheet.message_size.MessageSizeBottomSheetContent
 import ly.img.cesdk.bottomsheet.template_colors.TemplateColorsBottomSheetContent
 import ly.img.cesdk.bottomsheet.template_colors.TemplateColorsUiState
-import ly.img.cesdk.editorui.BlockEvent
 import ly.img.cesdk.editorui.EditorUiViewModel
 import ly.img.cesdk.editorui.Event
 import ly.img.cesdk.engine.FONT_BASE_PATH
@@ -24,6 +23,7 @@ import ly.img.cesdk.engine.LayoutAxis
 import ly.img.cesdk.engine.deselectAllBlocks
 import ly.img.cesdk.engine.getScene
 import ly.img.cesdk.engine.overrideAndRestore
+import ly.img.cesdk.engine.resetHistory
 import ly.img.cesdk.engine.showAllPages
 import ly.img.cesdk.engine.showPage
 import ly.img.cesdk.engine.toComposeColor
@@ -35,7 +35,9 @@ import ly.img.cesdk.rootbar.rootBarItems
 import ly.img.cesdk.util.ColorType
 import ly.img.cesdk.util.SelectionColors
 import ly.img.cesdk.util.getPageSelectionColors
+import ly.img.cesdk.util.getPinnedBlock
 import ly.img.cesdk.util.requirePinnedBlock
+import ly.img.engine.DesignBlock
 import ly.img.engine.GlobalScope
 import ly.img.engine.MimeType
 
@@ -71,16 +73,20 @@ class PostcardUiViewModel : EditorUiViewModel() {
                 }
             }
 
-            is BlockEvent.OnChangeFinish -> {
-                engine.editor.addUndoStep()
-            }
-
             else -> {
                 if (event is Event.OnLoadScene) {
                     setColorPaletteColors(event.sceneUriString)
                 }
                 super.onEvent(event)
             }
+        }
+    }
+
+    override fun getBlockForEvents(): DesignBlock {
+        return try {
+            super.getBlockForEvents()
+        } catch (ex: IllegalStateException) {
+            checkNotNull(engine.getPinnedBlock())
         }
     }
 
@@ -209,12 +215,8 @@ class PostcardUiViewModel : EditorUiViewModel() {
         if (index == pageIndex.value) return
         pageIndex.update { index }
         engine.showPage(index)
-        val oldHistory = engine.editor.getActiveHistory()
         if (_uiState.value.isUndoEnabled) hasUnsavedChanges = true
-        val newHistory = engine.editor.createHistory()
-        engine.editor.addUndoStep()
-        engine.editor.setActiveHistory(newHistory)
-        engine.editor.destroyHistory(oldHistory)
+        engine.resetHistory()
         setBottomSheetContent { null }
     }
 
