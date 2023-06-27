@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ly.img.cesdk.core.UiDefaults
 
@@ -27,15 +26,14 @@ fun CardButton(text: String, icon: ImageVector, modifier: Modifier, enabled: Boo
         Column(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(8.dp),
+                .padding(top = 8.dp, bottom = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(imageVector = icon, contentDescription = null)
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(top = 4.dp),
-                textAlign = TextAlign.Center
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }

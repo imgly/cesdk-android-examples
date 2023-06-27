@@ -33,15 +33,12 @@ import ly.img.cesdk.dock.LibraryBottomSheetContent
 import ly.img.cesdk.dock.OptionType
 import ly.img.cesdk.dock.OptionsBottomSheetContent
 import ly.img.cesdk.dock.ReplaceBottomSheetContent
-import ly.img.cesdk.dock.options.crop.CropBottomSheetContent
-import ly.img.cesdk.dock.options.crop.createCropUiState
 import ly.img.cesdk.dock.options.fillstroke.createFillStrokeUiState
 import ly.img.cesdk.dock.options.format.createFormatUiState
 import ly.img.cesdk.dock.options.layer.createLayerUiState
 import ly.img.cesdk.dock.options.shapeoptions.createShapeOptionsUiState
 import ly.img.cesdk.engine.Block
 import ly.img.cesdk.engine.BlockType
-import ly.img.cesdk.engine.CROP_EDIT_MODE
 import ly.img.cesdk.engine.TEXT_EDIT_MODE
 import ly.img.cesdk.engine.TRANSFORM_EDIT_MODE
 import ly.img.cesdk.engine.addOutline
@@ -49,7 +46,6 @@ import ly.img.cesdk.engine.createBlock
 import ly.img.cesdk.engine.deselectAllBlocks
 import ly.img.cesdk.engine.getPage
 import ly.img.cesdk.engine.isPlaceholder
-import ly.img.cesdk.engine.resetHistory
 import ly.img.cesdk.engine.showOutline
 import ly.img.cesdk.engine.showPage
 import ly.img.cesdk.engine.zoomToPage
@@ -66,8 +62,6 @@ abstract class EditorUiViewModel : ViewModel() {
     private var firstLoad = true
     private var defaultInsets = Rect.Zero
     private var canvasHeight = 0f
-
-    private var isStraighteningOrRotating = false
 
     private val _isPreviewMode = MutableStateFlow(false)
     private val _isExporting = MutableStateFlow(false)
@@ -117,17 +111,12 @@ abstract class EditorUiViewModel : ViewModel() {
 
     open fun onEvent(event: Event) {
         when (event) {
-            is BlockEvent -> {
-                if (bottomSheetContent.value is CropBottomSheetContent && event != BlockEvent.OnResetCrop) {
-                    isStraighteningOrRotating = true
-                }
-                handleBlockEvent(
-                    engine,
-                    getBlockForEvents(),
-                    checkNotNull(assetsRepo.fontFamilies.value).getOrThrow(),
-                    event
-                )
-            }
+            is BlockEvent -> handleBlockEvent(
+                engine,
+                checkNotNull(selectedBlock.value).designBlock,
+                checkNotNull(assetsRepo.fontFamilies.value).getOrThrow(),
+                event
+            )
 
             Event.OnBackPress -> onBackPress()
             Event.OnBack -> onBack()
@@ -149,8 +138,6 @@ abstract class EditorUiViewModel : ViewModel() {
             is Event.OnKeyboardHeightChange -> onKeyboardHeightChange(event.heightInDp)
         }
     }
-
-    protected open fun getBlockForEvents() = checkNotNull(selectedBlock.value).designBlock
 
     protected open fun onCanvasMove(move: Boolean) {
         setCanvasActionMenuState(show = !move)
@@ -184,14 +171,6 @@ abstract class EditorUiViewModel : ViewModel() {
                     createFormatUiState(designBlock, engine, checkNotNull(assetsRepo.fontFamilies.value).getOrThrow())
                 )
 
-                is CropBottomSheetContent -> {
-                    val useOldScaleRatio = isStraighteningOrRotating
-                    isStraighteningOrRotating = false
-                    CropBottomSheetContent(
-                        createCropUiState(designBlock, engine, if (useOldScaleRatio) it.uiState.cropScaleRatio else null)
-                    )
-                }
-
                 else -> {
                     it
                 }
@@ -218,7 +197,6 @@ abstract class EditorUiViewModel : ViewModel() {
 
     private fun onSheetDismiss() {
         setOptionType(null)
-        if (engine.editor.getEditMode() == CROP_EDIT_MODE) engine.editor.setEditMode(TRANSFORM_EDIT_MODE)
     }
 
     private fun onZoomFinish() {
@@ -239,7 +217,7 @@ abstract class EditorUiViewModel : ViewModel() {
                 engine.showOutline(false)
                 engine.showPage(pageIndex.value)
                 enableEditMode().join()
-                engine.resetHistory()
+                engine.editor.addUndoStep()
             } else {
                 // we came here after a configuration change
                 if (_isPreviewMode.value) {
@@ -353,11 +331,6 @@ abstract class EditorUiViewModel : ViewModel() {
                     engine.block.exitGroup(designBlock)
                     null
                 }
-
-                OptionType.Crop -> {
-                    engine.editor.setEditMode(CROP_EDIT_MODE)
-                    null
-                }
             }
         }
     }
@@ -407,16 +380,10 @@ abstract class EditorUiViewModel : ViewModel() {
     private fun observeEditorStateChange() {
         viewModelScope.launch {
             engine.editor.onStateChanged().map { engine.editor.getEditMode() }.distinctUntilChanged().collect { editMode ->
-                when (editMode) {
-                    TEXT_EDIT_MODE -> setBottomSheetContent { null }
-                    CROP_EDIT_MODE -> setBottomSheetContent {
-                        CropBottomSheetContent(createCropUiState(engine.block.findAllSelected().single(), engine))
-                    }
-
-                    else -> {
-                        setBottomSheetContent { null }
-                        zoom()
-                    }
+                if (editMode == TEXT_EDIT_MODE) {
+                    setBottomSheetContent { null }
+                } else {
+                    zoom()
                 }
                 isKeyboardShowing.update { editMode == TEXT_EDIT_MODE }
             }

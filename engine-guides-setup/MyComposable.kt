@@ -20,7 +20,7 @@ fun MyComposable() {
 	// highlight-work
 	LaunchedEffect(Unit) {
 		engine.scene.get() ?: run {
-			val sceneUri = Uri.parse("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
+			val sceneUri = Uri.parse("https://cdn.img.ly/packages/imgly/cesdk-js/latest/assets/templates/cesdk_postcard_1.scene")
 			engine.scene.load(sceneUri)
 		}
 	}
