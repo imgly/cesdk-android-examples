@@ -54,8 +54,6 @@ import ly.img.cesdk.dock.LayerBottomSheetContent
 import ly.img.cesdk.dock.LibraryBottomSheetContent
 import ly.img.cesdk.dock.OptionsBottomSheetContent
 import ly.img.cesdk.dock.ReplaceBottomSheetContent
-import ly.img.cesdk.dock.options.crop.CropBottomSheetContent
-import ly.img.cesdk.dock.options.crop.CropSheet
 import ly.img.cesdk.dock.options.fillstroke.FillStrokeOptionsSheet
 import ly.img.cesdk.dock.options.format.FormatOptionsSheet
 import ly.img.cesdk.dock.options.layer.LayerOptionsSheet
@@ -193,7 +191,6 @@ fun EditorUi(
                         is FillStrokeBottomSheetContent -> FillStrokeOptionsSheet(content.uiState, viewModel::onEvent)
                         is OptionsBottomSheetContent -> ShapeOptionsSheet(content.uiState, viewModel::onEvent)
                         is FormatBottomSheetContent -> FormatOptionsSheet(content.uiState, viewModel::onEvent)
-                        is CropBottomSheetContent -> CropSheet(content.uiState, viewModel::onEvent)
                         else -> bottomSheetLayout(content)
                     }
                 }

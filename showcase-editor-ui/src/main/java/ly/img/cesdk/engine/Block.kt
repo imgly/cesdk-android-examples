@@ -2,7 +2,6 @@ package ly.img.cesdk.engine
 
 import androidx.annotation.StringRes
 import ly.img.cesdk.core.components.VectorIcon
-import ly.img.cesdk.core.iconpack.Croprotate
 import ly.img.cesdk.core.iconpack.Groupenter
 import ly.img.cesdk.core.iconpack.IconPack
 import ly.img.cesdk.core.iconpack.Keyboard
@@ -42,14 +41,6 @@ internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
         engine.block.isAllowedByScope(designBlock, "content/replace")
     ) {
         optionItems += OptionItemData(OptionType.Replace, R.string.cesdk_replace, VectorIcon(IconPack.Replace))
-    }
-
-    if (type == DesignBlockType.IMAGE.key &&
-        engine.block.hasCrop(designBlock) &&
-        (engine.block.isAllowedByScope(designBlock, "content/replace") ||
-            engine.block.isAllowedByScope(designBlock, "design/style"))
-    ) {
-        optionItems += OptionItemData(OptionType.Crop, R.string.cesdk_crop, VectorIcon(IconPack.Croprotate))
     }
 
     if (type == DesignBlockType.TEXT.key) {

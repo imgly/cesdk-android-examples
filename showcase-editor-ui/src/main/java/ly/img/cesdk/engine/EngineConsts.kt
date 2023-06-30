@@ -9,7 +9,6 @@ const val SHAPES_PREFIX = "//ly.img.ubq/shapes/"
 const val OUTLINE_BLOCK_NAME = "always-on-top-page-outline"
 
 const val TEXT_EDIT_MODE = "Text"
-const val CROP_EDIT_MODE = "Crop"
 const val TRANSFORM_EDIT_MODE = "Transform"
 
 const val ROLE = "role"

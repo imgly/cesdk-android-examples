@@ -13,6 +13,5 @@ enum class OptionType {
     ShapeOptions,
     FillStroke,
     EnterGroup,
-    SelectGroup,
-    Crop
+    SelectGroup
 }

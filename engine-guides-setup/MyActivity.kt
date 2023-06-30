@@ -30,7 +30,7 @@ class MyActivity : AppCompatActivity() {
 		CoroutineScope(Dispatchers.Main).launch {
 			// Check whether scene already exists before loading it again as it might have been restored in engine.start(this)
 			engine.scene.get() ?: run {
-				val sceneUri = Uri.parse("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
+				val sceneUri = Uri.parse("https://cdn.img.ly/packages/imgly/cesdk-js/latest/assets/templates/cesdk_postcard_1.scene")
 				engine.scene.load(sceneUri)
 			}
 		}
