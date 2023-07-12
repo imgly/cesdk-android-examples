@@ -31,6 +31,7 @@ fun spotColors() = CoroutineScope(Dispatchers.Main).launch {
 	engine.editor.setSpotColor(name = "Crayola-Pink-Flamingo", Color.fromRGBA(r = 0.988F, g = 0.455F, b = 0.992F, a = 1F))
 	engine.editor.setSpotColor(name = "Pantone-ColorOfTheYear-2022", Color.fromRGBA(r = 0.4F, g = 0.404F, b = 0.671F, a = 1F))
 	engine.editor.setSpotColor(name = "Yellow", Color.fromRGBA(r = 1F, g = 1F, b = 0F, a = 1F))
+	engine.editor.getSpotColor(name = "Yellow") // (r: 1, g: 1, b: 0)
 	engine.editor.findAllSpotColors() // ["Crayola-Pink-Flamingo", "Pantone-ColorOfTheYear-2022", "Yellow"]
 	// highlight-create
 
