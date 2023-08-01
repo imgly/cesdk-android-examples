@@ -19,7 +19,7 @@ internal fun createFillStrokeUiState(block: Block, engine: Engine, colorPalette:
     val palette = colorPalette.take(6)
     return FillStrokeUiState(
         titleRes = getFillStrokeTitleRes(hasFill, hasStroke),
-        fillUiState = if (hasFill) createFillUiState(designBlock, engine, palette) else null,
+        fillUiState = if (hasFill) createFillUiState(block, engine, palette) else null,
         strokeUiState = if (hasStroke) createStrokeUiState(block, engine, palette) else null
     )
 }

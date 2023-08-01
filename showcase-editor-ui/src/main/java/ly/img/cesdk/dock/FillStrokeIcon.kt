@@ -7,8 +7,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import ly.img.cesdk.core.components.ColorButton
+import ly.img.cesdk.core.components.FillButton
 import ly.img.cesdk.core.components.tab_item.TabIcon
 import ly.img.cesdk.core.components.tab_item.TabIconComposable
+import ly.img.cesdk.engine.Fill
 
 object FillStrokeIconComposable : TabIconComposable<FillStrokeIcon>() {
 
@@ -16,7 +18,7 @@ object FillStrokeIconComposable : TabIconComposable<FillStrokeIcon>() {
     override fun IconContent(icon: FillStrokeIcon) {
         if (icon.hasFill && icon.hasStroke) {
             Box {
-                ColorButton(color = icon.fillColor, buttonSize = 24.dp, selectionStrokeWidth = 0.dp)
+                FillButton(fill = icon.fill, buttonSize = 24.dp, selectionStrokeWidth = 0.dp)
                 ColorButton(
                     color = icon.strokeColor,
                     buttonSize = 24.dp,
@@ -26,7 +28,7 @@ object FillStrokeIconComposable : TabIconComposable<FillStrokeIcon>() {
                 )
             }
         } else if (icon.hasFill) {
-            ColorButton(color = icon.fillColor, buttonSize = 24.dp, selectionStrokeWidth = 0.dp)
+            FillButton(fill = icon.fill, buttonSize = 24.dp, selectionStrokeWidth = 0.dp)
         } else if (icon.hasStroke) {
             ColorButton(color = icon.strokeColor, buttonSize = 24.dp, selectionStrokeWidth = 0.dp, punchHole = true)
         } else {
@@ -37,7 +39,7 @@ object FillStrokeIconComposable : TabIconComposable<FillStrokeIcon>() {
 
 class FillStrokeIcon(
     val hasFill: Boolean,
-    val fillColor: Color?,
+    val fill: Fill?,
     val hasStroke: Boolean,
     val strokeColor: Color?
 ) : TabIcon

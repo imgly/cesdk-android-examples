@@ -17,11 +17,11 @@ fun cutouts() = CoroutineScope(Dispatchers.Main).launch {
 
 	// highlight-create-cutouts
 	val circle = engine.block.createCutoutFromPath("M 0,25 a 25,25 0 1,1 50,0 a 25,25 0 1,1 -50,0 Z");
-	engine.block.setCutoutTypeOffset(circle, offset = 3F);
-	engine.block.setCutoutType(circle, type = CutoutType.DASHED);
+	engine.block.setFloat(circle, "cutout/offset", 3F);
+	engine.block.setEnum(circle, "cutout/type", CutoutType.DASHED);
 
 	val square = engine.block.createCutoutFromPath("M 0,0 H 50 V 50 H 0 Z");
-	engine.block.setCutoutTypeOffset(square, offset = 6F);
+	engine.block.setFloat(square, "cutout/offset", 6F);
 	// highlight-create-cutouts
 
 	// highlight-cutout-union

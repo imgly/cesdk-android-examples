@@ -10,6 +10,8 @@ fun modifyingScenes() = CoroutineScope(Dispatchers.Main).launch {
 	// In engine only mode we have to create our own scene and page.
 	if (engine.scene.get() == null) {
 		val scene = engine.scene.create()
+		// highlight-scene-get-create
+		// highlight-page-get-create
 		val page = engine.block.create(DesignBlockType.PAGE)
 		engine.block.appendChild(parent = scene, child = page)
 	}

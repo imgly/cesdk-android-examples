@@ -21,6 +21,7 @@ fun ColorOptions(
     onColorSelected: (Color) -> Unit,
     openColorPicker: () -> Unit,
     allowDisableColor: Boolean = true,
+    punchHole: Boolean = false,
     colors: List<Color> = fillAndStrokeColors
 ) {
     Row(
@@ -31,13 +32,13 @@ fun ColorOptions(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         if (allowDisableColor) {
-            ColorButton(color = null, selected = !enabled, onClick = onNoColorSelected)
+            ColorButton(color = null, selected = !enabled, onClick = onNoColorSelected, punchHole = punchHole)
         }
         colors.forEach { color ->
-            ColorButton(color = color, selected = color == selectedColor && enabled, onClick = {
+            ColorButton(color = color, selected = color == selectedColor && enabled, punchHole = punchHole, onClick = {
                 onColorSelected(color)
             })
         }
-        ColorPickerButton(color = selectedColor, onClick = openColorPicker)
+        ColorPickerButton(color = selectedColor, onClick = openColorPicker, punchHole = punchHole)
     }
 }

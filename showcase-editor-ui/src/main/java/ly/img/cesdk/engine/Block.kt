@@ -31,7 +31,8 @@ enum class BlockType(@StringRes val titleRes: Int) {
     Sticker(R.string.cesdk_sticker),
     Text(R.string.cesdk_text),
     Shape(R.string.cesdk_shape),
-    Group(R.string.cesdk_group)
+    Group(R.string.cesdk_group),
+    Page(R.string.cesdk_page)
 }
 
 internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
@@ -66,19 +67,19 @@ internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
     }
 
     if ((type == DesignBlockType.TEXT.key || type == DesignBlockType.IMAGE.key || type.startsWith(SHAPES_PREFIX) ||
-            type == DesignBlockType.VECTOR_PATH.key) && engine.isStylingAllowed(designBlock)
+            type == DesignBlockType.VECTOR_PATH.key || type == DesignBlockType.PAGE.key) && engine.isStylingAllowed(designBlock)
     ) {
         val hasStroke = engine.block.hasStroke(designBlock)
         val hasFill = engine.block.hasFill(designBlock)
         if (hasFill || hasStroke) {
-            val fillColor = engine.getFillColor(designBlock)?.takeIf { engine.block.isFillEnabled(designBlock) }
+            val fill = engine.block.getFillInfo(designBlock)?.takeIf { engine.block.isFillEnabled(designBlock) }
             val strokeColor = engine.getStrokeColor(designBlock)?.takeIf { engine.block.isStrokeEnabled(designBlock) }
             optionItems += OptionItemData(
                 OptionType.FillStroke,
                 getFillStrokeTitleRes(hasFill, hasStroke),
                 FillStrokeIcon(
                     hasFill = hasFill,
-                    fillColor = fillColor,
+                    fill = fill,
                     hasStroke = hasStroke,
                     strokeColor = strokeColor
                 )
@@ -86,8 +87,8 @@ internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
         }
     }
 
-    if (engine.isStylingAllowed(designBlock) || engine.isMoveAllowed(designBlock) ||
-        engine.isDeleteAllowed(designBlock) || engine.isDuplicateAllowed(designBlock)
+    if (type != DesignBlockType.PAGE.key && (engine.isStylingAllowed(designBlock) || engine.isMoveAllowed(designBlock) ||
+        engine.isDeleteAllowed(designBlock) || engine.isDuplicateAllowed(designBlock))
     ) {
         optionItems += OptionItemData(OptionType.Layer, R.string.cesdk_layer, VectorIcon(IconPack.Layersoutline))
     }
@@ -112,6 +113,7 @@ internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
             type == DesignBlockType.TEXT.key -> BlockType.Text
             type.startsWith(SHAPES_PREFIX) || type == DesignBlockType.VECTOR_PATH.key -> BlockType.Shape
             type == DesignBlockType.GROUP.key -> BlockType.Group
+            type == DesignBlockType.PAGE.key -> BlockType.Page
             else -> throw UnsupportedOperationException()
         },
         options = optionItems

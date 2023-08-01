@@ -40,7 +40,8 @@ fun StrokeOptions(
                 }
             },
             openColorPicker = openColorPicker,
-            colors = uiState.colorPalette
+            colors = uiState.colorPalette,
+            punchHole = true
         )
 
         if (uiState.isStrokeEnabled) {
@@ -81,6 +82,7 @@ fun StrokeOptions(
                 title = stringResource(R.string.cesdk_join),
                 propertyTextRes = uiState.strokeJoinRes,
                 properties = strokeJoinPropertiesList,
+                enabled = uiState.isStrokeJointEnabled,
                 onPropertyPicked = { onEvent(BlockEvent.OnChangeStrokeJoin(it)) }
             )
         }

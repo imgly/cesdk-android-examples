@@ -24,6 +24,7 @@ import ly.img.cesdk.engine.deselectAllBlocks
 import ly.img.cesdk.engine.getScene
 import ly.img.cesdk.engine.overrideAndRestore
 import ly.img.cesdk.engine.resetHistory
+import ly.img.cesdk.engine.setFillType
 import ly.img.cesdk.engine.showAllPages
 import ly.img.cesdk.engine.showPage
 import ly.img.cesdk.engine.toComposeColor
@@ -99,7 +100,10 @@ class PostcardUiViewModel : EditorUiViewModel() {
             designBlockSet.forEach {
                 engine.overrideAndRestore(it, "design/style") {
                     when (colorType) {
-                        ColorType.Fill -> engine.block.setFillSolidColor(it, engineColor)
+                        ColorType.Fill -> {
+                            engine.block.setFillType(it, "color")
+                            engine.block.setFillSolidColor(it, engineColor)
+                        }
                         ColorType.Stroke -> engine.block.setStrokeColor(it, engineColor)
                     }
                 }

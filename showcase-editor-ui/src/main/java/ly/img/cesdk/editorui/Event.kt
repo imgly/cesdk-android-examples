@@ -7,6 +7,8 @@ import ly.img.cesdk.dock.options.format.HorizontalAlignment
 import ly.img.cesdk.dock.options.format.VerticalAlignment
 import ly.img.cesdk.library.data.font.FontData
 import ly.img.engine.BlendMode
+import ly.img.engine.FillType
+import ly.img.engine.GradientType
 
 /**
  * To communicate events from the UI to the ViewModel.
@@ -48,7 +50,13 @@ interface BlockEvent : Event {
 
     // region Fill Events
     object OnDisableFill : BlockEvent
+    object OnEnableFill : BlockEvent
     data class OnChangeFillColor(val color: Color) : BlockEvent
+    data class OnChangeGradientFillColors(val index: Int, val color: Color) : BlockEvent
+
+    data class OnChangeLinearGradientParams(val startX: Float, val startY : Float, val endX: Float, val endY: Float) : BlockEvent
+    data class OnChangeRadialGradientParams(val centerX: Float, val centerY : Float, val radius: Float) : BlockEvent
+    data class OnChangeConicalGradientParams(val centerX: Float, val centerY : Float) : BlockEvent
     // endregion
 
     // region Stroke Events
@@ -56,6 +64,7 @@ interface BlockEvent : Event {
     data class OnChangeStrokeColor(val color: Color) : BlockEvent
     data class OnChangeStrokeWidth(val width: Float) : BlockEvent
     data class OnChangeStrokeStyle(val style: String) : BlockEvent
+    data class OnChangeFillStyle(val style: String) : BlockEvent
     data class OnChangeStrokePosition(val position: String) : BlockEvent
     data class OnChangeStrokeJoin(val join: String) : BlockEvent
     // endregion

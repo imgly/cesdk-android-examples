@@ -43,6 +43,7 @@
     <string name="cesdk_sticker">Sticker</string>
     <string name="cesdk_image">Image</string>
     <string name="cesdk_group">Group</string>
+    <string name="cesdk_page">Page</string>
 
     <string name="cesdk_replace_sticker">Replace Sticker</string>
     <string name="cesdk_replace">Replace</string>
@@ -51,6 +52,12 @@
     <string name="cesdk_options">Options</string>
     <string name="cesdk_fill_and_stroke"><![CDATA[Fill & Stroke]]></string>
     <string name="cesdk_fill">Fill</string>
+
+    <string name="cesdk_fill_type_solid">Solid</string>
+    <string name="cesdk_fill_type_gradient_linear">Gradient</string>
+    <string name="cesdk_fill_type_gradient_radial">Radial</string>
+    <string name="cesdk_fill_type_gradient_conical">Conical</string>
+
     <string name="cesdk_stroke">Stroke</string>
     <string name="cesdk_layer">Layer</string>
     <string name="cesdk_enter_group">Enter Group</string>
@@ -96,6 +103,11 @@
     <string name="cesdk_stroke_center">Center</string>
     <string name="cesdk_stroke_outer">Outside</string>
 
+    <string name="cesdk_fill_none">None</string>
+    <string name="cesdk_fill_solid">Solid</string>
+    <string name="cesdk_fill_image">Image</string>
+    <string name="cesdk_fill_video">Video</string>
+
     <string name="cesdk_stroke_miter">Miter</string>
     <string name="cesdk_stroke_bevel">Bevel</string>
     <string name="cesdk_stroke_round">Round</string>
@@ -123,6 +135,7 @@
     <string name="cesdk_points">Points</string>
     <string name="cesdk_inner_diameter">Inner Diameter</string>
 
+    <string name="cesdk_type">Type</string>
     <string name="cesdk_style">Style</string>
     <string name="cesdk_position">Position</string>
     <string name="cesdk_join">Join</string>

@@ -11,6 +11,7 @@ import ly.img.engine.Engine
 import ly.img.engine.PositionMode
 import ly.img.engine.SizeMode
 import ly.img.engine.StrokeStyle
+
 import kotlin.random.Random
 
 fun Engine.setClearColor(color: Color) {
