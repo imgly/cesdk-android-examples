@@ -1,7 +1,12 @@
 package ly.img.cesdk.util
 
+import ly.img.cesdk.engine.GradientFill
+import ly.img.cesdk.engine.SolidFill
+import ly.img.cesdk.engine.getFillInfo
 import ly.img.cesdk.engine.getPage
 import ly.img.cesdk.engine.overrideAndRestore
+import ly.img.cesdk.engine.setFillType
+import ly.img.cesdk.engine.toEngineColor
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
 import ly.img.engine.RGBAColor
@@ -53,7 +58,12 @@ private fun Engine.getSelectionColors(
 
     fun addColor(colorType: ColorType, includeDisabled: Boolean = false): RGBAColor? {
         val color = when (colorType) {
-            ColorType.Fill -> if (block.isFillEnabled(designBlock) || includeDisabled) block.getFillSolidColor(designBlock) else null
+            ColorType.Fill -> if ((block.isFillEnabled(designBlock) || includeDisabled)) {
+                when (val fillInfo = block.getFillInfo(designBlock)) {
+                    is SolidFill, is GradientFill -> fillInfo.fillColor.toEngineColor()
+                    else -> null
+                }
+            } else null
             ColorType.Stroke -> if (block.isStrokeEnabled(designBlock) || includeDisabled) block.getStrokeColor(designBlock) else null
         } ?: return null
 
@@ -69,13 +79,16 @@ private fun Engine.getSelectionColors(
 
         fun setAndAddColor(colorType: ColorType, color: RGBAColor) {
             val propertyColor = when (colorType) {
-                ColorType.Fill -> block.getFillSolidColor(designBlock)
+                ColorType.Fill -> block.getFillInfo(designBlock)?.fillColor?.toEngineColor()
                 ColorType.Stroke -> block.getStrokeColor(designBlock)
             }
             if (setDisabled && propertyColor != color) {
                 overrideAndRestore(designBlock, "design/style") {
                     when (colorType) {
-                        ColorType.Fill -> block.setFillSolidColor(designBlock, color)
+                        ColorType.Fill -> {
+                            block.setFillType(designBlock, "color")
+                            block.setFillSolidColor(designBlock, color)
+                        }
                         ColorType.Stroke -> block.setStrokeColor(designBlock, color)
                     }
                 }

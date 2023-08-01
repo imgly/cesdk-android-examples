@@ -9,17 +9,28 @@ import ly.img.cesdk.dock.options.format.VerticalAlignment
 import ly.img.cesdk.engine.FONT_BASE_PATH
 import ly.img.cesdk.engine.bringForward
 import ly.img.cesdk.engine.bringToFront
+import ly.img.cesdk.engine.changeLightnessBy
 import ly.img.cesdk.engine.delete
 import ly.img.cesdk.engine.duplicate
+import ly.img.cesdk.engine.getFillType
+import ly.img.cesdk.engine.getGradientFillType
 import ly.img.cesdk.engine.overrideAndRestore
 import ly.img.cesdk.engine.sendBackward
 import ly.img.cesdk.engine.sendToBack
+import ly.img.cesdk.engine.setConicalGradientFill
+import ly.img.cesdk.engine.setFillType
+import ly.img.cesdk.engine.setLinearGradientFill
+import ly.img.cesdk.engine.setRadialGradientFill
 import ly.img.cesdk.engine.toEngineColor
 import ly.img.cesdk.library.data.font.FontData
 import ly.img.cesdk.library.data.font.FontFamilyData
 import ly.img.engine.BlendMode
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
+import ly.img.engine.FillType
+import ly.img.engine.GradientColorStop
+import ly.img.engine.GradientType
+import ly.img.engine.RGBAColor
 import ly.img.engine.SizeMode
 import ly.img.engine.StrokeCornerGeometry
 import ly.img.engine.StrokePosition
@@ -38,13 +49,19 @@ fun handleBlockEvent(engine: Engine, block: DesignBlock, fontFamilyMap: Map<Stri
         is BlockEvent.OnChangeBlendMode -> onChangeBlendMode(engine, block, event.blendMode)
         is BlockEvent.OnChangeOpacity -> engine.block.setOpacity(block, event.opacity)
         is BlockEvent.OnChangeFillColor -> onChangeFillColor(engine, block, event.color)
+        is BlockEvent.OnChangeGradientFillColors -> onChangeGradientFillColor(engine, block, event.index, event.color)
+        is BlockEvent.OnChangeLinearGradientParams -> onChangeLinearGradientParams(engine, block, event.startX, event.startY, event.endX, event.endY)
+        is BlockEvent.OnChangeRadialGradientParams -> onChangeRadialGradientParams(engine, block, event.centerX, event.centerY, event.radius)
+        is BlockEvent.OnChangeConicalGradientParams -> onChangeConicalGradientParams(engine, block, event.centerX, event.centerY)
         BlockEvent.OnDisableFill -> onDisableFill(engine, block)
+        BlockEvent.OnEnableFill -> onEnableFill(engine, block)
         is BlockEvent.OnChangeStrokeColor -> onChangeStrokeColor(engine, block, event.color)
         BlockEvent.OnDisableStroke -> onDisableStroke(engine, block)
         is BlockEvent.OnChangeStrokeJoin -> onChangeStrokeJoin(engine, block, event.join)
         is BlockEvent.OnChangeStrokePosition -> onChangeStrokePosition(engine, block, event.position)
         is BlockEvent.OnChangeStrokeStyle -> onChangeStrokeStyle(engine, block, event.style)
         is BlockEvent.OnChangeStrokeWidth -> engine.block.setStrokeWidth(block, exp(event.width.toDouble()).toFloat())
+        is BlockEvent.OnChangeFillStyle -> onChangeFillStyle(engine, block, event.style)
         is BlockEvent.OnChangeStarInnerDiameter -> engine.block.setFloat(block, "shapes/star/innerDiameter", event.diameter)
         is BlockEvent.OnChangeStarPoints -> engine.block.setInt(block, "shapes/star/points", event.points.toInt())
         is BlockEvent.OnChangePolygonSides -> engine.block.setInt(block, "shapes/polygon/sides", event.sides.toInt())
@@ -179,9 +196,121 @@ private fun onDisableFill(engine: Engine, block: DesignBlock) {
     engine.editor.addUndoStep()
 }
 
+private fun onEnableFill(engine: Engine, block: DesignBlock) {
+    val isEnabled = engine.block.isFillEnabled(block)
+    if (isEnabled) return
+    engine.block.setFillEnabled(block, true)
+    engine.editor.addUndoStep()
+}
+
+private fun setGradientColorAtIndex(engine: Engine, fillBlock: DesignBlock, index: Int, color: Color) {
+    val colors = engine.block.getGradientColorStops(fillBlock, "fill/gradient/colors")
+    engine.block.setGradientColorStops(fillBlock, "fill/gradient/colors",
+        colors.mapIndexed { colorIndex, gradientColorStop ->
+            if (colorIndex == index) {
+                GradientColorStop(gradientColorStop.stop, color.toEngineColor())
+            } else gradientColorStop
+        }
+    )
+}
 private fun onChangeFillColor(engine: Engine, block: DesignBlock, color: Color) {
     engine.block.setFillEnabled(block, true)
+    engine.block.setFillType(block, "color")
     engine.block.setFillSolidColor(block, color.toEngineColor())
+}
+
+private fun onChangeGradientFillColor(engine: Engine, block: DesignBlock, index:Int, color: Color) {
+    engine.block.setFillEnabled(block, true)
+    val fillType = engine.block.getFillType(block)
+    val fillBlock = engine.block.getFill(block)
+    if (fillType == FillType.GRADIENT) {
+        setGradientColorAtIndex(engine, fillBlock, index, color)
+    } else throw UnsupportedOperationException("Fill type is not a gradient fill")
+}
+
+fun onChangeLinearGradientParams(engine: Engine, block: DesignBlock, startX: Float, startY: Float, endX: Float, endY: Float) {
+
+    engine.block.setLinearGradientFill(
+        block,
+        startX, startY, endX, endY
+    )
+}
+
+fun onChangeRadialGradientParams(engine: Engine, block: DesignBlock, centerX: Float, centerY: Float, radius: Float) {
+    engine.block.setRadialGradientFill(
+        block,
+        centerX, centerY, radius
+    )
+}
+
+fun onChangeConicalGradientParams(engine: Engine, block: DesignBlock, centerX: Float, centerY: Float) {
+    engine.block.setConicalGradientFill(
+        block,
+        centerX, centerY
+    )
+}
+
+private fun onChangeFillStyle(engine: Engine, block: DesignBlock, style: String) {
+    engine.block.setFillEnabled(block, true)
+
+    val gradientStyle = GradientType.values().find { it.name == style }
+    val fillStyleEnum = if (gradientStyle != null) FillType.GRADIENT else FillType.valueOf(style)
+
+    val currentFillType = engine.block.getFillType(block)
+    if (currentFillType == fillStyleEnum && engine.block.getGradientFillType(block) == gradientStyle) return
+
+    val colorStops = when (currentFillType) {
+        FillType.GRADIENT -> {
+            engine.block.getGradientColorStops(engine.block.getFill(block), "fill/gradient/colors")
+        }
+        FillType.SOLID -> {
+            val originalColor = engine.block.getFillSolidColor(block)
+            listOf(
+                GradientColorStop(0f, originalColor),
+                GradientColorStop(1f, originalColor.changeLightnessBy(0.4f))
+            )
+        }
+        else -> {
+            listOf(
+                GradientColorStop(0f, Color.White.toEngineColor()),
+                GradientColorStop(1f, Color.Black.toEngineColor())
+            )
+        }
+    }
+
+    when (fillStyleEnum) {
+        FillType.SOLID -> {
+            engine.block.setFillType(block, "color")
+            engine.block.setFillSolidColor(block, colorStops.firstOrNull()?.color as? RGBAColor ?: Color.Black.toEngineColor())
+        }
+
+        FillType.GRADIENT -> {
+            when (gradientStyle) {
+                GradientType.LINEAR -> engine.block.setLinearGradientFill(
+                    block,
+                    0.5f, 0f,
+                    0.5f, 1.0f,
+                    colorStops = colorStops
+                )
+                GradientType.RADIAL -> engine.block.setRadialGradientFill(
+                    block,
+                    0.5f, 0.5f,
+                    0.5f,
+                    colorStops = colorStops
+                )
+
+                GradientType.CONICAL -> engine.block.setConicalGradientFill(
+                    block,
+                    0.5f, 0.5f,
+                    colorStops = colorStops
+                )
+                else -> throw UnsupportedOperationException("Gradient type not supported")
+            }
+        }
+        else -> throw UnsupportedOperationException("Fill type not supported")
+    }
+
+    engine.editor.addUndoStep()
 }
 
 private fun onChangeBlendMode(engine: Engine, designBlock: DesignBlock, blendMode: BlendMode) {

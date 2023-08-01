@@ -259,6 +259,7 @@ abstract class EditorUiViewModel : ViewModel() {
             _isSceneLoaded.update { true }
             onSceneLoad()
         }
+
         if (isFirstLoad) {
             observeSelectedBlock()
             observeHistory()
