@@ -1,5 +1,5 @@
 [libraries]
-cesdk-engine = "ly.img:engine:1.13.0"
+cesdk-engine = "ly.img:engine:1.11.0"
 
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
 
