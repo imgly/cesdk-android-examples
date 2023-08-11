@@ -1,10 +1,10 @@
 package ly.img.cesdk.dock
 
+import ly.img.cesdk.core.engine.BlockType
 import ly.img.cesdk.dock.options.fillstroke.FillStrokeUiState
 import ly.img.cesdk.dock.options.format.FormatUiState
 import ly.img.cesdk.dock.options.layer.LayerUiState
 import ly.img.cesdk.dock.options.shapeoptions.ShapeOptionsUiState
-import ly.img.cesdk.engine.BlockType
 import ly.img.engine.DesignBlock
 
 interface BottomSheetContent {

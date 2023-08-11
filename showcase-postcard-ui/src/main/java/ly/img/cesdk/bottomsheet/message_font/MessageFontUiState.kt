@@ -1,6 +1,6 @@
 package ly.img.cesdk.bottomsheet.message_font
 
-import ly.img.cesdk.library.data.font.FontFamilyData
+import ly.img.cesdk.core.data.font.FontFamilyData
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
 

@@ -3,9 +3,9 @@ package ly.img.cesdk
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import ly.img.cesdk.core.engine.deselectAllBlocks
+import ly.img.cesdk.core.engine.getPage
 import ly.img.cesdk.editorui.EditorUiViewModel
-import ly.img.cesdk.engine.deselectAllBlocks
-import ly.img.cesdk.engine.getPage
 import ly.img.cesdk.engine.overrideAndRestore
 import ly.img.cesdk.engine.overrideAndRestoreAsync
 import ly.img.cesdk.engine.showOutline

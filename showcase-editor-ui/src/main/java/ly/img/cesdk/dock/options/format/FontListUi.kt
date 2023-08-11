@@ -7,11 +7,11 @@ import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import ly.img.cesdk.core.UiDefaults
-import ly.img.cesdk.core.components.CheckedTextRow
-import ly.img.cesdk.core.inspectorSheetPadding
-import ly.img.cesdk.library.data.font.FontData
-import ly.img.cesdk.library.data.font.FontFamilyData
+import ly.img.cesdk.components.CheckedTextRow
+import ly.img.cesdk.core.data.font.FontData
+import ly.img.cesdk.core.data.font.FontFamilyData
+import ly.img.cesdk.core.ui.UiDefaults
+import ly.img.cesdk.core.ui.inspectorSheetPadding
 
 @Composable
 fun FontListUi(

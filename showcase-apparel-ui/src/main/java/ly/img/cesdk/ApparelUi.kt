@@ -14,7 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ly.img.cesdk.core.components.color_picker.LibraryButton
+import ly.img.cesdk.components.color_picker.LibraryButton
+import ly.img.cesdk.core.Environment
 import ly.img.cesdk.core.iconpack.Arrowback
 import ly.img.cesdk.core.iconpack.IconPack
 import ly.img.cesdk.editorui.EditorUi

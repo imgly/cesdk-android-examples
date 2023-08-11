@@ -5,7 +5,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 fun saveSceneToBlob() = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine(id = "ly.img.engine.example")
+    val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start()
     engine.bindOffscreen(width = 100, height = 100)
 

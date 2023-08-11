@@ -2,8 +2,8 @@ package ly.img.cesdk
 
 import androidx.compose.ui.graphics.Color
 import ly.img.cesdk.bottomsheet.message_size.MessageSize
+import ly.img.cesdk.core.data.font.FontData
 import ly.img.cesdk.editorui.Event
-import ly.img.cesdk.library.data.font.FontData
 import ly.img.cesdk.rootbar.RootBarItemType
 
 sealed interface PostcardEvent : Event {

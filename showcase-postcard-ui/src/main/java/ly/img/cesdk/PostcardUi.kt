@@ -31,7 +31,8 @@ import ly.img.cesdk.bottomsheet.message_size.MessageSizeBottomSheetContent
 import ly.img.cesdk.bottomsheet.message_size.MessageSizeSheet
 import ly.img.cesdk.bottomsheet.template_colors.TemplateColorsBottomSheetContent
 import ly.img.cesdk.bottomsheet.template_colors.TemplateColorsSheet
-import ly.img.cesdk.core.components.color_picker.LibraryButton
+import ly.img.cesdk.components.color_picker.LibraryButton
+import ly.img.cesdk.core.Environment
 import ly.img.cesdk.core.iconpack.Arrowback
 import ly.img.cesdk.core.iconpack.IconPack
 import ly.img.cesdk.core.theme.surface1
