@@ -12,11 +12,10 @@ android {
         minSdk 23
         targetSdk 33
         versionCode 1
-        versionName "1.14.0"
+        versionName "1.10.0"
         ndk {
             abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
         }
-        resourceConfigurations += ['en']
     }
 
     sourceSets {
@@ -33,15 +32,14 @@ android {
                 "../engine-guides-save-scene-to-string",
                 "../engine-guides-spot-colors",
                 "../engine-guides-text-with-emojis",
-                "../engine-guides-custom-asset-source",
-                "../engine-guides-exporting-blocks",
-                "../engine-guides-modifying-scenes",
-                "../engine-guides-scopes",
-                "../engine-guides-store-metadata",
-                "../engine-guides-uri-resolver",
-                "../engine-guides-using-effects",
-                "../engine-guides-using-fills",
-                "../engine-guides-text-properties"
+                "../guides-engine-custom-asset-source",
+                "../guides-engine-exporting-blocks",
+                "../guides-engine-modifying-scenes",
+                "../guides-scopes",
+                "../guides-store-metadata",
+                "../guides-uri-resolver",
+                "../guides-using-effects",
+                "../guides-using-fills",
             ]
         }
     }
@@ -57,17 +55,10 @@ android {
 
     buildTypes {
         release {
-            def shrinkAndMinifyEnabled = System.getenv("CESDK_SHRINK_AND_MINIFY_ENABLED") == null
-                    || System.getenv("CESDK_SHRINK_AND_MINIFY_ENABLED") == "true"
             signingConfig signingConfigs.release
-            minifyEnabled shrinkAndMinifyEnabled
-            shrinkResources shrinkAndMinifyEnabled
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-
-    buildTypes.each {
-        it.buildConfigField "String", "BUILD_NAME", "\"${System.getenv("CESDK_AND_BUILD_NAME") ?: ""}\""
     }
 
     compileOptions {
@@ -90,7 +81,6 @@ android {
 
 dependencies {
     implementation project(":showcase-apparel-ui")
-    implementation project(":showcase-postcard-ui")
     implementation findProject(":ubq-android-engine") ?: libs.cesdk.engine
 
     implementation platform(libs.compose.bom)

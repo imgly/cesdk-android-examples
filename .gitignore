@@ -1,7 +1,5 @@
 *.iml
 local.properties
 /.gradle
-!.idea
-.idea/*
-!.idea/codeStyles
+/.idea
 build
