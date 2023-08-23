@@ -1,10 +1,10 @@
 package ly.img.cesdk.editorui
 
-import ly.img.cesdk.Secrets
-import ly.img.cesdk.engine.BASE_PATH
+import ly.img.cesdk.core.Secrets
+import ly.img.cesdk.core.engine.BASE_PATH
+import ly.img.cesdk.core.engine.ROLE
+import ly.img.cesdk.core.engine.ROLE_ADOPTER
 import ly.img.cesdk.engine.DOUBLE_CLICK_SELECTION_MODE_DIRECT
-import ly.img.cesdk.engine.ROLE
-import ly.img.cesdk.engine.ROLE_ADOPTER
 import ly.img.cesdk.engine.TOUCH_ACTION_NONE
 import ly.img.cesdk.engine.TOUCH_ACTION_ZOOM
 import ly.img.engine.Engine

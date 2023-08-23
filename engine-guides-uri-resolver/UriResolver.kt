@@ -2,7 +2,7 @@ import android.net.Uri
 import ly.img.engine.Engine
 
 fun uriResolver() {
-	val engine = Engine(id = "ly.img.engine.example")
+	val engine = Engine.getInstance(id = "ly.img.engine.example")
 	engine.start()
 	engine.bindOffscreen(width = 100, height = 100)
 

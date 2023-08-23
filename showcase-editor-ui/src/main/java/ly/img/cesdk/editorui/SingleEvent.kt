@@ -3,7 +3,7 @@
 package ly.img.cesdk.editorui
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import ly.img.cesdk.core.components.bottomsheet.ModalBottomSheetValue
+import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetValue
 import java.io.File
 
 /**
@@ -13,4 +13,5 @@ sealed interface SingleEvent {
     data class ShareExport(val file: File) : SingleEvent
     object Exit : SingleEvent
     data class ChangeSheetState(val state: ModalBottomSheetValue, val animate: Boolean = true) : SingleEvent
+    object HideScrimSheet : SingleEvent
 }

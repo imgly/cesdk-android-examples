@@ -2,7 +2,7 @@ package ly.img.cesdk.bottomsheet.message_size
 
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import ly.img.cesdk.core.components.ToggleIconButton
+import ly.img.cesdk.components.ToggleIconButton
 
 @Composable
 fun MessageSizeButton(

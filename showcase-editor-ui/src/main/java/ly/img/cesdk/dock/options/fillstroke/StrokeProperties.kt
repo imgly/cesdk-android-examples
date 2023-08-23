@@ -1,6 +1,6 @@
 package ly.img.cesdk.dock.options.fillstroke
 
-import ly.img.cesdk.core.components.Property
+import ly.img.cesdk.components.Property
 import ly.img.cesdk.core.iconpack.IconPack
 import ly.img.cesdk.core.iconpack.Joinbevel
 import ly.img.cesdk.core.iconpack.Joinmiter

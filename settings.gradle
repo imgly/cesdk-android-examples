@@ -17,6 +17,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "CE.SDK Showcases"
 include ':app'
+include ':showcase-core'
 include ':showcase-editor-ui'
 include ':showcase-apparel-ui'
 include ':showcase-postcard-ui'

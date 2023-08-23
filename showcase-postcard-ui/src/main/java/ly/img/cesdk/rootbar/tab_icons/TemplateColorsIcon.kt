@@ -6,10 +6,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import ly.img.cesdk.core.components.ColorButton
-import ly.img.cesdk.core.components.tab_item.TabIcon
-import ly.img.cesdk.core.components.tab_item.TabIconComposable
-import ly.img.cesdk.core.utils.ifTrue
+import ly.img.cesdk.components.ColorButton
+import ly.img.cesdk.core.ui.tab_item.TabIcon
+import ly.img.cesdk.core.ui.tab_item.TabIconComposable
+import ly.img.cesdk.core.ui.utils.ifTrue
 
 object TemplateColorsIconComposable : TabIconComposable<TemplateColorsIcon>() {
 

@@ -27,13 +27,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ly.img.cesdk.core.theme.Roboto
-import ly.img.cesdk.core.utils.toDp
-import ly.img.cesdk.core.utils.toPx
+import ly.img.cesdk.core.ui.utils.toDp
+import ly.img.cesdk.core.ui.utils.toPx
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -63,7 +63,7 @@ fun ScalePicker(
         modifier = modifier.requiredHeight(44.dp)
     ) {
         val textStyle = TextStyle(
-            fontFamily = Roboto,
+            fontFamily = FontFamily.Default,
             fontWeight = FontWeight.Medium,
             letterSpacing = 0.1.sp,
             lineHeight = 20.sp,

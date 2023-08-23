@@ -1,7 +1,7 @@
 package ly.img.cesdk.engine
 
-import androidx.annotation.StringRes
-import ly.img.cesdk.core.components.VectorIcon
+import ly.img.cesdk.components.VectorIcon
+import ly.img.cesdk.core.engine.BlockType
 import ly.img.cesdk.core.iconpack.Croprotate
 import ly.img.cesdk.core.iconpack.Groupenter
 import ly.img.cesdk.core.iconpack.IconPack
@@ -25,15 +25,6 @@ data class Block(
     val type: BlockType,
     val options: List<OptionItemData>
 )
-
-enum class BlockType(@StringRes val titleRes: Int) {
-    Image(R.string.cesdk_image),
-    Sticker(R.string.cesdk_sticker),
-    Text(R.string.cesdk_text),
-    Shape(R.string.cesdk_shape),
-    Group(R.string.cesdk_group),
-    Page(R.string.cesdk_page)
-}
 
 internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
     val type = engine.block.getType(designBlock)
@@ -88,7 +79,7 @@ internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
     }
 
     if (type != DesignBlockType.PAGE.key && (engine.isStylingAllowed(designBlock) || engine.isMoveAllowed(designBlock) ||
-        engine.isDeleteAllowed(designBlock) || engine.isDuplicateAllowed(designBlock))
+            engine.isDeleteAllowed(designBlock) || engine.isDuplicateAllowed(designBlock))
     ) {
         optionItems += OptionItemData(OptionType.Layer, R.string.cesdk_layer, VectorIcon(IconPack.Layersoutline))
     }

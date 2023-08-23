@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ly.img.cesdk.core.components.ToggleIconButton
+import ly.img.cesdk.components.ToggleIconButton
 import ly.img.cesdk.core.iconpack.Arrowback
 import ly.img.cesdk.core.iconpack.IconPack
 import ly.img.cesdk.core.iconpack.Redo
@@ -34,6 +34,7 @@ import ly.img.cesdk.core.iconpack.Visibility
 import ly.img.cesdk.core.iconpack.Visibilityoutline
 import ly.img.cesdk.editorui.Event
 import ly.img.cesdk.editorui.R
+import ly.img.cesdk.core.R as coreR
 
 @Composable
 internal fun PostcardUiToolbar(
@@ -62,7 +63,7 @@ internal fun PostcardUiToolbar(
                         }) {
                             Icon(
                                 navigationIcon,
-                                contentDescription = stringResource(R.string.cesdk_back),
+                                contentDescription = stringResource(coreR.string.cesdk_back),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }

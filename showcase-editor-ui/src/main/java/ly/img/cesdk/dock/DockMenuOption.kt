@@ -1,7 +1,7 @@
 package ly.img.cesdk.dock
 
 import androidx.compose.runtime.Composable
-import ly.img.cesdk.core.components.tab_item.TabItem
+import ly.img.cesdk.core.ui.tab_item.TabItem
 
 @Composable
 fun DockMenuOption(

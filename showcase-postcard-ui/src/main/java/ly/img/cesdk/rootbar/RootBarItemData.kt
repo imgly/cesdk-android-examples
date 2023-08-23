@@ -3,10 +3,10 @@ package ly.img.cesdk.rootbar
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import ly.img.cesdk.bottomsheet.message_size.MessageSize
-import ly.img.cesdk.core.components.VectorIcon
-import ly.img.cesdk.core.components.tab_item.TabIcon
+import ly.img.cesdk.components.VectorIcon
 import ly.img.cesdk.core.iconpack.IconPack
 import ly.img.cesdk.core.iconpack.Typeface
+import ly.img.cesdk.core.ui.tab_item.TabIcon
 import ly.img.cesdk.engine.getFillColor
 import ly.img.cesdk.engine.toComposeColor
 import ly.img.cesdk.postcardui.R
