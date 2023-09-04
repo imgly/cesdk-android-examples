@@ -3,7 +3,7 @@ package ly.img.cesdk.dock.options.format
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import ly.img.cesdk.core.components.ToggleIconButton
+import ly.img.cesdk.components.ToggleIconButton
 import ly.img.cesdk.core.iconpack.Formataligncenter
 import ly.img.cesdk.core.iconpack.Formatalignleft
 import ly.img.cesdk.core.iconpack.Formatalignright

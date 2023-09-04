@@ -2,13 +2,11 @@ package ly.img.cesdk.editorui
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import ly.img.cesdk.core.data.font.FontData
 import ly.img.cesdk.dock.OptionType
 import ly.img.cesdk.dock.options.format.HorizontalAlignment
 import ly.img.cesdk.dock.options.format.VerticalAlignment
-import ly.img.cesdk.library.data.font.FontData
 import ly.img.engine.BlendMode
-import ly.img.engine.FillType
-import ly.img.engine.GradientType
 
 /**
  * To communicate events from the UI to the ViewModel.
@@ -18,8 +16,9 @@ interface Event {
     object OnBackPress : Event
     object OnExit : Event
     object OnCloseDock : Event
-    object HideSheet : Event
-    object ExpandSheet : Event
+    object OnHideSheet : Event
+    object OnExpandSheet : Event
+    object OnHideScrimSheet : Event
     data class OnOptionClick(val optionType: OptionType) : Event
     object OnAddLibraryClick : Event
     object OnKeyboardClose : Event
@@ -54,9 +53,9 @@ interface BlockEvent : Event {
     data class OnChangeFillColor(val color: Color) : BlockEvent
     data class OnChangeGradientFillColors(val index: Int, val color: Color) : BlockEvent
 
-    data class OnChangeLinearGradientParams(val startX: Float, val startY : Float, val endX: Float, val endY: Float) : BlockEvent
-    data class OnChangeRadialGradientParams(val centerX: Float, val centerY : Float, val radius: Float) : BlockEvent
-    data class OnChangeConicalGradientParams(val centerX: Float, val centerY : Float) : BlockEvent
+    data class OnChangeLinearGradientParams(val startX: Float, val startY: Float, val endX: Float, val endY: Float) : BlockEvent
+    data class OnChangeRadialGradientParams(val centerX: Float, val centerY: Float, val radius: Float) : BlockEvent
+    data class OnChangeConicalGradientParams(val centerX: Float, val centerY: Float) : BlockEvent
     // endregion
 
     // region Stroke Events

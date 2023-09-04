@@ -4,11 +4,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import ly.img.cesdk.PostcardEvent
-import ly.img.cesdk.core.components.SheetHeader
+import ly.img.cesdk.core.ui.SheetHeader
 import ly.img.cesdk.dock.BottomSheetContent
 import ly.img.cesdk.dock.HalfHeightContainer
 import ly.img.cesdk.dock.options.format.FontListUi
 import ly.img.cesdk.editorui.Event
+import ly.img.cesdk.editorui.R
 
 @Composable
 fun MessageFontSheet(
@@ -18,8 +19,8 @@ fun MessageFontSheet(
     HalfHeightContainer {
         Column {
             SheetHeader(
-                title = stringResource(id = ly.img.cesdk.editorui.R.string.cesdk_font),
-                onClose = { onEvent(Event.HideSheet) }
+                title = stringResource(id = R.string.cesdk_font),
+                onClose = { onEvent(Event.OnHideSheet) }
             )
 
             FontListUi(

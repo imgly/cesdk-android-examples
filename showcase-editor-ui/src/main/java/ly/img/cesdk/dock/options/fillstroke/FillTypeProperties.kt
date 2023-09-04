@@ -1,6 +1,6 @@
 package ly.img.cesdk.dock.options.fillstroke
 
-import ly.img.cesdk.core.components.Property
+import ly.img.cesdk.components.Property
 import ly.img.cesdk.editorui.R
 import ly.img.engine.FillType
 import ly.img.engine.GradientType

@@ -16,13 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.cesdk.PostcardEvent
-import ly.img.cesdk.postcardui.R
-import ly.img.cesdk.core.UiDefaults
-import ly.img.cesdk.core.components.SheetHeader
-import ly.img.cesdk.core.inspectorSheetPadding
+import ly.img.cesdk.core.ui.SheetHeader
+import ly.img.cesdk.core.ui.UiDefaults
+import ly.img.cesdk.core.ui.inspectorSheetPadding
 import ly.img.cesdk.dock.BottomSheetContent
 import ly.img.cesdk.dock.HalfHeightContainer
 import ly.img.cesdk.editorui.Event
+import ly.img.cesdk.postcardui.R
 
 @Composable
 fun MessageSizeSheet(
@@ -33,7 +33,7 @@ fun MessageSizeSheet(
         Column {
             SheetHeader(
                 title = stringResource(id = R.string.cesdk_size),
-                onClose = { onEvent(Event.HideSheet) }
+                onClose = { onEvent(Event.OnHideSheet) }
             )
 
             Card(

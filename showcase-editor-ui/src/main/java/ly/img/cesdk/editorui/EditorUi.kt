@@ -18,11 +18,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,18 +38,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import ly.img.cesdk.core.components.EditingTextCard
-import ly.img.cesdk.core.components.FullscreenLoader
-import ly.img.cesdk.core.components.InternetErrorDialog
-import ly.img.cesdk.core.components.UnsavedChangesAlertDialog
-import ly.img.cesdk.core.components.actionmenu.CanvasActionMenu
-import ly.img.cesdk.core.components.bottomsheet.ModalBottomSheetLayout
-import ly.img.cesdk.core.components.bottomsheet.ModalBottomSheetValue
+import ly.img.cesdk.components.EditingTextCard
+import ly.img.cesdk.components.FullscreenLoader
+import ly.img.cesdk.components.InternetErrorDialog
+import ly.img.cesdk.components.UnsavedChangesAlertDialog
+import ly.img.cesdk.components.actionmenu.CanvasActionMenu
+import ly.img.cesdk.core.library.AddLibrarySheet
+import ly.img.cesdk.core.library.ReplaceLibrarySheet
 import ly.img.cesdk.core.theme.surface1
 import ly.img.cesdk.core.theme.surface2
-import ly.img.cesdk.core.utils.toPx
+import ly.img.cesdk.core.ui.AnyComposable
+import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetLayout
+import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetValue
+import ly.img.cesdk.core.ui.bottomsheet.rememberModalBottomSheetState
+import ly.img.cesdk.core.ui.utils.toPx
 import ly.img.cesdk.dock.BottomSheetContent
 import ly.img.cesdk.dock.Dock
 import ly.img.cesdk.dock.FillStrokeBottomSheetContent
@@ -61,8 +70,6 @@ import ly.img.cesdk.dock.options.format.FormatOptionsSheet
 import ly.img.cesdk.dock.options.layer.LayerOptionsSheet
 import ly.img.cesdk.dock.options.shapeoptions.ShapeOptionsSheet
 import ly.img.cesdk.engine.EngineCanvasView
-import ly.img.cesdk.library.AddLibrarySheet
-import ly.img.cesdk.library.ReplaceLibrarySheet
 import kotlin.math.roundToInt
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -128,6 +135,30 @@ fun EditorUi(
         }
     }
 
+    val scrimBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+
+    var anyComposable: AnyComposable? by remember {
+        mutableStateOf(null)
+    }
+
+    val showScrimBottomSheet = remember {
+        { composable: AnyComposable ->
+            anyComposable = composable
+            uiScope.launch {
+                // FIXME: Without the delay, the bottom sheet state change does not animate. My hypothesis is that setting the
+                //  anyComposable causes a re-composition in the middle of the animation which cancels the animation(?)
+                delay(16)
+                scrimBottomSheetState.show()
+            }
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { scrimBottomSheetState.isVisible }.collectLatest {
+            if (!it) anyComposable = null
+        }
+    }
+
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect {
@@ -157,6 +188,12 @@ fun EditorUi(
                         }
                     }
                 }
+
+                SingleEvent.HideScrimSheet -> {
+                    uiScope.launch {
+                        scrimBottomSheetState.hide()
+                    }
+                }
             }
         }
     }
@@ -168,105 +205,151 @@ fun EditorUi(
         )
     }
 
-    val cornerRadius = if (uiState.bottomSheetState.swipeableState.offset != 0f) 28.dp else 0.dp
     ModalBottomSheetLayout(
-        sheetState = uiState.bottomSheetState,
-        modifier = Modifier.systemBarsPadding(),
+        sheetState = scrimBottomSheetState,
         sheetContent = {
-            val content = bottomSheetContent
-            if (content != null) {
-                Column {
-                    Spacer(Modifier.height(8.dp))
-                    when (content) {
-                        LibraryBottomSheetContent -> AddLibrarySheet(
-                            swipeableState = uiState.bottomSheetState.swipeableState,
-                            viewModel::onEvent
-                        )
-
-                        is ReplaceBottomSheetContent -> ReplaceLibrarySheet(
-                            content.designBlock,
-                            content.blockType,
-                            viewModel::onEvent
-                        )
-
-                        is LayerBottomSheetContent -> LayerOptionsSheet(content.uiState, viewModel::onEvent)
-                        is FillStrokeBottomSheetContent -> FillStrokeOptionsSheet(content.uiState, viewModel::onEvent)
-                        is OptionsBottomSheetContent -> ShapeOptionsSheet(content.uiState, viewModel::onEvent)
-                        is FormatBottomSheetContent -> FormatOptionsSheet(content.uiState, viewModel::onEvent)
-                        is CropBottomSheetContent -> CropSheet(content.uiState, viewModel::onEvent)
-                        else -> bottomSheetLayout(content)
+            anyComposable?.let {
+                it.Content()
+                val window = (view.context as Activity).window
+                DisposableEffect(Unit) {
+                    window.navigationBarColor = surfaceColor
+                    onDispose {
+                        window.navigationBarColor = libraryColor
                     }
                 }
             }
         },
-        sheetShape = RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius)
+        scrimEnabled = true,
+        modifier = Modifier.systemBarsPadding(),
+        sheetShape = RoundedCornerShape(
+            topStart = 28.0.dp,
+            topEnd = 28.0.dp,
+            bottomEnd = 0.0.dp,
+            bottomStart = 0.0.dp
+        )
     ) {
-        Scaffold(
-            topBar = topBar
-        ) {
-            BoxWithConstraints {
-                val orientation = LocalConfiguration.current.orientation
-                EngineCanvasView(
-                    engine = viewModel.engine,
-                    passTouches = !uiState.isInPreviewMode,
-                    onMoveStart = { viewModel.onEvent(Event.OnCanvasMove(true)) },
-                    onMoveEnd = { viewModel.onEvent(Event.OnCanvasMove(false)) },
-                    loadScene = {
-                        val topInsets = 64f + 16f // 64 for toolbar
-                        val bottomInsets = 132f + 16f // 132 for dock
-                        val sideInsets = 16f
-
-                        val insets = Rect(
-                            left = sideInsets,
-                            top = topInsets,
-                            right = sideInsets,
-                            bottom = bottomInsets
-                        )
-                        viewModel.onEvent(
-                            Event.OnLoadScene(
-                                sceneUri.toString(),
-                                maxHeight.value,
-                                insets,
-                                orientation != Configuration.ORIENTATION_LANDSCAPE
+        val cornerRadius = if (uiState.bottomSheetState.swipeableState.offset != 0f) 28.dp else 0.dp
+        ModalBottomSheetLayout(
+            sheetState = uiState.bottomSheetState,
+            modifier = Modifier.systemBarsPadding(),
+            sheetContent = {
+                val content = bottomSheetContent
+                if (content != null) {
+                    Column {
+                        Spacer(Modifier.height(8.dp))
+                        when (content) {
+                            LibraryBottomSheetContent -> AddLibrarySheet(
+                                swipeableState = uiState.bottomSheetState.swipeableState,
+                                onClose = {
+                                    viewModel.onEvent(Event.OnHideSheet)
+                                },
+                                onCloseAssetDetails = {
+                                    viewModel.onEvent(Event.OnHideScrimSheet)
+                                },
+                                onSearchFocus = {
+                                    viewModel.onEvent(Event.OnExpandSheet)
+                                },
+                                showAnyComposable = {
+                                    showScrimBottomSheet(it)
+                                }
                             )
+
+                            is ReplaceBottomSheetContent -> ReplaceLibrarySheet(
+                                designBlock = content.designBlock,
+                                type = content.blockType,
+                                onClose = {
+                                    viewModel.onEvent(Event.OnHideSheet)
+                                },
+                                onCloseAssetDetails = {
+                                    viewModel.onEvent(Event.OnHideScrimSheet)
+                                },
+                                onSearchFocus = {
+                                    viewModel.onEvent(Event.OnExpandSheet)
+                                },
+                                showAnyComposable = {
+                                    showScrimBottomSheet(it)
+                                }
+                            )
+
+                            is LayerBottomSheetContent -> LayerOptionsSheet(content.uiState, viewModel::onEvent)
+                            is FillStrokeBottomSheetContent -> FillStrokeOptionsSheet(content.uiState, viewModel::onEvent)
+                            is OptionsBottomSheetContent -> ShapeOptionsSheet(content.uiState, viewModel::onEvent)
+                            is FormatBottomSheetContent -> FormatOptionsSheet(content.uiState, viewModel::onEvent)
+                            is CropBottomSheetContent -> CropSheet(content.uiState, viewModel::onEvent)
+                            else -> bottomSheetLayout(content)
+                        }
+                    }
+                }
+            },
+            sheetShape = RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius)
+        ) {
+            Scaffold(
+                topBar = topBar
+            ) {
+                BoxWithConstraints {
+                    val orientation = LocalConfiguration.current.orientation
+                    EngineCanvasView(
+                        engine = viewModel.engine,
+                        passTouches = !uiState.isInPreviewMode,
+                        onMoveStart = { viewModel.onEvent(Event.OnCanvasMove(true)) },
+                        onMoveEnd = { viewModel.onEvent(Event.OnCanvasMove(false)) },
+                        loadScene = {
+                            val topInsets = 64f + 16f // 64 for toolbar
+                            val bottomInsets = 132f + 16f // 132 for dock
+                            val sideInsets = 16f
+
+                            val insets = Rect(
+                                left = sideInsets,
+                                top = topInsets,
+                                right = sideInsets,
+                                bottom = bottomInsets
+                            )
+                            viewModel.onEvent(
+                                Event.OnLoadScene(
+                                    sceneUri.toString(),
+                                    maxHeight.value,
+                                    insets,
+                                    orientation != Configuration.ORIENTATION_LANDSCAPE
+                                )
+                            )
+                        }
+                    )
+                    canvasOverlay()
+                    canvasActionMenuUiState?.let {
+                        CanvasActionMenu(
+                            uiState = it,
+                            onEvent = viewModel::onEvent
                         )
                     }
-                )
-                canvasOverlay()
-                canvasActionMenuUiState?.let {
-                    CanvasActionMenu(
-                        uiState = it,
-                        onEvent = viewModel::onEvent
-                    )
-                }
-                if (uiState.isEditingText) {
-                    EditingTextCard(modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .onGloballyPositioned {
-                            viewModel.onEvent(Event.OnKeyboardHeightChange((it.size.height / oneDpInPx).roundToInt()))
-                        },
-                        onClose = { viewModel.onEvent(Event.OnKeyboardClose) }
-                    )
-                }
-                uiState.selectedBlock?.let {
-                    Dock(
-                        selectedBlock = it,
-                        onClose = { viewModel.onEvent(Event.OnCloseDock) },
-                        onClick = { viewModel.onEvent(Event.OnOptionClick(it)) },
-                        modifier = Modifier.align(Alignment.BottomStart)
-                    )
+                    if (uiState.isEditingText) {
+                        EditingTextCard(modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .onGloballyPositioned {
+                                viewModel.onEvent(Event.OnKeyboardHeightChange((it.size.height / oneDpInPx).roundToInt()))
+                            },
+                            onClose = { viewModel.onEvent(Event.OnKeyboardClose) }
+                        )
+                    }
+                    uiState.selectedBlock?.let {
+                        Dock(
+                            selectedBlock = it,
+                            onClose = { viewModel.onEvent(Event.OnCloseDock) },
+                            onClick = { viewModel.onEvent(Event.OnOptionClick(it)) },
+                            modifier = Modifier.align(Alignment.BottomStart)
+                        )
+                    }
                 }
             }
         }
-    }
 
-    if (uiState.isLoading) {
-        FullscreenLoader()
-    }
+        if (uiState.isLoading) {
+            FullscreenLoader()
+        }
 
-    if (uiState.errorLoading) {
-        InternetErrorDialog {
-            viewModel.onEvent(Event.OnExit)
+        if (uiState.errorLoading) {
+            InternetErrorDialog {
+                viewModel.onEvent(Event.OnExit)
+            }
         }
     }
 }

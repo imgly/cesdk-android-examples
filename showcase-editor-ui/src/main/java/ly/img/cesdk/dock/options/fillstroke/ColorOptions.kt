@@ -9,9 +9,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import ly.img.cesdk.core.components.ColorButton
-import ly.img.cesdk.core.components.color_picker.ColorPickerButton
-import ly.img.cesdk.core.components.color_picker.fillAndStrokeColors
+import ly.img.cesdk.components.ColorButton
+import ly.img.cesdk.components.color_picker.ColorPickerButton
+import ly.img.cesdk.components.color_picker.fillAndStrokeColors
 
 @Composable
 fun ColorOptions(

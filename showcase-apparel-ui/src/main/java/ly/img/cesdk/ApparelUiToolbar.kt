@@ -9,7 +9,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import ly.img.cesdk.core.components.ToggleIconButton
+import ly.img.cesdk.components.ToggleIconButton
 import ly.img.cesdk.core.iconpack.IconPack
 import ly.img.cesdk.core.iconpack.Redo
 import ly.img.cesdk.core.iconpack.Share
@@ -18,6 +18,7 @@ import ly.img.cesdk.core.iconpack.Visibility
 import ly.img.cesdk.core.iconpack.Visibilityoutline
 import ly.img.cesdk.editorui.Event
 import ly.img.cesdk.editorui.R
+import ly.img.cesdk.core.R as coreR
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +39,7 @@ internal fun ApparelUiToolbar(
                 IconButton(onClick = {
                     onEvent(Event.OnBack)
                 }) {
-                    Icon(navigationIcon, contentDescription = stringResource(R.string.cesdk_back))
+                    Icon(navigationIcon, contentDescription = stringResource(coreR.string.cesdk_back))
                 }
             }
         },

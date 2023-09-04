@@ -1,7 +1,8 @@
 package ly.img.cesdk.dock.options.shapeoptions
 
+import ly.img.cesdk.engine.ShapeType
+import ly.img.cesdk.engine.getShapeType
 import ly.img.engine.DesignBlock
-import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 
 sealed interface ShapeOptionsUiState
@@ -20,20 +21,21 @@ data class LineShapeOptionsUiState(
 ) : ShapeOptionsUiState
 
 internal fun createShapeOptionsUiState(designBlock: DesignBlock, engine: Engine): ShapeOptionsUiState {
-    return when (engine.block.getType(designBlock)) {
-        DesignBlockType.STAR_SHAPE.key -> StarShapeOptionsUiState(
-            points = engine.block.getInt(designBlock, "shapes/star/points").toFloat(),
-            innerDiameter = engine.block.getFloat(designBlock, "shapes/star/innerDiameter")
+    val shape = engine.block.getShape(designBlock)
+    return when (engine.block.getShapeType(designBlock)) {
+        ShapeType.Star -> StarShapeOptionsUiState(
+            points = engine.block.getInt(shape, "shapes/star/points").toFloat(),
+            innerDiameter = engine.block.getFloat(shape, "shapes/star/innerDiameter")
         )
 
-        DesignBlockType.POLYGON_SHAPE.key -> PolygonShapeOptionsUiState(
-            sides = engine.block.getInt(designBlock, "shapes/polygon/sides").toFloat()
+        ShapeType.Polygon -> PolygonShapeOptionsUiState(
+            sides = engine.block.getInt(shape, "shapes/polygon/sides").toFloat()
         )
 
-        DesignBlockType.LINE_SHAPE.key -> LineShapeOptionsUiState(
+        ShapeType.Line -> LineShapeOptionsUiState(
             width = engine.block.getFrameHeight(designBlock)
         )
 
-        else -> throw IllegalArgumentException("Options are only supported for star & polygon shapes.")
+        ShapeType.Other -> throw IllegalArgumentException("Options are only supported for star, polygon, and line shape types.")
     }
 }

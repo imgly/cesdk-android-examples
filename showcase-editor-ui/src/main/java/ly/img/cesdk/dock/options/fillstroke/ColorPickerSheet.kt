@@ -7,8 +7,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import ly.img.cesdk.core.components.NestedSheetHeader
-import ly.img.cesdk.core.components.color_picker.ColorPicker
+import ly.img.cesdk.components.NestedSheetHeader
+import ly.img.cesdk.components.color_picker.ColorPicker
 import ly.img.cesdk.editorui.BlockEvent
 import ly.img.cesdk.editorui.Event
 
@@ -24,7 +24,7 @@ fun ColorPickerSheet(
         NestedSheetHeader(
             title = title,
             onBack = onBack,
-            onClose = { onEvent(Event.HideSheet) }
+            onClose = { onEvent(Event.OnHideSheet) }
         )
         ColorPicker(
             color = color,

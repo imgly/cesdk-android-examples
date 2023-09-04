@@ -2,8 +2,8 @@ package ly.img.cesdk.dock.options.fillstroke
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
-import ly.img.cesdk.engine.Block
-import ly.img.cesdk.engine.BlockType
+import ly.img.cesdk.core.engine.BlockType
+import ly.img.cesdk.editorui.Block
 import ly.img.cesdk.engine.getStrokeColor
 import ly.img.engine.Engine
 import kotlin.math.ln

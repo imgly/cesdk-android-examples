@@ -1,9 +1,8 @@
 package ly.img.cesdk.editorui
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import ly.img.cesdk.core.components.bottomsheet.ModalBottomSheetState
-import ly.img.cesdk.core.components.bottomsheet.ModalBottomSheetValue
-import ly.img.cesdk.engine.Block
+import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetState
+import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetValue
 
 data class EditorUiViewState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val isLoading: Boolean = true,

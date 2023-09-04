@@ -12,10 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ly.img.cesdk.core.components.SheetHeader
 import ly.img.cesdk.core.iconpack.Close
 import ly.img.cesdk.core.iconpack.IconPack
-import ly.img.cesdk.engine.Block
+import ly.img.cesdk.core.ui.SheetHeader
+import ly.img.cesdk.editorui.Block
 
 @Composable
 fun Dock(

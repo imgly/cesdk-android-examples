@@ -20,11 +20,14 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ly.img.cesdk.Environment
-import ly.img.cesdk.core.components.actionmenu.CanvasActionMenuUiState
-import ly.img.cesdk.core.components.actionmenu.createCanvasActionMenuUiState
-import ly.img.cesdk.core.components.bottomsheet.ModalBottomSheetValue
-import ly.img.cesdk.core.components.color_picker.fillAndStrokeColors
+import ly.img.cesdk.components.actionmenu.CanvasActionMenuUiState
+import ly.img.cesdk.components.actionmenu.createCanvasActionMenuUiState
+import ly.img.cesdk.components.color_picker.fillAndStrokeColors
+import ly.img.cesdk.core.Environment
+import ly.img.cesdk.core.engine.BlockType
+import ly.img.cesdk.core.engine.deselectAllBlocks
+import ly.img.cesdk.core.engine.getPage
+import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetValue
 import ly.img.cesdk.dock.BottomSheetContent
 import ly.img.cesdk.dock.FillStrokeBottomSheetContent
 import ly.img.cesdk.dock.FormatBottomSheetContent
@@ -39,26 +42,24 @@ import ly.img.cesdk.dock.options.fillstroke.createFillStrokeUiState
 import ly.img.cesdk.dock.options.format.createFormatUiState
 import ly.img.cesdk.dock.options.layer.createLayerUiState
 import ly.img.cesdk.dock.options.shapeoptions.createShapeOptionsUiState
-import ly.img.cesdk.engine.Block
-import ly.img.cesdk.engine.BlockType
 import ly.img.cesdk.engine.CROP_EDIT_MODE
 import ly.img.cesdk.engine.TEXT_EDIT_MODE
 import ly.img.cesdk.engine.TRANSFORM_EDIT_MODE
 import ly.img.cesdk.engine.addOutline
-import ly.img.cesdk.engine.createBlock
-import ly.img.cesdk.engine.deselectAllBlocks
-import ly.img.cesdk.engine.getPage
 import ly.img.cesdk.engine.isPlaceholder
 import ly.img.cesdk.engine.resetHistory
 import ly.img.cesdk.engine.showOutline
 import ly.img.cesdk.engine.showPage
 import ly.img.cesdk.engine.zoomToPage
 import ly.img.cesdk.engine.zoomToSelectedText
+import ly.img.engine.SceneMode
 import java.io.File
 import java.io.FileOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
-abstract class EditorUiViewModel : ViewModel() {
+abstract class EditorUiViewModel(
+    sceneMode: SceneMode = SceneMode.DESIGN
+) : ViewModel() {
 
     val engine = Environment.getEngine()
     protected val assetsRepo = Environment.getAssetsRepo()
@@ -113,6 +114,8 @@ abstract class EditorUiViewModel : ViewModel() {
                 }
             }
         }
+
+        Environment.sceneMode = sceneMode
     }
 
     open fun onEvent(event: Event) {
@@ -134,8 +137,9 @@ abstract class EditorUiViewModel : ViewModel() {
             Event.OnCloseDock -> engine.deselectAllBlocks()
             Event.OnExit -> onExit()
             Event.OnAddLibraryClick -> openLibrarySheet()
-            Event.ExpandSheet -> sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Expanded))
-            Event.HideSheet -> sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden))
+            Event.OnExpandSheet -> sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Expanded))
+            Event.OnHideSheet -> sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden))
+            Event.OnHideScrimSheet -> sendSingleEvent(SingleEvent.HideScrimSheet)
             Event.OnExportClick -> exportScene()
             Event.OnRedoClick -> engine.editor.redo()
             is Event.OnTogglePreviewMode -> togglePreviewMode(event.isChecked)

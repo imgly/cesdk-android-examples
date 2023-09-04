@@ -15,15 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ly.img.cesdk.core.UiDefaults
-import ly.img.cesdk.core.components.CardButton
-import ly.img.cesdk.core.components.SectionHeader
-import ly.img.cesdk.core.components.SheetHeader
+import ly.img.cesdk.components.CardButton
+import ly.img.cesdk.components.SectionHeader
 import ly.img.cesdk.core.iconpack.Flip
 import ly.img.cesdk.core.iconpack.IconPack
 import ly.img.cesdk.core.iconpack.Rotate90degreesccwoutline
 import ly.img.cesdk.core.iconpack.Undo
-import ly.img.cesdk.core.inspectorSheetPadding
+import ly.img.cesdk.core.ui.SheetHeader
+import ly.img.cesdk.core.ui.UiDefaults
+import ly.img.cesdk.core.ui.inspectorSheetPadding
 import ly.img.cesdk.dock.BottomSheetContent
 import ly.img.cesdk.dock.HalfHeightContainer
 import ly.img.cesdk.editorui.BlockEvent
@@ -40,7 +40,7 @@ fun CropSheet(
         Column {
             SheetHeader(
                 title = stringResource(id = R.string.cesdk_crop),
-                onClose = { onEvent(Event.HideSheet) }
+                onClose = { onEvent(Event.OnHideSheet) }
             )
 
             Column(

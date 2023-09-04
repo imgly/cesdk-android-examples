@@ -6,7 +6,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 fun customAssetSource() = CoroutineScope(Dispatchers.Main).launch {
-	val engine = Engine(id = "ly.img.engine.example")
+	val engine = Engine.getInstance(id = "ly.img.engine.example")
 	engine.start()
 	engine.bindOffscreen(width = 100, height = 100)
 
@@ -93,7 +93,7 @@ class UnsplashAssetSource(private val baseUrl: String) : AssetSource(sourceId = 
 			assets = (0 until assetsArray.length()).map { assetsArray.getJSONObject(it).toAsset() },
 			currentPage = page,
 			nextPage = page + 1,
-			total = 0
+			total = Int.MAX_VALUE
 		)
 	}
 
@@ -136,8 +136,8 @@ class UnsplashAssetSource(private val baseUrl: String) : AssetSource(sourceId = 
 		// highlight-result-locale
 		// highlight-result-label
 		label = when {
-			has("description") -> getString("description")
-			has("alt_description") -> getString("alt_description")
+			!isNull("description") -> getString("description")
+			!isNull("alt_description") -> getString("alt_description")
 			else -> null
 		},
 		// highlight-result-label

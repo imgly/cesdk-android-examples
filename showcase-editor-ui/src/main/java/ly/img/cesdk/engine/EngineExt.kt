@@ -1,8 +1,13 @@
 package ly.img.cesdk.engine
 
-import android.net.Uri
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import ly.img.cesdk.core.engine.BlockKind
+import ly.img.cesdk.core.engine.deselectAllBlocks
+import ly.img.cesdk.core.engine.getKindEnum
+import ly.img.cesdk.core.engine.getPage
+import ly.img.cesdk.core.engine.getSortedPages
+import ly.img.cesdk.core.engine.getStack
 import ly.img.engine.BlendMode
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
@@ -11,8 +16,6 @@ import ly.img.engine.Engine
 import ly.img.engine.PositionMode
 import ly.img.engine.SizeMode
 import ly.img.engine.StrokeStyle
-
-import kotlin.random.Random
 
 fun Engine.setClearColor(color: Color) {
     editor.setSettingColor("clearColor", color.toEngineColor())
@@ -35,19 +38,13 @@ fun Engine.addOutline(designBlock: DesignBlock, parent: DesignBlock) {
     block.setStrokeStyle(outline, StrokeStyle.DOTTED)
     block.setStrokeWidth(outline, 1.0f)
     block.setBlendMode(outline, BlendMode.DIFFERENCE)
-    block.setScopeEnabled(outline, "editor/select", false)
+    block.setScopeEnabled(outline, Scope.EditorSelect, false)
 }
 
 fun Engine.showOutline(show: Boolean, name: String = OUTLINE_BLOCK_NAME) {
     val outline = block.findByName(name).firstOrNull() ?: return
     block.setVisible(outline, show)
     block.setOpacity(outline, if (show) 1f else 0f)
-}
-
-fun Engine.deselectAllBlocks() {
-    block.findAllSelected().forEach {
-        block.setSelected(it, false)
-    }
 }
 
 fun Engine.resetHistory() {
@@ -146,7 +143,7 @@ fun Engine.duplicate(designBlock: DesignBlock) {
     val duplicateBlock = block.duplicate(designBlock)
     val positionModeX = block.getPositionXMode(designBlock)
     val positionModeY = block.getPositionYMode(designBlock)
-    overrideAndRestore(designBlock, "design/arrange/move") {
+    overrideAndRestore(designBlock, Scope.LayerMove) {
         block.setPositionXMode(it, PositionMode.ABSOLUTE)
         val x = block.getPositionX(it)
         block.setPositionYMode(it, PositionMode.ABSOLUTE)
@@ -170,20 +167,16 @@ fun Engine.delete(designBlock: DesignBlock) {
     editor.addUndoStep()
 }
 
-fun Engine.isStylingAllowed(designBlock: DesignBlock): Boolean {
-    return block.isAllowedByScope(designBlock, "design/style")
-}
-
 fun Engine.isMoveAllowed(designBlock: DesignBlock): Boolean {
-    return block.isAllowedByScope(designBlock, "editor/add") && !isGrouped(designBlock)
+    return block.isAllowedByScope(designBlock, Scope.EditorAdd) && !isGrouped(designBlock)
 }
 
 fun Engine.isDuplicateAllowed(designBlock: DesignBlock): Boolean {
-    return block.isAllowedByScope(designBlock, "lifecycle/duplicate") && !isGrouped(designBlock)
+    return block.isAllowedByScope(designBlock, Scope.LifecycleDuplicate) && !isGrouped(designBlock)
 }
 
 fun Engine.isDeleteAllowed(designBlock: DesignBlock): Boolean {
-    return block.isAllowedByScope(designBlock, "lifecycle/destroy") && !isGrouped(designBlock)
+    return block.isAllowedByScope(designBlock, Scope.LifecycleDestroy) && !isGrouped(designBlock)
 }
 
 fun Engine.isGrouped(designBlock: DesignBlock): Boolean {
@@ -199,20 +192,6 @@ fun Engine.getFillColor(designBlock: DesignBlock): Color? {
 fun Engine.getStrokeColor(designBlock: DesignBlock): Color? {
     return if (!block.hasStroke(designBlock)) null
     else block.getColor(designBlock, "stroke/color").toComposeColor()
-}
-
-fun Engine.replaceSticker(stickerBlock: DesignBlock, uri: String) {
-    block.setString(stickerBlock, "sticker/imageFileURI", uri)
-}
-
-fun Engine.addText(path: String, size: Float) {
-    val fontSize = (50.0f / 24.0f) * size
-    val textBlock = block.create(DesignBlockType.TEXT)
-    block.setString(textBlock, "text/fontFileUri", Uri.parse("$FONT_BASE_PATH/$path").toString())
-    block.setFloat(textBlock, "text/fontSize", fontSize)
-    block.setEnum(textBlock, "text/horizontalAlignment", "Center")
-    block.setHeightMode(textBlock, SizeMode.AUTO)
-    addBlockToPage(textBlock)
 }
 
 fun Engine.canResetCrop(designBlock: DesignBlock) = block.getContentFillMode(designBlock) == ContentFillMode.CROP
@@ -248,7 +227,7 @@ fun Engine.zoomToSelectedText(insets: Rect, canvasHeight: Float) {
     val newCameraPosY = cursorPosYCanvas + cameraPosY - visiblePageAreaYCanvas
 
     if (cursorPosY > visiblePageAreaY || cursorPosY < (overlapTop + paddingTop)) {
-        overrideAndRestore(getCamera(), "design/arrange/move") {
+        overrideAndRestore(getCamera(), Scope.LayerMove) {
             block.setPositionY(getCamera(), newCameraPosY)
         }
     }
@@ -270,15 +249,10 @@ fun Engine.showPage(index: Int?, axis: LayoutAxis = LayoutAxis.Depth, spacing: F
     val pages = getSortedPages()
     val allPages = index == null
     pages.forEachIndexed { idx, page ->
-        overrideAndRestore(page, "design/style") {
+        overrideAndRestore(page, Scope.LayerVisibility) {
             block.setVisible(block = it, visible = allPages || idx == index)
         }
     }
-}
-
-fun Engine.getPage(index: Int): DesignBlock {
-    val pages = getSortedPages()
-    return pages[index]
 }
 
 fun Engine.getScene(): DesignBlock {
@@ -312,33 +286,10 @@ private suspend fun Engine.zoomToBlock(designBlock: DesignBlock, insets: Rect) {
 private fun Engine.getBackdropImage(): DesignBlock {
     val children = block.getChildren(getScene())
     return children.first {
-        block.getType(it) == DesignBlockType.IMAGE.key
+        block.getKindEnum(it) == BlockKind.Image
     }
 }
 
 private fun Engine.getCamera(): DesignBlock {
     return block.findByType(DesignBlockType.CAMERA).first()
-}
-
-private fun Engine.getSortedPages(): List<DesignBlock> {
-    return block.getChildren(getStack())
-}
-
-private fun Engine.getStack(): DesignBlock {
-    return block.findByType(DesignBlockType.STACK).first()
-}
-
-/**
- * Appends a block into the scene and positions it somewhat randomly.
- */
-private fun Engine.addBlockToPage(designBlock: DesignBlock) {
-    deselectAllBlocks()
-    // TODO: unhardcode page index
-    block.appendChild(getPage(0), designBlock)
-    block.setPositionXMode(designBlock, PositionMode.ABSOLUTE)
-    block.setPositionX(designBlock, 15 + (Random.nextFloat() * 20))
-    block.setPositionYMode(designBlock, PositionMode.ABSOLUTE)
-    block.setPositionY(designBlock, 5 + (Random.nextFloat() * 20))
-    block.setSelected(designBlock, true)
-    editor.addUndoStep()
 }
