@@ -1,8 +1,11 @@
 package ly.img.cesdk.engine
 
-import android.net.Uri
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import ly.img.cesdk.core.engine.deselectAllBlocks
+import ly.img.cesdk.core.engine.getPage
+import ly.img.cesdk.core.engine.getSortedPages
+import ly.img.cesdk.core.engine.getStack
 import ly.img.engine.BlendMode
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
@@ -11,8 +14,6 @@ import ly.img.engine.Engine
 import ly.img.engine.PositionMode
 import ly.img.engine.SizeMode
 import ly.img.engine.StrokeStyle
-
-import kotlin.random.Random
 
 fun Engine.setClearColor(color: Color) {
     editor.setSettingColor("clearColor", color.toEngineColor())
@@ -42,12 +43,6 @@ fun Engine.showOutline(show: Boolean, name: String = OUTLINE_BLOCK_NAME) {
     val outline = block.findByName(name).firstOrNull() ?: return
     block.setVisible(outline, show)
     block.setOpacity(outline, if (show) 1f else 0f)
-}
-
-fun Engine.deselectAllBlocks() {
-    block.findAllSelected().forEach {
-        block.setSelected(it, false)
-    }
 }
 
 fun Engine.resetHistory() {
@@ -201,20 +196,6 @@ fun Engine.getStrokeColor(designBlock: DesignBlock): Color? {
     else block.getColor(designBlock, "stroke/color").toComposeColor()
 }
 
-fun Engine.replaceSticker(stickerBlock: DesignBlock, uri: String) {
-    block.setString(stickerBlock, "sticker/imageFileURI", uri)
-}
-
-fun Engine.addText(path: String, size: Float) {
-    val fontSize = (50.0f / 24.0f) * size
-    val textBlock = block.create(DesignBlockType.TEXT)
-    block.setString(textBlock, "text/fontFileUri", Uri.parse("$FONT_BASE_PATH/$path").toString())
-    block.setFloat(textBlock, "text/fontSize", fontSize)
-    block.setEnum(textBlock, "text/horizontalAlignment", "Center")
-    block.setHeightMode(textBlock, SizeMode.AUTO)
-    addBlockToPage(textBlock)
-}
-
 fun Engine.canResetCrop(designBlock: DesignBlock) = block.getContentFillMode(designBlock) == ContentFillMode.CROP
 
 suspend fun Engine.zoomToPage(pageIndex: Int, insets: Rect) {
@@ -276,11 +257,6 @@ fun Engine.showPage(index: Int?, axis: LayoutAxis = LayoutAxis.Depth, spacing: F
     }
 }
 
-fun Engine.getPage(index: Int): DesignBlock {
-    val pages = getSortedPages()
-    return pages[index]
-}
-
 fun Engine.getScene(): DesignBlock {
     return block.findByType(DesignBlockType.SCENE).first()
 }
@@ -318,27 +294,4 @@ private fun Engine.getBackdropImage(): DesignBlock {
 
 private fun Engine.getCamera(): DesignBlock {
     return block.findByType(DesignBlockType.CAMERA).first()
-}
-
-private fun Engine.getSortedPages(): List<DesignBlock> {
-    return block.getChildren(getStack())
-}
-
-private fun Engine.getStack(): DesignBlock {
-    return block.findByType(DesignBlockType.STACK).first()
-}
-
-/**
- * Appends a block into the scene and positions it somewhat randomly.
- */
-private fun Engine.addBlockToPage(designBlock: DesignBlock) {
-    deselectAllBlocks()
-    // TODO: unhardcode page index
-    block.appendChild(getPage(0), designBlock)
-    block.setPositionXMode(designBlock, PositionMode.ABSOLUTE)
-    block.setPositionX(designBlock, 15 + (Random.nextFloat() * 20))
-    block.setPositionYMode(designBlock, PositionMode.ABSOLUTE)
-    block.setPositionY(designBlock, 5 + (Random.nextFloat() * 20))
-    block.setSelected(designBlock, true)
-    editor.addUndoStep()
 }

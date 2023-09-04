@@ -1,9 +1,9 @@
 package ly.img.cesdk.util
 
+import ly.img.cesdk.core.engine.getPage
 import ly.img.cesdk.engine.GradientFill
 import ly.img.cesdk.engine.SolidFill
 import ly.img.cesdk.engine.getFillInfo
-import ly.img.cesdk.engine.getPage
 import ly.img.cesdk.engine.overrideAndRestore
 import ly.img.cesdk.engine.setFillType
 import ly.img.cesdk.engine.toEngineColor
@@ -64,6 +64,7 @@ private fun Engine.getSelectionColors(
                     else -> null
                 }
             } else null
+
             ColorType.Stroke -> if (block.isStrokeEnabled(designBlock) || includeDisabled) block.getStrokeColor(designBlock) else null
         } ?: return null
 
@@ -89,6 +90,7 @@ private fun Engine.getSelectionColors(
                             block.setFillType(designBlock, "color")
                             block.setFillSolidColor(designBlock, color)
                         }
+
                         ColorType.Stroke -> block.setStrokeColor(designBlock, color)
                     }
                 }

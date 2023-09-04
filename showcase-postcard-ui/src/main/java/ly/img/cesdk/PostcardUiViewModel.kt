@@ -16,11 +16,12 @@ import ly.img.cesdk.bottomsheet.message_size.MessageSize
 import ly.img.cesdk.bottomsheet.message_size.MessageSizeBottomSheetContent
 import ly.img.cesdk.bottomsheet.template_colors.TemplateColorsBottomSheetContent
 import ly.img.cesdk.bottomsheet.template_colors.TemplateColorsUiState
+import ly.img.cesdk.core.data.font.FontData
+import ly.img.cesdk.core.engine.FONT_BASE_PATH
+import ly.img.cesdk.core.engine.deselectAllBlocks
 import ly.img.cesdk.editorui.EditorUiViewModel
 import ly.img.cesdk.editorui.Event
-import ly.img.cesdk.engine.FONT_BASE_PATH
 import ly.img.cesdk.engine.LayoutAxis
-import ly.img.cesdk.engine.deselectAllBlocks
 import ly.img.cesdk.engine.getScene
 import ly.img.cesdk.engine.overrideAndRestore
 import ly.img.cesdk.engine.resetHistory
@@ -30,7 +31,6 @@ import ly.img.cesdk.engine.showPage
 import ly.img.cesdk.engine.toComposeColor
 import ly.img.cesdk.engine.toEngineColor
 import ly.img.cesdk.engine.zoomToScene
-import ly.img.cesdk.library.data.font.FontData
 import ly.img.cesdk.rootbar.RootBarItemType
 import ly.img.cesdk.rootbar.rootBarItems
 import ly.img.cesdk.util.ColorType
@@ -104,6 +104,7 @@ class PostcardUiViewModel : EditorUiViewModel() {
                             engine.block.setFillType(it, "color")
                             engine.block.setFillSolidColor(it, engineColor)
                         }
+
                         ColorType.Stroke -> engine.block.setStrokeColor(it, engineColor)
                     }
                 }

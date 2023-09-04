@@ -12,9 +12,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ly.img.cesdk.core.UiDefaults
-import ly.img.cesdk.core.components.PropertyPicker
-import ly.img.cesdk.core.components.SectionHeader
+import ly.img.cesdk.components.PropertyPicker
+import ly.img.cesdk.components.SectionHeader
+import ly.img.cesdk.core.ui.UiDefaults
 import ly.img.cesdk.editorui.BlockEvent
 import ly.img.cesdk.editorui.Event
 import ly.img.cesdk.editorui.R

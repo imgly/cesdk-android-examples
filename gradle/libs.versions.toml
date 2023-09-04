@@ -1,9 +1,9 @@
 [libraries]
-cesdk-engine = "ly.img:engine:1.14.0"
+cesdk-engine = "ly.img:engine:1.15.0"
 
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
 
-compose-bom = "androidx.compose:compose-bom:2023.01.00"
+compose-bom = "androidx.compose:compose-bom:2023.05.01"
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-activity = "androidx.activity:activity-compose:1.6.1"
 compose-navigation = "androidx.navigation:navigation-compose:2.5.3"
@@ -15,3 +15,5 @@ material = "com.google.android.material:material:1.8.0"
 
 colormath = "com.github.ajalt.colormath:colormath:3.2.1"
 colormath-compose = "com.github.ajalt.colormath.extensions:colormath-ext-jetpack-compose:3.2.1"
+
+shimmer = "com.valentinilk.shimmer:compose-shimmer:1.0.5"

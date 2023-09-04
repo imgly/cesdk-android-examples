@@ -27,14 +27,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ly.img.cesdk.core.UiDefaults
-import ly.img.cesdk.core.components.ActionRow
-import ly.img.cesdk.core.components.CardButton
-import ly.img.cesdk.core.components.CheckedTextRow
-import ly.img.cesdk.core.components.NestedSheetHeader
-import ly.img.cesdk.core.components.PropertyLink
-import ly.img.cesdk.core.components.PropertySlider
-import ly.img.cesdk.core.components.SheetHeader
+import ly.img.cesdk.components.ActionRow
+import ly.img.cesdk.components.CardButton
+import ly.img.cesdk.components.CheckedTextRow
+import ly.img.cesdk.components.NestedSheetHeader
+import ly.img.cesdk.components.PropertyLink
+import ly.img.cesdk.components.PropertySlider
 import ly.img.cesdk.core.iconpack.Bringforward
 import ly.img.cesdk.core.iconpack.Bringtofront
 import ly.img.cesdk.core.iconpack.Controlpointduplicate
@@ -42,7 +40,9 @@ import ly.img.cesdk.core.iconpack.Delete
 import ly.img.cesdk.core.iconpack.IconPack
 import ly.img.cesdk.core.iconpack.Sendbackward
 import ly.img.cesdk.core.iconpack.Sendtoback
-import ly.img.cesdk.core.inspectorSheetPadding
+import ly.img.cesdk.core.ui.SheetHeader
+import ly.img.cesdk.core.ui.UiDefaults
+import ly.img.cesdk.core.ui.inspectorSheetPadding
 import ly.img.cesdk.dock.HalfHeightContainer
 import ly.img.cesdk.editorui.BlockEvent
 import ly.img.cesdk.editorui.Event
@@ -64,7 +64,7 @@ fun LayerOptionsSheet(
                 NestedSheetHeader(
                     title = stringResource(R.string.cesdk_blendmode),
                     onBack = { selectBlendMode = false },
-                    onClose = { onEvent(Event.HideSheet) }
+                    onClose = { onEvent(Event.OnHideSheet) }
                 )
                 Card(
                     colors = UiDefaults.cardColors,
@@ -91,7 +91,7 @@ fun LayerOptionsSheet(
             Column {
                 SheetHeader(
                     title = stringResource(id = R.string.cesdk_layer),
-                    onClose = { onEvent(Event.HideSheet) }
+                    onClose = { onEvent(Event.OnHideSheet) }
                 )
 
                 Column(

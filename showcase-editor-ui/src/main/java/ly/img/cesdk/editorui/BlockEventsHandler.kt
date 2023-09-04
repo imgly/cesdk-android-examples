@@ -2,11 +2,13 @@ package ly.img.cesdk.editorui
 
 import android.net.Uri
 import androidx.compose.ui.graphics.Color
+import ly.img.cesdk.core.data.font.FontData
+import ly.img.cesdk.core.data.font.FontFamilyData
+import ly.img.cesdk.core.engine.FONT_BASE_PATH
 import ly.img.cesdk.dock.options.crop.getNormalizedDegrees
 import ly.img.cesdk.dock.options.crop.getRotationDegrees
 import ly.img.cesdk.dock.options.format.HorizontalAlignment
 import ly.img.cesdk.dock.options.format.VerticalAlignment
-import ly.img.cesdk.engine.FONT_BASE_PATH
 import ly.img.cesdk.engine.bringForward
 import ly.img.cesdk.engine.bringToFront
 import ly.img.cesdk.engine.changeLightnessBy
@@ -22,8 +24,6 @@ import ly.img.cesdk.engine.setFillType
 import ly.img.cesdk.engine.setLinearGradientFill
 import ly.img.cesdk.engine.setRadialGradientFill
 import ly.img.cesdk.engine.toEngineColor
-import ly.img.cesdk.library.data.font.FontData
-import ly.img.cesdk.library.data.font.FontFamilyData
 import ly.img.engine.BlendMode
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine

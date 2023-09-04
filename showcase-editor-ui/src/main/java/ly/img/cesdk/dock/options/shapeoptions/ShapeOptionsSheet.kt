@@ -9,9 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ly.img.cesdk.core.components.PropertySlider
-import ly.img.cesdk.core.components.SheetHeader
-import ly.img.cesdk.core.inspectorSheetPadding
+import ly.img.cesdk.components.PropertySlider
+import ly.img.cesdk.core.ui.SheetHeader
+import ly.img.cesdk.core.ui.inspectorSheetPadding
 import ly.img.cesdk.dock.HalfHeightContainer
 import ly.img.cesdk.editorui.BlockEvent
 import ly.img.cesdk.editorui.Event
@@ -26,7 +26,7 @@ fun ShapeOptionsSheet(
         Column {
             SheetHeader(
                 title = stringResource(R.string.cesdk_shape_options),
-                onClose = { onEvent(Event.HideSheet) }
+                onClose = { onEvent(Event.OnHideSheet) }
             )
 
             Column(
