@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import ly.img.cesdk.core.engine.deselectAllBlocks
 import ly.img.cesdk.core.engine.getPage
 import ly.img.cesdk.editorui.EditorUiViewModel
+import ly.img.cesdk.engine.Scope
 import ly.img.cesdk.engine.overrideAndRestore
 import ly.img.cesdk.engine.overrideAndRestoreAsync
 import ly.img.cesdk.engine.showOutline
@@ -31,7 +32,7 @@ class ApparelUiViewModel : EditorUiViewModel() {
     override suspend fun exportSceneAsByteArray(): ByteArray {
         val page = engine.getPage(pageIndex.value)
         lateinit var byteArray: ByteArray
-        engine.overrideAndRestoreAsync(page, "design/style") {
+        engine.overrideAndRestoreAsync(page, Scope.FillChange) {
             val prevPageFill = engine.block.getBoolean(page, "fill/enabled")
             engine.block.setBoolean(page, "fill/enabled", true)
             byteArray = engine.block.export(page, MimeType.PDF)
@@ -47,7 +48,7 @@ class ApparelUiViewModel : EditorUiViewModel() {
 
     private fun pageSetup() {
         with(engine) {
-            overrideAndRestore(getPage(pageIndex.value), "design/style") {
+            overrideAndRestore(getPage(pageIndex.value), Scope.LayerClipping, Scope.FillChange) {
                 editor.setSettingBoolean("ubq://page/dimOutOfPageAreas", false)
                 block.setClipped(it, true)
                 block.setBoolean(it, "fill/enabled", false)

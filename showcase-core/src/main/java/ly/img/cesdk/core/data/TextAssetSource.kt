@@ -9,19 +9,23 @@ import kotlin.math.ceil
 
 internal class TextAssetSource : AssetSource(ly.img.cesdk.core.data.AssetSource.Text.sourceId) {
 
-    private val assets = listOf(
-        createAsset("title", "Title", 700, 32),
-        createAsset("headline", "Headline", 500, 18),
-        createAsset("body", "Body", 400, 14)
-    )
+    val assets: List<Asset>
+
+    init {
+        assets = listOf(
+            createAsset("title", "Title", 700, 32),
+            createAsset("headline", "Headline", 500, 18),
+            createAsset("body", "Body", 400, 14)
+        )
+    }
 
     override suspend fun findAssets(query: FindAssetsQuery): FindAssetsResult {
+        val totalPages = ceil(assets.size.toDouble() / query.perPage).toInt() - 1
         val filteredAssets = assets.filter { it.id.contains(query.query ?: "", ignoreCase = true) }
-        val totalPages = ceil(filteredAssets.size.toDouble() / query.perPage).toInt()
         return FindAssetsResult(
-            assets = filteredAssets.subList(query.page * query.perPage, filteredAssets.size).take(query.perPage),
+            assets = filteredAssets,
             currentPage = query.page,
-            nextPage = if (query.page == totalPages) -1 else query.page + 1,
+            nextPage = if (query.page == totalPages) -1 else totalPages + 1,
             total = filteredAssets.size
         )
     }

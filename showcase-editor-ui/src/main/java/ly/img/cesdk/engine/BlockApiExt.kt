@@ -3,9 +3,9 @@ package ly.img.cesdk.engine
 import ly.img.engine.BlockApi
 import ly.img.engine.DesignBlock
 import ly.img.engine.FillType
-import ly.img.engine.GradientType
 import ly.img.engine.GradientColorStop
-import java.lang.IllegalStateException
+import ly.img.engine.GradientType
+import ly.img.engine.RGBAColor
 
 fun BlockApi.getFillType(designBlock: DesignBlock): FillType? {
     return if (!this.hasFill(designBlock)) null
@@ -29,8 +29,7 @@ fun BlockApi.getGradientFillType(designBlock: DesignBlock): GradientType? {
     }
 }
 
-
-fun BlockApi.setFillType(designBlock: DesignBlock, type: String) : DesignBlock {
+fun BlockApi.setFillType(designBlock: DesignBlock, type: String): DesignBlock {
     val oldFill = if (this.hasFill(designBlock)) {
         this.getFill(designBlock)
     } else null
@@ -41,19 +40,20 @@ fun BlockApi.setFillType(designBlock: DesignBlock, type: String) : DesignBlock {
         val newFill = this.createFill(type)
         this.setFill(designBlock, newFill)
         if (oldFill != null) {
-            this.setScopeEnabled(oldFill, "lifecycle/destroy", true)
+            this.setScopeEnabled(oldFill, Scope.LifecycleDestroy, true)
             this.destroy(oldFill)
         }
         newFill
     }
 }
+
 fun BlockApi.setLinearGradientFill(
     designBlock: DesignBlock,
-    startPointX : Float,
-    startPointY : Float,
-    endPointX : Float,
-    endPointY : Float,
-    colorStops:List<GradientColorStop>? = null
+    startPointX: Float,
+    startPointY: Float,
+    endPointX: Float,
+    endPointY: Float,
+    colorStops: List<GradientColorStop>? = null
 ) {
 
     val fill = this.setFillType(designBlock, "gradient/linear")
@@ -69,10 +69,10 @@ fun BlockApi.setLinearGradientFill(
 
 fun BlockApi.setRadialGradientFill(
     designBlock: DesignBlock,
-    centerPointX : Float,
-    centerPointY : Float,
+    centerPointX: Float,
+    centerPointY: Float,
     radius: Float,
-    colorStops:List<GradientColorStop>? = null
+    colorStops: List<GradientColorStop>? = null
 ) {
     val fill = this.setFillType(designBlock, "gradient/radial")
 
@@ -86,9 +86,9 @@ fun BlockApi.setRadialGradientFill(
 
 fun BlockApi.setConicalGradientFill(
     designBlock: DesignBlock,
-    centerPointX : Float,
-    centerPointY : Float,
-    colorStops:List<GradientColorStop>? = null
+    centerPointX: Float,
+    centerPointY: Float,
+    colorStops: List<GradientColorStop>? = null
 ) {
     val fill = this.setFillType(designBlock, "gradient/conical")
 
@@ -102,7 +102,10 @@ fun BlockApi.setConicalGradientFill(
 fun BlockApi.getFillInfo(designBlock: DesignBlock): Fill? {
     return if (!this.hasFill(designBlock)) null
     else when (this.getFillType(designBlock)) {
-        FillType.SOLID -> SolidFill(checkNotNull(this.getColor(designBlock, "fill/solid/color").toComposeColor()))
+        FillType.SOLID -> {
+            val rgbaColor = this.getColor(designBlock, "fill/solid/color") as RGBAColor
+            SolidFill(rgbaColor.toComposeColor())
+        }
         FillType.GRADIENT -> {
             val fill = this.getFill(designBlock)
             when (this.getGradientFillType(designBlock)) {
@@ -113,22 +116,25 @@ fun BlockApi.getFillInfo(designBlock: DesignBlock): Fill? {
                     endPointY = this.getFloat(fill, "fill/gradient/linear/endPointY"),
                     colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
                 )
+
                 GradientType.RADIAL -> RadialGradientFill(
                     centerX = this.getFloat(fill, "fill/gradient/radial/centerPointX"),
                     centerY = this.getFloat(fill, "fill/gradient/radial/centerPointY"),
                     radius = this.getFloat(fill, "fill/gradient/radial/radius"),
                     colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
                 )
+
                 GradientType.CONICAL -> ConicalGradientFill(
                     centerX = this.getFloat(fill, "fill/gradient/conical/centerPointX"),
                     centerY = this.getFloat(fill, "fill/gradient/conical/centerPointY"),
                     colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
                 )
+
                 null -> throw IllegalStateException("Fill type gradient, but gradient fill type is null")
             }
         }
-        FillType.IMAGE -> TODO("Image fill is not supported yet")
-        FillType.VIDEO -> TODO("Video fill is not supported yet")
-        null -> null
+
+        // Image fill and Video fill are not supported yet
+        else -> null
     }
 }
