@@ -1,7 +1,5 @@
 package ly.img.cesdk.engine
 
-const val SHAPES_PREFIX = "//ly.img.ubq/shapes/"
-
 const val OUTLINE_BLOCK_NAME = "always-on-top-page-outline"
 
 const val TEXT_EDIT_MODE = "Text"

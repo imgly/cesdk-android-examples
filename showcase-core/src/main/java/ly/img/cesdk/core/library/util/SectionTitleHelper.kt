@@ -15,7 +15,7 @@ internal fun getTitleRes(libraryCategory: LibraryCategory): Int {
         LibraryCategory.Shapes -> R.string.cesdk_shapes
         LibraryCategory.Stickers -> R.string.cesdk_stickers
         LibraryCategory.Text -> R.string.cesdk_text
-        LibraryCategory.Video -> R.string.cesdk_videos
+        LibraryCategory.Video -> R.string.cesdk_video
     }
 }
 
@@ -27,7 +27,7 @@ internal fun getTitleRes(id: String): Int {
         AssetSource.Images.sourceId -> R.string.cesdk_images
         AssetSource.ImageUploads.sourceId -> R.string.cesdk_image_uploads
         AssetSource.Unsplash.sourceId -> R.string.cesdk_unsplash
-        AssetSource.Videos.sourceId -> R.string.cesdk_videos
+        AssetSource.Videos.sourceId -> R.string.cesdk_video
         AssetSource.VideoUploads.sourceId -> R.string.cesdk_video_uploads
         AssetSource.Audio.sourceId -> R.string.cesdk_audio
         AssetSource.AudioUploads.sourceId -> R.string.cesdk_audio_uploads

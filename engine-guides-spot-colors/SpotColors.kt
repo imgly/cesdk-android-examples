@@ -31,25 +31,25 @@ fun spotColors() = CoroutineScope(Dispatchers.Main).launch {
 	engine.editor.setSpotColor(name = "Crayola-Pink-Flamingo", Color.fromRGBA(r = 0.988F, g = 0.455F, b = 0.992F, a = 1F))
 	engine.editor.setSpotColor(name = "Pantone-ColorOfTheYear-2022", Color.fromRGBA(r = 0.4F, g = 0.404F, b = 0.671F, a = 1F))
 	engine.editor.setSpotColor(name = "Yellow", Color.fromRGBA(r = 1F, g = 1F, b = 0F, a = 1F))
-	engine.editor.getSpotColor(name = "Yellow") // (r: 1, g: 1, b: 0)
+	engine.editor.getSpotColorRGB(name = "Yellow") // (r: 1F, g: 1F, b: 0F)
 	engine.editor.findAllSpotColors() // ["Crayola-Pink-Flamingo", "Pantone-ColorOfTheYear-2022", "Yellow"]
 	// highlight-create
 
 	// highlight-apply-star
-	engine.block.setColorSpot(star, property = "fill/solid/color", name = "Crayola-Pink-Flamingo")
-	engine.block.setColorSpot(star, property = "stroke/color", name = "Yellow", tint = 0.8F)
+	engine.block.setColor(star, property = "fill/solid/color", value = Color.fromSpotColor(name = "Crayola-Pink-Flamingo"))
+	engine.block.setColor(star, property = "stroke/color", value = Color.fromSpotColor(name = "Yellow", tint = 0.8F))
 	engine.block.setStrokeEnabled(star, enabled = true)
 
-	engine.block.getColorSpotName(star, property = "fill/solid/color") // "Crayola-Pink-Flamingo"
-	engine.block.getColorSpotTint(star, property = "stroke/color") // 0.8
+	engine.block.getColor(star, property = "fill/solid/color") // SpotColor with name "Crayola-Pink-Flamingo" with 1F tint
+	engine.block.getColor(star, property = "stroke/color") // SpotColor with name "Yellow" and 0.8F tint
 	// highlight-apply-star
 
 	// highlight-apply-text
-	engine.block.setColorSpot(text, property = "fill/solid/color", name = "Yellow")
-	engine.block.setColorSpot(text, property = "stroke/color", name = "Crayola-Pink-Flamingo", tint = 0.5F)
+	engine.block.setColor(text, property = "fill/solid/color", value = Color.fromSpotColor(name = "Yellow"))
+	engine.block.setColor(text, property = "stroke/color", value = Color.fromSpotColor(name = "Crayola-Pink-Flamingo", tint = 0.5F))
 	engine.block.setStrokeEnabled(text, enabled = true)
 
-	engine.block.setColorSpot(text, property = "backgroundColor/color", name = "Pantone-ColorOfTheYear-2022", tint = 0.9F)
+	engine.block.setColor(text, property = "backgroundColor/color", value = Color.fromSpotColor(name = "Pantone-ColorOfTheYear-2022", tint = 0.9F))
 	engine.block.setBackgroundColorEnabled(text, enabled = true)
 	// highlight-apply-text
 
