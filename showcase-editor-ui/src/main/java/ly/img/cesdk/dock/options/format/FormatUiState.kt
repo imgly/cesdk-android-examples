@@ -3,6 +3,7 @@ package ly.img.cesdk.dock.options.format
 import androidx.annotation.StringRes
 import ly.img.cesdk.core.data.font.FontData
 import ly.img.cesdk.core.data.font.FontFamilyData
+import ly.img.cesdk.engine.Scope
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
 
@@ -62,6 +63,6 @@ internal fun createFormatUiState(
         lineHeight = engine.block.getFloat(designBlock, "text/lineHeight"),
         sizeModeRes = engine.block.getHeightMode(designBlock).getText(),
         fontFamilies = families.values.toList(),
-        isArrangeResizeAllowed = engine.block.isAllowedByScope(designBlock, "design/arrange/resize")
+        isArrangeResizeAllowed = engine.block.isAllowedByScope(designBlock, Scope.LayerResize)
     )
 }

@@ -10,7 +10,7 @@ internal sealed class LibraryCategory(val assetSourceGroups: List<AssetSourceGro
     object Video : LibraryCategory(
         listOf(
             AssetSourceGroup(
-                R.string.cesdk_videos,
+                R.string.cesdk_video,
                 listOf(AssetSource.VideoUploads, AssetSource.Videos),
                 AssetSourceGroupType.Video
             ),

@@ -16,7 +16,6 @@ import ly.img.cesdk.engine.delete
 import ly.img.cesdk.engine.duplicate
 import ly.img.cesdk.engine.getFillType
 import ly.img.cesdk.engine.getGradientFillType
-import ly.img.cesdk.engine.overrideAndRestore
 import ly.img.cesdk.engine.sendBackward
 import ly.img.cesdk.engine.sendToBack
 import ly.img.cesdk.engine.setConicalGradientFill
@@ -50,8 +49,23 @@ fun handleBlockEvent(engine: Engine, block: DesignBlock, fontFamilyMap: Map<Stri
         is BlockEvent.OnChangeOpacity -> engine.block.setOpacity(block, event.opacity)
         is BlockEvent.OnChangeFillColor -> onChangeFillColor(engine, block, event.color)
         is BlockEvent.OnChangeGradientFillColors -> onChangeGradientFillColor(engine, block, event.index, event.color)
-        is BlockEvent.OnChangeLinearGradientParams -> onChangeLinearGradientParams(engine, block, event.startX, event.startY, event.endX, event.endY)
-        is BlockEvent.OnChangeRadialGradientParams -> onChangeRadialGradientParams(engine, block, event.centerX, event.centerY, event.radius)
+        is BlockEvent.OnChangeLinearGradientParams -> onChangeLinearGradientParams(
+            engine,
+            block,
+            event.startX,
+            event.startY,
+            event.endX,
+            event.endY
+        )
+
+        is BlockEvent.OnChangeRadialGradientParams -> onChangeRadialGradientParams(
+            engine,
+            block,
+            event.centerX,
+            event.centerY,
+            event.radius
+        )
+
         is BlockEvent.OnChangeConicalGradientParams -> onChangeConicalGradientParams(engine, block, event.centerX, event.centerY)
         BlockEvent.OnDisableFill -> onDisableFill(engine, block)
         BlockEvent.OnEnableFill -> onEnableFill(engine, block)
@@ -62,9 +76,9 @@ fun handleBlockEvent(engine: Engine, block: DesignBlock, fontFamilyMap: Map<Stri
         is BlockEvent.OnChangeStrokeStyle -> onChangeStrokeStyle(engine, block, event.style)
         is BlockEvent.OnChangeStrokeWidth -> engine.block.setStrokeWidth(block, exp(event.width.toDouble()).toFloat())
         is BlockEvent.OnChangeFillStyle -> onChangeFillStyle(engine, block, event.style)
-        is BlockEvent.OnChangeStarInnerDiameter -> engine.block.setFloat(block, "shapes/star/innerDiameter", event.diameter)
-        is BlockEvent.OnChangeStarPoints -> engine.block.setInt(block, "shapes/star/points", event.points.toInt())
-        is BlockEvent.OnChangePolygonSides -> engine.block.setInt(block, "shapes/polygon/sides", event.sides.toInt())
+        is BlockEvent.OnChangeStarInnerDiameter -> engine.block.setFloat(engine.block.getShape(block), "shapes/star/innerDiameter", event.diameter)
+        is BlockEvent.OnChangeStarPoints -> engine.block.setInt(engine.block.getShape(block), "shapes/star/points", event.points.toInt())
+        is BlockEvent.OnChangePolygonSides -> engine.block.setInt(engine.block.getShape(block), "shapes/polygon/sides", event.sides.toInt())
         is BlockEvent.OnChangeLineWidth -> onChangeLineWidth(engine, block, event.width)
         is BlockEvent.OnBold -> onBold(engine, block, fontFamilyMap, event.fontFamily, event.bold)
         is BlockEvent.OnItalicize -> onItalicize(engine, block, fontFamilyMap, event.fontFamily, event.italicize)
@@ -213,13 +227,14 @@ private fun setGradientColorAtIndex(engine: Engine, fillBlock: DesignBlock, inde
         }
     )
 }
+
 private fun onChangeFillColor(engine: Engine, block: DesignBlock, color: Color) {
     engine.block.setFillEnabled(block, true)
     engine.block.setFillType(block, "color")
     engine.block.setFillSolidColor(block, color.toEngineColor())
 }
 
-private fun onChangeGradientFillColor(engine: Engine, block: DesignBlock, index:Int, color: Color) {
+private fun onChangeGradientFillColor(engine: Engine, block: DesignBlock, index: Int, color: Color) {
     engine.block.setFillEnabled(block, true)
     val fillType = engine.block.getFillType(block)
     val fillBlock = engine.block.getFill(block)
@@ -263,6 +278,7 @@ private fun onChangeFillStyle(engine: Engine, block: DesignBlock, style: String)
         FillType.GRADIENT -> {
             engine.block.getGradientColorStops(engine.block.getFill(block), "fill/gradient/colors")
         }
+
         FillType.SOLID -> {
             val originalColor = engine.block.getFillSolidColor(block)
             listOf(
@@ -270,6 +286,7 @@ private fun onChangeFillStyle(engine: Engine, block: DesignBlock, style: String)
                 GradientColorStop(1f, originalColor.changeLightnessBy(0.4f))
             )
         }
+
         else -> {
             listOf(
                 GradientColorStop(0f, Color.White.toEngineColor()),
@@ -292,6 +309,7 @@ private fun onChangeFillStyle(engine: Engine, block: DesignBlock, style: String)
                     0.5f, 1.0f,
                     colorStops = colorStops
                 )
+
                 GradientType.RADIAL -> engine.block.setRadialGradientFill(
                     block,
                     0.5f, 0.5f,
@@ -304,9 +322,11 @@ private fun onChangeFillStyle(engine: Engine, block: DesignBlock, style: String)
                     0.5f, 0.5f,
                     colorStops = colorStops
                 )
+
                 else -> throw UnsupportedOperationException("Gradient type not supported")
             }
         }
+
         else -> throw UnsupportedOperationException("Fill type not supported")
     }
 
@@ -320,10 +340,7 @@ private fun onChangeBlendMode(engine: Engine, designBlock: DesignBlock, blendMod
 }
 
 private fun onResetCrop(engine: Engine, designBlock: DesignBlock) {
-    engine.overrideAndRestore(designBlock, "design/style") {
-        // Reset crop requires "design/style" scope but crop UI should be based on "content/replace".
-        engine.block.resetCrop(it)
-    }
+    engine.block.resetCrop(designBlock)
     engine.editor.addUndoStep()
 }
 

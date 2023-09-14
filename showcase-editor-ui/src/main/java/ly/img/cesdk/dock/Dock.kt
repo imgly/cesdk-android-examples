@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import ly.img.cesdk.core.iconpack.Close
 import ly.img.cesdk.core.iconpack.IconPack
 import ly.img.cesdk.core.ui.SheetHeader
-import ly.img.cesdk.engine.Block
+import ly.img.cesdk.editorui.Block
 
 @Composable
 fun Dock(
