@@ -2,8 +2,10 @@ package ly.img.cesdk.dock.options.fillstroke
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
+import ly.img.cesdk.editorui.Block
 import ly.img.cesdk.editorui.R
-import ly.img.cesdk.engine.Block
+import ly.img.cesdk.engine.getFillType
+import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 
 data class FillStrokeUiState(
@@ -14,20 +16,22 @@ data class FillStrokeUiState(
 
 internal fun createFillStrokeUiState(block: Block, engine: Engine, colorPalette: List<Color>): FillStrokeUiState {
     val designBlock = block.designBlock
-    val hasFill = engine.block.hasFill(designBlock)
+    val fillType = engine.block.getFillType(designBlock)
+    val hasSolidOrGradientFill =
+        (fillType == DesignBlockType.COLOR_FILL || fillType == DesignBlockType.LINEAR_GRADIENT_FILL || fillType == DesignBlockType.RADIAL_GRADIENT_FILL || fillType == DesignBlockType.CONICAL_GRADIENT_FILL)
     val hasStroke = engine.block.hasStroke(designBlock)
     val palette = colorPalette.take(6)
     return FillStrokeUiState(
-        titleRes = getFillStrokeTitleRes(hasFill, hasStroke),
-        fillUiState = if (hasFill) createFillUiState(block, engine, palette) else null,
+        titleRes = getFillStrokeTitleRes(hasSolidOrGradientFill, hasStroke),
+        fillUiState = if (hasSolidOrGradientFill) createFillUiState(block, engine, palette) else null,
         strokeUiState = if (hasStroke) createStrokeUiState(block, engine, palette) else null
     )
 }
 
-fun getFillStrokeTitleRes(hasFill: Boolean, hasStroke: Boolean): Int {
-    return if (hasFill && hasStroke) {
+fun getFillStrokeTitleRes(hasSolidOrGradientFill: Boolean, hasStroke: Boolean): Int {
+    return if (hasSolidOrGradientFill && hasStroke) {
         R.string.cesdk_fill_and_stroke
-    } else if (hasFill) {
+    } else if (hasSolidOrGradientFill) {
         R.string.cesdk_fill
     } else if (hasStroke) {
         R.string.cesdk_stroke

@@ -2,11 +2,10 @@ package ly.img.cesdk.dock.options.fillstroke
 
 import ly.img.cesdk.components.Property
 import ly.img.cesdk.editorui.R
-import ly.img.engine.FillType
-import ly.img.engine.GradientType
+import ly.img.engine.DesignBlockType
 
 val fillTypePropertiesList = listOf(
     Property(R.string.cesdk_fill_none, "NONE"),
-    Property(R.string.cesdk_fill_solid, FillType.SOLID.name),
-    Property(R.string.cesdk_fill_type_gradient_linear, GradientType.LINEAR.name)
+    Property(R.string.cesdk_fill_solid, DesignBlockType.COLOR_FILL.key),
+    Property(R.string.cesdk_fill_type_gradient_linear, DesignBlockType.LINEAR_GRADIENT_FILL.key)
 )

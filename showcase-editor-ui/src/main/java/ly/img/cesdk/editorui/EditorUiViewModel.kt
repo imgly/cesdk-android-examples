@@ -42,12 +42,10 @@ import ly.img.cesdk.dock.options.fillstroke.createFillStrokeUiState
 import ly.img.cesdk.dock.options.format.createFormatUiState
 import ly.img.cesdk.dock.options.layer.createLayerUiState
 import ly.img.cesdk.dock.options.shapeoptions.createShapeOptionsUiState
-import ly.img.cesdk.engine.Block
 import ly.img.cesdk.engine.CROP_EDIT_MODE
 import ly.img.cesdk.engine.TEXT_EDIT_MODE
 import ly.img.cesdk.engine.TRANSFORM_EDIT_MODE
 import ly.img.cesdk.engine.addOutline
-import ly.img.cesdk.engine.createBlock
 import ly.img.cesdk.engine.isPlaceholder
 import ly.img.cesdk.engine.resetHistory
 import ly.img.cesdk.engine.showOutline

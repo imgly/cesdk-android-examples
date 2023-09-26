@@ -34,5 +34,7 @@ def useLocalEngine = {
 if (System.getenv("UBQ_USE_LOCAL_ENGINE") == "true" || useLocalEngine()) {
     include ':ubq-android-engine'
     project(':ubq-android-engine').projectDir = new File('../../bindings/android')
+    include ':ubq-android-camera'
+    project(':ubq-android-camera').projectDir = new File('../cesdk_android_camera')
 }
 // Internal use only

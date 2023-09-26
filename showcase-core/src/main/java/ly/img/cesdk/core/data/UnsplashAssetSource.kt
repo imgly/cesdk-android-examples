@@ -93,7 +93,8 @@ internal class UnsplashAssetSource(private val baseUrl: String) :
         meta = mapOf(
             "uri" to getJSONObject("urls").getString("full"),
             "thumbUri" to getJSONObject("urls").getString("thumb"),
-            "blockType" to "//ly.img.ubq/image",
+            "kind" to "image",
+            "fillType" to "//ly.img.ubq/fill/image",
             "width" to getInt("width").toString(),
             "height" to getInt("height").toString()
         ),

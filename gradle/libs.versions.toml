@@ -1,5 +1,10 @@
+[versions]
+camera = "1.3.0-rc01"
+
+
 [libraries]
-cesdk-engine = "ly.img:engine:1.15.0"
+cesdk-engine = "ly.img:engine:1.16.0"
+cesdk-engine-camera = "ly.img:engine-camera:1.16.0"
 
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
 
@@ -17,3 +22,9 @@ colormath = "com.github.ajalt.colormath:colormath:3.2.1"
 colormath-compose = "com.github.ajalt.colormath.extensions:colormath-ext-jetpack-compose:3.2.1"
 
 shimmer = "com.valentinilk.shimmer:compose-shimmer:1.0.5"
+
+camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "camera" }
+camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camera" }
+camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camera" }
+camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camera" }
+camera-video = { group = "androidx.camera", name = "camera-video", version.ref = "camera" }

@@ -24,8 +24,10 @@ import ly.img.cesdk.core.data.WrappedFindAssetsResult
 import ly.img.cesdk.core.data.font.FontFamilyData
 import ly.img.cesdk.core.data.getMeta
 import ly.img.cesdk.core.data.getUri
+import ly.img.cesdk.core.engine.BlockKind
 import ly.img.cesdk.core.engine.ROLE
 import ly.img.cesdk.core.engine.ROLE_ADOPTER
+import ly.img.cesdk.core.engine.getKindEnum
 import ly.img.cesdk.core.library.components.section.LibrarySectionItem
 import ly.img.cesdk.core.library.engine.addText
 import ly.img.cesdk.core.library.engine.replaceSticker
@@ -44,7 +46,6 @@ import ly.img.cesdk.core.library.util.getTitleRes
 import ly.img.engine.Asset
 import ly.img.engine.AssetDefinition
 import ly.img.engine.DesignBlock
-import ly.img.engine.DesignBlockType
 import ly.img.engine.FindAssetsQuery
 import ly.img.engine.FindAssetsResult
 import ly.img.engine.SceneMode
@@ -251,7 +252,7 @@ internal class LibraryViewModel : ViewModel() {
                 engine.replaceSticker(designBlock, asset.getUri())
             } else {
                 engine.asset.applyAssetSourceAsset(assetSource.sourceId, asset, designBlock)
-                if (engine.block.getType(designBlock) == DesignBlockType.IMAGE.key && engine.editor.getSettingEnum(ROLE) == ROLE_ADOPTER) {
+                if (engine.block.getKindEnum(designBlock) == BlockKind.Image && engine.editor.getSettingEnum(ROLE) == ROLE_ADOPTER) {
                     engine.block.setPlaceholderEnabled(designBlock, false)
                 }
             }
@@ -731,7 +732,8 @@ internal class LibraryViewModel : ViewModel() {
                 meta = mapOf(
                     "uri" to uriString,
                     "thumbUri" to uriString,
-                    "blockType" to DesignBlockType.IMAGE.key,
+                    "kind" to "image",
+                    "fillType" to "//ly.img.ubq/fill/image",
                     "width" to width.toString(),
                     "height" to height.toString()
                 )

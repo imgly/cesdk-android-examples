@@ -2,6 +2,7 @@ package ly.img.cesdk.util
 
 import ly.img.cesdk.core.engine.getPage
 import ly.img.cesdk.engine.GradientFill
+import ly.img.cesdk.engine.Scope
 import ly.img.cesdk.engine.SolidFill
 import ly.img.cesdk.engine.getFillInfo
 import ly.img.cesdk.engine.overrideAndRestore
@@ -45,7 +46,10 @@ private fun Engine.getSelectionColors(
     ignoreScope: Boolean,
     selectionColors: SelectionColors
 ) {
-    if (!block.isScopeEnabled(designBlock, "design/style") && !ignoreScope) {
+    if (!(block.isScopeEnabled(designBlock, Scope.FillChange) ||
+            block.isScopeEnabled(designBlock, Scope.StrokeChange)) &&
+        !ignoreScope
+    ) {
         return
     }
     val name = block.getName(designBlock)
@@ -65,7 +69,9 @@ private fun Engine.getSelectionColors(
                 }
             } else null
 
-            ColorType.Stroke -> if (block.isStrokeEnabled(designBlock) || includeDisabled) block.getStrokeColor(designBlock) else null
+            ColorType.Stroke -> if (block.isStrokeEnabled(designBlock) || includeDisabled) {
+                block.getStrokeColor(designBlock) as RGBAColor
+            } else null
         } ?: return null
 
         selectionColors.add(designBlock, name, color, colorType)
@@ -84,14 +90,16 @@ private fun Engine.getSelectionColors(
                 ColorType.Stroke -> block.getStrokeColor(designBlock)
             }
             if (setDisabled && propertyColor != color) {
-                overrideAndRestore(designBlock, "design/style") {
-                    when (colorType) {
-                        ColorType.Fill -> {
+                when (colorType) {
+                    ColorType.Fill -> {
+                        overrideAndRestore(designBlock, Scope.FillChange) {
                             block.setFillType(designBlock, "color")
                             block.setFillSolidColor(designBlock, color)
                         }
+                    }
 
-                        ColorType.Stroke -> block.setStrokeColor(designBlock, color)
+                    ColorType.Stroke -> overrideAndRestore(designBlock, Scope.StrokeChange) {
+                        block.setStrokeColor(designBlock, color)
                     }
                 }
             }
