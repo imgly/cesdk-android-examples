@@ -22,6 +22,7 @@ import ly.img.cesdk.core.engine.deselectAllBlocks
 import ly.img.cesdk.editorui.EditorUiViewModel
 import ly.img.cesdk.editorui.Event
 import ly.img.cesdk.engine.LayoutAxis
+import ly.img.cesdk.engine.Scope
 import ly.img.cesdk.engine.getScene
 import ly.img.cesdk.engine.overrideAndRestore
 import ly.img.cesdk.engine.resetHistory
@@ -97,15 +98,15 @@ class PostcardUiViewModel : EditorUiViewModel() {
         namedColor.colorTypeBlocksMapping.forEach {
             val colorType = it.key
             val designBlockSet = it.value
-            designBlockSet.forEach {
-                engine.overrideAndRestore(it, "design/style") {
-                    when (colorType) {
-                        ColorType.Fill -> {
-                            engine.block.setFillType(it, "color")
-                            engine.block.setFillSolidColor(it, engineColor)
-                        }
+            designBlockSet.forEach { block ->
+                when (colorType) {
+                    ColorType.Fill -> engine.overrideAndRestore(block, Scope.FillChange) {
+                        engine.block.setFillType(block, "color")
+                        engine.block.setFillSolidColor(block, engineColor)
+                    }
 
-                        ColorType.Stroke -> engine.block.setStrokeColor(it, engineColor)
+                    ColorType.Stroke -> engine.overrideAndRestore(block, Scope.StrokeChange) {
+                        engine.block.setStrokeColor(block, engineColor)
                     }
                 }
             }
@@ -113,7 +114,7 @@ class PostcardUiViewModel : EditorUiViewModel() {
     }
 
     override fun onSceneLoad() {
-        engine.editor.setGlobalScope("editor/add", GlobalScope.DEFER)
+        engine.editor.setGlobalScope(Scope.EditorAdd, GlobalScope.DEFER)
     }
 
     override fun enterEditMode() {
@@ -235,7 +236,7 @@ class PostcardUiViewModel : EditorUiViewModel() {
     }
 
     private fun onChangeMessageColor(color: Color) {
-        engine.overrideAndRestore(engine.requirePinnedBlock(), "design/style") {
+        engine.overrideAndRestore(engine.requirePinnedBlock(), Scope.FillChange) {
             engine.block.setFillSolidColor(it, color.toEngineColor())
         }
     }

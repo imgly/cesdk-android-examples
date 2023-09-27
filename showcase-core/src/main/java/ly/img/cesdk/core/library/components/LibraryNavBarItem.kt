@@ -33,7 +33,7 @@ internal sealed class LibraryNavBarItem(
         IconPack.Libraryelements
     )
 
-    object Video : LibraryNavBarItem(LibraryCategory.Video, R.string.cesdk_videos, IconPack.Playboxoutline, IconPack.Playbox)
+    object Video : LibraryNavBarItem(LibraryCategory.Video, R.string.cesdk_video, IconPack.Playboxoutline, IconPack.Playbox)
     object Audio : LibraryNavBarItem(LibraryCategory.Audio, R.string.cesdk_audio, IconPack.Music, IconPack.Music)
     object Text : LibraryNavBarItem(LibraryCategory.Text, R.string.cesdk_text, IconPack.Textfields, IconPack.Textfields)
     object Images : LibraryNavBarItem(LibraryCategory.Images, R.string.cesdk_images, IconPack.Imageoutline, IconPack.Image)

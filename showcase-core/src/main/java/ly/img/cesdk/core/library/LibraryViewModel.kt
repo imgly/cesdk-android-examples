@@ -24,8 +24,10 @@ import ly.img.cesdk.core.data.WrappedFindAssetsResult
 import ly.img.cesdk.core.data.font.FontFamilyData
 import ly.img.cesdk.core.data.getMeta
 import ly.img.cesdk.core.data.getUri
+import ly.img.cesdk.core.engine.BlockKind
 import ly.img.cesdk.core.engine.ROLE
 import ly.img.cesdk.core.engine.ROLE_ADOPTER
+import ly.img.cesdk.core.engine.getKindEnum
 import ly.img.cesdk.core.library.components.section.LibrarySectionItem
 import ly.img.cesdk.core.library.engine.addText
 import ly.img.cesdk.core.library.engine.replaceSticker
@@ -44,7 +46,6 @@ import ly.img.cesdk.core.library.util.getTitleRes
 import ly.img.engine.Asset
 import ly.img.engine.AssetDefinition
 import ly.img.engine.DesignBlock
-import ly.img.engine.DesignBlockType
 import ly.img.engine.FindAssetsQuery
 import ly.img.engine.FindAssetsResult
 import ly.img.engine.SceneMode
@@ -69,7 +70,7 @@ internal class LibraryViewModel : ViewModel() {
             if (isSceneModeVideo) {
                 add(
                     AssetSourceGroup(
-                        R.string.cesdk_videos,
+                        R.string.cesdk_video,
                         listOf(
                             AssetSource.VideoUploads,
                             AssetSource.Videos
@@ -175,7 +176,7 @@ internal class LibraryViewModel : ViewModel() {
             is LibraryEvent.OnEnterSearchMode -> onEnterSearchMode(event.enter, event.libraryCategory)
             is LibraryEvent.OnFetch -> onFetch(event.libraryCategory)
             is LibraryEvent.OnPopStack -> onPopStack(event.libraryCategory)
-            is LibraryEvent.OnSearchTextChange -> onSearchTextChange(event.value, event.libraryCategory, event.debounce)
+            is LibraryEvent.OnSearchTextChange -> onSearchTextChange(event.value, event.libraryCategory)
             is LibraryEvent.OnReplaceAsset -> onReplaceAsset(event.assetSource, event.asset, event.designBlock)
             is LibraryEvent.OnReplaceUri -> onReplaceUri(event.assetSource, event.uri, event.designBlock)
             is LibraryEvent.OnAddAsset -> onAddAsset(event.assetSource, event.asset)
@@ -251,7 +252,7 @@ internal class LibraryViewModel : ViewModel() {
                 engine.replaceSticker(designBlock, asset.getUri())
             } else {
                 engine.asset.applyAssetSourceAsset(assetSource.sourceId, asset, designBlock)
-                if (engine.block.getType(designBlock) == DesignBlockType.IMAGE.key && engine.editor.getSettingEnum(ROLE) == ROLE_ADOPTER) {
+                if (engine.block.getKindEnum(designBlock) == BlockKind.Image && engine.editor.getSettingEnum(ROLE) == ROLE_ADOPTER) {
                     engine.block.setPlaceholderEnabled(designBlock, false)
                 }
             }
@@ -274,7 +275,7 @@ internal class LibraryViewModel : ViewModel() {
 
     private fun onDispose(libraryCategory: LibraryCategory) {
         // clear search
-        onSearchTextChange("", libraryCategory, debounce = false, force = true)
+        onSearchTextChange("", libraryCategory, force = true)
         // get out of search mode
         onEnterSearchMode(enter = false, libraryCategory)
         // go to root
@@ -289,7 +290,7 @@ internal class LibraryViewModel : ViewModel() {
         uiStateFlow.update { it.copy(isInSearchMode = enter) }
     }
 
-    private fun onSearchTextChange(value: String, libraryCategory: LibraryCategory, debounce: Boolean, force: Boolean = false) {
+    private fun onSearchTextChange(value: String, libraryCategory: LibraryCategory, force: Boolean = false) {
         val categoryData = getLibraryCategoryData(libraryCategory)
         val oldValue = categoryData.uiStateFlow.value.searchText
         if (!force && oldValue == value) return
@@ -300,8 +301,8 @@ internal class LibraryViewModel : ViewModel() {
         categoryData.searchJob?.cancel()
 
         viewModelScope.launch {
-            // debounce is only needed when user is typing
-            if (debounce) {
+            // debounce is only needed when user is searching
+            if (!force) {
                 delay(500)
             }
 
@@ -731,7 +732,8 @@ internal class LibraryViewModel : ViewModel() {
                 meta = mapOf(
                     "uri" to uriString,
                     "thumbUri" to uriString,
-                    "blockType" to DesignBlockType.IMAGE.key,
+                    "kind" to "image",
+                    "fillType" to "//ly.img.ubq/fill/image",
                     "width" to width.toString(),
                     "height" to height.toString()
                 )

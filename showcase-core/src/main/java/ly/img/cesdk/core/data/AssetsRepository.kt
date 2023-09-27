@@ -1,5 +1,6 @@
 package ly.img.cesdk.core.data
 
+import android.net.Uri
 import androidx.core.content.edit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,12 +42,15 @@ class AssetsRepository {
         engine.asset.addSource(TextAssetSource())
         coroutineScope {
             launch {
-                engine.addDefaultAssetSources()
+                engine.addDefaultAssetSources(
+                    baseUri = Uri.parse("https://cdn.img.ly/assets/v2")
+                )
             }
             launch {
                 engine.addDemoAssetSources(
                     sceneMode = Environment.sceneMode,
-                    withUploadAssetSources = true
+                    withUploadAssetSources = true,
+                    baseUri = Uri.parse("https://cdn.img.ly/assets/demo/v2")
                 )
             }
         }

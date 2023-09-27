@@ -2,7 +2,9 @@ package ly.img.cesdk.engine
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import ly.img.cesdk.core.engine.BlockKind
 import ly.img.cesdk.core.engine.deselectAllBlocks
+import ly.img.cesdk.core.engine.getKindEnum
 import ly.img.cesdk.core.engine.getPage
 import ly.img.cesdk.core.engine.getSortedPages
 import ly.img.cesdk.core.engine.getStack
@@ -12,6 +14,7 @@ import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.PositionMode
+import ly.img.engine.RGBAColor
 import ly.img.engine.SizeMode
 import ly.img.engine.StrokeStyle
 
@@ -36,7 +39,7 @@ fun Engine.addOutline(designBlock: DesignBlock, parent: DesignBlock) {
     block.setStrokeStyle(outline, StrokeStyle.DOTTED)
     block.setStrokeWidth(outline, 1.0f)
     block.setBlendMode(outline, BlendMode.DIFFERENCE)
-    block.setScopeEnabled(outline, "editor/select", false)
+    block.setScopeEnabled(outline, Scope.EditorSelect, false)
 }
 
 fun Engine.showOutline(show: Boolean, name: String = OUTLINE_BLOCK_NAME) {
@@ -141,7 +144,7 @@ fun Engine.duplicate(designBlock: DesignBlock) {
     val duplicateBlock = block.duplicate(designBlock)
     val positionModeX = block.getPositionXMode(designBlock)
     val positionModeY = block.getPositionYMode(designBlock)
-    overrideAndRestore(designBlock, "design/arrange/move") {
+    overrideAndRestore(designBlock, Scope.LayerMove) {
         block.setPositionXMode(it, PositionMode.ABSOLUTE)
         val x = block.getPositionX(it)
         block.setPositionYMode(it, PositionMode.ABSOLUTE)
@@ -165,20 +168,16 @@ fun Engine.delete(designBlock: DesignBlock) {
     editor.addUndoStep()
 }
 
-fun Engine.isStylingAllowed(designBlock: DesignBlock): Boolean {
-    return block.isAllowedByScope(designBlock, "design/style")
-}
-
 fun Engine.isMoveAllowed(designBlock: DesignBlock): Boolean {
-    return block.isAllowedByScope(designBlock, "editor/add") && !isGrouped(designBlock)
+    return block.isAllowedByScope(designBlock, Scope.EditorAdd) && !isGrouped(designBlock)
 }
 
 fun Engine.isDuplicateAllowed(designBlock: DesignBlock): Boolean {
-    return block.isAllowedByScope(designBlock, "lifecycle/duplicate") && !isGrouped(designBlock)
+    return block.isAllowedByScope(designBlock, Scope.LifecycleDuplicate) && !isGrouped(designBlock)
 }
 
 fun Engine.isDeleteAllowed(designBlock: DesignBlock): Boolean {
-    return block.isAllowedByScope(designBlock, "lifecycle/destroy") && !isGrouped(designBlock)
+    return block.isAllowedByScope(designBlock, Scope.LifecycleDestroy) && !isGrouped(designBlock)
 }
 
 fun Engine.isGrouped(designBlock: DesignBlock): Boolean {
@@ -187,13 +186,13 @@ fun Engine.isGrouped(designBlock: DesignBlock): Boolean {
 }
 
 fun Engine.getFillColor(designBlock: DesignBlock): Color? {
-    return if (!block.hasFill(designBlock)) null
-    else block.getColor(designBlock, "fill/solid/color").toComposeColor()
+    if (!block.hasFill(designBlock)) return null
+    return (block.getColor(designBlock, "fill/solid/color") as RGBAColor).toComposeColor()
 }
 
 fun Engine.getStrokeColor(designBlock: DesignBlock): Color? {
-    return if (!block.hasStroke(designBlock)) null
-    else block.getColor(designBlock, "stroke/color").toComposeColor()
+    if (!block.hasStroke(designBlock)) return null
+    return (block.getColor(designBlock, "stroke/color") as RGBAColor).toComposeColor()
 }
 
 fun Engine.canResetCrop(designBlock: DesignBlock) = block.getContentFillMode(designBlock) == ContentFillMode.CROP
@@ -229,7 +228,7 @@ fun Engine.zoomToSelectedText(insets: Rect, canvasHeight: Float) {
     val newCameraPosY = cursorPosYCanvas + cameraPosY - visiblePageAreaYCanvas
 
     if (cursorPosY > visiblePageAreaY || cursorPosY < (overlapTop + paddingTop)) {
-        overrideAndRestore(getCamera(), "design/arrange/move") {
+        overrideAndRestore(getCamera(), Scope.LayerMove) {
             block.setPositionY(getCamera(), newCameraPosY)
         }
     }
@@ -251,7 +250,7 @@ fun Engine.showPage(index: Int?, axis: LayoutAxis = LayoutAxis.Depth, spacing: F
     val pages = getSortedPages()
     val allPages = index == null
     pages.forEachIndexed { idx, page ->
-        overrideAndRestore(page, "design/style") {
+        overrideAndRestore(page, Scope.LayerVisibility) {
             block.setVisible(block = it, visible = allPages || idx == index)
         }
     }
@@ -288,7 +287,7 @@ private suspend fun Engine.zoomToBlock(designBlock: DesignBlock, insets: Rect) {
 private fun Engine.getBackdropImage(): DesignBlock {
     val children = block.getChildren(getScene())
     return children.first {
-        block.getType(it) == DesignBlockType.IMAGE.key
+        block.getKindEnum(it) == BlockKind.Image
     }
 }
 

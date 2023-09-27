@@ -4,6 +4,7 @@ import android.net.Uri
 import ly.img.cesdk.core.engine.FONT_BASE_PATH
 import ly.img.cesdk.core.engine.deselectAllBlocks
 import ly.img.cesdk.core.engine.getPage
+import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
@@ -12,7 +13,8 @@ import ly.img.engine.SizeMode
 import kotlin.random.Random
 
 internal fun Engine.replaceSticker(stickerBlock: DesignBlock, uri: String) {
-    block.setString(stickerBlock, "sticker/imageFileURI", uri)
+    block.setString(block.getFill(stickerBlock), "fill/image/imageFileURI", uri)
+    block.setContentFillMode(stickerBlock, ContentFillMode.CONTAIN)
 }
 
 internal fun Engine.addText(path: String, size: Float) {
