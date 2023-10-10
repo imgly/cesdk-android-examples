@@ -15,7 +15,6 @@ import ly.img.cesdk.engine.changeLightnessBy
 import ly.img.cesdk.engine.delete
 import ly.img.cesdk.engine.duplicate
 import ly.img.cesdk.engine.getFillType
-import ly.img.cesdk.engine.getGradientFillType
 import ly.img.cesdk.engine.sendBackward
 import ly.img.cesdk.engine.sendToBack
 import ly.img.cesdk.engine.setConicalGradientFill
@@ -25,10 +24,9 @@ import ly.img.cesdk.engine.setRadialGradientFill
 import ly.img.cesdk.engine.toEngineColor
 import ly.img.engine.BlendMode
 import ly.img.engine.DesignBlock
+import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
-import ly.img.engine.FillType
 import ly.img.engine.GradientColorStop
-import ly.img.engine.GradientType
 import ly.img.engine.RGBAColor
 import ly.img.engine.SizeMode
 import ly.img.engine.StrokeCornerGeometry
@@ -238,7 +236,10 @@ private fun onChangeGradientFillColor(engine: Engine, block: DesignBlock, index:
     engine.block.setFillEnabled(block, true)
     val fillType = engine.block.getFillType(block)
     val fillBlock = engine.block.getFill(block)
-    if (fillType == FillType.GRADIENT) {
+    if (fillType == DesignBlockType.LINEAR_GRADIENT_FILL ||
+        fillType == DesignBlockType.RADIAL_GRADIENT_FILL ||
+        fillType == DesignBlockType.CONICAL_GRADIENT_FILL
+    ) {
         setGradientColorAtIndex(engine, fillBlock, index, color)
     } else throw UnsupportedOperationException("Fill type is not a gradient fill")
 }
@@ -268,18 +269,17 @@ fun onChangeConicalGradientParams(engine: Engine, block: DesignBlock, centerX: F
 private fun onChangeFillStyle(engine: Engine, block: DesignBlock, style: String) {
     engine.block.setFillEnabled(block, true)
 
-    val gradientStyle = GradientType.values().find { it.name == style }
-    val fillStyleEnum = if (gradientStyle != null) FillType.GRADIENT else FillType.valueOf(style)
-
+    val requestedFillType = DesignBlockType.values().find { it.key == style }
     val currentFillType = engine.block.getFillType(block)
-    if (currentFillType == fillStyleEnum && engine.block.getGradientFillType(block) == gradientStyle) return
+
+    if (currentFillType == requestedFillType) return
 
     val colorStops = when (currentFillType) {
-        FillType.GRADIENT -> {
+        DesignBlockType.LINEAR_GRADIENT_FILL, DesignBlockType.RADIAL_GRADIENT_FILL, DesignBlockType.CONICAL_GRADIENT_FILL -> {
             engine.block.getGradientColorStops(engine.block.getFill(block), "fill/gradient/colors")
         }
 
-        FillType.SOLID -> {
+        DesignBlockType.COLOR_FILL -> {
             val originalColor = engine.block.getFillSolidColor(block)
             listOf(
                 GradientColorStop(0f, originalColor),
@@ -295,37 +295,31 @@ private fun onChangeFillStyle(engine: Engine, block: DesignBlock, style: String)
         }
     }
 
-    when (fillStyleEnum) {
-        FillType.SOLID -> {
+    when (requestedFillType) {
+        DesignBlockType.COLOR_FILL -> {
             engine.block.setFillType(block, "color")
             engine.block.setFillSolidColor(block, colorStops.firstOrNull()?.color as? RGBAColor ?: Color.Black.toEngineColor())
         }
 
-        FillType.GRADIENT -> {
-            when (gradientStyle) {
-                GradientType.LINEAR -> engine.block.setLinearGradientFill(
-                    block,
-                    0.5f, 0f,
-                    0.5f, 1.0f,
-                    colorStops = colorStops
-                )
+        DesignBlockType.LINEAR_GRADIENT_FILL -> engine.block.setLinearGradientFill(
+            block,
+            0.5f, 0f,
+            0.5f, 1.0f,
+            colorStops = colorStops
+        )
 
-                GradientType.RADIAL -> engine.block.setRadialGradientFill(
-                    block,
-                    0.5f, 0.5f,
-                    0.5f,
-                    colorStops = colorStops
-                )
+        DesignBlockType.RADIAL_GRADIENT_FILL -> engine.block.setRadialGradientFill(
+            block,
+            0.5f, 0.5f,
+            0.5f,
+            colorStops = colorStops
+        )
 
-                GradientType.CONICAL -> engine.block.setConicalGradientFill(
-                    block,
-                    0.5f, 0.5f,
-                    colorStops = colorStops
-                )
-
-                else -> throw UnsupportedOperationException("Gradient type not supported")
-            }
-        }
+        DesignBlockType.CONICAL_GRADIENT_FILL -> engine.block.setConicalGradientFill(
+            block,
+            0.5f, 0.5f,
+            colorStops = colorStops
+        )
 
         else -> throw UnsupportedOperationException("Fill type not supported")
     }

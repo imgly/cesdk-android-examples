@@ -30,7 +30,6 @@ import ly.img.cesdk.engine.isMoveAllowed
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
-import ly.img.engine.FillType
 
 data class Block(
     val designBlock: DesignBlock,
@@ -41,12 +40,12 @@ data class Block(
 internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
     val type = engine.block.getType(designBlock)
 
-    fun isDesignBlock() = type == DesignBlockType.DESIGN.key
-    val kind = if (isDesignBlock()) engine.block.getKindEnum(designBlock) else null
+    fun isGraphicBlock() = type == DesignBlockType.GRAPHIC.key
+    val kind = if (isGraphicBlock()) engine.block.getKindEnum(designBlock) else null
 
-    fun isImage() = isDesignBlock() && kind == BlockKind.Image
-    fun isShape() = isDesignBlock() && kind == BlockKind.Shape
-    fun isSticker() = isDesignBlock() && kind == BlockKind.Sticker
+    fun isImage() = isGraphicBlock() && kind == BlockKind.Image
+    fun isShape() = isGraphicBlock() && kind == BlockKind.Shape
+    fun isSticker() = isGraphicBlock() && kind == BlockKind.Sticker
 
     val shapeType = if (isShape()) engine.block.getShapeType(designBlock) else null
 
@@ -77,8 +76,9 @@ internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
         val isStrokeChangeAllowed = engine.block.hasStroke(designBlock) &&
             engine.block.isAllowedByScope(designBlock, Scope.StrokeChange)
         val fillType = engine.block.getFillType(designBlock)
-        val isFillChangeAllowed = (fillType == FillType.SOLID || fillType == FillType.GRADIENT) &&
-            engine.block.isAllowedByScope(designBlock, Scope.FillChange)
+        val isFillChangeAllowed =
+            (fillType == DesignBlockType.COLOR_FILL || fillType == DesignBlockType.LINEAR_GRADIENT_FILL || fillType == DesignBlockType.RADIAL_GRADIENT_FILL || fillType == DesignBlockType.CONICAL_GRADIENT_FILL) &&
+                engine.block.isAllowedByScope(designBlock, Scope.FillChange)
         if (isFillChangeAllowed || isStrokeChangeAllowed) {
             val fill = engine.block.getFillInfo(designBlock)?.takeIf { engine.block.isFillEnabled(designBlock) }
             val strokeColor = engine.getStrokeColor(designBlock)?.takeIf { engine.block.isStrokeEnabled(designBlock) }

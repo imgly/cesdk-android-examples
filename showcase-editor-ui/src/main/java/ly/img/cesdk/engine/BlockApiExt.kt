@@ -2,34 +2,18 @@ package ly.img.cesdk.engine
 
 import ly.img.engine.BlockApi
 import ly.img.engine.DesignBlock
-import ly.img.engine.FillType
+import ly.img.engine.DesignBlockType
 import ly.img.engine.GradientColorStop
-import ly.img.engine.GradientType
 import ly.img.engine.RGBAColor
 
-fun BlockApi.getFillType(designBlock: DesignBlock): FillType? {
+fun BlockApi.getFillType(designBlock: DesignBlock): DesignBlockType? {
     return if (!this.hasFill(designBlock)) null
-    else when (this.getEnum(designBlock, "fill/type")) {
-        "Gradient" -> FillType.GRADIENT
-        "Solid" -> FillType.SOLID
-        "Image" -> FillType.IMAGE
-        "Video" -> FillType.VIDEO
-        else -> null
+    else DesignBlockType.values().find {
+        it.key == this.getType(this.getFill(designBlock))
     }
 }
 
-fun BlockApi.getGradientFillType(designBlock: DesignBlock): GradientType? {
-    return if (!this.hasFill(designBlock)) null
-    else when (val type = this.getType(this.getFill(designBlock)).substringAfter("gradient/", "NaG")) {
-        "NaG" -> null // Not a gradient
-        "linear" -> GradientType.LINEAR
-        "radial" -> GradientType.RADIAL
-        "conical" -> GradientType.CONICAL
-        else -> throw IllegalArgumentException("Unknown gradient type: $type")
-    }
-}
-
-fun BlockApi.setFillType(designBlock: DesignBlock, type: String): DesignBlock {
+fun BlockApi.setFillType(designBlock: DesignBlock, type: String) : DesignBlock {
     val oldFill = if (this.hasFill(designBlock)) {
         this.getFill(designBlock)
     } else null
@@ -102,36 +86,38 @@ fun BlockApi.setConicalGradientFill(
 fun BlockApi.getFillInfo(designBlock: DesignBlock): Fill? {
     return if (!this.hasFill(designBlock)) null
     else when (this.getFillType(designBlock)) {
-        FillType.SOLID -> {
+        DesignBlockType.COLOR_FILL -> {
             val rgbaColor = this.getColor(designBlock, "fill/solid/color") as RGBAColor
             SolidFill(rgbaColor.toComposeColor())
         }
-        FillType.GRADIENT -> {
-            val fill = this.getFill(designBlock)
-            when (this.getGradientFillType(designBlock)) {
-                GradientType.LINEAR -> LinearGradientFill(
-                    startPointX = this.getFloat(fill, "fill/gradient/linear/startPointX"),
-                    startPointY = this.getFloat(fill, "fill/gradient/linear/startPointY"),
-                    endPointX = this.getFloat(fill, "fill/gradient/linear/endPointX"),
-                    endPointY = this.getFloat(fill, "fill/gradient/linear/endPointY"),
-                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
-                )
+        DesignBlockType.LINEAR_GRADIENT_FILL -> {
+            var fill = this.getFill(designBlock)
+            LinearGradientFill(
+                startPointX = this.getFloat(fill, "fill/gradient/linear/startPointX"),
+                startPointY = this.getFloat(fill, "fill/gradient/linear/startPointY"),
+                endPointX = this.getFloat(fill, "fill/gradient/linear/endPointX"),
+                endPointY = this.getFloat(fill, "fill/gradient/linear/endPointY"),
+                colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
+            )
+        }
 
-                GradientType.RADIAL -> RadialGradientFill(
-                    centerX = this.getFloat(fill, "fill/gradient/radial/centerPointX"),
-                    centerY = this.getFloat(fill, "fill/gradient/radial/centerPointY"),
-                    radius = this.getFloat(fill, "fill/gradient/radial/radius"),
-                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
-                )
+        DesignBlockType.RADIAL_GRADIENT_FILL -> {
+            var fill = this.getFill(designBlock)
+            RadialGradientFill(
+                centerX = this.getFloat(fill, "fill/gradient/radial/centerPointX"),
+                centerY = this.getFloat(fill, "fill/gradient/radial/centerPointY"),
+                radius = this.getFloat(fill, "fill/gradient/radial/radius"),
+                colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
+            )
+        }
 
-                GradientType.CONICAL -> ConicalGradientFill(
-                    centerX = this.getFloat(fill, "fill/gradient/conical/centerPointX"),
-                    centerY = this.getFloat(fill, "fill/gradient/conical/centerPointY"),
-                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
-                )
-
-                null -> throw IllegalStateException("Fill type gradient, but gradient fill type is null")
-            }
+        DesignBlockType.CONICAL_GRADIENT_FILL -> {
+            var fill = this.getFill(designBlock)
+            ConicalGradientFill(
+                centerX = this.getFloat(fill, "fill/gradient/conical/centerPointX"),
+                centerY = this.getFloat(fill, "fill/gradient/conical/centerPointY"),
+                colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
+            )
         }
 
         // Image fill and Video fill are not supported yet

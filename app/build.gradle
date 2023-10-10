@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace "ly.img.cesdk.showcase"
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "ly.img.cesdk.showcase"
         minSdk 23
-        targetSdk 33
+        targetSdk 34
         versionCode 1
-        versionName "1.16.0"
+        versionName "1.17.0"
         ndk {
             abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
         }
@@ -25,6 +25,7 @@ android {
                 "../engine-guides-create-scene-from-image-blob",
                 "../engine-guides-create-scene-from-image-url",
                 "../engine-guides-create-scene-from-scratch",
+                "../engine-guides-create-scene-from-video-url",
                 "../engine-guides-load-scene-from-blob",
                 "../engine-guides-load-scene-from-remote",
                 "../engine-guides-load-scene-from-string",
@@ -42,7 +43,9 @@ android {
                 "../engine-guides-using-effects",
                 "../engine-guides-using-fills",
                 "../engine-guides-text-properties",
-                "../engine-guides-video"
+                "../engine-guides-cutouts",
+                "../engine-guides-video",
+                "../engine-guides-using-camera"
             ]
         }
     }
@@ -93,6 +96,13 @@ dependencies {
     implementation project(":showcase-apparel-ui")
     implementation project(":showcase-postcard-ui")
     implementation findProject(":ubq-android-engine") ?: libs.cesdk.engine
+    implementation findProject(":ubq-android-camera") ?: libs.cesdk.engine.camera
+
+    implementation libs.camera.core
+    implementation libs.camera.camera2
+    implementation libs.camera.view
+    implementation libs.camera.lifecycle
+    implementation libs.camera.video
 
     implementation platform(libs.compose.bom)
     implementation libs.compose.material3

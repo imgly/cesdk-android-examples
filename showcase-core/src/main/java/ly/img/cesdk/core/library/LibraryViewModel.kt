@@ -70,7 +70,7 @@ internal class LibraryViewModel : ViewModel() {
             if (isSceneModeVideo) {
                 add(
                     AssetSourceGroup(
-                        R.string.cesdk_video,
+                        R.string.cesdk_videos,
                         listOf(
                             AssetSource.VideoUploads,
                             AssetSource.Videos
@@ -176,7 +176,7 @@ internal class LibraryViewModel : ViewModel() {
             is LibraryEvent.OnEnterSearchMode -> onEnterSearchMode(event.enter, event.libraryCategory)
             is LibraryEvent.OnFetch -> onFetch(event.libraryCategory)
             is LibraryEvent.OnPopStack -> onPopStack(event.libraryCategory)
-            is LibraryEvent.OnSearchTextChange -> onSearchTextChange(event.value, event.libraryCategory)
+            is LibraryEvent.OnSearchTextChange -> onSearchTextChange(event.value, event.libraryCategory, event.debounce)
             is LibraryEvent.OnReplaceAsset -> onReplaceAsset(event.assetSource, event.asset, event.designBlock)
             is LibraryEvent.OnReplaceUri -> onReplaceUri(event.assetSource, event.uri, event.designBlock)
             is LibraryEvent.OnAddAsset -> onAddAsset(event.assetSource, event.asset)
@@ -275,7 +275,7 @@ internal class LibraryViewModel : ViewModel() {
 
     private fun onDispose(libraryCategory: LibraryCategory) {
         // clear search
-        onSearchTextChange("", libraryCategory, force = true)
+        onSearchTextChange("", libraryCategory, debounce = false, force = true)
         // get out of search mode
         onEnterSearchMode(enter = false, libraryCategory)
         // go to root
@@ -290,7 +290,7 @@ internal class LibraryViewModel : ViewModel() {
         uiStateFlow.update { it.copy(isInSearchMode = enter) }
     }
 
-    private fun onSearchTextChange(value: String, libraryCategory: LibraryCategory, force: Boolean = false) {
+    private fun onSearchTextChange(value: String, libraryCategory: LibraryCategory, debounce: Boolean, force: Boolean = false) {
         val categoryData = getLibraryCategoryData(libraryCategory)
         val oldValue = categoryData.uiStateFlow.value.searchText
         if (!force && oldValue == value) return
@@ -301,8 +301,8 @@ internal class LibraryViewModel : ViewModel() {
         categoryData.searchJob?.cancel()
 
         viewModelScope.launch {
-            // debounce is only needed when user is searching
-            if (!force) {
+            // debounce is only needed when user is typing
+            if (debounce) {
                 delay(500)
             }
 

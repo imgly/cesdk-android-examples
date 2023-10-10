@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -84,7 +85,7 @@ internal fun LibrarySearchHeader(
                     animationSpec = tween(100)
                 )
             }
-        }
+        }, label = "SearchAnimation"
     ) { isInSearchMode ->
         if (isInSearchMode) {
             val focusRequester = remember { FocusRequester() }
@@ -112,7 +113,7 @@ internal fun LibrarySearchHeader(
                 },
                 onValueChange = {
                     textFieldValue = it
-                    onLibraryEvent(LibraryEvent.OnSearchTextChange(it.text, uiStateValue.libraryCategory))
+                    onLibraryEvent(LibraryEvent.OnSearchTextChange(it.text, uiStateValue.libraryCategory, debounce = true))
                 },
                 leadingIcon = {
                     IconButton(onClick = {
@@ -167,7 +168,14 @@ internal fun LibrarySearchHeader(
                             onClick = {
                                 onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = true, uiStateValue.libraryCategory))
                             },
-                            label = { Text(searchQuery) },
+                            label = {
+                                Text(
+                                    searchQuery,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.widthIn(max = 120.dp)
+                                )
+                            },
                             trailingIcon = {
                                 IconButton(onClick = {
                                     onLibraryEvent(LibraryEvent.OnSearchTextChange("", uiStateValue.libraryCategory))

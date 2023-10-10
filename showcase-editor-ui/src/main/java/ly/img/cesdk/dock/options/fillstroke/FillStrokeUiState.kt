@@ -5,8 +5,8 @@ import androidx.compose.ui.graphics.Color
 import ly.img.cesdk.editorui.Block
 import ly.img.cesdk.editorui.R
 import ly.img.cesdk.engine.getFillType
+import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
-import ly.img.engine.FillType
 
 data class FillStrokeUiState(
     @StringRes val titleRes: Int,
@@ -17,7 +17,8 @@ data class FillStrokeUiState(
 internal fun createFillStrokeUiState(block: Block, engine: Engine, colorPalette: List<Color>): FillStrokeUiState {
     val designBlock = block.designBlock
     val fillType = engine.block.getFillType(designBlock)
-    val hasSolidOrGradientFill = fillType == FillType.SOLID || fillType == FillType.GRADIENT
+    val hasSolidOrGradientFill =
+        (fillType == DesignBlockType.COLOR_FILL || fillType == DesignBlockType.LINEAR_GRADIENT_FILL || fillType == DesignBlockType.RADIAL_GRADIENT_FILL || fillType == DesignBlockType.CONICAL_GRADIENT_FILL)
     val hasStroke = engine.block.hasStroke(designBlock)
     val palette = colorPalette.take(6)
     return FillStrokeUiState(

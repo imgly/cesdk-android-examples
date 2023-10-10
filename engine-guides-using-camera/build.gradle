@@ -4,20 +4,18 @@ plugins {
 }
 
 android {
-    namespace "ly.img.cesdk.showcase"
+    namespace "ly.img.cesdk.camera"
     compileSdk 34
 
     defaultConfig {
-        applicationId "ly.img.cesdk.showcase"
+        applicationId "ly.img.cesdk.camera"
         minSdk 23
         targetSdk 34
         versionCode 1
         versionName "1.0"
-        // highlight-abi-filters
         ndk {
             abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
         }
-        // highlight-abi-filters
     }
 
     compileOptions {
@@ -31,9 +29,15 @@ android {
 }
 
 dependencies {
-    // highlight-dependency
+    // highlight-dependencies
+    implementation "ly.img:engine-camera:1.16.0"
+    implementation "androidx.camera:camera-core:1.2.3"
+    implementation "androidx.camera:camera-camera2:1.2.3"
+    implementation "androidx.camera:camera-view:1.2.3"
+    implementation "androidx.camera:camera-lifecycle:1.2.3"
+    implementation "androidx.camera:camera-video:1.2.3"
+    // highlight-dependencies
     implementation "ly.img:engine:1.16.0"
-    // highlight-dependency
     implementation "androidx.appcompat:appcompat:1.6.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
 }
