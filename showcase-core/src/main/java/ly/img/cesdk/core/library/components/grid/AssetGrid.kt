@@ -82,13 +82,13 @@ internal fun AssetGrid(
             if (uiState.searchText.isNotEmpty()) {
                 EmptyResultContent(
                     icon = IconPack.Search,
-                    text = stringResource(R.string.cesdk_no_search_results)
+                    text = stringResource(R.string.cesdk_no_elements)
                 )
             } else {
                 val assetSource = uiState.assetsData.assetSource
                 EmptyResultContent(
                     icon = IconPack.Folder,
-                    text = stringResource(R.string.cesdk_nothing_here_yet),
+                    text = stringResource(R.string.cesdk_no_elements),
                     button = if (assetSource is UploadAssetSource) {
                         {
                             val launcher =
@@ -120,7 +120,17 @@ internal fun AssetGrid(
                         .nestedScroll(nestedScrollConnection)
                         .fillMaxSize()
                 ) {
-                    items(uiState.assetsData.assets) { asset ->
+                    val assets = uiState.assetsData.assets
+                    if (assetSource is UploadAssetSource && assets.isNotEmpty()) {
+                        item {
+                            AssetGridUploadItemContent(
+                                uploadAssetSource = assetSource,
+                                assetSourceGroupType = assetSourceGroupType,
+                                onUriPick = onUriPick
+                            )
+                        }
+                    }
+                    items(assets) { asset ->
                         AssetGridItemContent(
                             wrappedAsset = asset,
                             assetSourceGroupType = assetSourceGroupType,

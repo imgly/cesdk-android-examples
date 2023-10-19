@@ -40,9 +40,7 @@
     <string name="cesdk_more_count">More</string>
     <string name="cesdk_see_all">See All</string>
     <string name="cesdk_no_elements">No Elements</string>
-    <string name="cesdk_no_search_results">No results found</string>
     <string name="cesdk_error_text">Cannot connect to service</string>
-    <string name="cesdk_nothing_here_yet">Nothing here yet</string>
     <string name="cesdk_retry">Retry</string>
 
     <string name="cesdk_search">Search</string>

@@ -4,25 +4,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.cesdk.core.library.components.LibraryNavBarItem
-import ly.img.cesdk.core.library.components.ScrollableNavigationBar
-import ly.img.cesdk.core.library.components.WeightlessNavigationBarItem
+import ly.img.cesdk.core.library.components.LibraryNavigationBar
 import ly.img.cesdk.core.library.util.LibraryEvent
 import ly.img.cesdk.core.ui.AnyComposable
 import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetValue
@@ -76,31 +72,29 @@ fun AddLibrarySheet(
             swipeableState.let { offsetWrapper.offset = swipeableState.maxOffset }
         }
 
-        ScrollableNavigationBar(modifier = Modifier
-            .onGloballyPositioned {
-                bottomNavBarHeight = it.size.height
+        LibraryNavigationBar(
+            items = tabItems,
+            modifier = Modifier
+                .onGloballyPositioned {
+                    bottomNavBarHeight = it.size.height
+                }
+                .absoluteOffset {
+                    IntOffset(
+                        x = 0,
+                        // 8.dp is for the top padding that is added to the bottom sheet
+                        y = (offsetWrapper.offset - (swipeableState.offset ?: 0f) - bottomNavBarHeight - 8.dp.toPx()).roundToInt()
+                    )
+                },
+            selectedItemIndex = selectedItemIndex,
+            onSelectionChange = { index ->
+                selectedItemIndex = index
             }
-            .absoluteOffset {
-                IntOffset(
-                    x = 0,
-                    // 8.dp is for the top padding that is added to the bottom sheet
-                    y = (offsetWrapper.offset - (swipeableState.offset ?: 0f) - bottomNavBarHeight - 8.dp.toPx()).roundToInt()
-                )
-            }
-        ) {
-            itemsIndexed(tabItems) { index, item ->
-                WeightlessNavigationBarItem(
-                    icon = {
-                        Icon(
-                            if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
-                            contentDescription = null
-                        )
-                    },
-                    label = { Text(stringResource(item.titleRes)) },
-                    selected = selectedItemIndex == index,
-                    onClick = { selectedItemIndex = index }
-                )
-            }
+        )
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.onEvent(LibraryEvent.OnDispose)
         }
     }
 }
