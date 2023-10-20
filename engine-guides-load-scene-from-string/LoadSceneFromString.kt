@@ -4,12 +4,12 @@ import java.io.ByteArrayOutputStream
 import java.net.URL
 
 fun loadSceneFromString() = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
+    val engine = Engine(id = "ly.img.engine.example")
     engine.start()
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-fetch-string
-    val sceneUrl = URL("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
+    val sceneUrl = URL("https://cdn.img.ly/packages/imgly/cesdk-js/latest/assets/templates/cesdk_postcard_1.scene")
     val sceneBlob = withContext(Dispatchers.IO) {
         val outputStream = ByteArrayOutputStream()
         sceneUrl.openStream().use { inputStream ->

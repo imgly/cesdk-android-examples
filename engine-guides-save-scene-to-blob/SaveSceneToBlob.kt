@@ -5,11 +5,11 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 fun saveSceneToBlob() = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
+    val engine = Engine(id = "ly.img.engine.example")
     engine.start()
     engine.bindOffscreen(width = 100, height = 100)
 
-    val sceneUri = Uri.parse("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
+    val sceneUri = Uri.parse("https://cdn.img.ly/packages/imgly/cesdk-js/latest/assets/templates/cesdk_postcard_1.scene")
     val scene = engine.scene.load(sceneUri = sceneUri)
 
     // highlight-save
