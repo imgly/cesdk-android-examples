@@ -9,8 +9,11 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -36,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -70,136 +74,147 @@ internal fun LibrarySearchHeader(
     onSearchFocus: () -> Unit
 ) {
     val uiStateValue = uiState.value
-    AnimatedContent(
-        targetState = uiStateValue.isInSearchMode,
-        transitionSpec = {
-            if (targetState) {
-                fadeIn(animationSpec = tween(250)) + slideInHorizontally(
-                    initialOffsetX = { it / 2 },
-                    animationSpec = tween(250)
-                ) with fadeOut(animationSpec = tween(250))
-            } else {
-                fadeIn(animationSpec = tween(100, delayMillis = 100)) with
-                    fadeOut(animationSpec = tween(100)) + slideOutHorizontally(
-                    targetOffsetX = { it / 2 },
-                    animationSpec = tween(100)
-                )
-            }
-        }, label = "SearchAnimation"
-    ) { isInSearchMode ->
-        if (isInSearchMode) {
-            val focusRequester = remember { FocusRequester() }
-            var textFieldValue by remember {
-                mutableStateOf(
-                    TextFieldValue(uiStateValue.searchText, TextRange(uiStateValue.searchText.length))
-                )
-            }
-            SearchTextField(
-                modifier = Modifier
-                    .onFocusChanged {
-                        if (it.isFocused) {
-                            onSearchFocus()
-                        }
-                    }
-                    .focusRequester(focusRequester)
-                    .padding(8.dp)
-                    .fillMaxWidth(),
-                textFieldValue = textFieldValue,
-                placeholder = {
-                    Text(stringResource(R.string.cesdk_search_placeholder, stringResource(id = uiStateValue.titleRes)))
-                },
-                onSearch = {
-                    onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = false, uiStateValue.libraryCategory))
-                },
-                onValueChange = {
-                    textFieldValue = it
-                    onLibraryEvent(LibraryEvent.OnSearchTextChange(it.text, uiStateValue.libraryCategory, debounce = true))
-                },
-                leadingIcon = {
-                    IconButton(onClick = {
-                        onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = false, uiStateValue.libraryCategory))
-                    }) {
-                        Icon(IconPack.Arrowback, contentDescription = stringResource(R.string.cesdk_back))
-                    }
-                },
-                trailingIcon = {
-                    if (uiStateValue.searchText.isNotEmpty()) {
-                        IconButton(onClick = {
-                            textFieldValue = textFieldValue.copy(text = "", selection = TextRange(0))
-                            onLibraryEvent(LibraryEvent.OnSearchTextChange("", uiStateValue.libraryCategory))
-                        }) {
-                            Icon(IconPack.Close, contentDescription = stringResource(R.string.cesdk_search_clear))
-                        }
-                    }
-                }
-            )
-
-            LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
-            }
-        } else {
-            TopAppBar(
-                title = {
-                    Text(
-                        stringResource(id = uiStateValue.titleRes),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        AnimatedContent(
+            modifier = Modifier.weight(1f),
+            targetState = uiStateValue.isInSearchMode,
+            transitionSpec = {
+                if (targetState) {
+                    fadeIn(animationSpec = tween(250)) + slideInHorizontally(
+                        initialOffsetX = { it / 2 },
+                        animationSpec = tween(250)
+                    ) with fadeOut(animationSpec = tween(250))
+                } else {
+                    fadeIn(animationSpec = tween(100, delayMillis = 100)) with
+                        fadeOut(animationSpec = tween(100)) + slideOutHorizontally(
+                        targetOffsetX = { it / 2 },
+                        animationSpec = tween(100)
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        if (uiStateValue.isRoot) {
-                            onBack()
-                        } else {
-                            onLibraryEvent(LibraryEvent.OnPopStack(uiStateValue.libraryCategory))
-                        }
-                    }) {
-                        Icon(
-                            if (uiStateValue.isRoot) IconPack.Expandmore else IconPack.Arrowback,
-                            contentDescription = stringResource(R.string.cesdk_back)
-                        )
-                    }
-                },
-                actions = {
-                    val searchQuery = uiStateValue.searchText
-                    if (searchQuery.isNotEmpty()) {
-                        InputChip(
-                            selected = true,
-                            onClick = {
-                                onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = true, uiStateValue.libraryCategory))
-                            },
-                            label = {
-                                Text(
-                                    searchQuery,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.widthIn(max = 120.dp)
-                                )
-                            },
-                            trailingIcon = {
-                                IconButton(onClick = {
-                                    onLibraryEvent(LibraryEvent.OnSearchTextChange("", uiStateValue.libraryCategory))
-                                }, Modifier.size(InputChipDefaults.IconSize)) {
-                                    Icon(
-                                        IconPack.Close,
-                                        contentDescription = stringResource(R.string.cesdk_search_clear),
-                                    )
-                                }
-                            },
-                            shape = ShapeDefaults.Large,
-                            modifier = Modifier.padding(top = 4.dp, start = 12.dp, end = 12.dp)
-                        )
-                    } else {
-                        IconButton(
-                            onClick = {
-                                onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = true, uiStateValue.libraryCategory))
-                            },
-                        ) {
-                            Icon(IconPack.Search, contentDescription = stringResource(id = R.string.cesdk_search))
-                        }
-                    }
                 }
-            )
+            }, label = "SearchAnimation"
+        ) { isInSearchMode ->
+            if (isInSearchMode) {
+                val focusRequester = remember { FocusRequester() }
+                var textFieldValue by remember {
+                    mutableStateOf(
+                        TextFieldValue(uiStateValue.searchText, TextRange(uiStateValue.searchText.length))
+                    )
+                }
+                SearchTextField(
+                    modifier = Modifier
+                        .onFocusChanged {
+                            if (it.isFocused) {
+                                onSearchFocus()
+                            }
+                        }
+                        .focusRequester(focusRequester)
+                        .padding(8.dp)
+                        .fillMaxWidth(),
+                    textFieldValue = textFieldValue,
+                    placeholder = {
+                        Text(stringResource(R.string.cesdk_search_placeholder, stringResource(id = uiStateValue.titleRes)))
+                    },
+                    onSearch = {
+                        onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = false, uiStateValue.libraryCategory))
+                    },
+                    onValueChange = {
+                        textFieldValue = it
+                        onLibraryEvent(LibraryEvent.OnSearchTextChange(it.text, uiStateValue.libraryCategory, debounce = true))
+                    },
+                    leadingIcon = {
+                        IconButton(onClick = {
+                            onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = false, uiStateValue.libraryCategory))
+                        }) {
+                            Icon(IconPack.Arrowback, contentDescription = stringResource(R.string.cesdk_back))
+                        }
+                    },
+                    trailingIcon = {
+                        if (uiStateValue.searchText.isNotEmpty()) {
+                            IconButton(onClick = {
+                                textFieldValue = textFieldValue.copy(text = "", selection = TextRange(0))
+                                onLibraryEvent(LibraryEvent.OnSearchTextChange("", uiStateValue.libraryCategory))
+                            }) {
+                                Icon(IconPack.Close, contentDescription = stringResource(R.string.cesdk_search_clear))
+                            }
+                        }
+                    }
+                )
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
+            } else {
+                TopAppBar(
+                    title = {
+                        Text(
+                            stringResource(id = uiStateValue.titleRes),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    navigationIcon = {
+                        if (!uiStateValue.isRoot) {
+                            IconButton(onClick = {
+                                onLibraryEvent(LibraryEvent.OnPopStack(uiStateValue.libraryCategory))
+                            }) {
+                                Icon(
+                                    IconPack.Arrowback,
+                                    contentDescription = stringResource(R.string.cesdk_back)
+                                )
+                            }
+                        }
+                    },
+                    actions = {
+                        val searchQuery = uiStateValue.searchText
+                        if (searchQuery.isNotEmpty()) {
+                            InputChip(
+                                selected = true,
+                                onClick = {
+                                    onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = true, uiStateValue.libraryCategory))
+                                },
+                                label = {
+                                    Text(
+                                        searchQuery,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.widthIn(max = 120.dp)
+                                    )
+                                },
+                                trailingIcon = {
+                                    IconButton(onClick = {
+                                        onLibraryEvent(LibraryEvent.OnSearchTextChange("", uiStateValue.libraryCategory))
+                                    }, Modifier.size(InputChipDefaults.IconSize)) {
+                                        Icon(
+                                            IconPack.Close,
+                                            contentDescription = stringResource(R.string.cesdk_search_clear),
+                                        )
+                                    }
+                                },
+                                shape = ShapeDefaults.Large,
+                                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                            )
+                        } else {
+                            Box(Modifier.offset(x = 4.dp)) {
+                                IconButton(
+                                    onClick = {
+                                        onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = true, uiStateValue.libraryCategory))
+                                    },
+                                ) {
+                                    Icon(IconPack.Search, contentDescription = stringResource(id = R.string.cesdk_search))
+                                }
+                            }
+                        }
+                    }
+                )
+            }
+        }
+        IconButton(
+            onClick = onBack,
+            Modifier.padding(end = 4.dp)
+        ) {
+            Icon(IconPack.Expandmore, contentDescription = stringResource(id = R.string.cesdk_back))
         }
     }
 }

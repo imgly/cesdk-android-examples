@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -71,12 +70,6 @@ internal fun AssetLibrary(
 
         BackHandler(uiState.value.isInSearchMode) {
             viewModel.onEvent(LibraryEvent.OnEnterSearchMode(false, libraryCategory))
-        }
-    }
-
-    DisposableEffect(libraryCategory) {
-        onDispose {
-            viewModel.onEvent(LibraryEvent.OnDispose(libraryCategory))
         }
     }
 }

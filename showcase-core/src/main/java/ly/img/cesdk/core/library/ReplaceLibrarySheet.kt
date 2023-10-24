@@ -3,6 +3,7 @@ package ly.img.cesdk.core.library
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.cesdk.core.engine.BlockType
@@ -48,5 +49,11 @@ fun ReplaceLibrarySheet(
             onCloseAssetDetails = onCloseAssetDetails,
             onClose = onClose
         )
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.onEvent(LibraryEvent.OnDispose)
+        }
     }
 }
