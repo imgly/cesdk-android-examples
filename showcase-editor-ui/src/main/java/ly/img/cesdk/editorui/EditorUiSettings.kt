@@ -5,7 +5,7 @@ import ly.img.cesdk.core.engine.BASE_PATH
 import ly.img.cesdk.core.engine.ROLE
 import ly.img.cesdk.core.engine.ROLE_ADOPTER
 import ly.img.cesdk.engine.DOUBLE_CLICK_SELECTION_MODE_DIRECT
-import ly.img.cesdk.engine.Scope
+import ly.img.cesdk.core.engine.Scope
 import ly.img.cesdk.engine.TOUCH_ACTION_NONE
 import ly.img.cesdk.engine.TOUCH_ACTION_ZOOM
 import ly.img.engine.Engine

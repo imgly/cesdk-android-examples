@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace "ly.img.cesdk.showcase"
-    compileSdk 34
+    compileSdk libs.versions.androidCompileSdk.get().toInteger()
 
     defaultConfig {
         applicationId "ly.img.cesdk.showcase"
-        minSdk 23
-        targetSdk 34
+        minSdk libs.versions.androidMinSdk.get().toInteger()
+        targetSdk libs.versions.androidTargetSdk.get().toInteger()
         versionCode 1
-        versionName "1.17.0"
+        versionName libs.versions.engine.get()
         ndk {
             abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
         }
@@ -45,7 +45,8 @@ android {
                 "../engine-guides-text-properties",
                 "../engine-guides-cutouts",
                 "../engine-guides-video",
-                "../engine-guides-using-camera"
+                "../engine-guides-using-camera",
+                "../engine-guides-colors"
             ]
         }
     }
@@ -88,7 +89,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.7"
+        kotlinCompilerExtensionVersion = libs.versions.kotlinCompilerExtension.get()
     }
 }
 

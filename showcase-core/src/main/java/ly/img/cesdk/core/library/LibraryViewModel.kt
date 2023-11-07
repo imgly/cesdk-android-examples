@@ -1,5 +1,6 @@
 package ly.img.cesdk.core.library
 
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import androidx.annotation.StringRes
@@ -27,7 +28,10 @@ import ly.img.cesdk.core.data.getUri
 import ly.img.cesdk.core.engine.BlockKind
 import ly.img.cesdk.core.engine.ROLE
 import ly.img.cesdk.core.engine.ROLE_ADOPTER
+import ly.img.cesdk.core.engine.dpToCanvasUnit
+import ly.img.cesdk.core.engine.getCamera
 import ly.img.cesdk.core.engine.getKindEnum
+import ly.img.cesdk.core.engine.getPage
 import ly.img.cesdk.core.library.components.section.LibrarySectionItem
 import ly.img.cesdk.core.library.engine.addText
 import ly.img.cesdk.core.library.engine.replaceSticker
@@ -48,6 +52,7 @@ import ly.img.engine.AssetDefinition
 import ly.img.engine.DesignBlock
 import ly.img.engine.FindAssetsQuery
 import ly.img.engine.FindAssetsResult
+import ly.img.engine.PositionMode
 import ly.img.engine.SceneMode
 import java.util.UUID
 
@@ -135,14 +140,6 @@ internal class LibraryViewModel : ViewModel() {
         }
         add(LibraryCategory.Elements(elementsAssetSourceGroupList))
 
-        val galleryAssetSourceGroupList = listOf(
-            AssetSourceGroup(R.string.cesdk_gallery, buildList {
-                add(AssetSource.ImageUploads)
-                if (isSceneModeVideo) add(AssetSource.VideoUploads)
-            }, AssetSourceGroupType.Gallery)
-        )
-        add(LibraryCategory.Gallery(galleryAssetSourceGroupList))
-
         if (isSceneModeVideo) {
             add(LibraryCategory.Video)
             add(LibraryCategory.Audio)
@@ -171,7 +168,7 @@ internal class LibraryViewModel : ViewModel() {
 
     fun onEvent(event: LibraryEvent) {
         when (event) {
-            is LibraryEvent.OnDispose -> onDispose(event.libraryCategory)
+            is LibraryEvent.OnDispose -> onDispose()
             is LibraryEvent.OnDrillDown -> onDrillDown(event.libraryCategory, event.libraryStackData)
             is LibraryEvent.OnEnterSearchMode -> onEnterSearchMode(event.enter, event.libraryCategory)
             is LibraryEvent.OnFetch -> onFetch(event.libraryCategory)
@@ -215,15 +212,46 @@ internal class LibraryViewModel : ViewModel() {
     }
 
     private fun onAddAsset(assetSource: AssetSource, asset: Asset) {
-        if (assetSource == AssetSource.Text) {
-            val fontFamilyString = asset.getMeta("fontFamily", "")
-            val fontFamily = checkNotNull(checkNotNull(fontFamilies.value).getOrThrow()[fontFamilyString])
-            val fontSize = requireNotNull(asset.getMeta("fontSize", "")).toFloat()
-            val fontWeight = FontWeight(requireNotNull(asset.getMeta("fontWeight", "")).toInt())
-            engine.addText(fontFamily.getFontData(fontWeight).fontPath, fontSize)
-        } else {
-            viewModelScope.launch {
-                engine.asset.applyAssetSourceAsset(assetSource.sourceId, asset)
+        viewModelScope.launch {
+            val designBlock = if (assetSource == AssetSource.Text) {
+                val fontFamilyString = asset.getMeta("fontFamily", "")
+                val fontFamily = checkNotNull(checkNotNull(fontFamilies.value).getOrThrow()[fontFamilyString])
+                val fontSize = requireNotNull(asset.getMeta("fontSize", "")).toFloat()
+                val fontWeight = FontWeight(requireNotNull(asset.getMeta("fontWeight", "")).toInt())
+                engine.addText(fontFamily.getFontData(fontWeight).fontPath, fontSize)
+            } else {
+                engine.asset.applyAssetSourceAsset(assetSource.sourceId, asset) ?: return@launch
+            }
+
+            val camera = engine.getCamera()
+            val width = engine.block.getFrameWidth(designBlock)
+            val height = engine.block.getFrameHeight(designBlock)
+
+            val pixelRatio = engine.block.getFloat(camera, "camera/pixelRatio")
+            val cameraWidth = engine.block.getFloat(camera, "camera/resolution/width") / pixelRatio
+            val cameraHeight = engine.block.getFloat(camera, "camera/resolution/height") / pixelRatio
+
+            val screenRect = RectF(0f, 0f, cameraWidth, cameraHeight)
+            val pageRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(engine.getPage(0)))
+            val pageWidth = pageRect.width()
+
+            // find visible page rect
+            val visiblePageRect = RectF()
+            visiblePageRect.setIntersect(pageRect, screenRect)
+
+            // set the position of the new block in the center of the visible page
+            engine.block.setPositionXMode(designBlock, PositionMode.ABSOLUTE)
+            engine.block.setPositionYMode(designBlock, PositionMode.ABSOLUTE)
+
+            val newX = engine.dpToCanvasUnit((visiblePageRect.left - pageRect.left) + visiblePageRect.width() / 2) - width / 2
+            val newY = engine.dpToCanvasUnit((visiblePageRect.top - pageRect.top) + visiblePageRect.height() / 2) - height / 2
+
+            engine.block.setPositionX(designBlock, newX)
+            engine.block.setPositionY(designBlock, newY)
+
+            // scale down the new block
+            if (pageWidth > cameraWidth) {
+                engine.block.scale(designBlock, cameraWidth / pageWidth, 0.5f, 0.5f)
             }
         }
     }
@@ -273,15 +301,17 @@ internal class LibraryViewModel : ViewModel() {
         }
     }
 
-    private fun onDispose(libraryCategory: LibraryCategory) {
-        // clear search
-        onSearchTextChange("", libraryCategory, debounce = false, force = true)
-        // get out of search mode
-        onEnterSearchMode(enter = false, libraryCategory)
-        // go to root
-        val categoryData = getLibraryCategoryData(libraryCategory)
-        val dataStack = categoryData.dataStack
-        dataStack.subList(1, dataStack.size).clear()
+    private fun onDispose() {
+        libraryCategories.forEach {
+            // clear search
+            onSearchTextChange("", it, debounce = false, force = true)
+            // get out of search mode
+            onEnterSearchMode(enter = false, it)
+            // go to root
+            val categoryData = getLibraryCategoryData(it)
+            val dataStack = categoryData.dataStack
+            dataStack.subList(1, dataStack.size).clear()
+        }
     }
 
     private fun onEnterSearchMode(enter: Boolean, libraryCategory: LibraryCategory) {
@@ -509,11 +539,12 @@ internal class LibraryViewModel : ViewModel() {
         } else {
             lastInStackData.assetSourceGroups.forEach { assetSourceGroup ->
                 val findAssetResults = linkedSetOf<WrappedFindAssetsResult>()
-                var error = false
+                var errorCount = 0
                 var totalCount = 0
                 for (assetSource in assetSourceGroup.sources) {
                     val groups = engine.asset.getGroups(assetSource.sourceId)
                     val totalGroups = if (groups.isNullOrEmpty()) listOf(null) else groups
+                    var error = false
                     for (group in totalGroups) {
                         try {
                             val findAssetsResult = findAssets(
@@ -538,14 +569,17 @@ internal class LibraryViewModel : ViewModel() {
                                 throw ex
                             }
                             error = true
-                            break
                         }
                     }
-                    if (error) break
+                    if (error) {
+                        errorCount += 1
+                    }
                 }
 
+                val allFailed = errorCount == assetSourceGroup.sources.size
+
                 val wrappedAssets = mutableListOf<WrappedAsset>()
-                if (!error) {
+                if (!allFailed) {
                     var index = 0
                     val requiredCount = assetSourceGroup.previewCount()
                     var iterator = findAssetResults.iterator()
@@ -575,12 +609,12 @@ internal class LibraryViewModel : ViewModel() {
                         titleRes = assetSourceGroup.titleRes,
                         stackData = libraryStackData,
                         uploadAssetSource = null,
-                        count = if (error) null else totalCount
+                        count = if (allFailed) null else totalCount
                     )
                 )
 
                 sectionItemsList.add(
-                    if (error) {
+                    if (allFailed) {
                         LibrarySectionItem.Error(assetSourceGroupType = assetSourceGroup.type)
                     } else {
                         LibrarySectionItem.Content(

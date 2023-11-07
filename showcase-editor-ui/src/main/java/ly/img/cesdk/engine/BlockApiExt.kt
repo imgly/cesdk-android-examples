@@ -1,5 +1,6 @@
 package ly.img.cesdk.engine
 
+import ly.img.cesdk.core.engine.Scope
 import ly.img.engine.BlockApi
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType

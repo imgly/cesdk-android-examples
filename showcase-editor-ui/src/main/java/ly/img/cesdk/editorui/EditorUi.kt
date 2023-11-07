@@ -130,7 +130,7 @@ fun EditorUi(
         snapshotFlow { swipeableState.offset }.collectLatest { offset ->
             if (offset == null) return@collectLatest
             val bottomSheetHeight = (swipeableState.maxOffset - offset).coerceAtMost(0.7f * swipeableState.maxOffset)
-            val bottomSheetHeightInDp = (bottomSheetHeight / oneDpInPx).roundToInt()
+            val bottomSheetHeightInDp = (bottomSheetHeight / oneDpInPx)
             viewModel.onEvent(Event.OnBottomSheetHeightChange(bottomSheetHeightInDp))
         }
     }
@@ -294,10 +294,9 @@ fun EditorUi(
                         onMoveStart = { viewModel.onEvent(Event.OnCanvasMove(true)) },
                         onMoveEnd = { viewModel.onEvent(Event.OnCanvasMove(false)) },
                         loadScene = {
-                            val topInsets = 64f + 16f // 64 for toolbar
-                            val bottomInsets = 132f + 16f // 132 for dock
-                            val sideInsets = 16f
-
+                            val topInsets = 64f // 64 for toolbar
+                            val bottomInsets = 132f // 132 for dock
+                            val sideInsets = 0f
                             val insets = Rect(
                                 left = sideInsets,
                                 top = topInsets,
@@ -325,7 +324,7 @@ fun EditorUi(
                         EditingTextCard(modifier = Modifier
                             .align(Alignment.BottomStart)
                             .onGloballyPositioned {
-                                viewModel.onEvent(Event.OnKeyboardHeightChange((it.size.height / oneDpInPx).roundToInt()))
+                                viewModel.onEvent(Event.OnKeyboardHeightChange(it.size.height / oneDpInPx))
                             },
                             onClose = { viewModel.onEvent(Event.OnKeyboardClose) }
                         )

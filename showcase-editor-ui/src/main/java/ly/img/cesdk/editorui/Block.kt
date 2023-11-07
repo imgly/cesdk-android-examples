@@ -17,7 +17,7 @@ import ly.img.cesdk.dock.FillStrokeIcon
 import ly.img.cesdk.dock.OptionItemData
 import ly.img.cesdk.dock.OptionType
 import ly.img.cesdk.dock.options.fillstroke.getFillStrokeTitleRes
-import ly.img.cesdk.engine.Scope
+import ly.img.cesdk.core.engine.Scope
 import ly.img.cesdk.engine.ShapeType
 import ly.img.cesdk.engine.getFillInfo
 import ly.img.cesdk.engine.getFillType

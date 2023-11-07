@@ -11,7 +11,7 @@ import ly.img.engine.DesignBlock
 internal sealed interface LibraryEvent {
     data class OnEnterSearchMode(val enter: Boolean, val libraryCategory: LibraryCategory) : LibraryEvent
     data class OnSearchTextChange(val value: String, val libraryCategory: LibraryCategory, val debounce: Boolean = false) : LibraryEvent
-    data class OnDispose(val libraryCategory: LibraryCategory) : LibraryEvent
+    object OnDispose : LibraryEvent
 
     data class OnPopStack(val libraryCategory: LibraryCategory) : LibraryEvent
 
