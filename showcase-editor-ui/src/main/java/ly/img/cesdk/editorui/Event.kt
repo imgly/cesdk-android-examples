@@ -22,7 +22,7 @@ interface Event {
     data class OnOptionClick(val optionType: OptionType) : Event
     object OnAddLibraryClick : Event
     object OnKeyboardClose : Event
-    data class OnKeyboardHeightChange(val heightInDp: Int) : Event
+    data class OnKeyboardHeightChange(val heightInDp: Float) : Event
     data class OnCanvasMove(val move: Boolean) : Event
     data class OnLoadScene(val sceneUriString: String, val height: Float, val insets: Rect, val inPortraitMode: Boolean) : Event
     object OnUndoClick : Event
@@ -30,7 +30,7 @@ interface Event {
     object OnExportClick : Event
     data class OnTogglePreviewMode(val isChecked: Boolean) : Event
     data class EnableHistory(val enable: Boolean) : Event
-    data class OnBottomSheetHeightChange(val heightInDp: Int) : Event
+    data class OnBottomSheetHeightChange(val heightInDp: Float) : Event
 }
 
 interface BlockEvent : Event {

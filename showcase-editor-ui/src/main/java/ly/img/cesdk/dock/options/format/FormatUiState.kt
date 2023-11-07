@@ -3,7 +3,7 @@ package ly.img.cesdk.dock.options.format
 import androidx.annotation.StringRes
 import ly.img.cesdk.core.data.font.FontData
 import ly.img.cesdk.core.data.font.FontFamilyData
-import ly.img.cesdk.engine.Scope
+import ly.img.cesdk.core.engine.Scope
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
 

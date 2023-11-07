@@ -3,11 +3,16 @@ package ly.img.cesdk.engine
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import ly.img.cesdk.core.engine.BlockKind
+import ly.img.cesdk.core.engine.Scope
 import ly.img.cesdk.core.engine.deselectAllBlocks
+import ly.img.cesdk.core.engine.dpToCanvasUnit
+import ly.img.cesdk.core.engine.getCamera
 import ly.img.cesdk.core.engine.getKindEnum
 import ly.img.cesdk.core.engine.getPage
+import ly.img.cesdk.core.engine.getScene
 import ly.img.cesdk.core.engine.getSortedPages
 import ly.img.cesdk.core.engine.getStack
+import ly.img.cesdk.core.engine.overrideAndRestore
 import ly.img.engine.BlendMode
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
@@ -54,40 +59,6 @@ fun Engine.resetHistory() {
     editor.addUndoStep()
     editor.setActiveHistory(newHistory)
     editor.destroyHistory(oldHistory)
-}
-
-fun Engine.overrideAndRestore(designBlock: DesignBlock, vararg scopes: String, action: (DesignBlock) -> Unit) {
-    val disabledScopes = getDisabledScopes(designBlock, *scopes)
-    action(designBlock)
-    restoreScopes(designBlock, disabledScopes)
-}
-
-suspend fun Engine.overrideAndRestoreAsync(
-    designBlock: DesignBlock,
-    vararg scopes: String,
-    action: suspend (DesignBlock) -> Unit
-) {
-    val disabledScopes = getDisabledScopes(designBlock, *scopes)
-    action(designBlock)
-    restoreScopes(designBlock, disabledScopes)
-}
-
-private fun Engine.getDisabledScopes(designBlock: DesignBlock, vararg scopes: String): Set<String> {
-    val disabledScopes = hashSetOf<String>()
-    scopes.forEach {
-        val wasEnabled = block.isScopeEnabled(designBlock, it)
-        if (!wasEnabled) {
-            block.setScopeEnabled(designBlock, it, true)
-            disabledScopes.add(it)
-        }
-    }
-    return disabledScopes
-}
-
-private fun Engine.restoreScopes(designBlock: DesignBlock, scopes: Set<String>) {
-    scopes.forEach {
-        block.setScopeEnabled(designBlock, it, false)
-    }
 }
 
 fun Engine.isPlaceholder(designBlock: DesignBlock): Boolean {
@@ -256,22 +227,6 @@ fun Engine.showPage(index: Int?, axis: LayoutAxis = LayoutAxis.Depth, spacing: F
     }
 }
 
-fun Engine.getScene(): DesignBlock {
-    return block.findByType(DesignBlockType.SCENE).first()
-}
-
-private fun Engine.dpToCanvasUnit(dp: Float): Float {
-    val sceneUnit = block.getEnum(getScene(), "scene/designUnit")
-    val sceneDpi = block.getFloat(getScene(), "scene/dpi")
-    val densityFactor = when (sceneUnit) {
-        "Millimeter" -> sceneDpi / 25.4f
-        "Inch" -> sceneDpi
-        else -> 1f
-    }
-    val zoomLevel = scene.getZoomLevel()
-    return dp / (densityFactor * zoomLevel)
-}
-
 private suspend fun Engine.zoomToBlock(designBlock: DesignBlock, insets: Rect) {
     scene.zoomToBlock(
         block = designBlock,
@@ -289,8 +244,4 @@ private fun Engine.getBackdropImage(): DesignBlock {
     return children.first {
         block.getKindEnum(it) == BlockKind.Image
     }
-}
-
-private fun Engine.getCamera(): DesignBlock {
-    return block.findByType(DesignBlockType.CAMERA).first()
 }

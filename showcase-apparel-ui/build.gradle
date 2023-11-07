@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace 'ly.img.cesdk.apparelui'
-    compileSdk 33
+    compileSdk libs.versions.androidCompileSdk.get().toInteger()
 
     defaultConfig {
-        minSdk 23
-        targetSdk 33
+        minSdk libs.versions.androidMinSdk.get().toInteger()
+        targetSdk libs.versions.androidTargetSdk.get().toInteger()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -29,7 +29,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.7"
+        kotlinCompilerExtensionVersion = libs.versions.kotlinCompilerExtension.get()
     }
 }
 
