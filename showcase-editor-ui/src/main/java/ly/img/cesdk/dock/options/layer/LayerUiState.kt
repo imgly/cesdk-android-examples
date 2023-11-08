@@ -1,7 +1,7 @@
 package ly.img.cesdk.dock.options.layer
 
 import androidx.annotation.StringRes
-import ly.img.cesdk.core.engine.Scope
+import ly.img.cesdk.engine.Scope
 import ly.img.cesdk.engine.canBringForward
 import ly.img.cesdk.engine.canSendBackward
 import ly.img.cesdk.engine.isDeleteAllowed

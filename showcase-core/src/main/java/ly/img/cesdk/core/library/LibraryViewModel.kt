@@ -1,6 +1,5 @@
 package ly.img.cesdk.core.library
 
-import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import androidx.annotation.StringRes
@@ -28,10 +27,7 @@ import ly.img.cesdk.core.data.getUri
 import ly.img.cesdk.core.engine.BlockKind
 import ly.img.cesdk.core.engine.ROLE
 import ly.img.cesdk.core.engine.ROLE_ADOPTER
-import ly.img.cesdk.core.engine.dpToCanvasUnit
-import ly.img.cesdk.core.engine.getCamera
 import ly.img.cesdk.core.engine.getKindEnum
-import ly.img.cesdk.core.engine.getPage
 import ly.img.cesdk.core.library.components.section.LibrarySectionItem
 import ly.img.cesdk.core.library.engine.addText
 import ly.img.cesdk.core.library.engine.replaceSticker
@@ -52,7 +48,6 @@ import ly.img.engine.AssetDefinition
 import ly.img.engine.DesignBlock
 import ly.img.engine.FindAssetsQuery
 import ly.img.engine.FindAssetsResult
-import ly.img.engine.PositionMode
 import ly.img.engine.SceneMode
 import java.util.UUID
 
@@ -212,46 +207,15 @@ internal class LibraryViewModel : ViewModel() {
     }
 
     private fun onAddAsset(assetSource: AssetSource, asset: Asset) {
-        viewModelScope.launch {
-            val designBlock = if (assetSource == AssetSource.Text) {
-                val fontFamilyString = asset.getMeta("fontFamily", "")
-                val fontFamily = checkNotNull(checkNotNull(fontFamilies.value).getOrThrow()[fontFamilyString])
-                val fontSize = requireNotNull(asset.getMeta("fontSize", "")).toFloat()
-                val fontWeight = FontWeight(requireNotNull(asset.getMeta("fontWeight", "")).toInt())
-                engine.addText(fontFamily.getFontData(fontWeight).fontPath, fontSize)
-            } else {
-                engine.asset.applyAssetSourceAsset(assetSource.sourceId, asset) ?: return@launch
-            }
-
-            val camera = engine.getCamera()
-            val width = engine.block.getFrameWidth(designBlock)
-            val height = engine.block.getFrameHeight(designBlock)
-
-            val pixelRatio = engine.block.getFloat(camera, "camera/pixelRatio")
-            val cameraWidth = engine.block.getFloat(camera, "camera/resolution/width") / pixelRatio
-            val cameraHeight = engine.block.getFloat(camera, "camera/resolution/height") / pixelRatio
-
-            val screenRect = RectF(0f, 0f, cameraWidth, cameraHeight)
-            val pageRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(engine.getPage(0)))
-            val pageWidth = pageRect.width()
-
-            // find visible page rect
-            val visiblePageRect = RectF()
-            visiblePageRect.setIntersect(pageRect, screenRect)
-
-            // set the position of the new block in the center of the visible page
-            engine.block.setPositionXMode(designBlock, PositionMode.ABSOLUTE)
-            engine.block.setPositionYMode(designBlock, PositionMode.ABSOLUTE)
-
-            val newX = engine.dpToCanvasUnit((visiblePageRect.left - pageRect.left) + visiblePageRect.width() / 2) - width / 2
-            val newY = engine.dpToCanvasUnit((visiblePageRect.top - pageRect.top) + visiblePageRect.height() / 2) - height / 2
-
-            engine.block.setPositionX(designBlock, newX)
-            engine.block.setPositionY(designBlock, newY)
-
-            // scale down the new block
-            if (pageWidth > cameraWidth) {
-                engine.block.scale(designBlock, cameraWidth / pageWidth, 0.5f, 0.5f)
+        if (assetSource == AssetSource.Text) {
+            val fontFamilyString = asset.getMeta("fontFamily", "")
+            val fontFamily = checkNotNull(checkNotNull(fontFamilies.value).getOrThrow()[fontFamilyString])
+            val fontSize = requireNotNull(asset.getMeta("fontSize", "")).toFloat()
+            val fontWeight = FontWeight(requireNotNull(asset.getMeta("fontWeight", "")).toInt())
+            engine.addText(fontFamily.getFontData(fontWeight).fontPath, fontSize)
+        } else {
+            viewModelScope.launch {
+                engine.asset.applyAssetSourceAsset(assetSource.sourceId, asset)
             }
         }
     }

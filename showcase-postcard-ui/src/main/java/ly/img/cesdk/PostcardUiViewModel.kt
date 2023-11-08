@@ -22,9 +22,9 @@ import ly.img.cesdk.core.engine.deselectAllBlocks
 import ly.img.cesdk.editorui.EditorUiViewModel
 import ly.img.cesdk.editorui.Event
 import ly.img.cesdk.engine.LayoutAxis
-import ly.img.cesdk.core.engine.Scope
-import ly.img.cesdk.core.engine.getScene
-import ly.img.cesdk.core.engine.overrideAndRestore
+import ly.img.cesdk.engine.Scope
+import ly.img.cesdk.engine.getScene
+import ly.img.cesdk.engine.overrideAndRestore
 import ly.img.cesdk.engine.resetHistory
 import ly.img.cesdk.engine.setFillType
 import ly.img.cesdk.engine.showAllPages

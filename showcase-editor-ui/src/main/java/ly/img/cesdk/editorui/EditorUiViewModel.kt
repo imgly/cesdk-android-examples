@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
@@ -26,13 +25,8 @@ import ly.img.cesdk.components.actionmenu.createCanvasActionMenuUiState
 import ly.img.cesdk.components.color_picker.fillAndStrokeColors
 import ly.img.cesdk.core.Environment
 import ly.img.cesdk.core.engine.BlockType
-import ly.img.cesdk.core.engine.Scope
 import ly.img.cesdk.core.engine.deselectAllBlocks
-import ly.img.cesdk.core.engine.dpToCanvasUnit
-import ly.img.cesdk.core.engine.getCamera
 import ly.img.cesdk.core.engine.getPage
-import ly.img.cesdk.core.engine.getScene
-import ly.img.cesdk.core.engine.overrideAndRestore
 import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetValue
 import ly.img.cesdk.dock.BottomSheetContent
 import ly.img.cesdk.dock.FillStrokeBottomSheetContent
@@ -50,8 +44,6 @@ import ly.img.cesdk.dock.options.layer.createLayerUiState
 import ly.img.cesdk.dock.options.shapeoptions.createShapeOptionsUiState
 import ly.img.cesdk.engine.CROP_EDIT_MODE
 import ly.img.cesdk.engine.TEXT_EDIT_MODE
-import ly.img.cesdk.engine.TOUCH_ACTION_SCALE
-import ly.img.cesdk.engine.TOUCH_ACTION_ZOOM
 import ly.img.cesdk.engine.TRANSFORM_EDIT_MODE
 import ly.img.cesdk.engine.addOutline
 import ly.img.cesdk.engine.isPlaceholder
@@ -61,11 +53,8 @@ import ly.img.cesdk.engine.showPage
 import ly.img.cesdk.engine.zoomToPage
 import ly.img.cesdk.engine.zoomToSelectedText
 import ly.img.engine.SceneMode
-import ly.img.engine.UnstableEngineApi
 import java.io.File
 import java.io.FileOutputStream
-
-internal const val PAGE_MARGIN = 16f
 
 @OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
 abstract class EditorUiViewModel(
@@ -241,7 +230,7 @@ abstract class EditorUiViewModel(
     }
 
     private fun loadScene(uriString: String, height: Float, insets: Rect, inPortraitMode: Boolean) {
-        defaultInsets = insets.translate(PAGE_MARGIN, PAGE_MARGIN)
+        defaultInsets = insets
         canvasHeight = height
         this.inPortraitMode = inPortraitMode
         setSettingsForEditorUi(engine)
@@ -288,122 +277,36 @@ abstract class EditorUiViewModel(
         setBottomSheetContent { LibraryBottomSheetContent }
     }
 
-    private fun onBottomSheetHeightChange(heightInDp: Float) {
-        // we don't want to change zoom level for Library
-        if (_isPreviewMode.value || !_isSceneLoaded.value || bottomSheetContent.value is LibraryBottomSheetContent) return
-        zoom(heightInDp)
+    private fun onBottomSheetHeightChange(heightInDp: Int) {
+        if (_isPreviewMode.value || !_isSceneLoaded.value) return
+        val bottomInset = heightInDp + 16f
+        zoom(bottomInset)
     }
 
     private fun onKeyboardClose() {
         engine.editor.setEditMode(TRANSFORM_EDIT_MODE)
     }
 
-    private fun onKeyboardHeightChange(heightInDp: Float) {
-        zoom(heightInDp)
+    private fun onKeyboardHeightChange(heightInDp: Int) {
+        val bottomInset = heightInDp + 16f // 16dp padding from edge
+        zoom(bottomInset)
     }
 
     private fun zoom(bottomInset: Float) {
-        val realBottomInset = bottomInset + PAGE_MARGIN
-        if (realBottomInset <= defaultInsets.bottom && currentInsets.bottom == defaultInsets.bottom) return
-        zoom(currentInsets.copy(bottom = realBottomInset.coerceAtLeast(defaultInsets.bottom)))
+        if (bottomInset <= defaultInsets.bottom && currentInsets.bottom == defaultInsets.bottom) return
+        zoom(currentInsets.copy(bottom = bottomInset.coerceAtLeast(defaultInsets.bottom)))
     }
 
     private var zoomJob: Job? = null
-    private var fitToPageZoomLevel = 0f
-
-    @OptIn(UnstableEngineApi::class)
-    private fun zoom(insets: Rect = defaultInsets, zoomToPage: Boolean = false, clampOnly: Boolean = false): Job {
+    private fun zoom(insets: Rect = defaultInsets): Job {
         zoomJob?.cancel()
         return viewModelScope.launch {
-            currentInsets = insets
             if (_uiState.value.isInPreviewMode) {
-                val scene = engine.getScene()
-                if (engine.scene.isCameraPositionClampingEnabled(scene)) {
-                    engine.scene.disableCameraPositionClamping()
-                }
-                if (engine.scene.isCameraZoomClampingEnabled(scene)) {
-                    engine.scene.disableCameraZoomClamping()
-                }
+                currentInsets = insets.copy(bottom = 16f)
                 enterPreviewMode()
             } else {
-                val page = engine.getPage(pageIndex.value)
-                val selectedBlock = selectedBlock.value
-                val shouldZoomToPage =
-                    (!clampOnly && (zoomToPage || selectedBlock == null)) || engine.scene.getZoomLevel() == fitToPageZoomLevel
-                val blocks = buildList {
-                    add(page)
-                    if (selectedBlock?.type == BlockType.Text) {
-                        add(selectedBlock.designBlock)
-                    }
-                }
-
-                if (shouldZoomToPage) {
-                    engine.zoomToPage(pageIndex.value, currentInsets)
-                    fitToPageZoomLevel = engine.scene.getZoomLevel()
-                    engine.scene.enableCameraZoomClamping(
-                        blocks,
-                        minZoomLimit = 1.0f,
-                        maxZoomLimit = 5.0f,
-                        paddingLeft = currentInsets.left,
-                        paddingTop = currentInsets.top,
-                        paddingRight = currentInsets.right,
-                        paddingBottom = currentInsets.bottom
-                    )
-                }
-
-                engine.scene.enableCameraPositionClamping(
-                    blocks,
-                    paddingLeft = currentInsets.left - PAGE_MARGIN,
-                    paddingTop = currentInsets.top - PAGE_MARGIN,
-                    paddingRight = currentInsets.right - PAGE_MARGIN,
-                    paddingBottom = currentInsets.bottom - PAGE_MARGIN,
-                    scaledPaddingLeft = PAGE_MARGIN,
-                    scaledPaddingTop = PAGE_MARGIN,
-                    scaledPaddingRight = PAGE_MARGIN,
-                    scaledPaddingBottom = PAGE_MARGIN
-                )
-
-                val selectedDesignBlock = selectedBlock?.designBlock
-
-                if (selectedDesignBlock != null && !shouldZoomToPage && engine.editor.getEditMode() != TEXT_EDIT_MODE) {
-                    // The delay acts as a debouncing mechanism.
-                    delay(8)
-
-                    val boundingBoxRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(selectedDesignBlock))
-                    val bottomSheetTop = canvasHeight - currentInsets.bottom
-                    val camera = engine.getCamera()
-                    val oldCameraPosX = engine.block.getPositionX(camera)
-                    val oldCameraPosY = engine.block.getPositionY(camera)
-                    var newCameraPosX = oldCameraPosX
-                    var newCameraPosY = oldCameraPosY
-                    val canvasWidthDp = engine.block.getFloat(camera, "camera/resolution/width") /
-                        engine.block.getFloat(camera, "camera/pixelRatio")
-                    val selectedBlockCenterX = boundingBoxRect.centerX()
-
-                    if (selectedBlockCenterX > canvasWidthDp) {
-                        newCameraPosX = oldCameraPosX + engine.dpToCanvasUnit(
-                            (canvasWidthDp / 2 - boundingBoxRect.width() / 2) + (boundingBoxRect.right - canvasWidthDp)
-                        )
-                    } else if (selectedBlockCenterX < 0) {
-                        newCameraPosX = oldCameraPosX - engine.dpToCanvasUnit(
-                            (canvasWidthDp / 2 - boundingBoxRect.width() / 2) - boundingBoxRect.left
-                        )
-                    }
-
-                    // bottom sheet is covering more than 50% of selected block
-                    if (bottomSheetTop < boundingBoxRect.centerY()) {
-                        newCameraPosY = oldCameraPosY + engine.dpToCanvasUnit(48 + boundingBoxRect.bottom - bottomSheetTop)
-                    } else if (boundingBoxRect.centerY() < 64) {
-                        newCameraPosY = oldCameraPosY - engine.dpToCanvasUnit(48 + bottomSheetTop - boundingBoxRect.bottom)
-                    }
-
-                    if (newCameraPosX != oldCameraPosX || newCameraPosY != oldCameraPosY) {
-                        engine.overrideAndRestore(camera, Scope.LayerMove) {
-                            engine.block.setPositionX(it, newCameraPosX)
-                            engine.block.setPositionY(it, newCameraPosY)
-                        }
-                    }
-                }
+                currentInsets = insets
+                engine.zoomToPage(pageIndex.value, currentInsets)
                 if (engine.editor.getEditMode() == TEXT_EDIT_MODE) {
                     zoomToText()
                 }
@@ -507,25 +410,17 @@ abstract class EditorUiViewModel(
     }
 
     private fun observeEditorStateChange() {
-        var flag = false
         viewModelScope.launch {
             engine.editor.onStateChanged().map { engine.editor.getEditMode() }.distinctUntilChanged().collect { editMode ->
                 when (editMode) {
                     TEXT_EDIT_MODE -> setBottomSheetContent { null }
-                    CROP_EDIT_MODE -> {
-                        engine.editor.setSettingEnum("touch/pinchAction", TOUCH_ACTION_SCALE)
-                        setBottomSheetContent {
-                            CropBottomSheetContent(createCropUiState(engine.block.findAllSelected().single(), engine))
-                        }
+                    CROP_EDIT_MODE -> setBottomSheetContent {
+                        CropBottomSheetContent(createCropUiState(engine.block.findAllSelected().single(), engine))
                     }
 
                     else -> {
                         setBottomSheetContent { null }
-                        engine.editor.setSettingEnum("touch/pinchAction", TOUCH_ACTION_ZOOM)
-                        if (!flag) {
-                            flag = true
-                            zoom(zoomToPage = true)
-                        }
+                        zoom()
                     }
                 }
                 isKeyboardShowing.update { editMode == TEXT_EDIT_MODE }
@@ -537,10 +432,6 @@ abstract class EditorUiViewModel(
         viewModelScope.launch {
             merge(engine.block.onSelectionChanged(), _updateBlock).collect {
                 val block = engine.block.findAllSelected().firstOrNull()?.let { createBlock(it, engine) }
-                val oldBlock = selectedBlock.value?.designBlock
-                if (oldBlock != null && block == null) {
-                    zoom(clampOnly = true)
-                }
                 var isBlockDifferent = false
                 selectedBlock.update {
                     isBlockDifferent = it?.designBlock != block?.designBlock
@@ -587,14 +478,14 @@ abstract class EditorUiViewModel(
     private fun enableEditMode(): Job {
         _isPreviewMode.update { false }
         enterEditMode()
-        return zoom(zoomToPage = true)
+        return zoom()
     }
 
     private fun enablePreviewMode() {
         _isPreviewMode.update { true }
         setBottomSheetContent { null }
         enterPreviewMode()
-        zoom(defaultInsets.copy(bottom = PAGE_MARGIN))
+        zoom()
     }
 
     private fun togglePreviewMode(previewMode: Boolean) {
