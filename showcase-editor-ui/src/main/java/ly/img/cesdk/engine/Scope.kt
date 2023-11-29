@@ -1,4 +1,4 @@
-package ly.img.cesdk.core.engine
+package ly.img.cesdk.engine
 
 object Scope {
     const val FillChange = "fill/change"

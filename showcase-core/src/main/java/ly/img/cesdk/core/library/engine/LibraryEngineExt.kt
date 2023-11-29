@@ -17,7 +17,7 @@ internal fun Engine.replaceSticker(stickerBlock: DesignBlock, uri: String) {
     block.setContentFillMode(stickerBlock, ContentFillMode.CONTAIN)
 }
 
-internal fun Engine.addText(path: String, size: Float): DesignBlock {
+internal fun Engine.addText(path: String, size: Float) {
     val fontSize = (50.0f / 24.0f) * size
     val textBlock = block.create(DesignBlockType.TEXT)
     block.setString(textBlock, "text/fontFileUri", Uri.parse("$FONT_BASE_PATH/$path").toString())
@@ -25,7 +25,6 @@ internal fun Engine.addText(path: String, size: Float): DesignBlock {
     block.setEnum(textBlock, "text/horizontalAlignment", "Center")
     block.setHeightMode(textBlock, SizeMode.AUTO)
     addBlockToPage(textBlock)
-    return textBlock
 }
 
 /**
