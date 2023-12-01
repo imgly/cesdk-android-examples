@@ -5,6 +5,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -25,7 +26,7 @@ fun LibraryButton(
     onEvent: (Event) -> Unit
 ) {
     FloatingActionButton(
-        modifier = modifier,
+        modifier = modifier.testTag(tag = "LibraryButton"),
         onClick = {
             uiScope.launch {
                 onEvent(Event.OnAddLibraryClick)

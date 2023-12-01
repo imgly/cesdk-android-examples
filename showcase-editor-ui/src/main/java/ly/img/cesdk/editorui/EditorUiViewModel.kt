@@ -33,8 +33,13 @@ import ly.img.cesdk.core.engine.getCamera
 import ly.img.cesdk.core.engine.getPage
 import ly.img.cesdk.core.engine.getScene
 import ly.img.cesdk.core.engine.overrideAndRestore
+import ly.img.cesdk.core.library.state.LibraryCategory
+import ly.img.cesdk.core.ui.EventsHandler
 import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetValue
+import ly.img.cesdk.core.ui.register
+import ly.img.cesdk.dock.AdjustmentSheetContent
 import ly.img.cesdk.dock.BottomSheetContent
+import ly.img.cesdk.dock.EffectSheetContent
 import ly.img.cesdk.dock.FillStrokeBottomSheetContent
 import ly.img.cesdk.dock.FormatBottomSheetContent
 import ly.img.cesdk.dock.LayerBottomSheetContent
@@ -42,12 +47,21 @@ import ly.img.cesdk.dock.LibraryBottomSheetContent
 import ly.img.cesdk.dock.OptionType
 import ly.img.cesdk.dock.OptionsBottomSheetContent
 import ly.img.cesdk.dock.ReplaceBottomSheetContent
+import ly.img.cesdk.dock.options.adjustment.AdjustmentUiState
 import ly.img.cesdk.dock.options.crop.CropBottomSheetContent
 import ly.img.cesdk.dock.options.crop.createCropUiState
-import ly.img.cesdk.dock.options.fillstroke.createFillStrokeUiState
+import ly.img.cesdk.dock.options.effect.EffectUiState
+import ly.img.cesdk.dock.options.fillstroke.FillStrokeUiState
 import ly.img.cesdk.dock.options.format.createFormatUiState
 import ly.img.cesdk.dock.options.layer.createLayerUiState
 import ly.img.cesdk.dock.options.shapeoptions.createShapeOptionsUiState
+import ly.img.cesdk.editorui.handler.appearanceEvents
+import ly.img.cesdk.editorui.handler.blockEvents
+import ly.img.cesdk.editorui.handler.blockFillEvents
+import ly.img.cesdk.editorui.handler.cropEvents
+import ly.img.cesdk.editorui.handler.shapeOptionEvents
+import ly.img.cesdk.editorui.handler.strokeEvents
+import ly.img.cesdk.editorui.handler.textBlockEvents
 import ly.img.cesdk.engine.CROP_EDIT_MODE
 import ly.img.cesdk.engine.TEXT_EDIT_MODE
 import ly.img.cesdk.engine.TOUCH_ACTION_SCALE
@@ -106,6 +120,9 @@ abstract class EditorUiViewModel(
     private val _canvasActionMenuUiState = MutableStateFlow<CanvasActionMenuUiState?>(null)
     val canvasActionMenuUiState = _canvasActionMenuUiState.asStateFlow()
 
+    private val _historyChangeTrigger = Channel<Unit>()
+    protected val historyChangeTrigger = _historyChangeTrigger.receiveAsFlow()
+
     protected var colorPalette = fillAndStrokeColors
 
     init {
@@ -129,40 +146,67 @@ abstract class EditorUiViewModel(
         Environment.sceneMode = sceneMode
     }
 
-    open fun onEvent(event: Event) {
-        when (event) {
-            is BlockEvent -> {
-                if (bottomSheetContent.value is CropBottomSheetContent && event != BlockEvent.OnResetCrop) {
-                    isStraighteningOrRotating = true
-                }
-                handleBlockEvent(
-                    engine,
-                    getBlockForEvents(),
-                    checkNotNull(assetsRepo.fontFamilies.value).getOrThrow(),
-                    event
-                )
-            }
+    private val eventHandler = EventsHandler {
+        cropEvents(
+            engine = ::engine,
+            block = ::getBlockForEvents,
+        )
+        blockEvents (
+            engine = ::engine,
+            block = ::getBlockForEvents,
+        )
+        textBlockEvents (
+            engine = ::engine,
+            block = ::getBlockForEvents,
+            fontFamilyMap = { checkNotNull(assetsRepo.fontFamilies.value).getOrThrow() },
+        )
+        strokeEvents(
+            engine = ::engine,
+            block = ::getBlockForEvents,
+        )
+        blockFillEvents(
+            engine = ::engine,
+            block = ::getBlockForEvents,
+        )
+        shapeOptionEvents(
+            engine = ::engine,
+            block = ::getBlockForEvents,
+        )
+        appearanceEvents(
+            engine = ::engine,
+            block = ::getBlockForEvents,
+        )
+        editorEvents()
+    }
 
-            Event.OnBackPress -> onBackPress()
-            Event.OnBack -> onBack()
-            Event.OnCloseDock -> engine.deselectAllBlocks()
-            Event.OnExit -> onExit()
-            Event.OnAddLibraryClick -> openLibrarySheet()
-            Event.OnExpandSheet -> sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Expanded))
-            Event.OnHideSheet -> sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden))
-            Event.OnHideScrimSheet -> sendSingleEvent(SingleEvent.HideScrimSheet)
-            Event.OnExportClick -> exportScene()
-            Event.OnRedoClick -> engine.editor.redo()
-            is Event.OnTogglePreviewMode -> togglePreviewMode(event.isChecked)
-            Event.OnUndoClick -> engine.editor.undo()
-            is Event.OnOptionClick -> setOptionType(event.optionType)
-            is Event.OnCanvasMove -> onCanvasMove(event.move)
-            is Event.OnKeyboardClose -> onKeyboardClose()
-            is Event.OnLoadScene -> loadScene(event.sceneUriString, event.height, event.insets, event.inPortraitMode)
-            is Event.EnableHistory -> _enableHistory.update { event.enable }
-            is Event.OnBottomSheetHeightChange -> onBottomSheetHeightChange(event.heightInDp)
-            is Event.OnKeyboardHeightChange -> onKeyboardHeightChange(event.heightInDp)
+    private fun EventsHandler.editorEvents() {
+        register<Event.OnEngineStartError> { onEngineStartError() }
+        register<Event.OnBackPress> { onBackPress() }
+        register<Event.OnBack> { onBack() }
+        register<Event.OnCloseDock> { engine.deselectAllBlocks() }
+        register<Event.OnExit> { onExit() }
+        register<Event.OnAddLibraryClick> { openLibrarySheet() }
+        register<Event.OnExpandSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Expanded)) }
+        register<Event.OnHideSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden)) }
+        register<Event.OnExportClick> { exportScene() }
+        register<Event.OnRedoClick> { engine.editor.redo() }
+        register<Event.OnUndoClick> { engine.editor.undo() }
+        register<Event.OnTogglePreviewMode> { togglePreviewMode(it.isChecked) }
+        register<Event.OnOptionClick> { setOptionType(it.optionType) }
+        register<Event.OnCanvasMove> { onCanvasMove(it.move) }
+        register<Event.OnKeyboardClose> { onKeyboardClose() }
+        register<Event.OnLoadScene> { loadScene(it.sceneUriString, it.height, it.insets, it.inPortraitMode) }
+        register<Event.EnableHistory> { event -> _enableHistory.update { event.enable } }
+        register<Event.OnBottomSheetHeightChange> { onBottomSheetHeightChange(it.heightInDp) }
+        register<Event.OnKeyboardHeightChange> { onKeyboardHeightChange(it.heightInDp) }
+    }
+
+    open fun onEvent(event: Event) {
+        // TODO: remove this when a better solution is found.
+        if (event is BlockEvent && bottomSheetContent.value is CropBottomSheetContent && event != BlockEvent.OnResetCrop) {
+            isStraighteningOrRotating = true
         }
+        eventHandler.handleEvent(event)
     }
 
     protected open fun getBlockForEvents() = checkNotNull(selectedBlock.value).designBlock
@@ -191,7 +235,21 @@ abstract class EditorUiViewModel(
                 is FillStrokeBottomSheetContent -> {
                     _updateBlock.update { !it }
                     FillStrokeBottomSheetContent(
-                        createFillStrokeUiState(block, engine, colorPalette)
+                        FillStrokeUiState.create(block, engine, colorPalette)
+                    )
+                }
+
+                is AdjustmentSheetContent -> {
+                    _updateBlock.update { !it }
+                    AdjustmentSheetContent(
+                        AdjustmentUiState.create(block, engine)
+                    )
+                }
+
+                is EffectSheetContent -> {
+                    _updateBlock.update { !it }
+                    EffectSheetContent(
+                        EffectUiState.create(block, engine, it.uiState.libraryCategory)
                     )
                 }
 
@@ -233,6 +291,7 @@ abstract class EditorUiViewModel(
 
     private fun onSheetDismiss() {
         setOptionType(null)
+        if (engine.isEngineRunning().not()) return
         if (engine.editor.getEditMode() == CROP_EDIT_MODE) engine.editor.setEditMode(TRANSFORM_EDIT_MODE)
     }
 
@@ -443,7 +502,7 @@ abstract class EditorUiViewModel(
                 )
 
                 OptionType.FillStroke -> FillStrokeBottomSheetContent(
-                    createFillStrokeUiState(block, engine, colorPalette)
+                    FillStrokeUiState.create(block, engine, colorPalette)
                 )
 
                 OptionType.EnterGroup -> {
@@ -460,6 +519,19 @@ abstract class EditorUiViewModel(
                     engine.editor.setEditMode(CROP_EDIT_MODE)
                     null
                 }
+
+                OptionType.Adjustments -> AdjustmentSheetContent(
+                    AdjustmentUiState.create(block, engine)
+                )
+                OptionType.Filter -> EffectSheetContent(
+                    EffectUiState.create(block, engine, LibraryCategory.Filters)
+                )
+                OptionType.Effect -> EffectSheetContent(
+                    EffectUiState.create(block, engine, LibraryCategory.FxEffects)
+                )
+                OptionType.Blur -> EffectSheetContent(
+                    EffectUiState.create(block, engine, LibraryCategory.Blur)
+                )
             }
         }
     }
@@ -467,7 +539,7 @@ abstract class EditorUiViewModel(
     private fun observeUiStateChanges() {
         viewModelScope.launch {
             merge(
-                engine.editor.onHistoryUpdated(),
+                historyChangeTrigger,
                 _isSceneLoaded,
                 _isPreviewMode,
                 _isExporting,
@@ -556,6 +628,7 @@ abstract class EditorUiViewModel(
     private fun observeHistory() {
         viewModelScope.launch {
             engine.editor.onHistoryUpdated().collect {
+                _historyChangeTrigger.trySend(Unit)
                 updateBottomSheetUiState()
             }
         }
@@ -568,6 +641,12 @@ abstract class EditorUiViewModel(
             }
         } else {
             sendSingleEvent(SingleEvent.Exit)
+        }
+    }
+
+    private fun onEngineStartError() {
+        _uiState.update {
+            it.copy(isLoading = false, errorLoading = true)
         }
     }
 

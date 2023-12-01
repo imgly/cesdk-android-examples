@@ -14,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -39,7 +40,9 @@ fun AddLibrarySheet(
     val viewModel = viewModel<LibraryViewModel>()
 
     val tabItems = remember(viewModel.libraryCategories) {
-        viewModel.libraryCategories.map { LibraryNavBarItem.from(it) }
+        viewModel.libraryCategories.filterNot { it.hiddenInAddLibrary }.map {
+            LibraryNavBarItem.from(it)
+        }
     }
     var selectedItemIndex by remember { mutableStateOf(0) }
 
@@ -75,6 +78,7 @@ fun AddLibrarySheet(
         LibraryNavigationBar(
             items = tabItems,
             modifier = Modifier
+                .testTag(tag = "LibraryNavigationBar")
                 .onGloballyPositioned {
                     bottomNavBarHeight = it.size.height
                 }

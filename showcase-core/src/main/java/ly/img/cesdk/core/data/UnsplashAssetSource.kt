@@ -9,6 +9,7 @@ import ly.img.engine.AssetCredits
 import ly.img.engine.AssetLicense
 import ly.img.engine.AssetSource
 import ly.img.engine.AssetUTM
+import ly.img.engine.FillType
 import ly.img.engine.FindAssetsQuery
 import ly.img.engine.FindAssetsResult
 import org.json.JSONArray
@@ -94,7 +95,7 @@ internal class UnsplashAssetSource(private val baseUrl: String) :
             "uri" to getJSONObject("urls").getString("full"),
             "thumbUri" to getJSONObject("urls").getString("thumb"),
             "kind" to "image",
-            "fillType" to "//ly.img.ubq/fill/image",
+            "fillType" to FillType.Image.key,
             "width" to getInt("width").toString(),
             "height" to getInt("height").toString()
         ),

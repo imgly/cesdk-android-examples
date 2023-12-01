@@ -16,7 +16,7 @@ fun Engine.getPage(index: Int): DesignBlock {
 }
 
 fun Engine.getScene(): DesignBlock {
-    return block.findByType(DesignBlockType.SCENE).first()
+    return block.findByType(DesignBlockType.Scene).first()
 }
 
 fun Engine.getSortedPages(): List<DesignBlock> {
@@ -24,11 +24,23 @@ fun Engine.getSortedPages(): List<DesignBlock> {
 }
 
 fun Engine.getStack(): DesignBlock {
-    return block.findByType(DesignBlockType.STACK).first()
+    return block.findByType(DesignBlockType.Stack).first()
 }
 
 fun Engine.getCamera(): DesignBlock {
-    return block.findByType(DesignBlockType.CAMERA).first()
+    return block.findByType(DesignBlockType.Camera).first()
+}
+
+fun Engine.dpToCanvasUnit(dp: Float): Float {
+    val sceneUnit = block.getEnum(getScene(), "scene/designUnit")
+    val sceneDpi = block.getFloat(getScene(), "scene/dpi")
+    val densityFactor = when (sceneUnit) {
+        "Millimeter" -> sceneDpi / 25.4f
+        "Inch" -> sceneDpi
+        else -> 1f
+    }
+    val zoomLevel = scene.getZoomLevel()
+    return dp * (block.getFloat(getCamera(), "camera/pixelRatio")) / (densityFactor * zoomLevel)
 }
 
 fun Engine.overrideAndRestore(designBlock: DesignBlock, vararg scopes: String, action: (DesignBlock) -> Unit) {
@@ -63,16 +75,4 @@ private fun Engine.restoreScopes(designBlock: DesignBlock, scopes: Set<String>) 
     scopes.forEach {
         block.setScopeEnabled(designBlock, it, false)
     }
-}
-
-fun Engine.dpToCanvasUnit(dp: Float): Float {
-    val sceneUnit = block.getEnum(getScene(), "scene/designUnit")
-    val sceneDpi = block.getFloat(getScene(), "scene/dpi")
-    val densityFactor = when (sceneUnit) {
-        "Millimeter" -> sceneDpi / 25.4f
-        "Inch" -> sceneDpi
-        else -> 1f
-    }
-    val zoomLevel = scene.getZoomLevel()
-    return dp * (block.getFloat(getCamera(), "camera/pixelRatio")) / (densityFactor * zoomLevel)
 }

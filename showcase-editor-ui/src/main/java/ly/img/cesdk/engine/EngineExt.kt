@@ -3,7 +3,9 @@ package ly.img.cesdk.engine
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import ly.img.cesdk.core.engine.BlockKind
+import ly.img.engine.DesignBlockType
 import ly.img.cesdk.core.engine.Scope
+import ly.img.engine.ShapeType
 import ly.img.cesdk.core.engine.deselectAllBlocks
 import ly.img.cesdk.core.engine.dpToCanvasUnit
 import ly.img.cesdk.core.engine.getCamera
@@ -16,7 +18,6 @@ import ly.img.cesdk.core.engine.overrideAndRestore
 import ly.img.engine.BlendMode
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
-import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.PositionMode
 import ly.img.engine.RGBAColor
@@ -28,7 +29,8 @@ fun Engine.setClearColor(color: Color) {
 }
 
 fun Engine.addOutline(designBlock: DesignBlock, parent: DesignBlock) {
-    val outline = block.create(DesignBlockType.RECT_SHAPE)
+    val outline = block.create(DesignBlockType.Graphic)
+    block.setShape(outline, block.createShape(ShapeType.Rect))
     val width = block.getWidth(parent)
     val height = block.getHeight(parent)
     block.setName(outline, OUTLINE_BLOCK_NAME)
@@ -153,7 +155,7 @@ fun Engine.isDeleteAllowed(designBlock: DesignBlock): Boolean {
 
 fun Engine.isGrouped(designBlock: DesignBlock): Boolean {
     val parent = block.getParent(designBlock) ?: return false
-    return block.getType(parent) == DesignBlockType.GROUP.key
+    return DesignBlockType.get(block.getType(parent)) == DesignBlockType.Group
 }
 
 fun Engine.getFillColor(designBlock: DesignBlock): Color? {

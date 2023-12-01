@@ -1,26 +1,28 @@
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
-fun colors() = CoroutineScope(Dispatchers.Main).launch {
+fun colors(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
 	val engine = Engine.getInstance(id = "ly.img.engine.example")
-	engine.start()
+	engine.start(license = license, userId = userId)
 	engine.bindOffscreen(width = 100, height = 100)
 
 	// highlight-setup
 	val scene = engine.scene.create()
 
-	val page = engine.block.create(DesignBlockType.PAGE)
+	val page = engine.block.create(DesignBlockType.Page)
 	engine.block.setWidth(page, value = 800F)
 	engine.block.setHeight(page, value = 600F)
 	engine.block.appendChild(parent = scene, child = page)
 
-    val star = engine.block.create(DesignBlockType.STAR_SHAPE)
-    engine.block.setPositionX(star, value = 350F)
-    engine.block.setPositionY(star, value = 400F)
-    engine.block.setWidth(star, value = 100F)
-    engine.block.setHeight(star, value = 100F)
+    val block = engine.block.create(DesignBlockType.Graphic)
+    engine.block.setShape(block, shape = engine.block.createShape(ShapeType.Rect))
+    engine.block.setPositionX(block, value = 350F)
+    engine.block.setPositionY(block, value = 400F)
+    engine.block.setWidth(block, value = 100F)
+    engine.block.setHeight(block, value = 100F)
 
-    val fill = engine.block.getFill(star)
+    val fill = engine.block.createFill(FillType.Color)
+    engine.block.setFill(block, fill = fill)
     // highlight-setup
 
     // highlight-create-colors
@@ -37,9 +39,9 @@ fun colors() = CoroutineScope(Dispatchers.Main).launch {
     // highlight-apply-colors
     engine.block.setColor(fill, property = "fill/color/value", value = rgbaBlue)
     engine.block.setColor(fill, property = "fill/color/value", value = cmykRed)
-    engine.block.setColor(star, property = "stroke/color", value = cmykPartialRed)
+    engine.block.setColor(block, property = "stroke/color", value = cmykPartialRed)
     engine.block.setColor(fill, property = "fill/color/value", value = spotPinkFlamingo)
-    engine.block.setColor(star, property = "dropShadow/color", value = spotPartialYellow)
+    engine.block.setColor(block, property = "dropShadow/color", value = spotPartialYellow)
     // highlight-apply-colors
 
     // highlight-convert-color

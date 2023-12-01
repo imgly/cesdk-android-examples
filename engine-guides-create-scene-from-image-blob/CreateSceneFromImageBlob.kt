@@ -5,9 +5,9 @@ import java.io.*
 import java.net.URL
 import java.util.*
 
-fun createSceneFromImageBlob() = CoroutineScope(Dispatchers.Main).launch {
+fun createSceneFromImageBlob(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start()
+    engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-blob
@@ -34,14 +34,14 @@ fun createSceneFromImageBlob() = CoroutineScope(Dispatchers.Main).launch {
     val scene = engine.scene.createFromImage(blobUri)
     // highlight-initialImageURL
 
-    // highlight-find-image
-    // Find the automatically added image element in the scene.
-    val image = engine.block.findByType(DesignBlockType.IMAGE).first()
-    // highlight-find-image
+    // highlight-findByType
+    // Find the automatically added graphic block in the scene that contains the image fill.
+    val block = engine.block.findByType(DesignBlockType.Graphic).first()
+    // highlight-findByType
 
     // highlight-set-opacity
     // Change its opacity.
-    engine.block.setOpacity(image, value = 0.5F)
+    engine.block.setOpacity(block, value = 0.5F)
     // highlight-set-opacity
 
     engine.stop()

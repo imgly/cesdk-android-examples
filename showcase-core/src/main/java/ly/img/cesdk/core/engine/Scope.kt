@@ -23,4 +23,10 @@ object Scope {
 
     const val LifecycleDuplicate = "lifecycle/duplicate"
     const val LifecycleDestroy = "lifecycle/destroy"
+
+    const val AppearanceAdjustment = "appearance/adjustments"
+    const val AppearanceFilter = "appearance/filter"
+    const val AppearanceEffect = "appearance/effect"
+    const val AppearanceBlur = "appearance/blur"
+
 }

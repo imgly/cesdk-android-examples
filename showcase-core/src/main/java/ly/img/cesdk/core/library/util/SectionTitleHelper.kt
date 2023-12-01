@@ -15,7 +15,10 @@ internal fun getTitleRes(libraryCategory: LibraryCategory): Int {
         LibraryCategory.Shapes -> R.string.cesdk_shapes
         LibraryCategory.Stickers -> R.string.cesdk_stickers
         LibraryCategory.Text -> R.string.cesdk_text
+        LibraryCategory.Filters -> R.string.cesdk_filters
         LibraryCategory.Video -> R.string.cesdk_videos
+        LibraryCategory.FxEffects -> R.string.cesdk_effects
+        LibraryCategory.Blur -> R.string.cesdk_blur
     }
 }
 

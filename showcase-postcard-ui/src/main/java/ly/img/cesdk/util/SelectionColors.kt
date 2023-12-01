@@ -1,5 +1,6 @@
 package ly.img.cesdk.util
 
+import ly.img.engine.FillType
 import ly.img.cesdk.core.engine.getPage
 import ly.img.cesdk.engine.GradientFill
 import ly.img.cesdk.core.engine.Scope
@@ -93,7 +94,7 @@ private fun Engine.getSelectionColors(
                 when (colorType) {
                     ColorType.Fill -> {
                         overrideAndRestore(designBlock, Scope.FillChange) {
-                            block.setFillType(designBlock, "color")
+                            block.setFillType(designBlock, FillType.Color)
                             block.setFillSolidColor(designBlock, color)
                         }
                     }

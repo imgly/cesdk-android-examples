@@ -55,22 +55,26 @@ import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetLayout
 import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetValue
 import ly.img.cesdk.core.ui.bottomsheet.rememberModalBottomSheetState
 import ly.img.cesdk.core.ui.utils.toPx
+import ly.img.cesdk.dock.AdjustmentSheetContent
 import ly.img.cesdk.dock.BottomSheetContent
 import ly.img.cesdk.dock.Dock
+import ly.img.cesdk.dock.EffectSheetContent
 import ly.img.cesdk.dock.FillStrokeBottomSheetContent
 import ly.img.cesdk.dock.FormatBottomSheetContent
 import ly.img.cesdk.dock.LayerBottomSheetContent
 import ly.img.cesdk.dock.LibraryBottomSheetContent
 import ly.img.cesdk.dock.OptionsBottomSheetContent
 import ly.img.cesdk.dock.ReplaceBottomSheetContent
+import ly.img.cesdk.dock.options.adjustment.AdjustmentOptionsSheet
 import ly.img.cesdk.dock.options.crop.CropBottomSheetContent
 import ly.img.cesdk.dock.options.crop.CropSheet
+import ly.img.cesdk.dock.options.effect.EffectSelectionSheet
 import ly.img.cesdk.dock.options.fillstroke.FillStrokeOptionsSheet
 import ly.img.cesdk.dock.options.format.FormatOptionsSheet
 import ly.img.cesdk.dock.options.layer.LayerOptionsSheet
 import ly.img.cesdk.dock.options.shapeoptions.ShapeOptionsSheet
 import ly.img.cesdk.engine.EngineCanvasView
-import kotlin.math.roundToInt
+import ly.img.engine.LicenseValidationException
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -276,6 +280,14 @@ fun EditorUi(
                             is OptionsBottomSheetContent -> ShapeOptionsSheet(content.uiState, viewModel::onEvent)
                             is FormatBottomSheetContent -> FormatOptionsSheet(content.uiState, viewModel::onEvent)
                             is CropBottomSheetContent -> CropSheet(content.uiState, viewModel::onEvent)
+                            is AdjustmentSheetContent -> AdjustmentOptionsSheet(content.uiState, viewModel::onEvent)
+                            is EffectSheetContent -> EffectSelectionSheet(
+                                uiState = content.uiState,
+                                onEvent = viewModel::onEvent,
+                                showAnyComposable = {
+                                    showScrimBottomSheet(it)
+                                })
+
                             else -> bottomSheetLayout(content)
                         }
                     }
@@ -291,6 +303,13 @@ fun EditorUi(
                     EngineCanvasView(
                         engine = viewModel.engine,
                         passTouches = !uiState.isInPreviewMode,
+                        onLicenseValidationError = {
+                            if (it is LicenseValidationException) {
+                                goBack()
+                            } else {
+                                viewModel.onEvent(Event.OnEngineStartError)
+                            }
+                        },
                         onMoveStart = { viewModel.onEvent(Event.OnCanvasMove(true)) },
                         onMoveEnd = { viewModel.onEvent(Event.OnCanvasMove(false)) },
                         loadScene = {

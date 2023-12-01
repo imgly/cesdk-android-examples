@@ -12,21 +12,26 @@ import ly.img.engine.*
 fun MyComposable() {
 	// highlight-setup
 	val engine = remember { Engine.getInstance(id = "ly.img.engine.example") }
-	engine.start(LocalSavedStateRegistryOwner.current)
 	// highlight-setup
-	// highlight-bind
-	AndroidView(factory = { SurfaceView(it).also(engine::bindSurfaceView) })
-	// highlight-bind
-	// highlight-work
+	val activity = LocalContext.current as Activity
+	val lifecycle = LocalLifecycleOwner.current.lifecycle
+	val surfaceView = remember { SurfaceView(activity) }
+	val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
+	AndroidView(factory = { surfaceView })
 	LaunchedEffect(Unit) {
+		// highlight-start
+		engine.start(license = "<your license here>", userId = "<your unique user id>", savedStateRegistryOwner = savedStateRegistryOwner)
+		// highlight-start
+		// highlight-bind
+		engine.bindSurfaceView(surfaceView)
+		// highlight-bind
+		// highlight-work
 		engine.scene.get() ?: run {
 			val sceneUri = Uri.parse("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
 			engine.scene.load(sceneUri)
 		}
+		// highlight-work
 	}
-	// highlight-work
-	val activity = LocalContext.current as Activity
-	val lifecycle = LocalLifecycleOwner.current.lifecycle
 	DisposableEffect(Unit) {
 		val observer = LifecycleEventObserver { _, event ->
 			when {

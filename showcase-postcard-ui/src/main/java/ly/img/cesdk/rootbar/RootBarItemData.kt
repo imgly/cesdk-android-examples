@@ -31,7 +31,10 @@ enum class RootBarItemType {
 
 internal fun rootBarItems(engine: Engine, pageIndex: Int, pageSelectionColors: SelectionColors?): List<RootBarItemData> {
     // Initially, when the scene is not loaded, we are unable to find the block.
-    val block = engine.getPinnedBlock() ?: return listOf()
+    val block = when (engine.isEngineRunning()) {
+        true -> engine.getPinnedBlock() ?: return listOf()
+        false -> return listOf()
+    }
     return if (pageIndex == 0) {
         if (pageSelectionColors == null) listOf() else {
             listOf(

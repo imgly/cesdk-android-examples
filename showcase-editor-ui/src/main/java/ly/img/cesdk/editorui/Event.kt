@@ -2,16 +2,24 @@ package ly.img.cesdk.editorui
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import ly.img.cesdk.core.data.AssetSource
 import ly.img.cesdk.core.data.font.FontData
+import ly.img.cesdk.core.ui.BaseEvent
 import ly.img.cesdk.dock.OptionType
 import ly.img.cesdk.dock.options.format.HorizontalAlignment
 import ly.img.cesdk.dock.options.format.VerticalAlignment
+import ly.img.cesdk.engine.EffectAndBlurOptions
+import ly.img.engine.Asset
 import ly.img.engine.BlendMode
+import ly.img.engine.BlurType
+import ly.img.engine.DesignBlock
+import ly.img.engine.EffectType
 
 /**
  * To communicate events from the UI to the ViewModel.
  */
-interface Event {
+interface Event : BaseEvent {
+    object OnEngineStartError : Event
     object OnBack : Event
     object OnBackPress : Event
     object OnExit : Event
@@ -85,6 +93,13 @@ interface BlockEvent : Event {
     data class OnChangeVerticalAlignment(val alignment: VerticalAlignment) : BlockEvent
     data class OnChangeFont(val font: FontData) : BlockEvent
     data class OnChangeFontSize(val fontSize: Float) : BlockEvent
+    // endregion
+
+    // region Adjustments Events
+    data class OnReplaceColorFilter(val designBlock: DesignBlock, val assetSource: AssetSource?, val asset: Asset?) : BlockEvent
+    data class OnReplaceFxEffect(val designBlock: DesignBlock, val effect: EffectType?) : BlockEvent
+    data class OnReplaceBlurEffect(val designBlock: DesignBlock, val effect: BlurType?) : BlockEvent
+    data class OnChangeEffectSettings(val adjustment: EffectAndBlurOptions, val value: Float) : BlockEvent
     // endregion
 
     // region Crop Events

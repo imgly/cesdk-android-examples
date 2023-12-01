@@ -3,11 +3,11 @@ package ly.img.cesdk.core.library.state
 import ly.img.cesdk.core.R
 import ly.img.cesdk.core.data.AssetSource
 
-internal sealed class LibraryCategory(val assetSourceGroups: List<AssetSourceGroup>) {
-    class Elements(groups: List<AssetSourceGroup>) : LibraryCategory(groups)
-    class Gallery(groups: List<AssetSourceGroup>) : LibraryCategory(groups)
+sealed class LibraryCategory private constructor(internal val assetSourceGroups: List<AssetSourceGroup>, internal val hiddenInAddLibrary: Boolean = false) {
+    internal class Elements(groups: List<AssetSourceGroup>) : LibraryCategory(groups)
+    internal class Gallery(groups: List<AssetSourceGroup>) : LibraryCategory(groups)
 
-    object Video : LibraryCategory(
+    internal object Video : LibraryCategory(
         listOf(
             AssetSourceGroup(
                 R.string.cesdk_videos,
@@ -17,7 +17,7 @@ internal sealed class LibraryCategory(val assetSourceGroups: List<AssetSourceGro
         )
     )
 
-    object Audio : LibraryCategory(
+    internal object Audio : LibraryCategory(
         listOf(
             AssetSourceGroup(
                 R.string.cesdk_audio,
@@ -27,7 +27,7 @@ internal sealed class LibraryCategory(val assetSourceGroups: List<AssetSourceGro
         )
     )
 
-    object Images : LibraryCategory(
+    internal object Images : LibraryCategory(
         listOf(
             AssetSourceGroup(
                 R.string.cesdk_images,
@@ -37,7 +37,7 @@ internal sealed class LibraryCategory(val assetSourceGroups: List<AssetSourceGro
         )
     )
 
-    object Text : LibraryCategory(
+    internal object Text : LibraryCategory(
         listOf(
             AssetSourceGroup(
                 R.string.cesdk_text,
@@ -47,7 +47,7 @@ internal sealed class LibraryCategory(val assetSourceGroups: List<AssetSourceGro
         )
     )
 
-    object Shapes : LibraryCategory(
+    internal object Shapes : LibraryCategory(
         listOf(
             AssetSourceGroup(
                 R.string.cesdk_shapes,
@@ -57,7 +57,7 @@ internal sealed class LibraryCategory(val assetSourceGroups: List<AssetSourceGro
         )
     )
 
-    object Stickers : LibraryCategory(
+    internal object Stickers : LibraryCategory(
         listOf(
             AssetSourceGroup(
                 R.string.cesdk_stickers,
@@ -65,5 +65,34 @@ internal sealed class LibraryCategory(val assetSourceGroups: List<AssetSourceGro
                 AssetSourceGroupType.Sticker
             )
         )
+    )
+
+    object Filters : LibraryCategory(
+        listOf(
+            AssetSourceGroup(
+                R.string.cesdk_filters,
+                listOf(AssetSource.DuotoneFilter, AssetSource.LutFilter),
+                AssetSourceGroupType.Filter
+            )
+        ), hiddenInAddLibrary = true
+    )
+
+    object FxEffects : LibraryCategory(
+        listOf(
+            AssetSourceGroup(
+                R.string.cesdk_effects,
+                listOf(AssetSource.FxEffect),
+                AssetSourceGroupType.Effect
+            )
+        ), hiddenInAddLibrary = true
+    )
+    object Blur : LibraryCategory(
+        listOf(
+            AssetSourceGroup(
+                R.string.cesdk_blur,
+                listOf(AssetSource.Blur),
+                AssetSourceGroupType.Blur
+            )
+        ), hiddenInAddLibrary = true
     )
 }

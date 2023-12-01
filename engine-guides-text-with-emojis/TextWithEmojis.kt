@@ -1,9 +1,9 @@
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
-fun textWithEmojis() = CoroutineScope(Dispatchers.Main).launch {
+fun textWithEmojis(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
 	val engine = Engine.getInstance(id = "ly.img.engine.example")
-	engine.start()
+	engine.start(license = license, userId = userId)
 	engine.bindOffscreen(width = 100, height = 100)
 
 	// highlight-change-default-emoji-font
@@ -23,7 +23,7 @@ fun textWithEmojis() = CoroutineScope(Dispatchers.Main).launch {
 	// highlight-setup
 	val scene = engine.scene.create()
 
-	val page = engine.block.create(DesignBlockType.PAGE)
+	val page = engine.block.create(DesignBlockType.Page)
 	engine.block.setWidth(page, value = 800F)
 	engine.block.setHeight(page, value = 600F)
 	engine.block.appendChild(parent = scene, child = page)
@@ -32,7 +32,7 @@ fun textWithEmojis() = CoroutineScope(Dispatchers.Main).launch {
 	// highlight-setup
 
 	// highlight-add-text-with-emoji
-	val text = engine.block.create(DesignBlockType.TEXT)
+	val text = engine.block.create(DesignBlockType.Text)
 	engine.block.setString(text, property = "text/text", value = "Text with an emoji 🧐")
 	engine.block.setWidth(text, value = 50F)
 	engine.block.setHeight(text, value = 10F)

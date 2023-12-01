@@ -14,5 +14,9 @@ enum class OptionType {
     FillStroke,
     EnterGroup,
     SelectGroup,
-    Crop
+    Crop,
+    Filter,
+    Effect,
+    Blur,
+    Adjustments,
 }

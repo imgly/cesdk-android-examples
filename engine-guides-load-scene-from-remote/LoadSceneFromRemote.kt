@@ -2,9 +2,9 @@ import android.net.Uri
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
-fun loadSceneFromRemote() = CoroutineScope(Dispatchers.Main).launch {
+fun loadSceneFromRemote(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start()
+    engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-url
@@ -16,7 +16,7 @@ fun loadSceneFromRemote() = CoroutineScope(Dispatchers.Main).launch {
     // highlight-load
 
     // highlight-set-text-dropshadow
-    val text = engine.block.findByType(DesignBlockType.TEXT).first()
+    val text = engine.block.findByType(DesignBlockType.Text).first()
     engine.block.setDropShadowEnabled(text, enabled = true)
     // highlight-set-text-dropshadow
 

@@ -2,13 +2,12 @@ package ly.img.cesdk.dock.options.fillstroke
 
 import androidx.compose.ui.graphics.Color
 import ly.img.cesdk.core.engine.BlockType
+import ly.img.engine.FillType
 import ly.img.cesdk.editorui.Block
 import ly.img.cesdk.editorui.R
 import ly.img.cesdk.engine.Fill
 import ly.img.cesdk.engine.getFillInfo
 import ly.img.cesdk.engine.getFillType
-import ly.img.engine.DesignBlock
-import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 
 data class FillUiState(
@@ -33,15 +32,14 @@ internal fun createFillUiState(block: Block, engine: Engine, colorPalette: List<
     )
 }
 
-private fun getFillTypeRes(fillType: DesignBlockType?): Int {
+private fun getFillTypeRes(fillType: FillType?): Int {
     return if (fillType == null) {
         R.string.cesdk_fill_none
     } else when (fillType) {
-        DesignBlockType.COLOR_FILL -> R.string.cesdk_fill_solid
-        DesignBlockType.RADIAL_GRADIENT_FILL -> R.string.cesdk_fill_type_gradient_radial
-        DesignBlockType.LINEAR_GRADIENT_FILL -> R.string.cesdk_fill_type_gradient_linear
-        DesignBlockType.CONICAL_GRADIENT_FILL -> R.string.cesdk_fill_type_gradient_conical
-
+        FillType.Color -> R.string.cesdk_fill_solid
+        FillType.RadialGradient -> R.string.cesdk_fill_type_gradient_radial
+        FillType.LinearGradient -> R.string.cesdk_fill_type_gradient_linear
+        FillType.ConicalGradient -> R.string.cesdk_fill_type_gradient_conical
         else -> throw IllegalArgumentException("Unknown fill type: $fillType")
     }
 }

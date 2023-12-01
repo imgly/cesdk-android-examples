@@ -42,9 +42,8 @@ class AssetsRepository {
         engine.asset.addSource(TextAssetSource())
         coroutineScope {
             launch {
-                engine.addDefaultAssetSources(
-                    baseUri = Uri.parse("https://cdn.img.ly/assets/v2")
-                )
+                val baseUri = Uri.parse("https://cdn.img.ly/assets/v2")
+                engine.addDefaultAssetSources(baseUri = baseUri)
             }
             launch {
                 engine.addDemoAssetSources(
