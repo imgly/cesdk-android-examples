@@ -8,7 +8,15 @@ import ly.img.cesdk.core.library.state.AssetSourceGroupType
 internal object AssetLibraryUiConfig {
 
     fun contentRowHeight(assetSourceGroupType: AssetSourceGroupType) = when (assetSourceGroupType) {
-        AssetSourceGroupType.Image, AssetSourceGroupType.Video, AssetSourceGroupType.Gallery -> 96.dp
+        AssetSourceGroupType.Image, AssetSourceGroupType.Video, AssetSourceGroupType.Gallery, AssetSourceGroupType.Filter,
+        AssetSourceGroupType.Effect, AssetSourceGroupType.Blur-> 96.dp
+        AssetSourceGroupType.Audio, AssetSourceGroupType.Text -> 216.dp
+        else -> 80.dp
+    }
+
+    fun contentRowWidth(assetSourceGroupType: AssetSourceGroupType) = when (assetSourceGroupType) {
+        AssetSourceGroupType.Image, AssetSourceGroupType.Video, AssetSourceGroupType.Gallery, AssetSourceGroupType.Filter,
+        AssetSourceGroupType.Effect, AssetSourceGroupType.Blur -> 96.dp
         AssetSourceGroupType.Audio, AssetSourceGroupType.Text -> 216.dp
         else -> 80.dp
     }
@@ -16,17 +24,21 @@ internal object AssetLibraryUiConfig {
     fun shouldTintImages(assetSourceGroupType: AssetSourceGroupType) = assetSourceGroupType == AssetSourceGroupType.Shape
 
     fun contentPadding(assetSourceGroupType: AssetSourceGroupType) = when (assetSourceGroupType) {
-        AssetSourceGroupType.Image, AssetSourceGroupType.Video, AssetSourceGroupType.Gallery -> 0.dp
+        AssetSourceGroupType.Image, AssetSourceGroupType.Video, AssetSourceGroupType.Gallery, AssetSourceGroupType.Filter,
+        AssetSourceGroupType.Effect, AssetSourceGroupType.Blur -> 0.dp
         else -> 4.dp
     }
 
     fun contentScale(assetSourceGroupType: AssetSourceGroupType) = when (assetSourceGroupType) {
-        AssetSourceGroupType.Image, AssetSourceGroupType.Video, AssetSourceGroupType.Gallery -> ContentScale.Crop
+        AssetSourceGroupType.Image, AssetSourceGroupType.Video,
+        AssetSourceGroupType.Gallery, AssetSourceGroupType.Filter,
+        AssetSourceGroupType.Effect, AssetSourceGroupType.Blur -> ContentScale.Crop
         else -> ContentScale.Fit
     }
 
     fun assetGridColumns(assetSourceGroupType: AssetSourceGroupType) = when (assetSourceGroupType) {
-        AssetSourceGroupType.Image, AssetSourceGroupType.Video, AssetSourceGroupType.Gallery -> 3
+        AssetSourceGroupType.Image, AssetSourceGroupType.Video, AssetSourceGroupType.Gallery, AssetSourceGroupType.Filter,
+        AssetSourceGroupType.Effect, AssetSourceGroupType.Blur -> 3
         AssetSourceGroupType.Audio, AssetSourceGroupType.Text -> 1
         AssetSourceGroupType.Shape, AssetSourceGroupType.Sticker -> 4
     }

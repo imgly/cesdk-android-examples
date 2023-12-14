@@ -11,6 +11,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.testTag
 import ly.img.cesdk.core.data.AssetSource
 import ly.img.cesdk.core.data.UploadAssetSource
 import ly.img.cesdk.core.library.state.AssetLibraryUiState
@@ -37,6 +38,7 @@ internal fun LibrarySectionColumn(
     LazyColumn(
         modifier = Modifier
             .nestedScroll(nestedScrollConnection)
+            .testTag(tag = "LibrarySectionColumn")
             .fillMaxSize()
     ) {
         items(uiState.sectionItems, key = { it.id }, contentType = { it.javaClass }) { sectionItem ->

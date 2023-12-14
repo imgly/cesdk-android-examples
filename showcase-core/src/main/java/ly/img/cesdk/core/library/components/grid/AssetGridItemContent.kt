@@ -16,25 +16,29 @@ internal fun AssetGridItemContent(
     onAssetClick: (AssetSource, Asset) -> Unit,
     onAssetLongClick: (AssetSource, Asset) -> Unit,
 ) {
-    if (assetSourceGroupType == AssetSourceGroupType.Audio) {
-        AudioAssetContent(
-            wrappedAsset = wrappedAsset,
-            onAssetClick = onAssetClick,
-            onAssetLongClick = onAssetLongClick
-        )
-    } else if (assetSourceGroupType == AssetSourceGroupType.Text) {
-        TextAssetContent(
-            wrappedAsset = wrappedAsset as WrappedAsset.TextAsset,
-            onAssetClick = onAssetClick,
-            onAssetLongClick = onAssetLongClick
-        )
-    } else {
-        AssetImage(
-            asset = wrappedAsset.asset,
-            assetSourceGroupType = assetSourceGroupType,
-            assetSource = wrappedAsset.assetSource,
-            onAssetClick = onAssetClick,
-            onAssetLongClick = onAssetLongClick
-        )
+    when (assetSourceGroupType) {
+        AssetSourceGroupType.Audio -> {
+            AudioAssetContent(
+                wrappedAsset = wrappedAsset,
+                onAssetClick = onAssetClick,
+                onAssetLongClick = onAssetLongClick
+            )
+        }
+        AssetSourceGroupType.Text -> {
+            TextAssetContent(
+                wrappedAsset = wrappedAsset as WrappedAsset.TextAsset,
+                onAssetClick = onAssetClick,
+                onAssetLongClick = onAssetLongClick
+            )
+        }
+        else -> {
+            AssetImage(
+                asset = wrappedAsset.asset,
+                assetSourceGroupType = assetSourceGroupType,
+                assetSource = wrappedAsset.assetSource,
+                onAssetClick = onAssetClick,
+                onAssetLongClick = onAssetLongClick
+            )
+        }
     }
 }

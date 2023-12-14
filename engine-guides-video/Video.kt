@@ -1,17 +1,17 @@
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
-fun editVideo() = CoroutineScope(Dispatchers.Main).launch {
+fun editVideo(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start()
+    engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-setupScene
     val scene = engine.scene.createForVideo()
-    val stack = engine.block.findByType(DesignBlockType.STACK).first()
+    val stack = engine.block.findByType(DesignBlockType.Stack).first()
 
-    val page1 = engine.block.create(DesignBlockType.PAGE)
-    val page2 = engine.block.create(DesignBlockType.PAGE)
+    val page1 = engine.block.create(DesignBlockType.Page)
+    val page2 = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = stack, child = page1)
     engine.block.appendChild(parent = stack, child = page2)
 
@@ -26,10 +26,10 @@ fun editVideo() = CoroutineScope(Dispatchers.Main).launch {
     engine.block.setDuration(page2, duration = 20.0)
     // highlight-setPageDuration
     // highlight-assignVideoFill
-    val rectShape = engine.block.create(DesignBlockType.RECT_SHAPE)
-    engine.block.destroy(engine.block.getFill(rectShape))
-    val videoFill = engine.block.createFill("video")
-    engine.block.setFill(rectShape, fill = videoFill)
+    val block = engine.block.create(DesignBlockType.Graphic)
+    engine.block.setShape(block, shape = engine.block.createShape(ShapeType.Rect))
+    val videoFill = engine.block.createFill(FillType.Video)
+    engine.block.setFill(block, fill = videoFill)
 
     engine.block.setString(
         block = videoFill,
@@ -37,11 +37,11 @@ fun editVideo() = CoroutineScope(Dispatchers.Main).launch {
         value = "https://cdn.img.ly/assets/demo/v1/ly.img.video/videos/pexels-drone-footage-of-a-surfer-barrelling-a-wave-12715991.mp4"
     )
 
-    engine.block.appendChild(parent = page2, child = rectShape)
-    engine.block.setPositionX(rectShape, value = 0F)
-    engine.block.setPositionY(rectShape, value = 0F)
-    engine.block.setWidth(rectShape, value = engine.block.getWidth (page2))
-    engine.block.setHeight(rectShape, value = engine.block.getHeight (page2))
+    engine.block.appendChild(parent = page2, child = block)
+    engine.block.setPositionX(block, value = 0F)
+    engine.block.setPositionY(block, value = 0F)
+    engine.block.setWidth(block, value = engine.block.getWidth (page2))
+    engine.block.setHeight(block, value = engine.block.getHeight (page2))
     // highlight-assignVideoFill
     // highlight-trim
     // Make sure that the video is loaded before calling the trim APIs.
@@ -56,7 +56,7 @@ fun editVideo() = CoroutineScope(Dispatchers.Main).launch {
     engine.block.setMuted(videoFill, muted = true)
 
     // highlight-audio
-    val audio = engine.block.create(DesignBlockType.AUDIO)
+    val audio = engine.block.create(DesignBlockType.Audio)
     engine.block.appendChild(parent = scene, child = audio)
     engine.block.setString(
         block = audio,

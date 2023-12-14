@@ -1,5 +1,6 @@
 package ly.img.cesdk.components
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
@@ -10,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.cesdk.core.ui.UiDefaults
 
@@ -46,3 +48,20 @@ fun PropertySlider(
         }
     }
 }
+
+@Composable
+fun PropertySlider(
+    @StringRes title: Int,
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    onValueChangeFinished: () -> Unit,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    steps: Int = 0,
+) = PropertySlider(
+    title = stringResource(title),
+    value = value,
+    onValueChange = onValueChange,
+    onValueChangeFinished = onValueChangeFinished,
+    valueRange = valueRange,
+    steps = steps,
+)

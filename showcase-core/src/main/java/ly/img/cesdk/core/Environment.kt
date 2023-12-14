@@ -30,6 +30,7 @@ object Environment {
     private var engine: Engine? = null
     fun getEngine(): Engine {
         return engine ?: Engine.getInstance(id = "ly.img.cesdk.showcase").also {
+            it.idlingEnabled = true
             engine = it
         }
     }

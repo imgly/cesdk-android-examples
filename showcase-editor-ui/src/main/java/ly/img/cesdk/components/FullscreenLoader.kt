@@ -3,6 +3,8 @@ package ly.img.cesdk.components
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
@@ -12,6 +14,9 @@ fun FullscreenLoader() {
         onDismissRequest = { },
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
     ) {
-        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+        CircularProgressIndicator(
+            modifier = Modifier.testTag("MainLoading"),
+            color = MaterialTheme.colorScheme.onPrimary
+        )
     }
 }

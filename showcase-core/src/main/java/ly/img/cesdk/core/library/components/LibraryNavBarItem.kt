@@ -55,6 +55,9 @@ internal sealed class LibraryNavBarItem(
             LibraryCategory.Text -> Text
             is LibraryCategory.Gallery -> Gallery(libraryCategory)
             LibraryCategory.Video -> Video
+
+            LibraryCategory.Filters, LibraryCategory.FxEffects, LibraryCategory.Blur ->
+                throw IllegalArgumentException("Unsupported LibraryNavBarItem category: $libraryCategory")
         }
     }
 }

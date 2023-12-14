@@ -9,32 +9,32 @@ class MyActivity : AppCompatActivity() {
 
 	// highlight-setup
 	private val engine = Engine.getInstance(id = "ly.img.engine.example")
+	// highlight-setup
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
-		engine.start(this)
-		// highlight-setup
 		val textureView = TextureView(this)
 		setContentView(textureView)
-
-		// highlight-bind
-		engine.bindTextureView(textureView, savedInstanceState)
-		/*
-		// Or any of the following
-		engine.bindSurfaceView(SurfaceView(this), savedInstanceState)
-		engine.bindOffscreen(100, 100, savedInstanceState)
-		*/
-		// highlight-bind
-
-		// highlight-work
 		CoroutineScope(Dispatchers.Main).launch {
-			// Check whether scene already exists before loading it again as it might have been restored in engine.start(this)
+			// highlight-start
+			engine.start(license = "<your license here>", userId = "<your unique user id>", savedStateRegistryOwner = this@MyActivity)
+			// highlight-start
+			// highlight-bind
+			engine.bindTextureView(textureView)
+			/*
+            // Or any of the following
+            engine.bindSurfaceView(SurfaceView(this@MyActivity))
+            engine.bindOffscreen(100, 100)
+            */
+			// highlight-bind
+			// highlight-work
+			// Check whether scene already exists before loading it again as it might have been restored in engine.start).
 			engine.scene.get() ?: run {
 				val sceneUri = Uri.parse("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
 				engine.scene.load(sceneUri)
 			}
+			// highlight-work
 		}
-		// highlight-work
 	}
 
 	override fun onDestroy() {

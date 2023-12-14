@@ -18,13 +18,13 @@ import ly.img.cesdk.bottomsheet.template_colors.TemplateColorsBottomSheetContent
 import ly.img.cesdk.bottomsheet.template_colors.TemplateColorsUiState
 import ly.img.cesdk.core.data.font.FontData
 import ly.img.cesdk.core.engine.FONT_BASE_PATH
+import ly.img.cesdk.core.engine.Scope
 import ly.img.cesdk.core.engine.deselectAllBlocks
+import ly.img.cesdk.core.engine.getScene
+import ly.img.cesdk.core.engine.overrideAndRestore
 import ly.img.cesdk.editorui.EditorUiViewModel
 import ly.img.cesdk.editorui.Event
 import ly.img.cesdk.engine.LayoutAxis
-import ly.img.cesdk.engine.Scope
-import ly.img.cesdk.engine.getScene
-import ly.img.cesdk.engine.overrideAndRestore
 import ly.img.cesdk.engine.resetHistory
 import ly.img.cesdk.engine.setFillType
 import ly.img.cesdk.engine.showAllPages
@@ -40,6 +40,7 @@ import ly.img.cesdk.util.getPageSelectionColors
 import ly.img.cesdk.util.getPinnedBlock
 import ly.img.cesdk.util.requirePinnedBlock
 import ly.img.engine.DesignBlock
+import ly.img.engine.FillType
 import ly.img.engine.GlobalScope
 import ly.img.engine.MimeType
 
@@ -48,7 +49,7 @@ class PostcardUiViewModel : EditorUiViewModel() {
     private var pageSelectionColors: SelectionColors? = null
     private var hasUnsavedChanges = false
 
-    val uiState = merge(_uiState, pageIndex, engine.editor.onHistoryUpdated()).map {
+    val uiState = merge(_uiState, pageIndex, historyChangeTrigger).map {
         updatePageSelectionColors()
         PostcardUiViewState(
             editorUiViewState = _uiState.value,
@@ -101,7 +102,7 @@ class PostcardUiViewModel : EditorUiViewModel() {
             designBlockSet.forEach { block ->
                 when (colorType) {
                     ColorType.Fill -> engine.overrideAndRestore(block, Scope.FillChange) {
-                        engine.block.setFillType(block, "color")
+                        engine.block.setFillType(block, FillType.Color)
                         engine.block.setFillSolidColor(block, engineColor)
                     }
 

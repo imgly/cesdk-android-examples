@@ -13,10 +13,12 @@ import java.io.File
 fun usingCamera(
     activity: AppCompatActivity,
     surfaceView: SurfaceView,
-    cameraProvider: ProcessCameraProvider
+    cameraProvider: ProcessCameraProvider,
+    license: String,
+    userId: String
 ) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start()
+    engine.start(license = license, userId = userId)
     engine.bindSurfaceView(surfaceView)
 
     // highlight-setupCamera
@@ -37,12 +39,12 @@ fun usingCamera(
 
     // highlight-setupScene
     val scene = engine.scene.createForVideo()
-    val page = engine.block.create(DesignBlockType.PAGE)
+    val page = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = scene, child = page)
-    val pixelStreamFill = engine.block.createFill("pixelStream")
+    val pixelStreamFill = engine.block.createFill(FillType.PixelStream)
     engine.block.setFill(block = page, fill = pixelStreamFill)
     engine.setCameraPreview(pixelStreamFill, preview, mirrored = false)
-    engine.block.appendEffect(block = page, effectBlock = engine.block.createEffect("half_tone"))
+    engine.block.appendEffect(block = page, effectBlock = engine.block.createEffect(EffectType.HalfTone))
     // highlight-setupScene
 
     // highlight-orientation
@@ -57,7 +59,7 @@ fun usingCamera(
         .prepareRecording(activity, fileOutputOptions)
         .start(ContextCompat.getMainExecutor(surfaceView.context)) {
             if (it !is VideoRecordEvent.Finalize) return@start
-            val videoFill = engine.block.createFill("video")
+            val videoFill = engine.block.createFill(FillType.Video)
             engine.block.setFill(block = page, fill = videoFill)
             engine.block.setString(
                 block = videoFill,

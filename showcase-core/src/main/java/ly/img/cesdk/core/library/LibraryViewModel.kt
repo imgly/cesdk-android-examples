@@ -1,5 +1,6 @@
 package ly.img.cesdk.core.library
 
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import androidx.annotation.StringRes
@@ -27,7 +28,10 @@ import ly.img.cesdk.core.data.getUri
 import ly.img.cesdk.core.engine.BlockKind
 import ly.img.cesdk.core.engine.ROLE
 import ly.img.cesdk.core.engine.ROLE_ADOPTER
+import ly.img.cesdk.core.engine.dpToCanvasUnit
+import ly.img.cesdk.core.engine.getCamera
 import ly.img.cesdk.core.engine.getKindEnum
+import ly.img.cesdk.core.engine.getPage
 import ly.img.cesdk.core.library.components.section.LibrarySectionItem
 import ly.img.cesdk.core.library.engine.addText
 import ly.img.cesdk.core.library.engine.replaceSticker
@@ -41,13 +45,18 @@ import ly.img.cesdk.core.library.state.LibraryCategory
 import ly.img.cesdk.core.library.state.LibraryCategoryData
 import ly.img.cesdk.core.library.state.LibraryStackData
 import ly.img.cesdk.core.library.util.LibraryEvent
+import ly.img.cesdk.core.library.util.LibraryEvent.*
 import ly.img.cesdk.core.library.util.LibraryUiEvent
 import ly.img.cesdk.core.library.util.getTitleRes
+import ly.img.cesdk.core.ui.EventsHandler
+import ly.img.cesdk.core.ui.register
 import ly.img.engine.Asset
 import ly.img.engine.AssetDefinition
 import ly.img.engine.DesignBlock
+import ly.img.engine.FillType
 import ly.img.engine.FindAssetsQuery
 import ly.img.engine.FindAssetsResult
+import ly.img.engine.PositionMode
 import ly.img.engine.SceneMode
 import java.util.UUID
 
@@ -56,7 +65,7 @@ internal class LibraryViewModel : ViewModel() {
     private val imageLoader = Environment.getImageLoader()
     private val engine = Environment.getEngine()
 
-    val fontFamilies: StateFlow<Result<Map<String, FontFamilyData>>?> = assetsRepo.fontFamilies
+    private val fontFamilies: StateFlow<Result<Map<String, FontFamilyData>>?> = assetsRepo.fontFamilies
 
     val libraryCategories = buildList {
         val isSceneModeVideo = Environment.sceneMode == SceneMode.VIDEO
@@ -144,6 +153,9 @@ internal class LibraryViewModel : ViewModel() {
         add(LibraryCategory.Text)
         add(LibraryCategory.Shapes)
         add(LibraryCategory.Stickers)
+        add(LibraryCategory.Filters)
+        add(LibraryCategory.FxEffects)
+        add(LibraryCategory.Blur)
     }
 
     private val _uiEvent = Channel<LibraryUiEvent>()
@@ -161,21 +173,43 @@ internal class LibraryViewModel : ViewModel() {
         )
     }
 
-    fun onEvent(event: LibraryEvent) {
-        when (event) {
-            is LibraryEvent.OnDispose -> onDispose()
-            is LibraryEvent.OnDrillDown -> onDrillDown(event.libraryCategory, event.libraryStackData)
-            is LibraryEvent.OnEnterSearchMode -> onEnterSearchMode(event.enter, event.libraryCategory)
-            is LibraryEvent.OnFetch -> onFetch(event.libraryCategory)
-            is LibraryEvent.OnPopStack -> onPopStack(event.libraryCategory)
-            is LibraryEvent.OnSearchTextChange -> onSearchTextChange(event.value, event.libraryCategory, event.debounce)
-            is LibraryEvent.OnReplaceAsset -> onReplaceAsset(event.assetSource, event.asset, event.designBlock)
-            is LibraryEvent.OnReplaceUri -> onReplaceUri(event.assetSource, event.uri, event.designBlock)
-            is LibraryEvent.OnAddAsset -> onAddAsset(event.assetSource, event.asset)
-            is LibraryEvent.OnAddUri -> onAddUri(event.assetSource, event.uri)
-            is LibraryEvent.OnAssetLongClick -> onAssetLongClick(event.assetSource, event.asset)
+    private val eventHandler = EventsHandler {
+        register<OnDispose> {
+            onDispose()
+        }
+        register<OnDrillDown> {
+            onDrillDown(it.libraryCategory, it.libraryStackData)
+        }
+        register<OnEnterSearchMode> {
+            onEnterSearchMode(it.enter, it.libraryCategory)
+        }
+        register<OnFetch> {
+            onFetch(it.libraryCategory, it.flatten)
+        }
+        register<OnPopStack> {
+            onPopStack(it.libraryCategory)
+        }
+        register<OnSearchTextChange> {
+            onSearchTextChange(it.value, it.libraryCategory, it.debounce)
+        }
+        register<OnReplaceAsset> {
+            onReplaceAsset(it.assetSource, it.asset, it.designBlock)
+        }
+        register<OnReplaceUri> {
+            onReplaceUri(it.assetSource, it.uri, it.designBlock)
+        }
+        register<OnAddAsset> {
+            onAddAsset(it.assetSource, it.asset)
+        }
+        register<OnAddUri> {
+            onAddUri(it.assetSource, it.uri)
+        }
+        register<OnAssetLongClick> {
+            onAssetLongClick(it.assetSource, it.asset)
         }
     }
+
+    fun onEvent(event: LibraryEvent) = eventHandler.handleEvent(event)
 
     fun getAssetLibraryUiState(libraryCategory: LibraryCategory): StateFlow<AssetLibraryUiState> {
         return getLibraryCategoryData(libraryCategory).uiStateFlow
@@ -196,7 +230,7 @@ internal class LibraryViewModel : ViewModel() {
         viewModelScope.launch {
             _uiEvent.send(
                 LibraryUiEvent.ShowAssetCredits(
-                    assetLabel = asset.label ?: asset.getMeta("filename", null) ?: asset.id,
+                    assetLabel = asset.label ?: asset.getMeta("filename") ?: asset.id,
                     assetCredits = assetCredits,
                     assetLicense = assetLicense,
                     assetSourceCredits = sourceCredits,
@@ -207,15 +241,46 @@ internal class LibraryViewModel : ViewModel() {
     }
 
     private fun onAddAsset(assetSource: AssetSource, asset: Asset) {
-        if (assetSource == AssetSource.Text) {
-            val fontFamilyString = asset.getMeta("fontFamily", "")
-            val fontFamily = checkNotNull(checkNotNull(fontFamilies.value).getOrThrow()[fontFamilyString])
-            val fontSize = requireNotNull(asset.getMeta("fontSize", "")).toFloat()
-            val fontWeight = FontWeight(requireNotNull(asset.getMeta("fontWeight", "")).toInt())
-            engine.addText(fontFamily.getFontData(fontWeight).fontPath, fontSize)
-        } else {
-            viewModelScope.launch {
-                engine.asset.applyAssetSourceAsset(assetSource.sourceId, asset)
+        viewModelScope.launch {
+            val designBlock = if (assetSource == AssetSource.Text) {
+                val fontFamilyString = asset.getMeta("fontFamily", "")
+                val fontFamily = checkNotNull(checkNotNull(fontFamilies.value).getOrThrow()[fontFamilyString])
+                val fontSize = requireNotNull(asset.getMeta("fontSize", "")).toFloat()
+                val fontWeight = FontWeight(requireNotNull(asset.getMeta("fontWeight", "")).toInt())
+                engine.addText(fontFamily.getFontData(fontWeight).fontPath, fontSize)
+            } else {
+                engine.asset.applyAssetSourceAsset(assetSource.sourceId, asset) ?: return@launch
+            }
+
+            val camera = engine.getCamera()
+            val width = engine.block.getFrameWidth(designBlock)
+            val height = engine.block.getFrameHeight(designBlock)
+
+            val pixelRatio = engine.block.getFloat(camera, "camera/pixelRatio")
+            val cameraWidth = engine.block.getFloat(camera, "camera/resolution/width") / pixelRatio
+            val cameraHeight = engine.block.getFloat(camera, "camera/resolution/height") / pixelRatio
+
+            val screenRect = RectF(0f, 0f, cameraWidth, cameraHeight)
+            val pageRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(engine.getPage(0)))
+            val pageWidth = pageRect.width()
+
+            // find visible page rect
+            val visiblePageRect = RectF()
+            visiblePageRect.setIntersect(pageRect, screenRect)
+
+            // set the position of the new block in the center of the visible page
+            engine.block.setPositionXMode(designBlock, PositionMode.ABSOLUTE)
+            engine.block.setPositionYMode(designBlock, PositionMode.ABSOLUTE)
+
+            val newX = engine.dpToCanvasUnit((visiblePageRect.left - pageRect.left) + visiblePageRect.width() / 2) - width / 2
+            val newY = engine.dpToCanvasUnit((visiblePageRect.top - pageRect.top) + visiblePageRect.height() / 2) - height / 2
+
+            engine.block.setPositionX(designBlock, newX)
+            engine.block.setPositionY(designBlock, newY)
+
+            // scale down the new block
+            if (pageWidth > cameraWidth) {
+                engine.block.scale(designBlock, cameraWidth / pageWidth, 0.5f, 0.5f)
             }
         }
     }
@@ -284,7 +349,7 @@ internal class LibraryViewModel : ViewModel() {
         uiStateFlow.update { it.copy(isInSearchMode = enter) }
     }
 
-    private fun onSearchTextChange(value: String, libraryCategory: LibraryCategory, debounce: Boolean, force: Boolean = false) {
+    private fun onSearchTextChange(value: String, libraryCategory: LibraryCategory, debounce: Boolean, force: Boolean = false, flatten: Boolean = false) {
         val categoryData = getLibraryCategoryData(libraryCategory)
         val oldValue = categoryData.uiStateFlow.value.searchText
         if (!force && oldValue == value) return
@@ -315,14 +380,14 @@ internal class LibraryViewModel : ViewModel() {
 
             // we only need to fetch when user is searching
             if (!force) {
-                onFetch(libraryCategory)
+                onFetch(libraryCategory, flatten)
             }
         }.also {
             categoryData.searchJob
         }
     }
 
-    private fun onFetch(libraryCategory: LibraryCategory) {
+    private fun onFetch(libraryCategory: LibraryCategory, flatten: Boolean) {
         val categoryData = getLibraryCategoryData(libraryCategory)
         val assetLibraryUiStateFlow = categoryData.uiStateFlow
         val assetsData = assetLibraryUiStateFlow.value.assetsData
@@ -367,14 +432,14 @@ internal class LibraryViewModel : ViewModel() {
                         sectionItems = listOf(LibrarySectionItem.Loading)
                     )
                 }
-                fetchAssetsForAssetSourceGroups(libraryCategory)
+                fetchAssetsForAssetSourceGroups(libraryCategory, flatten)
             }
         }.also {
             categoryData.fetchJob = it
         }
     }
 
-    private suspend fun fetchAssetsForAssetSourceGroups(libraryCategory: LibraryCategory) {
+    private suspend fun fetchAssetsForAssetSourceGroups(libraryCategory: LibraryCategory, flatten: Boolean = true) {
         val categoryData = getLibraryCategoryData(libraryCategory)
         val assetLibraryUiStateFlow = categoryData.uiStateFlow
         val lastInStackData = categoryData.dataStack.last()
@@ -445,7 +510,7 @@ internal class LibraryViewModel : ViewModel() {
                             assetSource.sourceId,
                             query = assetLibraryUiStateFlow.value.searchText,
                             group = group,
-                            perPage = assetSourceGroup.previewCount()
+                            perPage = if (flatten) Int.MAX_VALUE else assetSourceGroup.previewCount()
                         )
                     } catch (ex: Exception) {
                         if (ex is CancellationException) {
@@ -491,11 +556,13 @@ internal class LibraryViewModel : ViewModel() {
                 }
                 assetLibraryUiStateFlow.update {
                     val totalSectionItemsList = it.sectionItems.toMutableList()
-                    val index = checkNotNull(totalSectionItemsList.indexOfFirst { item ->
+                    val index = totalSectionItemsList.indexOfFirst { item ->
                         (item as? LibrarySectionItem.Header)?.stackData?.getSingleAssetSource() == assetSource
-                    })
-                    sectionItemsList.forEachIndexed { idx, item ->
-                        totalSectionItemsList[index + idx] = item
+                    }
+                    if (index >= 0) {
+                        sectionItemsList.forEachIndexed { idx, item ->
+                            totalSectionItemsList[index + idx] = item
+                        }
                     }
                     it.copy(sectionItems = totalSectionItemsList)
                 }
@@ -515,7 +582,7 @@ internal class LibraryViewModel : ViewModel() {
                                 assetSource.sourceId,
                                 query = assetLibraryUiStateFlow.value.searchText,
                                 group = group,
-                                perPage = assetSourceGroup.previewCount()
+                                perPage = if (flatten) Int.MAX_VALUE else assetSourceGroup.previewCount()
                             )
                             totalCount = try {
                                 Math.addExact(totalCount, findAssetsResult.total)
@@ -545,7 +612,7 @@ internal class LibraryViewModel : ViewModel() {
                 val wrappedAssets = mutableListOf<WrappedAsset>()
                 if (!allFailed) {
                     var index = 0
-                    val requiredCount = assetSourceGroup.previewCount()
+                    val requiredCount = if (flatten) Int.MAX_VALUE else assetSourceGroup.previewCount()
                     var iterator = findAssetResults.iterator()
                     while (wrappedAssets.size != requiredCount) {
                         while (iterator.hasNext()) {
@@ -694,19 +761,19 @@ internal class LibraryViewModel : ViewModel() {
         )
     }
 
-    private fun onDrillDown(libraryCategory: LibraryCategory, libraryStackData: LibraryStackData) {
-        modifyDataStack(libraryCategory) { dataStack ->
+    private fun onDrillDown(libraryCategory: LibraryCategory, libraryStackData: LibraryStackData, flatten: Boolean = false) {
+        modifyDataStack(libraryCategory, flatten) { dataStack ->
             dataStack.add(libraryStackData)
         }
     }
 
-    private fun onPopStack(libraryCategory: LibraryCategory) {
-        modifyDataStack(libraryCategory) { dataStack ->
+    private fun onPopStack(libraryCategory: LibraryCategory, flatten: Boolean = false) {
+        modifyDataStack(libraryCategory, flatten) { dataStack ->
             dataStack.removeLast()
         }
     }
 
-    private fun modifyDataStack(libraryCategory: LibraryCategory, action: (dataStack: ArrayList<LibraryStackData>) -> Unit) {
+    private fun modifyDataStack(libraryCategory: LibraryCategory, flatten: Boolean = false, action: (dataStack: ArrayList<LibraryStackData>) -> Unit) {
         val categoryData = getLibraryCategoryData(libraryCategory)
         categoryData.searchJob?.cancel()
         categoryData.fetchJob?.cancel()
@@ -716,7 +783,7 @@ internal class LibraryViewModel : ViewModel() {
         categoryData.uiStateFlow.update {
             it.copy(assetsData = AssetsData())
         }
-        onFetch(libraryCategory)
+        onFetch(libraryCategory, flatten)
     }
 
     private suspend fun addImageToAssetSource(assetSource: UploadAssetSource, uri: Uri): Asset {
@@ -731,7 +798,7 @@ internal class LibraryViewModel : ViewModel() {
                     "uri" to uriString,
                     "thumbUri" to uriString,
                     "kind" to "image",
-                    "fillType" to "//ly.img.ubq/fill/image",
+                    "fillType" to FillType.Image.key,
                     "width" to width.toString(),
                     "height" to height.toString()
                 )

@@ -24,6 +24,9 @@
     <string name="cesdk_replace_sticker">Replace Sticker</string>
     <string name="cesdk_replace">Replace</string>
     <string name="cesdk_edit">Edit</string>
+    <string name="cesdk_filter">Filter</string>
+    <string name="cesdk_blur">Blur</string>
+    <string name="cesdk_effect">Effect</string>
     <string name="cesdk_format">Format</string>
     <string name="cesdk_options">Options</string>
     <string name="cesdk_fill_and_stroke"><![CDATA[Fill & Stroke]]></string>
@@ -121,9 +124,105 @@
     <string name="cesdk_hue">Hue</string>
 
     <string name="cesdk_crop">Crop</string>
+    <string name="cesdk_adjustment">Adjustments</string>
     <string name="cesdk_straighten">Straighten</string>
     <string name="cesdk_reset">Reset</string>
     <string name="cesdk_rotate">Rotate 90°</string>
     <string name="cesdk_flip">Flip</string>
+
+    <string name="cesdk_filter_intensity">Intensity</string>
+
+    <string name="cesdk_adjustment_contrast">Contrast</string>
+    <string name="cesdk_adjustment_brightness">Brightness</string>
+    <string name="cesdk_adjustment_saturation">Saturation</string>
+
+    <string name="cesdk_adjustment_blacks">Blacks</string>
+    <string name="cesdk_adjustment_clarity">Clarity</string>
+    <string name="cesdk_adjustment_exposure">Exposure</string>
+    <string name="cesdk_adjustment_gamma">Gamma</string>
+    <string name="cesdk_adjustment_highlights">Highlights</string>
+    <string name="cesdk_adjustment_shadows">Shadows</string>
+    <string name="cesdk_adjustment_sharpness">Sharpness</string>
+    <string name="cesdk_adjustment_temperature">Temperature</string>
+    <string name="cesdk_adjustment_whites">Whites</string>
+
+    <string name="cesdk_filter_pixelize_horizontalpixelsize">Horizontal Count</string>
+    <string name="cesdk_filter_pixelize_verticalpixelsize">Vertical Count</string>
+
+    <string name="cesdk_filter_radial_pixel_radius">Radius per Row</string>
+    <string name="cesdk_filter_radial_pixel_segments">Size per Row</string>
+
+    <string name="cesdk_filter_cross_cut_slices">Horizontal Cuts</string>
+    <string name="cesdk_filter_cross_cut_offset">Horizontal Offset</string>
+    <string name="cesdk_filter_cross_cut_speedv">Vertical Offset</string>
+    <string name="cesdk_filter_cross_cut_time">Variation</string>
+
+    <string name="cesdk_filter_liquid_amount">Intensity</string>
+    <string name="cesdk_filter_liquid_scale">Scale</string>
+    <string name="cesdk_filter_liquid_time">Variation</string>
+
+    <string name="cesdk_filter_outliner_amount">Intensity</string>
+    <string name="cesdk_filter_outliner_passthrough">Blending</string>
+
+    <string name="cesdk_filter_dot_pattern_dots">Number of Dots</string>
+    <string name="cesdk_filter_dot_pattern_size">Size of Dots</string>
+    <string name="cesdk_filter_dot_pattern_blur">Global Blur</string>
+
+    <string name="cesdk_filter_posterize_levels">Number of Levels</string>
+
+    <string name="cesdk_filter_tv_glitch_distortion">Rough Distortion</string>
+    <string name="cesdk_filter_tv_glitch_distortion2">Fine Distortion</string>
+    <string name="cesdk_filter_tv_glitch_speed">Variance</string>
+    <string name="cesdk_filter_tv_glitch_rollspeed">Vertical Offset</string>
+
+    <string name="cesdk_filter_half_tone_angle">Angle of Pattern</string>
+    <string name="cesdk_filter_half_tone_scale">Scale of Pattern</string>
+
+    <string name="cesdk_filter_linocut_scale">Scale of Pattern</string>
+
+    <string name="cesdk_filter_shifter_amount">Distance</string>
+    <string name="cesdk_filter_shifter_angle">Shift Direction</string>
+
+    <string name="cesdk_filter_mirror_side">Mirrored Side</string>
+
+    <string name="cesdk_filter_glow_size">Bloom</string>
+    <string name="cesdk_filter_glow_amount">Intensity</string>
+    <string name="cesdk_filter_glow_darkness">Darkening</string>
+
+    <string name="cesdk_filter_vignette_offset">Size</string>
+    <string name="cesdk_filter_vignette_darkness">Color</string>
+
+    <string name="cesdk_filter_tilt_shift_amount">Intensity</string>
+    <string name="cesdk_filter_tilt_shift_position">Position</string>
+
+    <string name="cesdk_filter_uniform_blur_intensity">Intensity</string>
+
+    <string name="cesdk_filter_extrude_blur_amount">Intensity</string>
+
+    <string name="cesdk_filter_duotone_filter_intensity">Intensity</string>
+
+    <string name="cesdk_filter_lut_filter_intensity">Intensity</string>
+
+    <string name="cesdk_filter_blur_uniform_intensity">Intensity</string>
+
+    <string name="cesdk_filter_blur_linear_blurradius">Intensity</string>
+    <string name="cesdk_filter_blur_linear_x1">Point 1 - X</string>
+    <string name="cesdk_filter_blur_linear_y1">Point 1 - Y</string>
+    <string name="cesdk_filter_blur_linear_x2">Point 2 - X</string>
+    <string name="cesdk_filter_blur_linear_y2">Point 2 - Y</string>
+
+    <string name="cesdk_filter_blur_mirrored_blurradius">Intensity</string>
+    <string name="cesdk_filter_blur_mirrored_gradientsize">Size of Gradient</string>
+    <string name="cesdk_filter_blur_mirrored_size">Size of non-blurred Area</string>
+    <string name="cesdk_filter_blur_mirrored_x1">Point 1 - X</string>
+    <string name="cesdk_filter_blur_mirrored_y1">Point 1 - Y</string>
+    <string name="cesdk_filter_blur_mirrored_x2">Point 2 - X</string>
+    <string name="cesdk_filter_blur_mirrored_y2">Point 2 - Y</string>
+
+    <string name="cesdk_filter_blur_radial_blurradius">Intensity</string>
+    <string name="cesdk_filter_blur_radial_gradientradius">Size of Gradient</string>
+    <string name="cesdk_filter_blur_radial_radius">Size of non-blurred Area</string>
+    <string name="cesdk_filter_blur_radial_x">Point - X</string>
+    <string name="cesdk_filter_blur_radial_y">Point - Y</string>
 
 </resources>

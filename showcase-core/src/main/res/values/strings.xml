@@ -15,6 +15,9 @@
     <string name="cesdk_audio">Audio</string>
     <string name="cesdk_shapes">Shapes</string>
     <string name="cesdk_stickers">Stickers</string>
+    <string name="cesdk_filters">Filter</string>
+    <string name="cesdk_effects">Effects</string>
+    <string name="cesdk_blur">Blur</string>
     <string name="cesdk_images">Images</string>
     <string name="cesdk_gallery">Gallery</string>
     <string name="cesdk_unsplash">Unsplash</string>
@@ -37,6 +40,7 @@
     <string name="cesdk_credits_on_source">On %s</string>
 
     <string name="cesdk_add">Add</string>
+    <string name="cesdk_remove">None</string>
     <string name="cesdk_more_count">More</string>
     <string name="cesdk_see_all">See All</string>
     <string name="cesdk_no_elements">No Elements</string>

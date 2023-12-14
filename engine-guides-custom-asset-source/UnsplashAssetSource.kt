@@ -5,28 +5,32 @@ import org.json.*
 import java.net.HttpURLConnection
 import java.net.URL
 
-fun customAssetSource() = CoroutineScope(Dispatchers.Main).launch {
+fun customAssetSource(license: String, userId: String, unsplashBaseUrl: String) = CoroutineScope(Dispatchers.Main).launch {
 	val engine = Engine.getInstance(id = "ly.img.engine.example")
-	engine.start()
+	engine.start(license = license, userId = userId)
 	engine.bindOffscreen(width = 100, height = 100)
 
 	// highlight-unsplash-definition
-	val source = UnsplashAssetSource("") // INSERT YOUR UNSPLASH PROXY URL HERE
+	val source = UnsplashAssetSource(unsplashBaseUrl) // INSERT YOUR UNSPLASH PROXY URL HERE
 	engine.asset.addSource(source)
 	// highlight-unsplash-definition
 
 	// highlight-unsplash-findAssets
-	val list = engine.asset.findAssets(
-		sourceId = "ly.img.asset.source.unsplash",
-		query = FindAssetsQuery(query = "", page = 1, perPage = 10)
-	)
+	val list = runCatching {
+		engine.asset.findAssets(
+			sourceId = "ly.img.asset.source.unsplash",
+			query = FindAssetsQuery(query = "", page = 1, perPage = 10)
+		)
+	}.getOrElse { it.printStackTrace() }
 	// highlight-unsplash-findAssets
 
 	// highlight-unsplash-list
-	val search = engine.asset.findAssets(
-		sourceId = "ly.img.asset.source.unsplash",
-		query = FindAssetsQuery(query = "banana", page = 1, perPage = 10)
-	)
+	val search = runCatching {
+		engine.asset.findAssets(
+			sourceId = "ly.img.asset.source.unsplash",
+			query = FindAssetsQuery(query = "banana", page = 1, perPage = 10)
+		)
+	}.getOrElse { it.printStackTrace() }
 	// highlight-unsplash-list
 
 	// highlight-add-local-source
@@ -49,7 +53,8 @@ fun customAssetSource() = CoroutineScope(Dispatchers.Main).launch {
 			"mimeType" to "video/mp4",
 			"width" to "1920",
 			"height" to "1080"
-		)
+		),
+		payload = AssetPayload(color = AssetColor.RGB(r = 0F, g = 0F, b = 1F))
 	)
 	engine.asset.addAsset(sourceId = "background-videos", asset = asset)
 	// highlight-add-asset-to-source
@@ -155,8 +160,17 @@ class UnsplashAssetSource(private val baseUrl: String) : AssetSource(sourceId = 
 			"thumbUri" to getJSONObject("urls").getString("thumb"),
 			// highlight-result-thumbUri
 			// highlight-result-blockType
-			"blockType" to "//ly.img.ubq/image",
+			"blockType" to DesignBlockType.Graphic.key,
 			// highlight-result-blockType
+			// highlight-result-fillType
+			"fillType" to FillType.Image.key,
+			// highlight-result-fillType
+			// highlight-result-shapeType
+			"shapeType" to ShapeType.Rect.key,
+			// highlight-result-shapeType
+			// highlight-result-kind
+			"kind" to "image",
+			// highlight-result-kind
 			// highlight-result-size
 			"width" to getInt("width").toString(),
 			"height" to getInt("height").toString()

@@ -1,13 +1,13 @@
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
-fun textProperties() = CoroutineScope(Dispatchers.Main).launch {
+fun textProperties(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
 	val engine = Engine.getInstance(id = "ly.img.engine.example")
-	engine.start()
+	engine.start(license = license, userId = userId)
 	engine.bindOffscreen(width = 100, height = 100)
 
 	val scene = engine.scene.create()
-	val text = engine.block.create(DesignBlockType.TEXT)
+	val text = engine.block.create(DesignBlockType.Text)
 	engine.block.appendChild(parent = scene, child = text)
 	engine.block.setWidthMode(text, mode = SizeMode.AUTO)
 	engine.block.setHeightMode(text, mode = SizeMode.AUTO)

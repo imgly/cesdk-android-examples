@@ -18,5 +18,8 @@ enum class AssetSourceGroupType {
     Gallery,
     Shape,
     Sticker,
-    Text
+    Text,
+    Filter,
+    Effect,
+    Blur
 }

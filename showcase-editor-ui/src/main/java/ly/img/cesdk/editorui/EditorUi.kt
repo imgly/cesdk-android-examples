@@ -55,22 +55,26 @@ import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetLayout
 import ly.img.cesdk.core.ui.bottomsheet.ModalBottomSheetValue
 import ly.img.cesdk.core.ui.bottomsheet.rememberModalBottomSheetState
 import ly.img.cesdk.core.ui.utils.toPx
+import ly.img.cesdk.dock.AdjustmentSheetContent
 import ly.img.cesdk.dock.BottomSheetContent
 import ly.img.cesdk.dock.Dock
+import ly.img.cesdk.dock.EffectSheetContent
 import ly.img.cesdk.dock.FillStrokeBottomSheetContent
 import ly.img.cesdk.dock.FormatBottomSheetContent
 import ly.img.cesdk.dock.LayerBottomSheetContent
 import ly.img.cesdk.dock.LibraryBottomSheetContent
 import ly.img.cesdk.dock.OptionsBottomSheetContent
 import ly.img.cesdk.dock.ReplaceBottomSheetContent
+import ly.img.cesdk.dock.options.adjustment.AdjustmentOptionsSheet
 import ly.img.cesdk.dock.options.crop.CropBottomSheetContent
 import ly.img.cesdk.dock.options.crop.CropSheet
+import ly.img.cesdk.dock.options.effect.EffectSelectionSheet
 import ly.img.cesdk.dock.options.fillstroke.FillStrokeOptionsSheet
 import ly.img.cesdk.dock.options.format.FormatOptionsSheet
 import ly.img.cesdk.dock.options.layer.LayerOptionsSheet
 import ly.img.cesdk.dock.options.shapeoptions.ShapeOptionsSheet
 import ly.img.cesdk.engine.EngineCanvasView
-import kotlin.math.roundToInt
+import ly.img.engine.LicenseValidationException
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -130,7 +134,7 @@ fun EditorUi(
         snapshotFlow { swipeableState.offset }.collectLatest { offset ->
             if (offset == null) return@collectLatest
             val bottomSheetHeight = (swipeableState.maxOffset - offset).coerceAtMost(0.7f * swipeableState.maxOffset)
-            val bottomSheetHeightInDp = (bottomSheetHeight / oneDpInPx).roundToInt()
+            val bottomSheetHeightInDp = (bottomSheetHeight / oneDpInPx)
             viewModel.onEvent(Event.OnBottomSheetHeightChange(bottomSheetHeightInDp))
         }
     }
@@ -276,6 +280,14 @@ fun EditorUi(
                             is OptionsBottomSheetContent -> ShapeOptionsSheet(content.uiState, viewModel::onEvent)
                             is FormatBottomSheetContent -> FormatOptionsSheet(content.uiState, viewModel::onEvent)
                             is CropBottomSheetContent -> CropSheet(content.uiState, viewModel::onEvent)
+                            is AdjustmentSheetContent -> AdjustmentOptionsSheet(content.uiState, viewModel::onEvent)
+                            is EffectSheetContent -> EffectSelectionSheet(
+                                uiState = content.uiState,
+                                onEvent = viewModel::onEvent,
+                                showAnyComposable = {
+                                    showScrimBottomSheet(it)
+                                })
+
                             else -> bottomSheetLayout(content)
                         }
                     }
@@ -291,13 +303,19 @@ fun EditorUi(
                     EngineCanvasView(
                         engine = viewModel.engine,
                         passTouches = !uiState.isInPreviewMode,
+                        onLicenseValidationError = {
+                            if (it is LicenseValidationException) {
+                                goBack()
+                            } else {
+                                viewModel.onEvent(Event.OnEngineStartError)
+                            }
+                        },
                         onMoveStart = { viewModel.onEvent(Event.OnCanvasMove(true)) },
                         onMoveEnd = { viewModel.onEvent(Event.OnCanvasMove(false)) },
                         loadScene = {
-                            val topInsets = 64f + 16f // 64 for toolbar
-                            val bottomInsets = 132f + 16f // 132 for dock
-                            val sideInsets = 16f
-
+                            val topInsets = 64f // 64 for toolbar
+                            val bottomInsets = 132f // 132 for dock
+                            val sideInsets = 0f
                             val insets = Rect(
                                 left = sideInsets,
                                 top = topInsets,
@@ -325,7 +343,7 @@ fun EditorUi(
                         EditingTextCard(modifier = Modifier
                             .align(Alignment.BottomStart)
                             .onGloballyPositioned {
-                                viewModel.onEvent(Event.OnKeyboardHeightChange((it.size.height / oneDpInPx).roundToInt()))
+                                viewModel.onEvent(Event.OnKeyboardHeightChange(it.size.height / oneDpInPx))
                             },
                             onClose = { viewModel.onEvent(Event.OnKeyboardClose) }
                         )

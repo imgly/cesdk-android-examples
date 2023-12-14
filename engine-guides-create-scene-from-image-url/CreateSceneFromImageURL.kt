@@ -2,9 +2,9 @@ import android.net.Uri
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
-fun createSceneFromImageURL() = CoroutineScope(Dispatchers.Main).launch {
+fun createSceneFromImageURL(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start()
+    engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-createFromImage
@@ -13,8 +13,8 @@ fun createSceneFromImageURL() = CoroutineScope(Dispatchers.Main).launch {
     // highlight-createFromImage
 
     // highlight-findByType
-    // Find the automatically added image block in the scene.
-    val block = engine.block.findByType(DesignBlockType.IMAGE).first()
+    // Find the automatically added graphic block in the scene that contains the image fill.
+    val block = engine.block.findByType(DesignBlockType.Graphic).first()
     // highlight-findByType
 
     // highlight-setOpacity

@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
+    id 'com.dropbox.dropshots'
 }
 
 android {
@@ -9,10 +10,12 @@ android {
 
     defaultConfig {
         applicationId "ly.img.cesdk.showcase"
+        testApplicationId "ly.img.cesdk.showcase.test"
         minSdk libs.versions.androidMinSdk.get().toInteger()
         targetSdk libs.versions.androidTargetSdk.get().toInteger()
         versionCode 1
         versionName libs.versions.engine.get()
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         ndk {
             abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
         }
@@ -22,6 +25,7 @@ android {
     sourceSets {
         main {
             java.srcDirs += [
+                "../engine-guides-setup",
                 "../engine-guides-create-scene-from-image-blob",
                 "../engine-guides-create-scene-from-image-url",
                 "../engine-guides-create-scene-from-scratch",
@@ -42,6 +46,7 @@ android {
                 "../engine-guides-uri-resolver",
                 "../engine-guides-using-effects",
                 "../engine-guides-using-fills",
+                "../engine-guides-using-shapes",
                 "../engine-guides-text-properties",
                 "../engine-guides-cutouts",
                 "../engine-guides-video",
@@ -93,6 +98,20 @@ android {
     }
 }
 
+tasks.register('validateDropshotsRecordIsDisabled') {
+    doLast {
+        def propertiesFile = new File(rootDir, "gradle.properties")
+        if (!propertiesFile.exists()) {
+            throw GradleException("Internal error. Please report to the android engine members!")
+        }
+        def properties = new Properties()
+        properties.load(propertiesFile.newDataInputStream())
+        if (properties.containsKey("dropshots.record")) {
+            throw GradleException("dropshots.record should be commented out in apps/cesdk_android_examples/gradle.properties file!")
+        }
+    }
+}
+
 dependencies {
     implementation project(":showcase-apparel-ui")
     implementation project(":showcase-postcard-ui")
@@ -105,7 +124,8 @@ dependencies {
     implementation libs.camera.lifecycle
     implementation libs.camera.video
 
-    implementation platform(libs.compose.bom)
+    def composeBom = platform(libs.compose.bom)
+    implementation composeBom
     implementation libs.compose.material3
     implementation libs.compose.activity
     implementation libs.compose.navigation
@@ -113,4 +133,9 @@ dependencies {
     implementation(libs.material) {
         because "MaterialComponents DayNight theme"
     }
+
+    androidTestImplementation composeBom
+    androidTestImplementation libs.test.androidx.runner
+    androidTestImplementation libs.compose.test.junit4
+    debugImplementation libs.compose.test.manifest
 }

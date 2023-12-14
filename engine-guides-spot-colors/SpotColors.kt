@@ -1,30 +1,33 @@
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
-fun spotColors() = CoroutineScope(Dispatchers.Main).launch {
+fun spotColors(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
 	val engine = Engine.getInstance(id = "ly.img.engine.example")
-	engine.start()
+	engine.start(license = license, userId = userId)
 	engine.bindOffscreen(width = 100, height = 100)
 
 	// highlight-setup
 	val scene = engine.scene.create()
 
-	val page = engine.block.create(DesignBlockType.PAGE)
+	val page = engine.block.create(DesignBlockType.Page)
 	engine.block.setWidth(page, value = 800F)
 	engine.block.setHeight(page, value = 600F)
 	engine.block.appendChild(parent = scene, child = page)
 
 	engine.scene.zoomToBlock(page, paddingLeft = 40F, paddingTop = 40F, paddingRight = 40F, paddingBottom = 40F)
 
-	val text = engine.block.create(DesignBlockType.TEXT)
+	val text = engine.block.create(DesignBlockType.Text)
 	engine.block.setPositionX(text, value = 350F)
 	engine.block.setPositionY(text, value = 100F)
 
-	val star = engine.block.create(DesignBlockType.STAR_SHAPE)
-	engine.block.setPositionX(star, value = 350F)
-	engine.block.setPositionY(star, value = 400F)
-	engine.block.setWidth(star, value = 100F)
-	engine.block.setHeight(star, value = 100F)
+	val block = engine.block.create(DesignBlockType.Graphic)
+	val fill = engine.block.createFill(FillType.Color)
+	engine.block.setShape(block, shape = engine.block.createShape(ShapeType.Rect))
+	engine.block.setPositionX(block, value = 350F)
+	engine.block.setPositionY(block, value = 400F)
+	engine.block.setWidth(block, value = 100F)
+	engine.block.setHeight(block, value = 100F)
+	engine.block.setFill(block, fill = fill)
 	// highlight-setup
 
 	// highlight-create
@@ -36,16 +39,16 @@ fun spotColors() = CoroutineScope(Dispatchers.Main).launch {
 	// highlight-create
 
 	// highlight-apply-star
-	engine.block.setColor(star, property = "fill/solid/color", value = Color.fromSpotColor(name = "Crayola-Pink-Flamingo"))
-	engine.block.setColor(star, property = "stroke/color", value = Color.fromSpotColor(name = "Yellow", tint = 0.8F))
-	engine.block.setStrokeEnabled(star, enabled = true)
+	engine.block.setColor(fill, property = "fill/color/value", value = Color.fromSpotColor(name = "Crayola-Pink-Flamingo"))
+	engine.block.setColor(block, property = "stroke/color", value = Color.fromSpotColor(name = "Yellow", tint = 0.8F))
+	engine.block.setStrokeEnabled(block, enabled = true)
 
-	engine.block.getColor(star, property = "fill/solid/color") // SpotColor with name "Crayola-Pink-Flamingo" with 1F tint
-	engine.block.getColor(star, property = "stroke/color") // SpotColor with name "Yellow" and 0.8F tint
+	engine.block.getColor(fill, property = "fill/color/value") // SpotColor with name "Crayola-Pink-Flamingo" with 1F tint
+	engine.block.getColor(block, property = "stroke/color") // SpotColor with name "Yellow" and 0.8F tint
 	// highlight-apply-star
 
 	// highlight-apply-text
-	engine.block.setColor(text, property = "fill/solid/color", value = Color.fromSpotColor(name = "Yellow"))
+	engine.block.setColor(fill, property = "fill/color/value", value = Color.fromSpotColor(name = "Yellow"))
 	engine.block.setColor(text, property = "stroke/color", value = Color.fromSpotColor(name = "Crayola-Pink-Flamingo", tint = 0.5F))
 	engine.block.setStrokeEnabled(text, enabled = true)
 

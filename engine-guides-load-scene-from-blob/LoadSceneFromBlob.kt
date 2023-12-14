@@ -3,9 +3,9 @@ import ly.img.engine.*
 import java.io.ByteArrayOutputStream
 import java.net.URL
 
-fun loadSceneFromBlob() = CoroutineScope(Dispatchers.Main).launch {
+fun loadSceneFromBlob(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start()
+    engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-fetch-blob
@@ -28,7 +28,7 @@ fun loadSceneFromBlob() = CoroutineScope(Dispatchers.Main).launch {
     // highlight-load
 
     // highlight-set-text-dropshadow
-    val text = engine.block.findByType(DesignBlockType.TEXT).first()
+    val text = engine.block.findByType(DesignBlockType.Text).first()
     engine.block.setDropShadowEnabled(text, enabled = true)
     // highlight-set-text-dropshadow
 

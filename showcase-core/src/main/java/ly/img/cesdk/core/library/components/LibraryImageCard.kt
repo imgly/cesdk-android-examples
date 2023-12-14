@@ -16,8 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import ly.img.cesdk.core.iconpack.Erroroutline
@@ -39,6 +41,7 @@ internal fun LibraryImageCard(
     var state by remember { mutableStateOf(ImageState.Loading) }
     GradientCard(
         modifier = modifier
+            .testTag(tag = "LibraryImageCard${uri?.toUri()?.path}")
             .aspectRatio(1f)
             .ifTrue(state == ImageState.Loading) {
                 shimmerWithLocalShimmer()
