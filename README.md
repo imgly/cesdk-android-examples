@@ -19,7 +19,6 @@ and description of all API methods.
 
 ## License
 
-The IMGLYEngine is a commercial product. To use it as such and get
-access to its white label version - without the watermark in the export - you
+The IMGLYEngine is a commercial product. To use it you
 need to unlock the SDK with a license file. You can purchase a license at
 https://img.ly/pricing.

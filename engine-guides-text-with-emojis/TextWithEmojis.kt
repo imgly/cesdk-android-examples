@@ -16,7 +16,7 @@ fun textWithEmojis(license: String, userId: String) = CoroutineScope(Dispatchers
 	// From a URL
 	engine.editor.setSettingString(
 		keypath = "ubq://defaultEmojiFontFileUri",
-		value = "https://cdn.img.ly/assets/v1/emoji/NotoColorEmoji.ttf"
+		value = "https://cdn.img.ly/assets/v2/emoji/NotoColorEmoji.ttf"
 	)
 	// highlight-change-default-emoji-font
 

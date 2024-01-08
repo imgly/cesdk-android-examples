@@ -17,10 +17,11 @@ dependencyResolutionManagement {
 
 rootProject.name = "CE.SDK Showcases"
 include ':app'
-include ':showcase-core'
-include ':showcase-editor-ui'
-include ':showcase-apparel-ui'
-include ':showcase-postcard-ui'
+include ':editor-core'
+include ':editor-core-ui'
+include ':editor-base'
+include ':editor-apparel'
+include ':editor-postcard'
 
 // Internal use only
 def useLocalEngine = {
