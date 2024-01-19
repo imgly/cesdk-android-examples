@@ -1,0 +1,35 @@
+package ly.img.editor.postcard.bottomsheet.message_font
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import ly.img.editor.base.R
+import ly.img.editor.base.dock.BottomSheetContent
+import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.options.format.FontListUi
+import ly.img.editor.base.ui.Event
+import ly.img.editor.core.ui.SheetHeader
+import ly.img.editor.postcard.PostcardEvent
+
+@Composable
+fun MessageFontSheet(
+    uiState: MessageFontUiState,
+    onEvent: (Event) -> Unit
+) {
+    HalfHeightContainer {
+        Column {
+            SheetHeader(
+                title = stringResource(id = R.string.cesdk_font),
+                onClose = { onEvent(Event.OnHideSheet) }
+            )
+
+            FontListUi(
+                fontFamily = uiState.fontFamily,
+                fontFamilies = uiState.fontFamilies,
+                onSelectFont = { onEvent(PostcardEvent.OnChangeMessageFont(it)) }
+            )
+        }
+    }
+}
+
+class MessageFontBottomSheetContent(val uiState: MessageFontUiState) : BottomSheetContent

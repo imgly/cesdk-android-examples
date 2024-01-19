@@ -80,8 +80,8 @@ fun editVideo(license: String, userId: String) = CoroutineScope(Dispatchers.Main
     // Export scene as mp4 video.
     val blob = engine.block.exportVideo(
         block = scene,
-        timeOffset = 0F,
-        duration = engine.block.getTotalSceneDuration(scene = scene).toFloat(),
+        timeOffset = 0.0,
+        duration = engine.block.getTotalSceneDuration(scene = scene),
         mimeType = MimeType.MP4,
         progressCallback = {
             println("Rendered ${it.renderedFrames} frames and encoded ${it.encodedFrames} frames out of ${it.totalFrames} frames")
