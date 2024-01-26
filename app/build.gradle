@@ -5,12 +5,12 @@ plugins {
 }
 
 android {
-    namespace "ly.img.cesdk.showcase"
+    namespace "ly.img.editor.showcase"
     compileSdk libs.versions.androidCompileSdk.get().toInteger()
 
     defaultConfig {
-        applicationId "ly.img.cesdk.showcase"
-        testApplicationId "ly.img.cesdk.showcase.test"
+        applicationId "ly.img.editor.showcase"
+        testApplicationId "ly.img.editor.showcase.test"
         minSdk libs.versions.androidMinSdk.get().toInteger()
         targetSdk libs.versions.androidTargetSdk.get().toInteger()
         versionCode 1
@@ -51,7 +51,8 @@ android {
                 "../engine-guides-cutouts",
                 "../engine-guides-video",
                 "../engine-guides-using-camera",
-                "../engine-guides-colors"
+                "../engine-guides-colors",
+                "../engine-guides-source-sets",
             ]
         }
     }
@@ -113,8 +114,8 @@ tasks.register('validateDropshotsRecordIsDisabled') {
 }
 
 dependencies {
-    implementation project(":showcase-apparel-ui")
-    implementation project(":showcase-postcard-ui")
+    implementation project(':editor-apparel')
+    implementation project(':editor-postcard')
     implementation findProject(":ubq-android-engine") ?: libs.cesdk.engine
     implementation findProject(":ubq-android-camera") ?: libs.cesdk.engine.camera
 
