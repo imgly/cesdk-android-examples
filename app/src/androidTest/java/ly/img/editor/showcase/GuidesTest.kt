@@ -1,5 +1,8 @@
 package ly.img.editor.showcase
 
+import android.app.Application
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.platform.app.InstrumentationRegistry
 import colors
 import createSceneFromImageBlob
 import createSceneFromImageURL
@@ -14,8 +17,9 @@ import kotlinx.coroutines.runBlocking
 import loadSceneFromBlob
 import loadSceneFromRemote
 import loadSceneFromString
-import ly.img.editor.core.ui.Secrets
+import ly.img.engine.Engine
 import modifyingScenes
+import org.junit.Before
 import org.junit.Test
 import saveSceneToArchive
 import saveSceneToBlob
@@ -30,6 +34,13 @@ import usingFills
 import usingShapes
 
 class GuidesTest {
+    @Before
+    fun prepare() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            ApplicationProvider.getApplicationContext<Application>()
+                .let(Engine::init)
+        }
+    }
 
     @Test
     fun testColors() = runGuide(::colors)
@@ -39,6 +50,7 @@ class GuidesTest {
 
     @Test
     fun testCreateSceneFromImageURL() = runGuide(::createSceneFromImageURL)
+
     @Test
     fun testCreateSceneFromScratch() = runGuide(::createSceneFromScratch)
 
@@ -46,9 +58,10 @@ class GuidesTest {
     fun testCreateSceneFromVideoURL() = runGuide(::createSceneFromVideoURL)
 
     @Test
-    fun testCustomAssetSource() = runGuide { license, userId ->
-        customAssetSource(license = license, userId = userId, unsplashBaseUrl = "")
-    }
+    fun testCustomAssetSource() =
+        runGuide { license, userId ->
+            customAssetSource(license = license, userId = userId, unsplashBaseUrl = "")
+        }
 
     @Test
     fun testCutouts() = runGuide(::cutouts)
@@ -72,9 +85,10 @@ class GuidesTest {
     fun testSaveSceneToArchive() = runGuide(::saveSceneToArchive)
 
     @Test
-    fun testSaveSceneToBlob() = runGuide { license, userId ->
-        saveSceneToBlob(license = license, userId = userId, uploadUrl = "")
-    }
+    fun testSaveSceneToBlob() =
+        runGuide { license, userId ->
+            saveSceneToBlob(license = license, userId = userId, uploadUrl = "")
+        }
 
     @Test
     fun testSaveSceneToString() = runGuide(::saveSceneToString)
@@ -106,7 +120,8 @@ class GuidesTest {
     @Test
     fun testEditVideo() = runGuide(::editVideo)
 
-    private fun runGuide(block: (String, String) -> Job) = runBlocking {
-        block(Secrets.license, "userId").join()
-    }
+    private fun runGuide(block: (String, String) -> Job) =
+        runBlocking {
+            block(Secrets.license, "userId").join()
+        }
 }

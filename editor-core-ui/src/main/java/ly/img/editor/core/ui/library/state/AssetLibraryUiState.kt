@@ -1,7 +1,7 @@
 package ly.img.editor.core.ui.library.state
 
 import androidx.annotation.StringRes
-import ly.img.editor.core.library.AssetSourceGroupType
+import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.ui.library.components.section.LibrarySectionItem
@@ -14,7 +14,7 @@ internal data class AssetLibraryUiState(
     val sectionItems: List<LibrarySectionItem> = listOf(),
     val loadState: CategoryLoadState = CategoryLoadState.Idle,
     val isRoot: Boolean = true,
-    val assetsData: AssetsData = AssetsData()
+    val assetsData: AssetsData = AssetsData(),
 )
 
 internal data class AssetsData(
@@ -22,8 +22,8 @@ internal data class AssetsData(
     val canPaginate: Boolean = false,
     val assets: List<WrappedAsset> = listOf(),
     val assetSourceType: AssetSourceType? = null,
-    val assetSourceGroupType: AssetSourceGroupType? = null,
-    val assetsLoadState: AssetsLoadState = AssetsLoadState.Idle
+    val assetType: AssetType? = null,
+    val assetsLoadState: AssetsLoadState = AssetsLoadState.Idle,
 )
 
 internal enum class CategoryLoadState {
@@ -31,7 +31,7 @@ internal enum class CategoryLoadState {
     Loading,
     LoadingAssets,
     LoadingSections,
-    Success
+    Success,
 }
 
 internal enum class AssetsLoadState {
@@ -40,5 +40,5 @@ internal enum class AssetsLoadState {
     Paginating,
     Error,
     EmptyResult,
-    PaginationError
+    PaginationError,
 }

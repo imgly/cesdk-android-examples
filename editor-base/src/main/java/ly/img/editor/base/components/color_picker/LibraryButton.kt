@@ -23,7 +23,7 @@ fun LibraryButton(
     modifier: Modifier,
     uiScope: CoroutineScope,
     bottomSheetState: ModalBottomSheetState,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
 ) {
     FloatingActionButton(
         modifier = modifier.testTag(tag = "LibraryButton"),
@@ -35,8 +35,8 @@ fun LibraryButton(
                 delay(16)
                 bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
             }
-        }
+        },
     ) {
-        Icon(IconPack.Add, stringResource(R.string.cesdk_library))
+        Icon(IconPack.Add, stringResource(R.string.ly_img_editor_library))
     }
 }

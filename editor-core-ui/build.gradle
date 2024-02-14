@@ -3,6 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+apply from: "$projectDir/../release/publish.gradle"
+
 def localLicense = {
     def propertiesFile = new File(rootDir, "local.properties")
     if (!propertiesFile.exists()) return null
@@ -50,7 +52,7 @@ dependencies {
     api project(":editor-core")
     api findProject(":ubq-android-engine") ?: libs.cesdk.engine
 
-    api platform(libs.compose.bom)
+    implementation platform(libs.compose.bom)
     api libs.compose.material3
 
     api(libs.compose.activity) {

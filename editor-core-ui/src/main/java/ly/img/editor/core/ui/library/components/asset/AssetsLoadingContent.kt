@@ -1,13 +1,13 @@
 package ly.img.editor.core.ui.library.components.asset
 
 import androidx.compose.runtime.Composable
-import ly.img.editor.core.library.AssetSourceGroupType
+import ly.img.editor.core.library.AssetType
 
 @Composable
-internal fun AssetsLoadingContent(assetSourceGroupType: AssetSourceGroupType) {
+internal fun AssetsLoadingContent(assetType: AssetType) {
     AssetsIntermediateStateContent(
         state = IntermediateState.Loading,
-        assetSourceGroupType = assetSourceGroupType,
-        inGrid = true
+        assetType = assetType,
+        inGrid = true,
     )
 }

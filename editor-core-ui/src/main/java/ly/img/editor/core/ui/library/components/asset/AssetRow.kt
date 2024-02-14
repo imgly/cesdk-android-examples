@@ -25,51 +25,49 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.core.R
-import ly.img.editor.core.library.AssetSourceGroupType
-import ly.img.editor.core.library.data.AssetSourceType
+import ly.img.editor.core.library.AssetType
+import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.ui.iconpack.Arrowrightbig
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.library.state.WrappedAsset
 import ly.img.editor.core.ui.library.util.AssetLibraryUiConfig
-import ly.img.engine.Asset
 
 @Composable
 internal fun AssetRow(
     wrappedAssets: List<WrappedAsset>,
-    onAssetClick: (AssetSourceType, Asset) -> Unit,
-    onAssetLongClick: (AssetSourceType, Asset) -> Unit,
-    onSeeAllClick: () -> Unit,
-    assetSourceGroupType: AssetSourceGroupType,
-    moreAssetsAvailable: Boolean
+    expandContent: LibraryContent?,
+    onAssetClick: (WrappedAsset) -> Unit,
+    onAssetLongClick: (WrappedAsset) -> Unit,
+    onSeeAllClick: (LibraryContent) -> Unit,
+    assetType: AssetType,
 ) {
     Column {
         if (wrappedAssets.isEmpty()) {
-            EmptyAssetsContent(assetSourceGroupType = assetSourceGroupType)
+            EmptyAssetsContent(assetType = assetType)
         } else {
             val lazyRowState = rememberLazyListState()
             LaunchedEffect(wrappedAssets) {
                 lazyRowState.scrollToItem(0)
             }
             LazyRow(
-                modifier = Modifier.height(AssetLibraryUiConfig.contentRowHeight(assetSourceGroupType)),
+                modifier = Modifier.height(AssetLibraryUiConfig.contentRowHeight(assetType)),
                 state = lazyRowState,
                 contentPadding = PaddingValues(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 items(wrappedAssets) { wrappedAsset ->
                     AssetImage(
-                        asset = wrappedAsset.asset,
-                        assetSourceGroupType = assetSourceGroupType,
-                        assetSourceType = wrappedAsset.assetSourceType,
+                        wrappedAsset = wrappedAsset,
+                        assetType = assetType,
                         onAssetClick = onAssetClick,
-                        onAssetLongClick = onAssetLongClick
+                        onAssetLongClick = onAssetLongClick,
                     )
                 }
-                if (moreAssetsAvailable) {
+                if (expandContent != null) {
                     item {
                         SeeAllButton(
-                            assetSourceGroupType = assetSourceGroupType,
-                            onClick = onSeeAllClick
+                            assetType = assetType,
+                            onClick = { onSeeAllClick(expandContent) },
                         )
                     }
                 }
@@ -81,27 +79,29 @@ internal fun AssetRow(
 
 @Composable
 private fun SeeAllButton(
-    assetSourceGroupType: AssetSourceGroupType,
-    onClick: () -> Unit
+    assetType: AssetType,
+    onClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier
-            .size(AssetLibraryUiConfig.contentRowHeight(assetSourceGroupType))
-            .clip(shape = MaterialTheme.shapes.medium)
-            .clickable { onClick() },
+        modifier =
+            Modifier
+                .size(AssetLibraryUiConfig.contentRowHeight(assetType))
+                .clip(shape = MaterialTheme.shapes.medium)
+                .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         Icon(
             imageVector = IconPack.Arrowrightbig,
-            modifier = Modifier
-                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), shape = CircleShape)
-                .padding(12.dp),
-            contentDescription = null
+            modifier =
+                Modifier
+                    .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), shape = CircleShape)
+                    .padding(12.dp),
+            contentDescription = null,
         )
         Text(
-            text = stringResource(R.string.cesdk_see_all),
-            style = MaterialTheme.typography.labelLarge
+            text = stringResource(R.string.ly_img_editor_see_all),
+            style = MaterialTheme.typography.labelLarge,
         )
     }
 }

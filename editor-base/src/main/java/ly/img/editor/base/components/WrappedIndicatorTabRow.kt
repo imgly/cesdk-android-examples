@@ -32,29 +32,31 @@ import androidx.compose.ui.unit.dp
 fun WrappedIndicatorTabRow(
     tabs: List<String>,
     selectedTabIndex: Int,
-    onTabClick: (Int) -> Unit
+    onTabClick: (Int) -> Unit,
 ) {
     val density = LocalDensity.current
-    val tabWidths = remember {
-        val tabWidthStateList = mutableStateListOf<Dp>()
-        repeat(tabs.size) {
-            tabWidthStateList.add(0.dp)
+    val tabWidths =
+        remember {
+            val tabWidthStateList = mutableStateListOf<Dp>()
+            repeat(tabs.size) {
+                tabWidthStateList.add(0.dp)
+            }
+            tabWidthStateList
         }
-        tabWidthStateList
-    }
     TabRow(
         selectedTabIndex = selectedTabIndex,
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
-                modifier = Modifier.customTabIndicatorOffset(
-                    currentTabPosition = tabPositions[selectedTabIndex],
-                    tabWidth = tabWidths[selectedTabIndex]
-                )
+                modifier =
+                    Modifier.customTabIndicatorOffset(
+                        currentTabPosition = tabPositions[selectedTabIndex],
+                        tabWidth = tabWidths[selectedTabIndex],
+                    ),
             )
         },
         divider = {
             Divider(color = MaterialTheme.colorScheme.surfaceVariant)
-        }
+        },
     ) {
         tabs.forEachIndexed { tabIndex, tab ->
             Tab(
@@ -66,10 +68,10 @@ fun WrappedIndicatorTabRow(
                         onTextLayout = { textLayoutResult ->
                             tabWidths[tabIndex] =
                                 with(density) { textLayoutResult.size.width.toDp() }
-                        }
+                        },
                     )
                 },
-                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -77,24 +79,26 @@ fun WrappedIndicatorTabRow(
 
 private fun Modifier.customTabIndicatorOffset(
     currentTabPosition: TabPosition,
-    tabWidth: Dp
-): Modifier = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "customTabIndicatorOffset"
-        value = currentTabPosition
+    tabWidth: Dp,
+): Modifier =
+    composed(
+        inspectorInfo =
+            debugInspectorInfo {
+                name = "customTabIndicatorOffset"
+                value = currentTabPosition
+            },
+    ) {
+        val currentTabWidth by animateDpAsState(
+            targetValue = tabWidth,
+            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
+        )
+        val indicatorOffset by animateDpAsState(
+            targetValue = ((currentTabPosition.left + currentTabPosition.right - tabWidth) / 2),
+            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
+        )
+        fillMaxWidth()
+            .wrapContentSize(Alignment.BottomStart)
+            .offset(x = indicatorOffset)
+            .width(currentTabWidth)
+            .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
     }
-) {
-    val currentTabWidth by animateDpAsState(
-        targetValue = tabWidth,
-        animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
-    )
-    val indicatorOffset by animateDpAsState(
-        targetValue = ((currentTabPosition.left + currentTabPosition.right - tabWidth) / 2),
-        animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
-    )
-    fillMaxWidth()
-        .wrapContentSize(Alignment.BottomStart)
-        .offset(x = indicatorOffset)
-        .width(currentTabWidth)
-        .clip(RoundedCornerShape(topStart = 3.dp, topEnd = 3.dp))
-}

@@ -5,11 +5,11 @@ sealed interface Alignment
 enum class HorizontalAlignment : Alignment {
     Left,
     Center,
-    Right
+    Right,
 }
 
 enum class VerticalAlignment : Alignment {
     Top,
     Center,
-    Bottom
+    Bottom,
 }

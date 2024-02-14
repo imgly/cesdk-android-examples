@@ -1,0 +1,42 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+apply from: "$projectDir/../release/publish.gradle"
+
+android {
+    namespace 'ly.img.editor'
+    compileSdk libs.versions.androidCompileSdk.get().toInteger()
+
+    defaultConfig {
+        minSdk libs.versions.androidMinSdk.get().toInteger()
+        targetSdk libs.versions.androidTargetSdk.get().toInteger()
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.kotlinCompilerExtension.get()
+    }
+}
+
+dependencies {
+    implementation project(":editor-apparel")
+    implementation project(":editor-postcard")
+    implementation project(':editor-creative')
+    implementation project(":editor-base")
+    api project(":editor-core")
+}

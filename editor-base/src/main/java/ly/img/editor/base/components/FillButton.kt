@@ -52,42 +52,55 @@ fun FillButton(
     val noStroke = fill == null
     val colorFill = if (fill is SolidFill) fill.fillColor else null
     val fillSize = buttonSize.toPx()
-    val brush: Brush? = when (fill) {
-        is SolidFill -> null
-        is LinearGradientFill -> remember (fill) {
-            ShaderBrush(LinearGradientShader(
-                from = Offset(0f, 0f),
-                to = Offset(fillSize, fillSize),
-                colors = fill.colorStops.map { (it.color as? RGBAColor)?.toComposeColor() ?: Color.Transparent },
-                colorStops = fill.colorStops.map { it.stop },
-                tileMode = TileMode.Clamp
-            ))
+    val brush: Brush? =
+        when (fill) {
+            is SolidFill -> null
+            is LinearGradientFill ->
+                remember(fill) {
+                    ShaderBrush(
+                        LinearGradientShader(
+                            from = Offset(0f, 0f),
+                            to = Offset(fillSize, fillSize),
+                            colors = fill.colorStops.map { (it.color as? RGBAColor)?.toComposeColor() ?: Color.Transparent },
+                            colorStops = fill.colorStops.map { it.stop },
+                            tileMode = TileMode.Clamp,
+                        ),
+                    )
+                }
+            is RadialGradientFill ->
+                remember(fill) {
+                    ShaderBrush(
+                        RadialGradientShader(
+                            center = Offset(fillSize / 2f, fillSize / 2f),
+                            radius = fillSize / 2f,
+                            colors = fill.colorStops.map { (it.color as? RGBAColor)?.toComposeColor() ?: Color.Transparent },
+                            colorStops = fill.colorStops.map { it.stop },
+                            tileMode = TileMode.Clamp,
+                        ),
+                    )
+                }
+            is ConicalGradientFill ->
+                remember(fill) {
+                    TODO(
+                        """
+                        ConicalGradientFill is not supported yet.
+                        There is not ConicalGradientShader implementation in Compose.
+                        """.trimIndent(),
+                    )
+                }
+            else -> {
+                val image = ImageBitmap.imageResource(R.drawable.checkerboard_pattern)
+                remember(
+                    image,
+                ) { ShaderBrush(ImageShader(image, TileMode.Repeated, TileMode.Repeated)) }
+            }
         }
-        is RadialGradientFill -> remember (fill) {
-            ShaderBrush(RadialGradientShader(
-                center = Offset(fillSize / 2f, fillSize / 2f),
-                radius = fillSize / 2f,
-                colors = fill.colorStops.map { (it.color as? RGBAColor)?.toComposeColor() ?: Color.Transparent },
-                colorStops = fill.colorStops.map { it.stop },
-                tileMode = TileMode.Clamp
-            ))
-        }
-        is ConicalGradientFill -> remember (fill) {
-            TODO("""
-                ConicalGradientFill is not supported yet.
-                There is not ConicalGradientShader implementation in Compose.
-            """.trimIndent())
-        }
-        else -> {
-            val image = ImageBitmap.imageResource(R.drawable.checkerboard_pattern)
-            remember(image) { ShaderBrush(ImageShader(image, TileMode.Repeated, TileMode.Repeated)) }
-        }
-    }
     Canvas(
-        modifier = modifier
-            .size(buttonSize)
-            .ifTrue(onClick != null) { clip(if (noStroke) RoundedCornerShape(30) else CircleShape) }
-            .ifTrue(onClick != null) { clickable { onClick?.invoke() } },
+        modifier =
+            modifier
+                .size(buttonSize)
+                .ifTrue(onClick != null) { clip(if (noStroke) RoundedCornerShape(30) else CircleShape) }
+                .ifTrue(onClick != null) { clickable { onClick?.invoke() } },
         onDraw = {
             val contrastStrokeWidthPx = 1.dp.toPx()
             val selectionStrokeWidthPx = selectionStrokeWidth.toPx()
@@ -103,14 +116,14 @@ fun FillButton(
                     drawCircle(
                         color = primaryColor,
                         radius = size.minDimension / 2 - (selectionStrokeWidthPx / 2),
-                        style = Stroke(width = selectionStrokeWidthPx)
+                        style = Stroke(width = selectionStrokeWidthPx),
                     )
                 }
 
                 // contrast stroke
                 drawCircle(
                     color = outlineColor,
-                    radius = size.minDimension / 2 - (selectionStrokeWidthPx * 2)
+                    radius = size.minDimension / 2 - (selectionStrokeWidthPx * 2),
                 )
 
                 val circleRadius = size.minDimension / 2 - selectionStrokeWidthPx * 2 - contrastStrokeWidthPx
@@ -118,18 +131,22 @@ fun FillButton(
                 if (brush != null) {
                     drawCircle(
                         brush = checkNotNull(brush),
-                        radius = circleRadius
+                        radius = circleRadius,
                     )
                 } else {
                     drawCircle(
                         color = checkNotNull(colorFill),
-                        radius = circleRadius
+                        radius = circleRadius,
                     )
                 }
 
                 if (punchHole) {
                     drawCircle(outlineColor, size.minDimension / 4)
-                    drawCircle(Color.Black, size.minDimension / 4 - contrastStrokeWidthPx, blendMode = BlendMode.Clear)
+                    drawCircle(
+                        Color.Black,
+                        size.minDimension / 4 - contrastStrokeWidthPx,
+                        blendMode = BlendMode.Clear,
+                    )
                 }
 
                 if (noStroke) {
@@ -139,19 +156,19 @@ fun FillButton(
                         end = Offset(x = size.width - strokeMargin, y = size.height - strokeMargin),
                         strokeWidth = contrastStrokeWidthPx * 3 + selectionStrokeWidthPx / 2,
                         cap = StrokeCap.Round,
-                        color = Color.White.copy(alpha = 0.5f)
+                        color = Color.White.copy(alpha = 0.5f),
                     )
                     drawLine(
                         start = Offset(x = strokeMargin, y = strokeMargin),
                         end = Offset(x = size.width - strokeMargin, y = size.height - strokeMargin),
                         strokeWidth = contrastStrokeWidthPx * 2 + selectionStrokeWidthPx / 2,
                         cap = StrokeCap.Round,
-                        color = Color.Black
+                        color = Color.Black,
                     )
                 }
 
                 restoreToCount(checkPoint)
             }
-        }
+        },
     )
 }

@@ -10,7 +10,7 @@ internal data class HsvColor(
     @FloatRange(from = 0.0, to = 360.0) val hue: Float,
     @FloatRange(from = 0.0, to = 1.0) val saturation: Float,
     @FloatRange(from = 0.0, to = 1.0) val value: Float,
-    @FloatRange(from = 0.0, to = 1.0) val alpha: Float
+    @FloatRange(from = 0.0, to = 1.0) val alpha: Float,
 ) {
     companion object {
         fun from(color: Color): HsvColor {
@@ -18,7 +18,7 @@ internal data class HsvColor(
                 r = color.red,
                 g = color.green,
                 b = color.blue,
-                alpha = color.alpha
+                alpha = color.alpha,
             ).toHSV().toColor()
         }
 
@@ -27,7 +27,7 @@ internal data class HsvColor(
                 hue = if (this.h.isNaN()) 0f else this.h,
                 saturation = this.s,
                 value = this.v,
-                alpha = this.alpha
+                alpha = this.alpha,
             )
         }
     }
@@ -38,6 +38,6 @@ internal fun HsvColor.toComposeColor(): Color {
         h = if (hue == 360f) 0 else hue,
         s = saturation,
         v = value,
-        alpha = alpha
+        alpha = alpha,
     ).toComposeColor()
 }

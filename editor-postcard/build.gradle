@@ -3,6 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+apply from: "$projectDir/../release/publish.gradle"
+
 android {
     namespace 'ly.img.editor.postcard'
     compileSdk libs.versions.androidCompileSdk.get().toInteger()

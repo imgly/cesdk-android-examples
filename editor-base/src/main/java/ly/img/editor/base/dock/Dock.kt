@@ -22,28 +22,29 @@ fun Dock(
     selectedBlock: Block,
     onClose: () -> Unit,
     onClick: (OptionType) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     Surface(
-        modifier = modifier
+        modifier = modifier,
     ) {
         Column {
             SheetHeader(
                 title = stringResource(id = selectedBlock.type.titleRes),
                 icon = IconPack.Close,
-                onClose = onClose
+                onClose = onClose,
             )
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-                    .padding(bottom = 24.dp),
-                horizontalArrangement = Arrangement.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(bottom = 24.dp),
+                horizontalArrangement = Arrangement.Center,
             ) {
                 selectedBlock.options.forEach {
                     DockMenuOption(
                         data = it,
-                        onClick = onClick
+                        onClick = onClick,
                     )
                 }
             }

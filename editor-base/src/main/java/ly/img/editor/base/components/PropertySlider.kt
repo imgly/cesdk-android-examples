@@ -43,7 +43,7 @@ fun PropertySlider(
                     if (sliderValue != value) {
                         onValueChangeFinished()
                     }
-                }
+                },
             )
         }
     }

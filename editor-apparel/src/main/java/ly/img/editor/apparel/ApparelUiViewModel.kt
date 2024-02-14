@@ -1,20 +1,35 @@
 package ly.img.editor.apparel
 
+import android.net.Uri
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ly.img.editor.base.engine.showOutline
 import ly.img.editor.base.engine.zoomToBackdrop
 import ly.img.editor.base.ui.EditorUiViewModel
+import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.deselectAllBlocks
 import ly.img.editor.core.ui.engine.getPage
 import ly.img.editor.core.ui.engine.overrideAndRestore
-import ly.img.editor.core.ui.engine.overrideAndRestoreAsync
-import ly.img.engine.MimeType
+import ly.img.engine.Engine
 
-class ApparelUiViewModel : EditorUiViewModel() {
-
+class ApparelUiViewModel(
+    baseUri: Uri,
+    onCreate: suspend (Engine, EditorEventHandler) -> Unit,
+    onExport: suspend (Engine, EditorEventHandler) -> Unit,
+    onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
+    onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
+    colorPalette: List<Color>,
+) : EditorUiViewModel(
+        baseUri = baseUri,
+        onCreate = onCreate,
+        onExport = onExport,
+        onClose = onClose,
+        onError = onError,
+        colorPalette = colorPalette,
+    ) {
     val uiState = _uiState.asStateFlow()
 
     override fun enterEditMode() {
@@ -27,18 +42,6 @@ class ApparelUiViewModel : EditorUiViewModel() {
             engine.deselectAllBlocks()
             pageSetup()
         }
-    }
-
-    override suspend fun exportSceneAsByteArray(): ByteArray {
-        val page = engine.getPage(pageIndex.value)
-        lateinit var byteArray: ByteArray
-        engine.overrideAndRestoreAsync(page, Scope.FillChange) {
-            val prevPageFill = engine.block.getBoolean(page, "fill/enabled")
-            engine.block.setBoolean(page, "fill/enabled", true)
-            byteArray = engine.block.export(page, MimeType.PDF)
-            engine.block.setBoolean(page, "fill/enabled", prevPageFill)
-        }
-        return byteArray
     }
 
     override fun onCanvasMove(move: Boolean) {
@@ -56,4 +59,8 @@ class ApparelUiViewModel : EditorUiViewModel() {
             }
         }
     }
+
+    override suspend fun onPreExport() = Unit
+
+    override suspend fun onPostExport() = Unit
 }

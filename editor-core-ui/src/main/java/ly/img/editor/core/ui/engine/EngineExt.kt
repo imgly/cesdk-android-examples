@@ -34,16 +34,21 @@ fun Engine.getCamera(): DesignBlock {
 fun Engine.dpToCanvasUnit(dp: Float): Float {
     val sceneUnit = block.getEnum(getScene(), "scene/designUnit")
     val sceneDpi = block.getFloat(getScene(), "scene/dpi")
-    val densityFactor = when (sceneUnit) {
-        "Millimeter" -> sceneDpi / 25.4f
-        "Inch" -> sceneDpi
-        else -> 1f
-    }
+    val densityFactor =
+        when (sceneUnit) {
+            "Millimeter" -> sceneDpi / 25.4f
+            "Inch" -> sceneDpi
+            else -> 1f
+        }
     val zoomLevel = scene.getZoomLevel()
     return dp * (block.getFloat(getCamera(), "camera/pixelRatio")) / (densityFactor * zoomLevel)
 }
 
-fun Engine.overrideAndRestore(designBlock: DesignBlock, vararg scopes: String, action: (DesignBlock) -> Unit) {
+fun Engine.overrideAndRestore(
+    designBlock: DesignBlock,
+    vararg scopes: String,
+    action: (DesignBlock) -> Unit,
+) {
     val disabledScopes = getDisabledScopes(designBlock, *scopes)
     action(designBlock)
     restoreScopes(designBlock, disabledScopes)
@@ -52,14 +57,17 @@ fun Engine.overrideAndRestore(designBlock: DesignBlock, vararg scopes: String, a
 suspend fun Engine.overrideAndRestoreAsync(
     designBlock: DesignBlock,
     vararg scopes: String,
-    action: suspend (DesignBlock) -> Unit
+    action: suspend (DesignBlock) -> Unit,
 ) {
     val disabledScopes = getDisabledScopes(designBlock, *scopes)
     action(designBlock)
     restoreScopes(designBlock, disabledScopes)
 }
 
-private fun Engine.getDisabledScopes(designBlock: DesignBlock, vararg scopes: String): Set<String> {
+private fun Engine.getDisabledScopes(
+    designBlock: DesignBlock,
+    vararg scopes: String,
+): Set<String> {
     val disabledScopes = hashSetOf<String>()
     scopes.forEach {
         val wasEnabled = block.isScopeEnabled(designBlock, it)
@@ -71,7 +79,10 @@ private fun Engine.getDisabledScopes(designBlock: DesignBlock, vararg scopes: St
     return disabledScopes
 }
 
-private fun Engine.restoreScopes(designBlock: DesignBlock, scopes: Set<String>) {
+private fun Engine.restoreScopes(
+    designBlock: DesignBlock,
+    scopes: Set<String>,
+) {
     scopes.forEach {
         block.setScopeEnabled(designBlock, it, false)
     }

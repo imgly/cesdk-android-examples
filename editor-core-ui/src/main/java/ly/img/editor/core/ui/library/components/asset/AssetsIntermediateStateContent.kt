@@ -27,7 +27,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.core.R
-import ly.img.editor.core.library.AssetSourceGroupType
+import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.ui.GradientCard
 import ly.img.editor.core.ui.library.util.AssetLibraryUiConfig
 import ly.img.editor.core.ui.library.util.shimmerWithLocalShimmer
@@ -36,8 +36,8 @@ import ly.img.editor.core.ui.utils.ifTrue
 @Composable
 internal fun AssetsIntermediateStateContent(
     state: IntermediateState,
-    assetSourceGroupType: AssetSourceGroupType,
-    inGrid: Boolean = false
+    assetType: AssetType,
+    inGrid: Boolean = false,
 ) {
     val isLoading = state == IntermediateState.Loading
 
@@ -46,19 +46,23 @@ internal fun AssetsIntermediateStateContent(
             .fillMaxWidth()
             .ifTrue(isLoading) {
                 shimmerWithLocalShimmer()
-            }
+            },
     ) {
-        if (assetSourceGroupType == AssetSourceGroupType.Audio) {
-            Column(modifier = Modifier.ifTrue(!isLoading) {
-                drawMask()
-            }) {
+        if (assetType == AssetType.Audio) {
+            Column(
+                modifier =
+                    Modifier.ifTrue(!isLoading) {
+                        drawMask()
+                    },
+            ) {
                 repeat(3) {
                     ListItem(
                         headlineContent = {
                             GradientCard(
-                                modifier = Modifier
-                                    .height(24.dp)
-                                    .width(120.dp)
+                                modifier =
+                                    Modifier
+                                        .height(24.dp)
+                                        .width(120.dp),
                             )
                         },
                         leadingContent = {
@@ -67,45 +71,51 @@ internal fun AssetsIntermediateStateContent(
                     )
                 }
             }
-        } else if (assetSourceGroupType == AssetSourceGroupType.Text) {
-            Column(modifier = Modifier.ifTrue(!isLoading) {
-                drawMask()
-            }) {
+        } else if (assetType == AssetType.Text) {
+            Column(
+                modifier =
+                    Modifier.ifTrue(!isLoading) {
+                        drawMask()
+                    },
+            ) {
                 repeat(3) {
                     ListItem(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         headlineContent = {
                             GradientCard(
-                                modifier = Modifier
-                                    .height(24.dp)
-                                    .width(160.dp)
+                                modifier =
+                                    Modifier
+                                        .height(24.dp)
+                                        .width(160.dp),
                             )
-                        }
+                        },
                     )
                 }
             }
         } else {
             if (inGrid) {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(AssetLibraryUiConfig.assetGridColumns(assetSourceGroupType)),
-                    verticalArrangement = AssetLibraryUiConfig.assetGridVerticalArrangement(assetSourceGroupType),
-                    horizontalArrangement = AssetLibraryUiConfig.assetGridHorizontalArrangement(assetSourceGroupType),
+                    columns = GridCells.Fixed(AssetLibraryUiConfig.assetGridColumns(assetType)),
+                    verticalArrangement = AssetLibraryUiConfig.assetGridVerticalArrangement(assetType),
+                    horizontalArrangement = AssetLibraryUiConfig.assetGridHorizontalArrangement(assetType),
                     contentPadding = PaddingValues(4.dp),
-                    modifier = Modifier.ifTrue(!isLoading) {
-                        drawMask()
-                    }
+                    modifier =
+                        Modifier.ifTrue(!isLoading) {
+                            drawMask()
+                        },
                 ) {
-                    items(AssetLibraryUiConfig.assetGridColumns(assetSourceGroupType)) {
+                    items(AssetLibraryUiConfig.assetGridColumns(assetType)) {
                         GradientCard(modifier = Modifier.aspectRatio(1f))
                     }
                 }
             } else {
                 LazyRow(
-                    modifier = Modifier
-                        .height(AssetLibraryUiConfig.contentRowHeight(assetSourceGroupType))
-                        .ifTrue(!isLoading) {
-                            drawMask()
-                        },
+                    modifier =
+                        Modifier
+                            .height(AssetLibraryUiConfig.contentRowHeight(assetType))
+                            .ifTrue(!isLoading) {
+                                drawMask()
+                            },
                     contentPadding = PaddingValues(horizontal = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     userScrollEnabled = false,
@@ -119,10 +129,10 @@ internal fun AssetsIntermediateStateContent(
 
         if (state == IntermediateState.Empty) {
             Text(
-                stringResource(id = R.string.cesdk_no_elements),
+                stringResource(id = R.string.ly_img_editor_no_elements),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
             )
         }
     }
@@ -130,20 +140,22 @@ internal fun AssetsIntermediateStateContent(
 
 internal enum class IntermediateState {
     Loading,
-    Empty
+    Empty,
 }
 
-private fun Modifier.drawMask() = then(
-    // Workaround to enable alpha compositing
-    // TODO: Use https://developer.android.com/jetpack/compose/graphics/draw/modifiers#compositing-strategy when available
-    graphicsLayer { alpha = 0.99F }.drawWithContent {
-        drawContent()
-        drawRect(
-            brush = Brush.linearGradient(
-                0f to Color.Black,
-                1f to Color.Transparent
-            ),
-            blendMode = BlendMode.DstIn
-        )
-    }
-)
+private fun Modifier.drawMask() =
+    then(
+        // Workaround to enable alpha compositing
+        // TODO: Use https://developer.android.com/jetpack/compose/graphics/draw/modifiers#compositing-strategy when available
+        graphicsLayer { alpha = 0.99F }.drawWithContent {
+            drawContent()
+            drawRect(
+                brush =
+                    Brush.linearGradient(
+                        0f to Color.Black,
+                        1f to Color.Transparent,
+                    ),
+                blendMode = BlendMode.DstIn,
+            )
+        },
+    )

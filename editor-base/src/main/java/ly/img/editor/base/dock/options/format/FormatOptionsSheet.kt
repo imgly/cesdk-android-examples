@@ -43,7 +43,7 @@ import ly.img.editor.core.ui.inspectorSheetPadding
 @Composable
 fun FormatOptionsSheet(
     uiState: FormatUiState,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
 ) {
     HalfHeightContainer {
         var screenState by remember { mutableStateOf(ScreenState.Main) }
@@ -56,48 +56,64 @@ fun FormatOptionsSheet(
             ScreenState.Main -> {
                 Column {
                     SheetHeader(
-                        title = stringResource(id = R.string.cesdk_format),
-                        onClose = { onEvent(Event.OnHideSheet) }
+                        title = stringResource(id = R.string.ly_img_editor_format),
+                        onClose = { onEvent(Event.OnHideSheet) },
                     )
 
                     Column(
-                        modifier = Modifier
-                            .inspectorSheetPadding()
-                            .verticalScroll(
-                                rememberScrollState()
-                            )
+                        modifier =
+                            Modifier
+                                .inspectorSheetPadding()
+                                .verticalScroll(
+                                    rememberScrollState(),
+                                ),
                     ) {
                         Card(
                             colors = UiDefaults.cardColors,
                         ) {
-                            PropertyLink(title = stringResource(id = R.string.cesdk_font), value = uiState.fontFamily) {
+                            PropertyLink(
+                                title = stringResource(id = R.string.ly_img_editor_font),
+                                value = uiState.fontFamily,
+                            ) {
                                 screenState = ScreenState.SelectFont
                             }
                             Divider(Modifier.padding(horizontal = 16.dp))
                             Row(
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp), horizontalArrangement = Arrangement.SpaceBetween
+                                    .padding(horizontal = 16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
                                 Row {
                                     ToggleIconButton(
                                         checked = uiState.isBold ?: false,
-                                        onCheckedChange = { onEvent(BlockEvent.OnBold(uiState.fontFamily, it)) },
-                                        enabled = uiState.isBold != null
+                                        onCheckedChange = {
+                                            onEvent(
+                                                BlockEvent.OnBold(uiState.fontFamily, it),
+                                            )
+                                        },
+                                        enabled = uiState.isBold != null,
                                     ) {
                                         Icon(
                                             IconPack.Formatbold,
-                                            contentDescription = stringResource(R.string.cesdk_bold)
+                                            contentDescription = stringResource(R.string.ly_img_editor_bold),
                                         )
                                     }
                                     ToggleIconButton(
                                         checked = uiState.isItalic ?: false,
-                                        onCheckedChange = { onEvent(BlockEvent.OnItalicize(uiState.fontFamily, it)) },
-                                        enabled = uiState.isItalic != null
+                                        onCheckedChange = {
+                                            onEvent(
+                                                BlockEvent.OnItalicize(uiState.fontFamily, it),
+                                            )
+                                        },
+                                        enabled = uiState.isItalic != null,
                                     ) {
                                         Icon(
                                             IconPack.Formatitalic,
-                                            contentDescription = stringResource(R.string.cesdk_italic)
+                                            contentDescription =
+                                                stringResource(
+                                                    R.string.ly_img_editor_italic,
+                                                ),
                                         )
                                     }
                                 }
@@ -107,24 +123,30 @@ fun FormatOptionsSheet(
                                         AlignmentButton(
                                             alignment = it,
                                             currentAlignment = uiState.horizontalAlignment,
-                                            changeAlignment = { onEvent(BlockEvent.OnChangeHorizontalAlignment(it)) }
+                                            changeAlignment = {
+                                                onEvent(
+                                                    BlockEvent.OnChangeHorizontalAlignment(it),
+                                                )
+                                            },
                                         )
                                     }
                                 }
                             }
                             Divider(Modifier.padding(horizontal = 16.dp))
-                            PropertyLink(title = stringResource(id = R.string.cesdk_advanced_text)) {
+                            PropertyLink(
+                                title = stringResource(id = R.string.ly_img_editor_advanced_text),
+                            ) {
                                 screenState = ScreenState.AdvancedOptions
                             }
                         }
 
                         Spacer(Modifier.height(16.dp))
                         PropertySlider(
-                            title = stringResource(R.string.cesdk_font_size),
+                            title = stringResource(R.string.ly_img_editor_font_size),
                             value = uiState.fontSize,
                             valueRange = 6f..90f,
                             onValueChange = { onEvent(BlockEvent.OnChangeFontSize(it)) },
-                            onValueChangeFinished = { onEvent(BlockEvent.OnChangeFinish) }
+                            onValueChangeFinished = { onEvent(BlockEvent.OnChangeFinish) },
                         )
                     }
                 }
@@ -133,14 +155,14 @@ fun FormatOptionsSheet(
             ScreenState.SelectFont -> {
                 Column {
                     NestedSheetHeader(
-                        title = stringResource(R.string.cesdk_font),
+                        title = stringResource(R.string.ly_img_editor_font),
                         onBack = { screenState = ScreenState.Main },
-                        onClose = { onEvent(Event.OnHideSheet) }
+                        onClose = { onEvent(Event.OnHideSheet) },
                     )
                     FontListUi(
                         fontFamily = uiState.fontFamily,
                         fontFamilies = uiState.fontFamilies,
-                        onSelectFont = { onEvent(BlockEvent.OnChangeFont(it)) }
+                        onSelectFont = { onEvent(BlockEvent.OnChangeFont(it)) },
                     )
                 }
             }
@@ -148,17 +170,17 @@ fun FormatOptionsSheet(
             ScreenState.AdvancedOptions -> {
                 Column {
                     NestedSheetHeader(
-                        title = stringResource(R.string.cesdk_advanced_text),
+                        title = stringResource(R.string.ly_img_editor_advanced_text),
                         onBack = { screenState = ScreenState.Main },
-                        onClose = { onEvent(Event.OnHideSheet) }
+                        onClose = { onEvent(Event.OnHideSheet) },
                     )
                     Column(
                         Modifier
                             .inspectorSheetPadding()
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(rememberScrollState()),
                     ) {
                         PropertySlider(
-                            title = stringResource(R.string.cesdk_letter_spacing),
+                            title = stringResource(R.string.ly_img_editor_letter_spacing),
                             value = uiState.letterSpacing,
                             onValueChange = { onEvent(BlockEvent.OnChangeLetterSpacing(it)) },
                             onValueChangeFinished = { onEvent(BlockEvent.OnChangeFinish) },
@@ -168,7 +190,7 @@ fun FormatOptionsSheet(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         PropertySlider(
-                            title = stringResource(R.string.cesdk_line_height),
+                            title = stringResource(R.string.ly_img_editor_line_height),
                             value = uiState.lineHeight,
                             onValueChange = { onEvent(BlockEvent.OnChangeLineHeight(it)) },
                             onValueChangeFinished = { onEvent(BlockEvent.OnChangeFinish) },
@@ -179,25 +201,29 @@ fun FormatOptionsSheet(
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Card(
-                                colors = UiDefaults.cardColors
+                                colors = UiDefaults.cardColors,
                             ) {
                                 Row(
                                     Modifier
                                         .fillMaxWidth()
                                         .padding(horizontal = 16.dp),
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    horizontalArrangement = Arrangement.SpaceBetween,
                                 ) {
                                     Text(
-                                        stringResource(R.string.cesdk_vertical_alignment),
-                                        style = MaterialTheme.typography.bodyLarge
+                                        stringResource(R.string.ly_img_editor_vertical_alignment),
+                                        style = MaterialTheme.typography.bodyLarge,
                                     )
                                     Row {
                                         VerticalAlignment.values().forEach {
                                             AlignmentButton(
                                                 alignment = it,
                                                 currentAlignment = uiState.verticalAlignment,
-                                                changeAlignment = { onEvent(BlockEvent.OnChangeVerticalAlignment(it)) }
+                                                changeAlignment = {
+                                                    onEvent(
+                                                        BlockEvent.OnChangeVerticalAlignment(it),
+                                                    )
+                                                },
                                             )
                                         }
                                     }
@@ -205,10 +231,10 @@ fun FormatOptionsSheet(
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Divider(Modifier.padding(horizontal = 16.dp))
                                 PropertyPicker(
-                                    title = stringResource(R.string.cesdk_auto_size),
+                                    title = stringResource(R.string.ly_img_editor_auto_size),
                                     propertyTextRes = uiState.sizeModeRes,
                                     properties = sizeModeList,
-                                    onPropertyPicked = { onEvent(BlockEvent.OnChangeSizeMode(it)) }
+                                    onPropertyPicked = { onEvent(BlockEvent.OnChangeSizeMode(it)) },
                                 )
                             }
                         }
@@ -220,5 +246,7 @@ fun FormatOptionsSheet(
 }
 
 private enum class ScreenState {
-    Main, SelectFont, AdvancedOptions
+    Main,
+    SelectFont,
+    AdvancedOptions,
 }

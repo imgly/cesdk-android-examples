@@ -25,7 +25,6 @@ import ly.img.editor.core.R as coreR
 internal fun ApparelUiToolbar(
     navigationIcon: ImageVector,
     onEvent: (Event) -> Unit,
-    isLoading: Boolean,
     isInPreviewMode: Boolean,
     isUndoEnabled: Boolean,
     isRedoEnabled: Boolean,
@@ -39,45 +38,47 @@ internal fun ApparelUiToolbar(
                 IconButton(onClick = {
                     onEvent(Event.OnBack)
                 }) {
-                    Icon(navigationIcon, contentDescription = stringResource(coreR.string.cesdk_back))
+                    Icon(
+                        navigationIcon,
+                        contentDescription = stringResource(coreR.string.ly_img_editor_back),
+                    )
                 }
             }
         },
-        colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
-            navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
+        colors =
+            TopAppBarDefaults.smallTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                navigationIconContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
         actions = {
             if (!isInPreviewMode) {
                 IconButton(
                     onClick = { onEvent(Event.OnUndoClick) },
-                    enabled = isUndoEnabled
+                    enabled = isUndoEnabled,
                 ) {
-                    Icon(IconPack.Undo, contentDescription = stringResource(R.string.cesdk_undo))
+                    Icon(IconPack.Undo, contentDescription = stringResource(R.string.ly_img_editor_undo))
                 }
                 IconButton(
                     onClick = { onEvent(Event.OnRedoClick) },
-                    enabled = isRedoEnabled
+                    enabled = isRedoEnabled,
                 ) {
-                    Icon(IconPack.Redo, contentDescription = stringResource(R.string.cesdk_redo))
+                    Icon(IconPack.Redo, contentDescription = stringResource(R.string.ly_img_editor_redo))
                 }
             }
             ToggleIconButton(
                 checked = isInPreviewMode,
                 onCheckedChange = { onEvent(Event.OnTogglePreviewMode(it)) },
-                enabled = !isLoading
             ) {
                 Icon(
                     if (isInPreviewMode) IconPack.Visibility else IconPack.Visibilityoutline,
-                    contentDescription = stringResource(R.string.cesdk_toggle_preview_mode)
+                    contentDescription = stringResource(R.string.ly_img_editor_toggle_preview_mode),
                 )
             }
             IconButton(
                 onClick = { onEvent(Event.OnExportClick) },
-                enabled = !isLoading
             ) {
-                Icon(IconPack.Share, contentDescription = stringResource(R.string.cesdk_share))
+                Icon(IconPack.Share, contentDescription = stringResource(R.string.ly_img_editor_share))
             }
-        }
+        },
     )
 }

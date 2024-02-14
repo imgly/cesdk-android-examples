@@ -13,7 +13,6 @@ import ly.img.editor.core.ui.tab_item.TabIcon
 import ly.img.editor.core.ui.tab_item.TabIconComposable
 
 object FillStrokeIconComposable : TabIconComposable<FillStrokeIcon>() {
-
     @Composable
     override fun IconContent(icon: FillStrokeIcon) {
         if (icon.hasFill && icon.hasStroke) {
@@ -24,13 +23,18 @@ object FillStrokeIconComposable : TabIconComposable<FillStrokeIcon>() {
                     buttonSize = 24.dp,
                     selectionStrokeWidth = 0.dp,
                     punchHole = true,
-                    modifier = Modifier.padding(start = 12.dp)
+                    modifier = Modifier.padding(start = 12.dp),
                 )
             }
         } else if (icon.hasFill) {
             FillButton(fill = icon.fill, buttonSize = 24.dp, selectionStrokeWidth = 0.dp)
         } else if (icon.hasStroke) {
-            ColorButton(color = icon.strokeColor, buttonSize = 24.dp, selectionStrokeWidth = 0.dp, punchHole = true)
+            ColorButton(
+                color = icon.strokeColor,
+                buttonSize = 24.dp,
+                selectionStrokeWidth = 0.dp,
+                punchHole = true,
+            )
         } else {
             throw IllegalStateException("FillStrokeIcon has neither stroke nor fill.")
         }
@@ -41,5 +45,5 @@ class FillStrokeIcon(
     val hasFill: Boolean,
     val fill: Fill?,
     val hasStroke: Boolean,
-    val strokeColor: Color?
+    val strokeColor: Color?,
 ) : TabIcon

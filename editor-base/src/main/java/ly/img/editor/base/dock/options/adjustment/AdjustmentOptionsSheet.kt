@@ -20,19 +20,18 @@ import ly.img.editor.core.ui.inspectorSheetPadding
 @Composable
 fun AdjustmentOptionsSheet(
     uiState: AdjustmentUiState,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
 ) {
-
     HalfHeightContainer {
         Column {
             SheetHeader(
-                title = stringResource(id = R.string.cesdk_adjustment),
-                onClose = { onEvent(Event.OnHideSheet) }
+                title = stringResource(id = R.string.ly_img_editor_adjustment),
+                onClose = { onEvent(Event.OnHideSheet) },
             )
             Column(
                 Modifier
                     .inspectorSheetPadding()
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()),
             ) {
                 uiState.adjustments.forEach { (type, currentValue) ->
                     PropertySlider(

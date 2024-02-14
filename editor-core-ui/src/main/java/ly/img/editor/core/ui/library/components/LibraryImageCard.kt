@@ -40,20 +40,22 @@ internal fun LibraryImageCard(
 ) {
     var state by remember { mutableStateOf(ImageState.Loading) }
     GradientCard(
-        modifier = modifier
-            .testTag(tag = "LibraryImageCard${uri?.toUri()?.path}")
-            .aspectRatio(1f)
-            .ifTrue(state == ImageState.Loading) {
-                shimmerWithLocalShimmer()
-            },
+        modifier =
+            modifier
+                .testTag(tag = "LibraryImageCard${uri?.toUri()?.path}")
+                .aspectRatio(1f)
+                .ifTrue(state == ImageState.Loading) {
+                    shimmerWithLocalShimmer()
+                },
         onClick = onClick,
-        onLongClick = onLongClick
+        onLongClick = onLongClick,
     ) {
         if (uri != null) {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(uri)
-                    .build(),
+                model =
+                    ImageRequest.Builder(LocalContext.current)
+                        .data(uri)
+                        .build(),
                 onLoading = {
                     state = ImageState.Loading
                 },
@@ -65,19 +67,28 @@ internal fun LibraryImageCard(
                 },
                 contentScale = contentScale,
                 contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(contentPadding),
-                colorFilter = if (tintImages) ColorFilter.tint(MaterialTheme.colorScheme.onSurface) else null
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(contentPadding),
+                colorFilter =
+                    if (tintImages) {
+                        ColorFilter.tint(
+                            MaterialTheme.colorScheme.onSurface,
+                        )
+                    } else {
+                        null
+                    },
             )
         }
         if (state == ImageState.Error) {
             Icon(
                 IconPack.Erroroutline,
                 contentDescription = null,
-                modifier = Modifier
-                    .size(18.dp)
-                    .align(Alignment.Center)
+                modifier =
+                    Modifier
+                        .size(18.dp)
+                        .align(Alignment.Center),
             )
         }
     }
@@ -86,5 +97,5 @@ internal fun LibraryImageCard(
 private enum class ImageState {
     Loading,
     Error,
-    Success
+    Success,
 }

@@ -28,49 +28,65 @@ internal fun SaturationValueArea(
     modifier: Modifier = Modifier,
     currentColor: HsvColor,
     onSaturationValueChanged: (saturation: Float, value: Float) -> Unit,
-    onSaturationValueChangeFinished: () -> Unit
+    onSaturationValueChangeFinished: () -> Unit,
 ) {
-    val blackGradientBrush = remember {
-        Brush.verticalGradient(listOf(Color(0xffffffff), Color(0xff000000)))
-    }
+    val blackGradientBrush =
+        remember {
+            Brush.verticalGradient(listOf(Color(0xffffffff), Color(0xff000000)))
+        }
 
-    val currentColorGradientBrush = remember(currentColor.hue) {
-        val rgb = HSV(h = currentColor.hue, s = 1.0f, v = 1.0f).toSRGB()
-        Brush.horizontalGradient(
-            listOf(
-                Color(0xffffffff),
-                Color(red = rgb.redInt, green = rgb.greenInt, blue = rgb.blueInt, alpha = rgb.alphaInt)
+    val currentColorGradientBrush =
+        remember(currentColor.hue) {
+            val rgb = HSV(h = currentColor.hue, s = 1.0f, v = 1.0f).toSRGB()
+            Brush.horizontalGradient(
+                listOf(
+                    Color(0xffffffff),
+                    Color(
+                        red = rgb.redInt,
+                        green = rgb.greenInt,
+                        blue = rgb.blueInt,
+                        alpha = rgb.alphaInt,
+                    ),
+                ),
             )
-        )
-    }
+        }
 
     val outlineColor = MaterialTheme.colorScheme.outline
 
     Canvas(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(120.dp)
-            .pointerInput(Unit) {
-                forEachGesture {
-                    awaitPointerEventScope {
-                        val down = awaitFirstDown()
-                        val (s, v) = getSaturationPoint(down.position, size)
-                        onSaturationValueChanged(s, v)
-                        drag(down.id) { change ->
-                            if (change.positionChange() != Offset.Zero) change.consume()
-                            val (newSaturation, newValue) = getSaturationPoint(change.position, size)
-                            onSaturationValueChanged(newSaturation, newValue)
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .pointerInput(Unit) {
+                    forEachGesture {
+                        awaitPointerEventScope {
+                            val down = awaitFirstDown()
+                            val (s, v) = getSaturationPoint(down.position, size)
+                            onSaturationValueChanged(s, v)
+                            drag(down.id) { change ->
+                                if (change.positionChange() != Offset.Zero) change.consume()
+                                val (newSaturation, newValue) =
+                                    getSaturationPoint(
+                                        change.position,
+                                        size,
+                                    )
+                                onSaturationValueChanged(newSaturation, newValue)
+                            }
+                            onSaturationValueChangeFinished()
                         }
-                        onSaturationValueChangeFinished()
                     }
-                }
-            }
+                },
     ) {
         val cornerRadiusPx = 12.dp.toPx()
         val cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)
 
         drawRoundRect(blackGradientBrush, cornerRadius = cornerRadius)
-        drawRoundRect(currentColorGradientBrush, blendMode = BlendMode.Modulate, cornerRadius = cornerRadius)
+        drawRoundRect(
+            currentColorGradientBrush,
+            blendMode = BlendMode.Modulate,
+            cornerRadius = cornerRadius,
+        )
 
         val point = getSaturationValuePoint(currentColor, size = size)
 
@@ -78,34 +94,43 @@ internal fun SaturationValueArea(
         drawCircle(
             color = outlineColor,
             radius = cornerRadiusPx,
-            center = point
+            center = point,
         )
 
         // inner circle
         drawCircle(
             color = currentColor.toComposeColor(),
             radius = cornerRadiusPx - 1.dp.toPx(),
-            center = point
+            center = point,
         )
-
     }
 }
 
-private fun getSaturationPoint(offset: Offset, size: IntSize): Pair<Float, Float> {
-    val (saturation, value) = getSaturationValueFromPosition(
-        offset,
-        size.toSize()
-    )
+private fun getSaturationPoint(
+    offset: Offset,
+    size: IntSize,
+): Pair<Float, Float> {
+    val (saturation, value) =
+        getSaturationValueFromPosition(
+            offset,
+            size.toSize(),
+        )
     return saturation to value
 }
 
-private fun getSaturationValuePoint(color: HsvColor, size: Size): Offset {
+private fun getSaturationValuePoint(
+    color: HsvColor,
+    size: Size,
+): Offset {
     val height: Float = size.height
     val width: Float = size.width
     return Offset((color.saturation * width), (1f - color.value) * height)
 }
 
-private fun getSaturationValueFromPosition(offset: Offset, size: Size): Pair<Float, Float> {
+private fun getSaturationValueFromPosition(
+    offset: Offset,
+    size: Size,
+): Pair<Float, Float> {
     val width = size.width
     val height = size.height
 

@@ -20,12 +20,15 @@ fun TabItem(
     onClick: () -> Unit,
     @StringRes textRes: Int,
     icon: TabIcon,
-    tabIconMappings: TabIconMappings = Environment.tabIconMappings
+    tabIconMappings: TabIconMappings = Environment.tabIconMappings,
 ) {
     TextButton(
-        colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant),
+        colors =
+            ButtonDefaults.textButtonColors(
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
         onClick = onClick,
-        modifier = Modifier.widthIn(min = 80.dp)
+        modifier = Modifier.widthIn(min = 80.dp),
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -34,7 +37,7 @@ fun TabItem(
             Text(
                 text = stringResource(id = textRes),
                 style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.padding(top = 2.dp)
+                modifier = Modifier.padding(top = 2.dp),
             )
         }
     }
@@ -44,7 +47,6 @@ interface TabIcon
 
 // https://issuetracker.google.com/issues/252471936
 abstract class TabIconComposable<T : TabIcon> {
-
     @Composable
     fun Content(icon: T) {
         IconContent(icon)

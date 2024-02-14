@@ -17,13 +17,14 @@ import ly.img.editor.core.ui.library.data.font.FontFamilyData
 fun FontListUi(
     fontFamily: String,
     fontFamilies: List<FontFamilyData>,
-    onSelectFont: (FontData) -> Unit
+    onSelectFont: (FontData) -> Unit,
 ) {
     Card(
         colors = UiDefaults.cardColors,
-        modifier = Modifier.inspectorSheetPadding()
+        modifier = Modifier.inspectorSheetPadding(),
     ) {
-        val selectedIndex = remember(fontFamily) { fontFamilies.indexOfFirst { fontFamily == it.name } }
+        val selectedIndex =
+            remember(fontFamily) { fontFamilies.indexOfFirst { fontFamily == it.name } }
         val lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = selectedIndex)
         LazyColumn(state = lazyListState) {
             items(fontFamilies) {
@@ -33,7 +34,7 @@ fun FontListUi(
                     text = it.name,
                     fontFamily = it.fontFamily,
                     fontWeight = it.displayFont.fontWeight,
-                    onClick = { onSelectFont(it.displayFont) }
+                    onClick = { onSelectFont(it.displayFont) },
                 )
             }
         }

@@ -3,6 +3,8 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+apply from: "$projectDir/../release/publish.gradle"
+
 android {
     namespace 'ly.img.editor.core'
     compileSdk libs.versions.androidCompileSdk.get().toInteger()
@@ -36,11 +38,12 @@ android {
 dependencies {
     api findProject(":ubq-android-engine") ?: libs.cesdk.engine
 
-    api platform(libs.compose.bom)
-    api libs.compose.material3
-    api(libs.compose.activity) {
+    implementation platform(libs.compose.bom)
+    implementation libs.compose.material3
+    implementation libs.compose.viewmodel
+    implementation(libs.compose.activity) {
         because "WindowCompat.getInsetsController"
     }
-    api libs.kotlin.coroutines
+    implementation libs.kotlin.coroutines
     implementation libs.shimmer
 }

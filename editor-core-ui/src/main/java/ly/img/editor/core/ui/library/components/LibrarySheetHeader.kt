@@ -34,7 +34,6 @@ import androidx.compose.material3.TextFieldDefaults.indicatorLine
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,79 +67,82 @@ import ly.img.editor.core.ui.library.util.LibraryEvent
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 internal fun LibrarySearchHeader(
-    uiState: State<AssetLibraryUiState>,
+    uiState: AssetLibraryUiState,
     onLibraryEvent: (LibraryEvent) -> Unit,
     onBack: () -> Unit,
-    onSearchFocus: () -> Unit
+    onSearchFocus: () -> Unit,
 ) {
-    val uiStateValue = uiState.value
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth(),
     ) {
         AnimatedContent(
             modifier = Modifier.weight(1f),
-            targetState = uiStateValue.isInSearchMode,
+            targetState = uiState.isInSearchMode,
             transitionSpec = {
                 if (targetState) {
-                    fadeIn(animationSpec = tween(250)) + slideInHorizontally(
-                        initialOffsetX = { it / 2 },
-                        animationSpec = tween(250)
-                    ) with fadeOut(animationSpec = tween(250))
+                    fadeIn(animationSpec = tween(250)) +
+                        slideInHorizontally(
+                            initialOffsetX = { it / 2 },
+                            animationSpec = tween(250),
+                        ) with fadeOut(animationSpec = tween(250))
                 } else {
                     fadeIn(animationSpec = tween(100, delayMillis = 100)) with
-                        fadeOut(animationSpec = tween(100)) + slideOutHorizontally(
-                        targetOffsetX = { it / 2 },
-                        animationSpec = tween(100)
-                    )
+                        fadeOut(animationSpec = tween(100)) +
+                        slideOutHorizontally(
+                            targetOffsetX = { it / 2 },
+                            animationSpec = tween(100),
+                        )
                 }
-            }, label = "SearchAnimation"
+            },
+            label = "SearchAnimation",
         ) { isInSearchMode ->
             if (isInSearchMode) {
                 val focusRequester = remember { FocusRequester() }
                 var textFieldValue by remember {
                     mutableStateOf(
-                        TextFieldValue(uiStateValue.searchText, TextRange(uiStateValue.searchText.length))
+                        TextFieldValue(uiState.searchText, TextRange(uiState.searchText.length)),
                     )
                 }
                 SearchTextField(
-                    modifier = Modifier
-                        .onFocusChanged {
-                            if (it.isFocused) {
-                                onSearchFocus()
+                    modifier =
+                        Modifier
+                            .onFocusChanged {
+                                if (it.isFocused) {
+                                    onSearchFocus()
+                                }
                             }
-                        }
-                        .focusRequester(focusRequester)
-                        .padding(8.dp)
-                        .fillMaxWidth(),
+                            .focusRequester(focusRequester)
+                            .padding(8.dp)
+                            .fillMaxWidth(),
                     textFieldValue = textFieldValue,
                     placeholder = {
-                        Text(stringResource(R.string.cesdk_search_placeholder, stringResource(id = uiStateValue.titleRes)))
+                        Text(stringResource(R.string.ly_img_editor_search_placeholder, stringResource(id = uiState.titleRes)))
                     },
                     onSearch = {
-                        onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = false, uiStateValue.libraryCategory))
+                        onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = false, uiState.libraryCategory))
                     },
                     onValueChange = {
                         textFieldValue = it
-                        onLibraryEvent(LibraryEvent.OnSearchTextChange(it.text, uiStateValue.libraryCategory, debounce = true))
+                        onLibraryEvent(LibraryEvent.OnSearchTextChange(it.text, uiState.libraryCategory, debounce = true))
                     },
                     leadingIcon = {
                         IconButton(onClick = {
-                            onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = false, uiStateValue.libraryCategory))
+                            onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = false, uiState.libraryCategory))
                         }) {
-                            Icon(IconPack.Arrowback, contentDescription = stringResource(R.string.cesdk_back))
+                            Icon(IconPack.Arrowback, contentDescription = stringResource(R.string.ly_img_editor_back))
                         }
                     },
                     trailingIcon = {
-                        if (uiStateValue.searchText.isNotEmpty()) {
+                        if (uiState.searchText.isNotEmpty()) {
                             IconButton(onClick = {
                                 textFieldValue = textFieldValue.copy(text = "", selection = TextRange(0))
-                                onLibraryEvent(LibraryEvent.OnSearchTextChange("", uiStateValue.libraryCategory))
+                                onLibraryEvent(LibraryEvent.OnSearchTextChange("", uiState.libraryCategory))
                             }) {
-                                Icon(IconPack.Close, contentDescription = stringResource(R.string.cesdk_search_clear))
+                                Icon(IconPack.Close, contentDescription = stringResource(R.string.ly_img_editor_search_clear))
                             }
                         }
-                    }
+                    },
                 )
                 LaunchedEffect(Unit) {
                     focusRequester.requestFocus()
@@ -149,72 +151,72 @@ internal fun LibrarySearchHeader(
                 TopAppBar(
                     title = {
                         Text(
-                            stringResource(id = uiStateValue.titleRes),
+                            stringResource(id = uiState.titleRes),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
                     },
                     navigationIcon = {
-                        if (!uiStateValue.isRoot) {
+                        if (!uiState.isRoot) {
                             IconButton(onClick = {
-                                onLibraryEvent(LibraryEvent.OnPopStack(uiStateValue.libraryCategory))
+                                onLibraryEvent(LibraryEvent.OnPopStack(uiState.libraryCategory))
                             }) {
                                 Icon(
                                     IconPack.Arrowback,
-                                    contentDescription = stringResource(R.string.cesdk_back)
+                                    contentDescription = stringResource(R.string.ly_img_editor_back),
                                 )
                             }
                         }
                     },
                     actions = {
-                        val searchQuery = uiStateValue.searchText
+                        val searchQuery = uiState.searchText
                         if (searchQuery.isNotEmpty()) {
                             InputChip(
                                 selected = true,
                                 onClick = {
-                                    onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = true, uiStateValue.libraryCategory))
+                                    onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = true, uiState.libraryCategory))
                                 },
                                 label = {
                                     Text(
                                         searchQuery,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.widthIn(max = 120.dp)
+                                        modifier = Modifier.widthIn(max = 120.dp),
                                     )
                                 },
                                 trailingIcon = {
                                     IconButton(onClick = {
-                                        onLibraryEvent(LibraryEvent.OnSearchTextChange("", uiStateValue.libraryCategory))
+                                        onLibraryEvent(LibraryEvent.OnSearchTextChange("", uiState.libraryCategory))
                                     }, Modifier.size(InputChipDefaults.IconSize)) {
                                         Icon(
                                             IconPack.Close,
-                                            contentDescription = stringResource(R.string.cesdk_search_clear),
+                                            contentDescription = stringResource(R.string.ly_img_editor_search_clear),
                                         )
                                     }
                                 },
                                 shape = ShapeDefaults.Large,
-                                modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                                modifier = Modifier.padding(start = 8.dp, end = 8.dp),
                             )
                         } else {
                             Box(Modifier.offset(x = 4.dp)) {
                                 IconButton(
                                     onClick = {
-                                        onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = true, uiStateValue.libraryCategory))
+                                        onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = true, uiState.libraryCategory))
                                     },
                                 ) {
-                                    Icon(IconPack.Search, contentDescription = stringResource(id = R.string.cesdk_search))
+                                    Icon(IconPack.Search, contentDescription = stringResource(id = R.string.ly_img_editor_search))
                                 }
                             }
                         }
-                    }
+                    },
                 )
             }
         }
         IconButton(
             onClick = onBack,
-            Modifier.padding(end = 4.dp)
+            Modifier.padding(end = 4.dp),
         ) {
-            Icon(IconPack.Expandmore, contentDescription = stringResource(id = R.string.cesdk_back))
+            Icon(IconPack.Expandmore, contentDescription = stringResource(id = R.string.ly_img_editor_back))
         }
     }
 }
@@ -234,27 +236,29 @@ private fun SearchTextField(
     maxLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    colors: TextFieldColors = TextFieldDefaults.colors(
-        focusedContainerColor = MaterialTheme.colorScheme.surface3,
-        unfocusedContainerColor = MaterialTheme.colorScheme.surface3,
-        focusedIndicatorColor = Color.Transparent,
-        unfocusedIndicatorColor = Color.Transparent
-    )
+    colors: TextFieldColors =
+        TextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.surface3,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface3,
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+        ),
 ) {
     val textColor = MaterialTheme.colorScheme.onSurface
     val mergedTextStyle = MaterialTheme.typography.bodyLarge.merge(TextStyle(color = textColor))
 
     BasicTextField(
         value = textFieldValue,
-        modifier = modifier
-            .indicatorLine(
-                enabled = true,
-                isError = false,
-                interactionSource = interactionSource,
-                colors = colors,
-                focusedIndicatorLineThickness = 0.dp,  // to hide the indicator line
-                unfocusedIndicatorLineThickness = 0.dp // to hide the indicator line
-            ),
+        modifier =
+            modifier
+                .indicatorLine(
+                    enabled = true,
+                    isError = false,
+                    interactionSource = interactionSource,
+                    colors = colors,
+                    focusedIndicatorLineThickness = 0.dp, // to hide the indicator line
+                    unfocusedIndicatorLineThickness = 0.dp, // to hide the indicator line
+                ),
         onValueChange = onValueChange,
         enabled = true,
         readOnly = false,
@@ -283,8 +287,8 @@ private fun SearchTextField(
                 isError = false,
                 interactionSource = interactionSource,
                 contentPadding = PaddingValues(vertical = 8.dp),
-                colors = colors
+                colors = colors,
             )
-        }
+        },
     )
 }

@@ -60,21 +60,23 @@ fun SelectableAssetList(
     val uiState = viewModel.getAssetLibraryUiState(libraryCategory).collectAsState()
 
     var currentSelected: WrappedAsset? = null
-    val noneIsSelected = remember(libraryCategory) {
-        mutableStateOf(checkInitialSelection(null))
-    }
+    val noneIsSelected =
+        remember(libraryCategory) {
+            mutableStateOf(checkInitialSelection(null))
+        }
 
     LaunchedEffect(libraryCategory) {
-        viewModel.onEvent(LibraryEvent.OnFetch(libraryCategory, true))
+        viewModel.onEvent(LibraryEvent.OnFetch(libraryCategory))
     }
     LaunchedEffect(uiState.value.sectionItems) {
-        fun findSelectedIndex() : Int {
+        fun findSelectedIndex(): Int {
             var currentSectionIndex = 0
             uiState.value.sectionItems.forEach {
                 if (it is LibrarySectionItem.Content) {
-                    val indexOf = it.wrappedAssets.indexOfFirst { wrappedAsset ->
-                        checkInitialSelection(wrappedAsset)
-                    }
+                    val indexOf =
+                        it.wrappedAssets.indexOfFirst { wrappedAsset ->
+                            checkInitialSelection(wrappedAsset)
+                        }
                     if (indexOf >= 0) {
                         return currentSectionIndex + indexOf
                     }
@@ -92,26 +94,29 @@ fun SelectableAssetList(
     }
 
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
     ) {
-
         LazyRow(
-            modifier = Modifier
-                .height(130.dp)
-                .padding(top = 8.dp, bottom = 8.dp)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .height(130.dp)
+                    .padding(top = 8.dp, bottom = 8.dp)
+                    .fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(0.dp),
-            state = listState
+            state = listState,
         ) {
             item {
                 Column {
                     Column(
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .padding(bottom = 8.dp)) {
+                        modifier =
+                            Modifier
+                                .wrapContentSize()
+                                .padding(bottom = 8.dp),
+                    ) {
                         // This can happen if history is changed while the library is open.
                         val isNoneSelected = checkInitialSelection(null)
                         if (isNoneSelected != noneIsSelected.value) {
@@ -119,7 +124,7 @@ fun SelectableAssetList(
                         }
                         SelectableAssetWrapper(
                             isSelected = noneIsSelected.value,
-                            selectedIcon = null
+                            selectedIcon = null,
                         ) {
                             GradientCard(
                                 modifier = Modifier.size(80.dp),
@@ -128,35 +133,34 @@ fun SelectableAssetList(
                                     currentSelected?.setSelected(false)
                                     onAssetSelected(null)
                                 },
-                                onLongClick = { }
+                                onLongClick = { },
                             ) {
                                 Icon(
                                     IconPack.None,
                                     contentDescription = null,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(12.dp)
-                                        .align(Alignment.Center)
+                                    modifier =
+                                        Modifier
+                                            .fillMaxSize()
+                                            .padding(12.dp)
+                                            .align(Alignment.Center),
                                 )
                             }
                         }
                     }
                     Text(
                         modifier = Modifier.align(Alignment.CenterHorizontally),
-                        text = stringResource(R.string.cesdk_remove),
-                        style = MaterialTheme.typography.labelMedium
+                        text = stringResource(R.string.ly_img_editor_remove),
+                        style = MaterialTheme.typography.labelMedium,
                     )
                 }
             }
 
             uiState.value.sectionItems.forEach { sectionItem ->
-                if (sectionItem is LibrarySectionItem.Header) {
-                    item {
-                        Spacer(modifier = Modifier.width(16.dp))
-                    }
+                item {
+                    Spacer(modifier = Modifier.width(16.dp))
                 }
                 if (sectionItem is LibrarySectionItem.Content) {
-                    val assetSourceGroupType = sectionItem.assetSourceGroupType
+                    val assetType = sectionItem.assetType
                     val wrappedAssets = sectionItem.wrappedAssets
                     items(wrappedAssets) { wrappedAsset ->
                         val isSelected = checkInitialSelection(wrappedAsset)
@@ -167,13 +171,16 @@ fun SelectableAssetList(
                             wrappedAsset.setSelected(false)
                         }
                         Column {
-                            Column(modifier = Modifier
-                                .wrapContentSize()
-                                .padding(bottom = 8.dp)) {
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .wrapContentSize()
+                                        .padding(bottom = 8.dp),
+                            ) {
                                 SelectableAssetWrapper(
                                     isSelected = wrappedAsset.isSelected.value,
                                     selectedIcon = selectedIcon(wrappedAsset),
-                                    selectedIconTint = Color.White
+                                    selectedIconTint = Color.White,
                                 ) {
                                     val asset = wrappedAsset.asset
                                     LibraryImageCard(
@@ -189,9 +196,9 @@ fun SelectableAssetList(
                                             }
                                         },
                                         onLongClick = { onAssetLongClick(wrappedAsset) },
-                                        contentPadding = AssetLibraryUiConfig.contentPadding(assetSourceGroupType),
-                                        contentScale = AssetLibraryUiConfig.contentScale(assetSourceGroupType),
-                                        tintImages = AssetLibraryUiConfig.shouldTintImages(assetSourceGroupType)
+                                        contentPadding = AssetLibraryUiConfig.contentPadding(assetType),
+                                        contentScale = AssetLibraryUiConfig.contentScale(assetType),
+                                        tintImages = AssetLibraryUiConfig.shouldTintImages(assetType),
                                     )
                                 }
                             }
@@ -199,7 +206,7 @@ fun SelectableAssetList(
                             Text(
                                 modifier = Modifier.align(Alignment.CenterHorizontally),
                                 text = wrappedAsset.asset.label ?: "",
-                                style = MaterialTheme.typography.labelMedium
+                                style = MaterialTheme.typography.labelMedium,
                             )
                         }
                     }

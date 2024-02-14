@@ -1,18 +1,21 @@
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
-fun colors(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
-	val engine = Engine.getInstance(id = "ly.img.engine.example")
-	engine.start(license = license, userId = userId)
-	engine.bindOffscreen(width = 100, height = 100)
+fun colors(
+    license: String,
+    userId: String,
+) = CoroutineScope(Dispatchers.Main).launch {
+    val engine = Engine.getInstance(id = "ly.img.engine.example")
+    engine.start(license = license, userId = userId)
+    engine.bindOffscreen(width = 100, height = 100)
 
-	// highlight-setup
-	val scene = engine.scene.create()
+    // highlight-setup
+    val scene = engine.scene.create()
 
-	val page = engine.block.create(DesignBlockType.Page)
-	engine.block.setWidth(page, value = 800F)
-	engine.block.setHeight(page, value = 600F)
-	engine.block.appendChild(parent = scene, child = page)
+    val page = engine.block.create(DesignBlockType.Page)
+    engine.block.setWidth(page, value = 800F)
+    engine.block.setHeight(page, value = 600F)
+    engine.block.appendChild(parent = scene, child = page)
 
     val block = engine.block.create(DesignBlockType.Graphic)
     engine.block.setShape(block, shape = engine.block.createShape(ShapeType.Rect))
@@ -30,9 +33,17 @@ fun colors(license: String, userId: String) = CoroutineScope(Dispatchers.Main).l
     val cmykRed = Color.fromCMYK(c = 0F, m = 1F, y = 1F, k = 0F, tint = 1F)
     val cmykPartialRed = Color.fromCMYK(c = 0F, m = 1F, y = 1F, k = 0F, tint = 0.5F)
 
-    engine.editor.setSpotColor(name = "Pink-Flamingo", Color.fromRGBA(r = 0.988F, g = 0.455F, b = 0.992F))
+    engine.editor.setSpotColor(
+        name = "Pink-Flamingo",
+        Color.fromRGBA(r = 0.988F, g = 0.455F, b = 0.992F),
+    )
     engine.editor.setSpotColor(name = "Yellow", Color.fromCMYK(c = 0F, m = 0F, y = 1F, k = 0F))
-    val spotPinkFlamingo = Color.fromSpotColor(name = "Pink-Flamingo", tint = 1F, externalReference = "Crayola")
+    val spotPinkFlamingo =
+        Color.fromSpotColor(
+            name = "Pink-Flamingo",
+            tint = 1F,
+            externalReference = "Crayola",
+        )
     val spotPartialYellow = Color.fromSpotColor(name = "Yellow", tint = 0.3F)
     // highlight-create-colors
 
@@ -45,8 +56,16 @@ fun colors(license: String, userId: String) = CoroutineScope(Dispatchers.Main).l
     // highlight-apply-colors
 
     // highlight-convert-color
-    val cmykBlueConverted = engine.editor.convertColorToColorSpace(rgbaBlue, colorSpace = ColorSpace.CMYK)
-    val rgbaPinkFlamingoConverted = engine.editor.convertColorToColorSpace(spotPinkFlamingo, colorSpace = ColorSpace.SRGB)
+    val cmykBlueConverted =
+        engine.editor.convertColorToColorSpace(
+            rgbaBlue,
+            colorSpace = ColorSpace.CMYK,
+        )
+    val rgbaPinkFlamingoConverted =
+        engine.editor.convertColorToColorSpace(
+            spotPinkFlamingo,
+            colorSpace = ColorSpace.SRGB,
+        )
     // highlight-convert-color
 
     // highlight-find-spot
@@ -61,5 +80,5 @@ fun colors(license: String, userId: String) = CoroutineScope(Dispatchers.Main).l
     engine.editor.removeSpotColor("Yellow")
     // highlight-undefine-spot
 
-	engine.stop()
+    engine.stop()
 }

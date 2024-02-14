@@ -22,17 +22,23 @@ fun ColorOptions(
     openColorPicker: () -> Unit,
     allowDisableColor: Boolean = true,
     punchHole: Boolean = false,
-    colors: List<Color> = fillAndStrokeColors
+    colors: List<Color> = fillAndStrokeColors,
 ) {
     Row(
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .fillMaxWidth(),
+        modifier =
+            Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         if (allowDisableColor) {
-            ColorButton(color = null, selected = !enabled, onClick = onNoColorSelected, punchHole = punchHole)
+            ColorButton(
+                color = null,
+                selected = !enabled,
+                onClick = onNoColorSelected,
+                punchHole = punchHole,
+            )
         }
         colors.forEach { color ->
             ColorButton(color = color, selected = color == selectedColor && enabled, punchHole = punchHole, onClick = {

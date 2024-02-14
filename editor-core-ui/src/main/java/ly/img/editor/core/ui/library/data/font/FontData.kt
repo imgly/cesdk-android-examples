@@ -9,7 +9,7 @@ data class FontData(
     val fontFamily: String,
     val fontWeight: FontWeight,
     val fontStyle: FontStyle,
-    val fontPath: String
+    val fontPath: String,
 ) {
     companion object {
         fun createFontData(jsonObject: JSONObject): FontData {
@@ -18,7 +18,7 @@ data class FontData(
                 fontFamily = jsonObject.getString("fontFamily"),
                 fontPath = jsonObject.getString("fontPath"),
                 fontStyle = if (jsonObject.optString("fontStyle") == "italic") FontStyle.Italic else FontStyle.Normal,
-                fontWeight = getFontWeight(jsonObject["fontWeight"])
+                fontWeight = getFontWeight(jsonObject["fontWeight"]),
             )
         }
 
@@ -29,12 +29,16 @@ data class FontData(
                 "light" -> FontWeight.Light
                 "medium" -> FontWeight.Medium
                 "normal" -> FontWeight.Normal
-                else -> throw IllegalArgumentException("Font Weight can be only be bold, light, medium, normal, or in the range 1-1000.")
+                else -> throw IllegalArgumentException(
+                    "Font Weight can be only be bold, light, medium, normal, or in the range 1-1000.",
+                )
             }
         }
     }
 
     fun isRegular() = fontWeight == FontWeight.Normal
+
     fun isBold() = fontWeight == FontWeight.Bold
+
     fun isItalic() = fontStyle == FontStyle.Italic
 }

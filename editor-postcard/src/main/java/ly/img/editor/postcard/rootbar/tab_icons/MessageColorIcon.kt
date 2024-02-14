@@ -8,7 +8,6 @@ import ly.img.editor.core.ui.tab_item.TabIcon
 import ly.img.editor.core.ui.tab_item.TabIconComposable
 
 object MessageColorIconComposable : TabIconComposable<MessageColorIcon>() {
-
     @Composable
     override fun IconContent(icon: MessageColorIcon) {
         ColorButton(color = icon.messageColor, buttonSize = 24.dp, selectionStrokeWidth = 0.dp)

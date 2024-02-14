@@ -1,27 +1,25 @@
 package ly.img.editor.core.ui.library.components.asset
 
 import androidx.compose.runtime.Composable
-import ly.img.editor.core.library.AssetSourceGroupType
-import ly.img.editor.core.library.data.AssetSourceType
+import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.ui.library.components.LibraryImageCard
 import ly.img.editor.core.ui.library.getThumbnailUri
+import ly.img.editor.core.ui.library.state.WrappedAsset
 import ly.img.editor.core.ui.library.util.AssetLibraryUiConfig
-import ly.img.engine.Asset
 
 @Composable
 internal fun AssetImage(
-    asset: Asset,
-    assetSourceGroupType: AssetSourceGroupType,
-    assetSourceType: AssetSourceType,
-    onAssetClick: (AssetSourceType, Asset) -> Unit,
-    onAssetLongClick: (AssetSourceType, Asset) -> Unit
+    wrappedAsset: WrappedAsset,
+    assetType: AssetType,
+    onAssetClick: (WrappedAsset) -> Unit,
+    onAssetLongClick: (WrappedAsset) -> Unit,
 ) {
     LibraryImageCard(
-        uri = asset.getThumbnailUri(),
-        onClick = { onAssetClick(assetSourceType, asset) },
-        onLongClick = { onAssetLongClick(assetSourceType, asset) },
-        contentPadding = AssetLibraryUiConfig.contentPadding(assetSourceGroupType),
-        contentScale = AssetLibraryUiConfig.contentScale(assetSourceGroupType),
-        tintImages = AssetLibraryUiConfig.shouldTintImages(assetSourceGroupType)
+        uri = wrappedAsset.asset.getThumbnailUri(),
+        onClick = { onAssetClick(wrappedAsset) },
+        onLongClick = { onAssetLongClick(wrappedAsset) },
+        contentPadding = AssetLibraryUiConfig.contentPadding(assetType),
+        contentScale = AssetLibraryUiConfig.contentScale(assetType),
+        tintImages = AssetLibraryUiConfig.shouldTintImages(assetType),
     )
 }

@@ -29,9 +29,13 @@ class EventsHandler(
      * @return The lambda that was passed in.
      */
     @Suppress("UNCHECKED_CAST")
-    operator fun <EventType : BaseEvent> set(event: KClass<out EventType>, lambda: (event: EventType) -> Unit) {
+    operator fun <EventType : BaseEvent> set(
+        event: KClass<out EventType>,
+        lambda: (event: EventType) -> Unit,
+    ) {
         eventMap[event] = lambda as (event: BaseEvent) -> Unit
     }
+
     /**
      * A delegate that can be used to register a lambda to be called when an event of the given type is fired.
      * @param lambda The lambda that will be called when the event is fired.
@@ -52,7 +56,7 @@ class EventsHandler(
  * @param lambda The lambda that will be called when the event is fired.
  * @return The lambda that was passed in.
  */
-inline fun <reified EventType : BaseEvent> EventsHandler.register(noinline lambda: (event: EventType) -> Unit) : Any {
+inline fun <reified EventType : BaseEvent> EventsHandler.register(noinline lambda: (event: EventType) -> Unit): Any {
     this[EventType::class] = lambda
     return lambda
 }
@@ -63,12 +67,14 @@ inline fun <reified EventType : BaseEvent> EventsHandler.register(noinline lambd
 * @param inject The lambda that will be called to inject the value
 */
 fun inject(inject: () -> Int) = InjectInt(inject)
+
 /*
 * Can be used to inject a dynamic value and bind it to a property.
 * * The type of the property is a primitive Float.
 * @param inject The lambda that will be called to inject the value
 */
 fun inject(inject: () -> Float) = InjectFloat(inject)
+
 /*
 * Can be used to inject a dynamic value and bind it to a property.
 * * * The type of the property is a primitive Long.
@@ -103,7 +109,10 @@ fun <Type> inject(inject: () -> Type) = Inject(inject)
  * @param inject The lambda that will be called to inject the value
  */
 class Inject<Type> internal constructor(private val inject: () -> Type) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): Type = inject()
+    operator fun getValue(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ): Type = inject()
 }
 
 /**
@@ -112,7 +121,10 @@ class Inject<Type> internal constructor(private val inject: () -> Type) {
  * @param inject The lambda that will be called to inject the value
  */
 class InjectInt internal constructor(private val inject: () -> Int) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>) = inject()
+    operator fun getValue(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ) = inject()
 }
 
 /**
@@ -121,7 +133,10 @@ class InjectInt internal constructor(private val inject: () -> Int) {
  * @param inject The lambda that will be called to inject the value
  */
 class InjectFloat internal constructor(private val inject: () -> Float) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>) = inject()
+    operator fun getValue(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ) = inject()
 }
 
 /**
@@ -130,21 +145,32 @@ class InjectFloat internal constructor(private val inject: () -> Float) {
  * @param inject The lambda that will be called to inject the value
  */
 class InjectDouble internal constructor(private val inject: () -> Double) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>) = inject()
+    operator fun getValue(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ) = inject()
 }
+
 /**
  * Can be used to inject a dynamic value and bind it to a property.
  * The type of the property is a primitive long. Make sure to prefer this over Inject<Long> for performance reasons.
  * @param inject The lambda that will be called to inject the value
  */
 class InjectLong internal constructor(private val inject: () -> Long) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>) = inject()
+    operator fun getValue(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ) = inject()
 }
+
 /**
  * Can be used to inject a dynamic value and bind it to a property.
  * The type of the property is a primitive boolean. Make sure to prefer this over Inject<Boolean> for performance reasons.
  * @param inject The lambda that will be called to inject the value
  */
 class InjectBoolean internal constructor(private val inject: () -> Boolean) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>) = inject()
+    operator fun getValue(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ) = inject()
 }

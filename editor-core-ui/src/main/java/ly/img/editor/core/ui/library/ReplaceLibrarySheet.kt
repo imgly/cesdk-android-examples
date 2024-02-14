@@ -4,9 +4,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.ui.AnyComposable
 import ly.img.editor.core.ui.engine.BlockType
 import ly.img.editor.core.ui.library.util.LibraryEvent
@@ -19,26 +20,27 @@ fun ReplaceLibrarySheet(
     onClose: () -> Unit,
     onCloseAssetDetails: () -> Unit,
     onSearchFocus: () -> Unit,
-    showAnyComposable: (AnyComposable) -> Unit
+    showAnyComposable: (AnyComposable) -> Unit,
 ) {
     val viewModel = viewModel<LibraryViewModel>()
 
     Surface(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         val libraryCategory =
             when (type) {
-                BlockType.Sticker -> LibraryCategory.Stickers
-                BlockType.Image -> LibraryCategory.Images
+                BlockType.Sticker -> viewModel.replaceStickerCategory
+                BlockType.Image -> viewModel.replaceImageCategory
                 else -> throw IllegalArgumentException(
-                    "Replace is supported only for images and stickers."
+                    "Replace is supported only for images and stickers.",
                 )
             }
+        val uiState by viewModel.getAssetLibraryUiState(libraryCategory).collectAsState()
         AssetLibrary(
-            libraryCategory = libraryCategory,
+            uiState = uiState,
             onSearchFocus = onSearchFocus,
-            onAssetClick = { assetSource, asset ->
-                viewModel.onEvent(LibraryEvent.OnReplaceAsset(assetSource, asset, designBlock))
+            onAssetClick = { wrappedAsset ->
+                viewModel.onEvent(LibraryEvent.OnReplaceAsset(wrappedAsset, designBlock))
                 onClose()
             },
             onUriPick = { assetSource, uri ->
@@ -47,7 +49,7 @@ fun ReplaceLibrarySheet(
             },
             showAnyComposable = showAnyComposable,
             onCloseAssetDetails = onCloseAssetDetails,
-            onClose = onClose
+            onClose = onClose,
         )
     }
 

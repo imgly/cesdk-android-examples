@@ -12,65 +12,78 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.testTag
-import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.library.state.AssetLibraryUiState
+import ly.img.editor.core.ui.library.state.WrappedAsset
 import ly.img.editor.core.ui.library.util.LibraryEvent
-import ly.img.engine.Asset
 
 @Composable
 internal fun LibrarySectionColumn(
     uiState: AssetLibraryUiState,
-    onAssetClick: (AssetSourceType, Asset) -> Unit,
+    onAssetClick: (WrappedAsset) -> Unit,
     onUriPick: (UploadAssetSourceType, Uri) -> Unit,
-    onLibraryEvent: (LibraryEvent) -> Unit
+    onLibraryEvent: (LibraryEvent) -> Unit,
 ) {
-
-    val nestedScrollConnection = remember(uiState.libraryCategory) {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                onLibraryEvent(LibraryEvent.OnEnterSearchMode(false, uiState.libraryCategory))
-                return Offset.Zero
+    val nestedScrollConnection =
+        remember(uiState.libraryCategory) {
+            object : NestedScrollConnection {
+                override fun onPreScroll(
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    onLibraryEvent(LibraryEvent.OnEnterSearchMode(false, uiState.libraryCategory))
+                    return Offset.Zero
+                }
             }
         }
-    }
 
     LazyColumn(
-        modifier = Modifier
-            .nestedScroll(nestedScrollConnection)
-            .testTag(tag = "LibrarySectionColumn")
-            .fillMaxSize()
+        modifier =
+            Modifier
+                .nestedScroll(nestedScrollConnection)
+                .testTag(tag = "LibrarySectionColumn")
+                .fillMaxSize(),
     ) {
         items(uiState.sectionItems, key = { it.id }, contentType = { it.javaClass }) { sectionItem ->
             when (sectionItem) {
-                is LibrarySectionItem.Header -> LibrarySectionHeader(
-                    item = sectionItem,
-                    onDrillDown = {
-                        onLibraryEvent(LibraryEvent.OnDrillDown(uiState.libraryCategory, sectionItem.stackData))
-                    },
-                    onUriPick = onUriPick
-                )
+                is LibrarySectionItem.Header ->
+                    LibrarySectionHeader(
+                        item = sectionItem,
+                        onDrillDown = { content ->
+                            LibraryEvent.OnDrillDown(
+                                libraryCategory = uiState.libraryCategory,
+                                expandContent = content,
+                            ).let { onLibraryEvent(it) }
+                        },
+                        onUriPick = onUriPick,
+                    )
 
-                is LibrarySectionItem.Content -> LibrarySectionContent(
-                    sectionItem = sectionItem,
-                    onAssetClick = onAssetClick,
-                    onAssetLongClick = { assetSource, asset ->
-                        onLibraryEvent(LibraryEvent.OnAssetLongClick(assetSource, asset))
-                    },
-                    onSeeAllClick = {
-                        onLibraryEvent(LibraryEvent.OnDrillDown(uiState.libraryCategory, sectionItem.stackData))
-                    }
-                )
+                is LibrarySectionItem.Content ->
+                    LibrarySectionContent(
+                        sectionItem = sectionItem,
+                        onAssetClick = onAssetClick,
+                        onAssetLongClick = { wrappedAsset ->
+                            onLibraryEvent(LibraryEvent.OnAssetLongClick(wrappedAsset))
+                        },
+                        onSeeAllClick = { content ->
+                            LibraryEvent.OnDrillDown(
+                                libraryCategory = uiState.libraryCategory,
+                                expandContent = content,
+                            ).let { onLibraryEvent(it) }
+                        },
+                    )
 
-                is LibrarySectionItem.ContentLoading -> LibrarySectionContentLoadingContent(
-                    assetSourceGroupType = sectionItem.assetSourceGroupType
-                )
+                is LibrarySectionItem.ContentLoading ->
+                    LibrarySectionContentLoadingContent(
+                        assetType = sectionItem.section.assetType,
+                    )
 
-                is LibrarySectionItem.Error -> LibrarySectionErrorContent(
-                    assetSourceGroupType = sectionItem.assetSourceGroupType
-                )
+                is LibrarySectionItem.Error ->
+                    LibrarySectionErrorContent(
+                        assetType = sectionItem.assetType,
+                    )
 
-                LibrarySectionItem.Loading -> {}
+                is LibrarySectionItem.Loading -> {}
             }
         }
     }

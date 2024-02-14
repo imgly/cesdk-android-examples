@@ -2,9 +2,8 @@ package ly.img.editor.base.ui
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
 import android.content.res.Configuration
-import android.net.Uri
+import android.os.Parcelable
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -20,12 +19,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -37,14 +38,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ly.img.editor.base.components.EditingTextCard
-import ly.img.editor.base.components.FullscreenLoader
-import ly.img.editor.base.components.InternetErrorDialog
-import ly.img.editor.base.components.UnsavedChangesAlertDialog
 import ly.img.editor.base.components.actionmenu.CanvasActionMenu
 import ly.img.editor.base.dock.AdjustmentSheetContent
 import ly.img.editor.base.dock.BottomSheetContent
@@ -65,6 +62,8 @@ import ly.img.editor.base.dock.options.format.FormatOptionsSheet
 import ly.img.editor.base.dock.options.layer.LayerOptionsSheet
 import ly.img.editor.base.dock.options.shapeoptions.ShapeOptionsSheet
 import ly.img.editor.base.engine.EngineCanvasView
+import ly.img.editor.core.event.EditorEvent
+import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.theme.surface1
 import ly.img.editor.core.theme.surface2
 import ly.img.editor.core.ui.AnyComposable
@@ -73,21 +72,26 @@ import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetValue
 import ly.img.editor.core.ui.bottomsheet.rememberModalBottomSheetState
 import ly.img.editor.core.ui.library.AddLibrarySheet
 import ly.img.editor.core.ui.library.ReplaceLibrarySheet
+import ly.img.editor.core.ui.utils.activity
 import ly.img.editor.core.ui.utils.toPx
-import ly.img.engine.LicenseValidationException
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorUi(
-    sceneUri: Uri,
-    goBack: () -> Boolean,
+    initialExternalState: Parcelable,
+    license: String,
+    userId: String?,
     uiState: EditorUiViewState,
+    onEvent: (Activity, MutableState<out Parcelable>, EditorEvent) -> Unit,
+    overlay: @Composable ((Parcelable, EditorEventHandler) -> Unit),
     topBar: @Composable () -> Unit,
     canvasOverlay: @Composable BoxScope.() -> Unit,
     bottomSheetLayout: @Composable ColumnScope.(BottomSheetContent) -> Unit = {},
-    viewModel: EditorUiViewModel
+    viewModel: EditorUiViewModel,
+    close: () -> Unit,
 ) {
+    val externalState = rememberSaveable { mutableStateOf(initialExternalState) }
     val uiScope = rememberCoroutineScope()
     val bottomSheetContent by viewModel.bottomSheetContent.collectAsState()
     val canvasActionMenuUiState by viewModel.canvasActionMenuUiState.collectAsState()
@@ -114,17 +118,18 @@ fun EditorUi(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.navigationBarColor = if (bottomSheetContent == null) {
-                if (uiState.selectedBlock == null) {
-                    canvasColor
+            window.navigationBarColor =
+                if (bottomSheetContent == null) {
+                    if (uiState.selectedBlock == null) {
+                        canvasColor
+                    } else {
+                        surfaceColor
+                    }
+                } else if (bottomSheetContent is LibraryBottomSheetContent) {
+                    libraryColor
                 } else {
                     surfaceColor
                 }
-            } else if (bottomSheetContent is LibraryBottomSheetContent) {
-                libraryColor
-            } else {
-                surfaceColor
-            }
         }
     }
 
@@ -145,17 +150,18 @@ fun EditorUi(
         mutableStateOf(null)
     }
 
-    val showScrimBottomSheet = remember {
-        { composable: AnyComposable ->
-            anyComposable = composable
-            uiScope.launch {
-                // FIXME: Without the delay, the bottom sheet state change does not animate. My hypothesis is that setting the
-                //  anyComposable causes a re-composition in the middle of the animation which cancels the animation(?)
-                delay(16)
-                scrimBottomSheetState.show()
+    val showScrimBottomSheet =
+        remember {
+            { composable: AnyComposable ->
+                anyComposable = composable
+                uiScope.launch {
+                    // FIXME: Without the delay, the bottom sheet state change does not animate. My hypothesis is that setting the
+                    //  anyComposable causes a re-composition in the middle of the animation which cancels the animation(?)
+                    delay(16)
+                    scrimBottomSheetState.show()
+                }
             }
         }
-    }
 
     LaunchedEffect(Unit) {
         snapshotFlow { scrimBottomSheetState.isVisible }.collectLatest {
@@ -163,23 +169,11 @@ fun EditorUi(
         }
     }
 
-    val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect {
             when (it) {
-                is SingleEvent.ShareExport -> {
-                    val file = it.file
-                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-                    val shareIntent: Intent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_STREAM, uri)
-                        type = "application/pdf"
-                    }
-                    context.startActivity(Intent.createChooser(shareIntent, null))
-                }
-
                 is SingleEvent.Exit -> {
-                    goBack()
+                    close()
                 }
 
                 is SingleEvent.ChangeSheetState -> {
@@ -201,12 +195,14 @@ fun EditorUi(
             }
         }
     }
-
-    if (uiState.showExitDialog) {
-        UnsavedChangesAlertDialog(
-            onDismiss = { viewModel.onEvent(Event.OnBack) },
-            onConfirm = { viewModel.onEvent(Event.OnExit) }
-        )
+    val activity =
+        requireNotNull(LocalContext.current.activity) {
+            "Unable to find the activity. This is an internal error. Please report this issue."
+        }
+    LaunchedEffect(Unit) {
+        viewModel.externalEvent.collect {
+            onEvent(activity, externalState, it)
+        }
     }
 
     ModalBottomSheetLayout(
@@ -225,12 +221,13 @@ fun EditorUi(
         },
         scrimEnabled = true,
         modifier = Modifier.systemBarsPadding(),
-        sheetShape = RoundedCornerShape(
-            topStart = 28.0.dp,
-            topEnd = 28.0.dp,
-            bottomEnd = 0.0.dp,
-            bottomStart = 0.0.dp
-        )
+        sheetShape =
+            RoundedCornerShape(
+                topStart = 28.0.dp,
+                topEnd = 28.0.dp,
+                bottomEnd = 0.0.dp,
+                bottomStart = 0.0.dp,
+            ),
     ) {
         val cornerRadius = if (uiState.bottomSheetState.swipeableState.offset != 0f) 28.dp else 0.dp
         ModalBottomSheetLayout(
@@ -242,38 +239,40 @@ fun EditorUi(
                     Column {
                         Spacer(Modifier.height(8.dp))
                         when (content) {
-                            LibraryBottomSheetContent -> AddLibrarySheet(
-                                swipeableState = uiState.bottomSheetState.swipeableState,
-                                onClose = {
-                                    viewModel.onEvent(Event.OnHideSheet)
-                                },
-                                onCloseAssetDetails = {
-                                    viewModel.onEvent(Event.OnHideScrimSheet)
-                                },
-                                onSearchFocus = {
-                                    viewModel.onEvent(Event.OnExpandSheet)
-                                },
-                                showAnyComposable = {
-                                    showScrimBottomSheet(it)
-                                }
-                            )
+                            LibraryBottomSheetContent ->
+                                AddLibrarySheet(
+                                    swipeableState = uiState.bottomSheetState.swipeableState,
+                                    onClose = {
+                                        viewModel.onEvent(Event.OnHideSheet)
+                                    },
+                                    onCloseAssetDetails = {
+                                        viewModel.onEvent(Event.OnHideScrimSheet)
+                                    },
+                                    onSearchFocus = {
+                                        viewModel.onEvent(Event.OnExpandSheet)
+                                    },
+                                    showAnyComposable = {
+                                        showScrimBottomSheet(it)
+                                    },
+                                )
 
-                            is ReplaceBottomSheetContent -> ReplaceLibrarySheet(
-                                designBlock = content.designBlock,
-                                type = content.blockType,
-                                onClose = {
-                                    viewModel.onEvent(Event.OnHideSheet)
-                                },
-                                onCloseAssetDetails = {
-                                    viewModel.onEvent(Event.OnHideScrimSheet)
-                                },
-                                onSearchFocus = {
-                                    viewModel.onEvent(Event.OnExpandSheet)
-                                },
-                                showAnyComposable = {
-                                    showScrimBottomSheet(it)
-                                }
-                            )
+                            is ReplaceBottomSheetContent ->
+                                ReplaceLibrarySheet(
+                                    designBlock = content.designBlock,
+                                    type = content.blockType,
+                                    onClose = {
+                                        viewModel.onEvent(Event.OnHideSheet)
+                                    },
+                                    onCloseAssetDetails = {
+                                        viewModel.onEvent(Event.OnHideScrimSheet)
+                                    },
+                                    onSearchFocus = {
+                                        viewModel.onEvent(Event.OnExpandSheet)
+                                    },
+                                    showAnyComposable = {
+                                        showScrimBottomSheet(it)
+                                    },
+                                )
 
                             is LayerBottomSheetContent -> LayerOptionsSheet(content.uiState, viewModel::onEvent)
                             is FillStrokeBottomSheetContent -> FillStrokeOptionsSheet(content.uiState, viewModel::onEvent)
@@ -281,71 +280,75 @@ fun EditorUi(
                             is FormatBottomSheetContent -> FormatOptionsSheet(content.uiState, viewModel::onEvent)
                             is CropBottomSheetContent -> CropSheet(content.uiState, viewModel::onEvent)
                             is AdjustmentSheetContent -> AdjustmentOptionsSheet(content.uiState, viewModel::onEvent)
-                            is EffectSheetContent -> EffectSelectionSheet(
-                                uiState = content.uiState,
-                                onEvent = viewModel::onEvent,
-                                showAnyComposable = {
-                                    showScrimBottomSheet(it)
-                                })
+                            is EffectSheetContent ->
+                                EffectSelectionSheet(
+                                    uiState = content.uiState,
+                                    onEvent = viewModel::onEvent,
+                                    showAnyComposable = {
+                                        showScrimBottomSheet(it)
+                                    },
+                                )
 
                             else -> bottomSheetLayout(content)
                         }
                     }
                 }
             },
-            sheetShape = RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius)
+            sheetShape = RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius),
         ) {
             Scaffold(
-                topBar = topBar
+                topBar = topBar,
             ) {
                 BoxWithConstraints {
                     val orientation = LocalConfiguration.current.orientation
                     EngineCanvasView(
+                        license = license,
+                        userId = userId,
                         engine = viewModel.engine,
-                        passTouches = !uiState.isInPreviewMode,
+                        isCanvasVisible = uiState.isCanvasVisible,
+                        passTouches = uiState.allowEditorInteraction,
                         onLicenseValidationError = {
-                            if (it is LicenseValidationException) {
-                                goBack()
-                            } else {
-                                viewModel.onEvent(Event.OnEngineStartError)
-                            }
+                            viewModel.onEvent(Event.OnError(it))
                         },
                         onMoveStart = { viewModel.onEvent(Event.OnCanvasMove(true)) },
                         onMoveEnd = { viewModel.onEvent(Event.OnCanvasMove(false)) },
+                        onTouch = { viewModel.onEvent(Event.OnCanvasTouch) },
                         loadScene = {
                             val topInsets = 64f // 64 for toolbar
                             val bottomInsets = 132f // 132 for dock
                             val sideInsets = 0f
-                            val insets = Rect(
-                                left = sideInsets,
-                                top = topInsets,
-                                right = sideInsets,
-                                bottom = bottomInsets
-                            )
+                            val insets =
+                                Rect(
+                                    left = sideInsets,
+                                    top = topInsets,
+                                    right = sideInsets,
+                                    bottom = bottomInsets,
+                                )
                             viewModel.onEvent(
                                 Event.OnLoadScene(
-                                    sceneUri.toString(),
-                                    maxHeight.value,
-                                    insets,
-                                    orientation != Configuration.ORIENTATION_LANDSCAPE
-                                )
+                                    height = maxHeight.value,
+                                    insets = insets,
+                                    inPortraitMode = orientation != Configuration.ORIENTATION_LANDSCAPE,
+                                ),
                             )
-                        }
+                        },
                     )
                     canvasOverlay()
                     canvasActionMenuUiState?.let {
                         CanvasActionMenu(
                             uiState = it,
-                            onEvent = viewModel::onEvent
+                            onEvent = viewModel::onEvent,
                         )
                     }
                     if (uiState.isEditingText) {
-                        EditingTextCard(modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .onGloballyPositioned {
-                                viewModel.onEvent(Event.OnKeyboardHeightChange(it.size.height / oneDpInPx))
-                            },
-                            onClose = { viewModel.onEvent(Event.OnKeyboardClose) }
+                        EditingTextCard(
+                            modifier =
+                                Modifier
+                                    .align(Alignment.BottomStart)
+                                    .onGloballyPositioned {
+                                        viewModel.onEvent(Event.OnKeyboardHeightChange(it.size.height / oneDpInPx))
+                                    },
+                            onClose = { viewModel.onEvent(Event.OnKeyboardClose) },
                         )
                     }
                     uiState.selectedBlock?.let {
@@ -353,21 +356,12 @@ fun EditorUi(
                             selectedBlock = it,
                             onClose = { viewModel.onEvent(Event.OnCloseDock) },
                             onClick = { viewModel.onEvent(Event.OnOptionClick(it)) },
-                            modifier = Modifier.align(Alignment.BottomStart)
+                            modifier = Modifier.align(Alignment.BottomStart),
                         )
                     }
                 }
             }
         }
-
-        if (uiState.isLoading) {
-            FullscreenLoader()
-        }
-
-        if (uiState.errorLoading) {
-            InternetErrorDialog {
-                viewModel.onEvent(Event.OnExit)
-            }
-        }
+        overlay(externalState.value, viewModel)
     }
 }

@@ -7,35 +7,33 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ly.img.editor.core.library.AssetSourceGroupType
-import ly.img.editor.core.library.data.AssetSourceType
+import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.ui.library.state.WrappedAsset
-import ly.img.engine.Asset
 
 @Composable
 internal fun AssetColumn(
     wrappedAssets: List<WrappedAsset>,
-    assetSourceGroupType: AssetSourceGroupType,
-    onAssetLongClick: (AssetSourceType, Asset) -> Unit,
-    onAssetClick: (AssetSourceType, Asset) -> Unit,
+    assetType: AssetType,
+    onAssetLongClick: (WrappedAsset) -> Unit,
+    onAssetClick: (WrappedAsset) -> Unit,
 ) {
     Column(Modifier.animateContentSize()) {
         if (wrappedAssets.isEmpty()) {
-            EmptyAssetsContent(assetSourceGroupType)
+            EmptyAssetsContent(assetType)
         } else {
             Column {
                 wrappedAssets.forEach { wrappedAsset ->
-                    if (assetSourceGroupType == AssetSourceGroupType.Audio) {
+                    if (assetType == AssetType.Audio) {
                         AudioAssetContent(
                             wrappedAsset = wrappedAsset,
                             onAssetClick = onAssetClick,
-                            onAssetLongClick = onAssetLongClick
+                            onAssetLongClick = onAssetLongClick,
                         )
-                    } else if (assetSourceGroupType == AssetSourceGroupType.Text) {
+                    } else if (assetType == AssetType.Text) {
                         TextAssetContent(
                             wrappedAsset = wrappedAsset as WrappedAsset.TextAsset,
                             onAssetClick = onAssetClick,
-                            onAssetLongClick = onAssetLongClick
+                            onAssetLongClick = onAssetLongClick,
                         )
                     }
                 }

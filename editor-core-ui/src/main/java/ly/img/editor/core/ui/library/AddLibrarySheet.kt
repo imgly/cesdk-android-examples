@@ -8,6 +8,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,7 +22,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.core.ui.AnyComposable
 import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetValue
 import ly.img.editor.core.ui.bottomsheet.SwipeableV2State
-import ly.img.editor.core.ui.library.components.LibraryNavBarItem
 import ly.img.editor.core.ui.library.components.LibraryNavigationBar
 import ly.img.editor.core.ui.library.util.LibraryEvent
 import kotlin.math.roundToInt
@@ -39,23 +39,21 @@ fun AddLibrarySheet(
 ) {
     val viewModel = viewModel<LibraryViewModel>()
 
-    val tabItems = remember(viewModel.libraryCategories) {
-        viewModel.libraryCategories.filterNot { it.hiddenInAddLibrary }.map {
-            LibraryNavBarItem.from(it)
-        }
-    }
+    val tabItems = viewModel.navBarItems
     var selectedItemIndex by remember { mutableStateOf(0) }
+    val libraryCategory = tabItems[selectedItemIndex]
+    val uiState by viewModel.getAssetLibraryUiState(libraryCategory).collectAsState()
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         // 80.dp padding to accommodate for bottom nav bar
         Surface(modifier = Modifier.padding(bottom = 80.dp)) {
             AssetLibrary(
-                libraryCategory = tabItems[selectedItemIndex].libraryCategory,
+                uiState = uiState,
                 onSearchFocus = onSearchFocus,
-                onAssetClick = { assetSource, asset ->
-                    viewModel.onEvent(LibraryEvent.OnAddAsset(assetSource, asset))
+                onAssetClick = {
+                    viewModel.onEvent(LibraryEvent.OnAddAsset(it))
                     onClose()
                 },
                 onUriPick = { assetSource, uri ->
@@ -64,7 +62,7 @@ fun AddLibrarySheet(
                 },
                 showAnyComposable = showAnyComposable,
                 onCloseAssetDetails = onCloseAssetDetails,
-                onClose = onClose
+                onClose = onClose,
             )
         }
 
@@ -77,22 +75,23 @@ fun AddLibrarySheet(
 
         LibraryNavigationBar(
             items = tabItems,
-            modifier = Modifier
-                .testTag(tag = "LibraryNavigationBar")
-                .onGloballyPositioned {
-                    bottomNavBarHeight = it.size.height
-                }
-                .absoluteOffset {
-                    IntOffset(
-                        x = 0,
-                        // 8.dp is for the top padding that is added to the bottom sheet
-                        y = (offsetWrapper.offset - (swipeableState.offset ?: 0f) - bottomNavBarHeight - 8.dp.toPx()).roundToInt()
-                    )
-                },
+            modifier =
+                Modifier
+                    .testTag(tag = "LibraryNavigationBar")
+                    .onGloballyPositioned {
+                        bottomNavBarHeight = it.size.height
+                    }
+                    .absoluteOffset {
+                        IntOffset(
+                            x = 0,
+                            // 8.dp is for the top padding that is added to the bottom sheet
+                            y = (offsetWrapper.offset - (swipeableState.offset ?: 0f) - bottomNavBarHeight - 8.dp.toPx()).roundToInt(),
+                        )
+                    },
             selectedItemIndex = selectedItemIndex,
             onSelectionChange = { index ->
                 selectedItemIndex = index
-            }
+            },
         )
     }
 

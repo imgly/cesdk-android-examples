@@ -8,11 +8,11 @@ import ly.img.editor.postcard.PostcardEvent
 @Composable
 fun RootBarItem(
     data: RootBarItemData,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
 ) {
     TabItem(
         onClick = { onEvent(PostcardEvent.OnRootBarItemClick(data.type)) },
         textRes = data.labelStringRes,
-        icon = data.icon
+        icon = data.icon,
     )
 }

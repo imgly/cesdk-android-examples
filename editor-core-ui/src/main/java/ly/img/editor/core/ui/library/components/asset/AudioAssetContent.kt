@@ -9,19 +9,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.ui.library.components.LibraryImageCard
 import ly.img.editor.core.ui.library.getDuration
 import ly.img.editor.core.ui.library.getThumbnailUri
 import ly.img.editor.core.ui.library.state.WrappedAsset
-import ly.img.engine.Asset
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun AudioAssetContent(
     wrappedAsset: WrappedAsset,
-    onAssetClick: (AssetSourceType, Asset) -> Unit,
-    onAssetLongClick: (AssetSourceType, Asset) -> Unit
+    onAssetClick: (WrappedAsset) -> Unit,
+    onAssetLongClick: (WrappedAsset) -> Unit,
 ) {
     ListItem(
         headlineContent = { Text(wrappedAsset.asset.label ?: "") },
@@ -31,13 +29,14 @@ internal fun AudioAssetContent(
                 contentPadding = 0.dp,
                 contentScale = ContentScale.Crop,
                 tintImages = false,
-                modifier = Modifier.size(56.dp)
+                modifier = Modifier.size(56.dp),
             )
         },
         trailingContent = { Text(wrappedAsset.asset.getDuration()) },
-        modifier = Modifier.combinedClickable(
-            onClick = { onAssetClick(wrappedAsset.assetSourceType, wrappedAsset.asset) },
-            onLongClick = { onAssetLongClick(wrappedAsset.assetSourceType, wrappedAsset.asset) }
-        )
+        modifier =
+            Modifier.combinedClickable(
+                onClick = { onAssetClick(wrappedAsset) },
+                onLongClick = { onAssetLongClick(wrappedAsset) },
+            ),
     )
 }

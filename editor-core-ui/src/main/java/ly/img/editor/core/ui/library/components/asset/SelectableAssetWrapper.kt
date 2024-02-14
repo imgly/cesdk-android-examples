@@ -22,12 +22,12 @@ internal fun SelectableAssetWrapper(
     isSelected: Boolean,
     selectedIcon: ImageVector?,
     selectedIconTint: Color = MaterialTheme.colorScheme.onSurface,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Box(
         Modifier.ifTrue(isSelected) {
             border(2.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.large)
-        }.padding(4.dp).clip(MaterialTheme.shapes.medium)
+        }.padding(4.dp).clip(MaterialTheme.shapes.medium),
     ) {
         content()
         if (isSelected && selectedIcon != null) {
@@ -37,10 +37,11 @@ internal fun SelectableAssetWrapper(
             Icon(
                 selectedIcon,
                 contentDescription = null,
-                modifier = Modifier
-                    .size(32.dp)
-                    .align(Alignment.Center),
-                tint = selectedIconTint
+                modifier =
+                    Modifier
+                        .size(32.dp)
+                        .align(Alignment.Center),
+                tint = selectedIconTint,
             )
         }
     }

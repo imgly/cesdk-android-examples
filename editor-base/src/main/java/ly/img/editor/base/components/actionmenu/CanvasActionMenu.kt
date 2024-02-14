@@ -31,7 +31,7 @@ import kotlin.math.roundToInt
 @Composable
 fun CanvasActionMenu(
     uiState: CanvasActionMenuUiState,
-    onEvent: (BlockEvent) -> Unit
+    onEvent: (BlockEvent) -> Unit,
 ) {
     var page by remember(uiState.selectedBlock) {
         mutableStateOf(if (uiState.firstPageExists()) 0 else 1)
@@ -49,29 +49,37 @@ fun CanvasActionMenu(
         shape = MaterialTheme.shapes.extraLarge,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         shadowElevation = 1.dp,
-        modifier = Modifier
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                layout(placeable.width, placeable.height) {
-                    val x = uiState.selectedBlockRect.centerX().dp.roundToPx() - placeable.width / 2
-                    val y = (uiState.selectedBlockRect.centerY() - uiState.selectedBlockRect.height() / 2).dp.roundToPx() -
-                        placeable.height - topPadding.roundToPx() + if (dy < 0) dy.roundToInt() else 0
-                    placeable.place(x, y)
-                }
-            }
+        modifier =
+            Modifier
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) {
+                        val x = uiState.selectedBlockRect.centerX().dp.roundToPx() - placeable.width / 2
+                        val y =
+                            (uiState.selectedBlockRect.centerY() - uiState.selectedBlockRect.height() / 2).dp.roundToPx() -
+                                placeable.height - topPadding.roundToPx() + if (dy < 0) dy.roundToInt() else 0
+                        placeable.place(x, y)
+                    }
+                },
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             if (page == 0) {
                 if (uiState.isDuplicateAllowed) {
                     IconButton(onClick = { onEvent(BlockEvent.OnDuplicate) }) {
-                        Icon(IconPack.Controlpointduplicate, contentDescription = stringResource(R.string.cesdk_duplicate))
+                        Icon(
+                            IconPack.Controlpointduplicate,
+                            contentDescription = stringResource(R.string.ly_img_editor_duplicate),
+                        )
                     }
                 }
                 if (uiState.isDeleteAllowed) {
                     IconButton(onClick = { onEvent(BlockEvent.OnDelete) }) {
-                        Icon(IconPack.Delete, contentDescription = stringResource(R.string.cesdk_delete))
+                        Icon(
+                            IconPack.Delete,
+                            contentDescription = stringResource(R.string.ly_img_editor_delete),
+                        )
                     }
                 }
             }
@@ -82,19 +90,38 @@ fun CanvasActionMenu(
                 }) {
                     Icon(
                         if (next) IconPack.NavigateNext else IconPack.NavigateBefore,
-                        contentDescription = if (next) stringResource(R.string.cesdk_next_page) else stringResource(R.string.cesdk_previous_page)
+                        contentDescription =
+                            if (next) {
+                                stringResource(
+                                    R.string.ly_img_editor_next_page,
+                                )
+                            } else {
+                                stringResource(R.string.ly_img_editor_previous_page)
+                            },
                     )
                 }
             }
             if (page == 1) {
                 if (uiState.canBringForward != null) {
-                    IconButton(onClick = { onEvent(BlockEvent.OnForward) }, enabled = uiState.canBringForward) {
-                        Icon(IconPack.Bringforward, contentDescription = stringResource(R.string.cesdk_forward))
+                    IconButton(
+                        onClick = { onEvent(BlockEvent.OnForward) },
+                        enabled = uiState.canBringForward,
+                    ) {
+                        Icon(
+                            IconPack.Bringforward,
+                            contentDescription = stringResource(R.string.ly_img_editor_forward),
+                        )
                     }
                 }
                 if (uiState.canBringBackward != null) {
-                    IconButton(onClick = { onEvent(BlockEvent.OnBackward) }, enabled = uiState.canBringBackward) {
-                        Icon(IconPack.Sendbackward, contentDescription = stringResource(R.string.cesdk_backward))
+                    IconButton(
+                        onClick = { onEvent(BlockEvent.OnBackward) },
+                        enabled = uiState.canBringBackward,
+                    ) {
+                        Icon(
+                            IconPack.Sendbackward,
+                            contentDescription = stringResource(R.string.ly_img_editor_backward),
+                        )
                     }
                 }
             }

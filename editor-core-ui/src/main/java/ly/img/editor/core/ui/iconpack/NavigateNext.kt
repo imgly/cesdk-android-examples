@@ -15,26 +15,35 @@ val IconPack.NavigateNext: ImageVector
         if (`_navigate-next` != null) {
             return `_navigate-next`!!
         }
-        `_navigate-next` = Builder(
-            name = "Navigate-next", defaultWidth = 24.0.dp, defaultHeight =
-            24.0.dp, viewportWidth = 24.0f, viewportHeight = 24.0f
-        ).apply {
-            path(
-                fill = SolidColor(Color(0xFF1C1B1F)), stroke = null, strokeLineWidth = 0.0f,
-                strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-                pathFillType = NonZero
-            ) {
-                moveTo(9.7049f, 6.0f)
-                lineTo(8.2949f, 7.41f)
-                lineTo(12.8749f, 12.0f)
-                lineTo(8.2949f, 16.59f)
-                lineTo(9.7049f, 18.0f)
-                lineTo(15.7049f, 12.0f)
-                lineTo(9.7049f, 6.0f)
-                close()
+        `_navigate-next` =
+            Builder(
+                name = "Navigate-next",
+                defaultWidth = 24.0.dp,
+                defaultHeight =
+                    24.0.dp,
+                viewportWidth = 24.0f,
+                viewportHeight = 24.0f,
+            ).apply {
+                path(
+                    fill = SolidColor(Color(0xFF1C1B1F)),
+                    stroke = null,
+                    strokeLineWidth = 0.0f,
+                    strokeLineCap = Butt,
+                    strokeLineJoin = Miter,
+                    strokeLineMiter = 4.0f,
+                    pathFillType = NonZero,
+                ) {
+                    moveTo(9.7049f, 6.0f)
+                    lineTo(8.2949f, 7.41f)
+                    lineTo(12.8749f, 12.0f)
+                    lineTo(8.2949f, 16.59f)
+                    lineTo(9.7049f, 18.0f)
+                    lineTo(15.7049f, 12.0f)
+                    lineTo(9.7049f, 6.0f)
+                    close()
+                }
             }
-        }
-            .build()
+                .build()
         return `_navigate-next`!!
     }
 

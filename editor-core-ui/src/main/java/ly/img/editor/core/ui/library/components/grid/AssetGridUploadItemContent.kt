@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.core.R
-import ly.img.editor.core.library.AssetSourceGroupType
+import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.GradientCard
 import ly.img.editor.core.ui.iconpack.Add
@@ -26,21 +26,23 @@ import ly.img.editor.core.ui.iconpack.IconPack
 @Composable
 internal fun AssetGridUploadItemContent(
     uploadAssetSource: UploadAssetSourceType,
-    assetSourceGroupType: AssetSourceGroupType,
+    assetType: AssetType,
     onUriPick: (UploadAssetSourceType, Uri) -> Unit,
 ) {
     val launcher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.GetContent(),
+        ) { uri: Uri? ->
             uri?.let { onUriPick(uploadAssetSource, it) }
         }
-    if (assetSourceGroupType == AssetSourceGroupType.Audio) {
+    if (assetType == AssetType.Audio) {
         TODO()
     } else {
         GradientCard(
             modifier = Modifier.aspectRatio(1f),
             onClick = {
                 launcher.launch(uploadAssetSource.mimeTypeFilter)
-            }
+            },
         ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -49,12 +51,12 @@ internal fun AssetGridUploadItemContent(
             ) {
                 Icon(
                     imageVector = IconPack.Add,
-                    contentDescription = null
+                    contentDescription = null,
                 )
                 Text(
                     modifier = Modifier.padding(vertical = 2.dp),
-                    text = stringResource(R.string.cesdk_add),
-                    style = MaterialTheme.typography.titleSmall
+                    text = stringResource(R.string.ly_img_editor_add),
+                    style = MaterialTheme.typography.titleSmall,
                 )
             }
         }

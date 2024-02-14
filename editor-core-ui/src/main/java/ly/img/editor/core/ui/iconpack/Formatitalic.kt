@@ -15,32 +15,41 @@ val IconPack.Formatitalic: ImageVector
         if (_formatitalic != null) {
             return _formatitalic!!
         }
-        _formatitalic = Builder(
-            name = "Formatitalic", defaultWidth = 24.0.dp, defaultHeight =
-            24.0.dp, viewportWidth = 24.0f, viewportHeight = 24.0f
-        ).apply {
-            path(
-                fill = SolidColor(Color(0xFF49454F)), stroke = null, strokeLineWidth = 0.0f,
-                strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-                pathFillType = NonZero
-            ) {
-                moveTo(10.0f, 4.0f)
-                verticalLineTo(7.0f)
-                horizontalLineTo(12.21f)
-                lineTo(8.79f, 15.0f)
-                horizontalLineTo(6.0f)
-                verticalLineTo(18.0f)
-                horizontalLineTo(14.0f)
-                verticalLineTo(15.0f)
-                horizontalLineTo(11.79f)
-                lineTo(15.21f, 7.0f)
-                horizontalLineTo(18.0f)
-                verticalLineTo(4.0f)
-                horizontalLineTo(10.0f)
-                close()
+        _formatitalic =
+            Builder(
+                name = "Formatitalic",
+                defaultWidth = 24.0.dp,
+                defaultHeight =
+                    24.0.dp,
+                viewportWidth = 24.0f,
+                viewportHeight = 24.0f,
+            ).apply {
+                path(
+                    fill = SolidColor(Color(0xFF49454F)),
+                    stroke = null,
+                    strokeLineWidth = 0.0f,
+                    strokeLineCap = Butt,
+                    strokeLineJoin = Miter,
+                    strokeLineMiter = 4.0f,
+                    pathFillType = NonZero,
+                ) {
+                    moveTo(10.0f, 4.0f)
+                    verticalLineTo(7.0f)
+                    horizontalLineTo(12.21f)
+                    lineTo(8.79f, 15.0f)
+                    horizontalLineTo(6.0f)
+                    verticalLineTo(18.0f)
+                    horizontalLineTo(14.0f)
+                    verticalLineTo(15.0f)
+                    horizontalLineTo(11.79f)
+                    lineTo(15.21f, 7.0f)
+                    horizontalLineTo(18.0f)
+                    verticalLineTo(4.0f)
+                    horizontalLineTo(10.0f)
+                    close()
+                }
             }
-        }
-            .build()
+                .build()
         return _formatitalic!!
     }
 

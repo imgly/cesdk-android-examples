@@ -1,14 +1,12 @@
 package ly.img.editor.core.ui.library.components.asset
 
 import androidx.compose.runtime.Composable
-import ly.img.editor.core.library.AssetSourceGroupType
+import ly.img.editor.core.library.AssetType
 
 @Composable
-internal fun EmptyAssetsContent(
-    assetSourceGroupType: AssetSourceGroupType
-) {
+internal fun EmptyAssetsContent(assetType: AssetType) {
     AssetsIntermediateStateContent(
         state = IntermediateState.Empty,
-        assetSourceGroupType = assetSourceGroupType
+        assetType = assetType,
     )
 }

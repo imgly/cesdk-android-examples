@@ -21,16 +21,20 @@ class FontFamilyData(val name: String, private val fonts: List<FontData>) {
     val hasRegular = regularFont != null
     val hasBoldItalic = boldItalicFont != null
 
-    val displayFontsData: Array<FontData> = if (name == DEFAULT_FONT_FAMILY) {
-        arrayOf(displayFont, checkNotNull(boldFont), getFontData(FontWeight.W500))
-    } else {
-        arrayOf(displayFont)
-    }
+    val displayFontsData: Array<FontData> =
+        if (name == DEFAULT_FONT_FAMILY) {
+            arrayOf(displayFont, checkNotNull(boldFont), getFontData(FontWeight.W500))
+        } else {
+            arrayOf(displayFont)
+        }
 
     // On older Android versions, creating the FontFamily before the font paths exist throws an exception
     val fontFamily by lazy { createFontFamily() }
 
-    fun getFontData(fontWeight: FontWeight, fontStyle: FontStyle = FontStyle.Normal): FontData {
+    fun getFontData(
+        fontWeight: FontWeight,
+        fontStyle: FontStyle = FontStyle.Normal,
+    ): FontData {
         return fonts.find { it.fontWeight == fontWeight && it.fontStyle == fontStyle } ?: displayFont
     }
 
@@ -38,22 +42,28 @@ class FontFamilyData(val name: String, private val fonts: List<FontData>) {
         return fonts.find { path.endsWith(it.fontPath) }
     }
 
-    fun getFontData(bold: Boolean, italic: Boolean): FontData {
-        val font = if (!bold && !italic) {
-            regularFont
-        } else if (bold && !italic) {
-            boldFont
-        } else if (!bold) {
-            italicFont
-        } else {
-            boldItalicFont
-        }
+    fun getFontData(
+        bold: Boolean,
+        italic: Boolean,
+    ): FontData {
+        val font =
+            if (!bold && !italic) {
+                regularFont
+            } else if (bold && !italic) {
+                boldFont
+            } else if (!bold) {
+                italicFont
+            } else {
+                boldItalicFont
+            }
         return font ?: displayFont
     }
 
     private fun createFontFamily(): FontFamily {
-        return FontFamily(displayFontsData.map {
-            Font(File(getFontsDir(), it.fontPath), it.fontWeight, it.fontStyle)
-        })
+        return FontFamily(
+            displayFontsData.map {
+                Font(File(getFontsDir(), it.fontPath), it.fontWeight, it.fontStyle)
+            },
+        )
     }
 }

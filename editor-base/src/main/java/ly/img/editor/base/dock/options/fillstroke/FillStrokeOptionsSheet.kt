@@ -38,7 +38,7 @@ import ly.img.engine.RGBAColor
 @Composable
 fun FillStrokeOptionsSheet(
     uiState: FillStrokeUiState,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
 ) {
     var screenState by remember { mutableStateOf(ScreenState.Main) }
 
@@ -52,22 +52,22 @@ fun FillStrokeOptionsSheet(
                 Column {
                     SheetHeader(
                         title = stringResource(id = uiState.titleRes),
-                        onClose = { onEvent(Event.OnHideSheet) }
+                        onClose = { onEvent(Event.OnHideSheet) },
                     )
                     Column(
                         Modifier
                             .inspectorSheetPadding()
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(rememberScrollState()),
                     ) {
                         if (uiState.fillUiState != null) {
-                            SectionHeader(stringResource(R.string.cesdk_fill))
+                            SectionHeader(stringResource(R.string.ly_img_editor_fill))
                             Card(
                                 colors = UiDefaults.cardColors,
                             ) {
                                 val fillState = uiState.fillUiState.fillState.takeIf { uiState.fillUiState.isFillEnabled }
                                 if (uiState.fillUiState.supportFillTypes) {
                                     PropertyPicker(
-                                        title = stringResource(R.string.cesdk_type),
+                                        title = stringResource(R.string.ly_img_editor_type),
                                         propertyTextRes = uiState.fillUiState.fillTypeRes,
                                         properties = fillTypePropertiesList,
                                         onPropertyPicked = {
@@ -79,7 +79,7 @@ fun FillStrokeOptionsSheet(
                                                 onEvent(BlockEvent.OnEnableFill)
                                                 onEvent(BlockEvent.OnChangeFillStyle(it))
                                             }
-                                        }
+                                        },
                                     )
                                     Divider(Modifier.padding(horizontal = 16.dp))
                                 }
@@ -88,7 +88,11 @@ fun FillStrokeOptionsSheet(
                                         ColorOptions(
                                             enabled = uiState.fillUiState.isFillEnabled,
                                             selectedColor = Color.Black,
-                                            onNoColorSelected = { onEvent(BlockEvent.OnDisableFill) },
+                                            onNoColorSelected = {
+                                                onEvent(
+                                                    BlockEvent.OnDisableFill,
+                                                )
+                                            },
                                             onColorSelected = {
                                                 onEvent(BlockEvent.OnChangeFillColor(it))
                                                 onEvent(BlockEvent.OnChangeFinish)
@@ -96,7 +100,7 @@ fun FillStrokeOptionsSheet(
                                             openColorPicker = {
                                                 screenState = ScreenState.FillColorPicker
                                             },
-                                            colors = uiState.fillUiState.colorPalette
+                                            colors = uiState.fillUiState.colorPalette,
                                         )
                                     }
 
@@ -104,7 +108,11 @@ fun FillStrokeOptionsSheet(
                                         ColorOptions(
                                             enabled = uiState.fillUiState.isFillEnabled,
                                             selectedColor = fillState.fillColor,
-                                            onNoColorSelected = { onEvent(BlockEvent.OnDisableFill) },
+                                            onNoColorSelected = {
+                                                onEvent(
+                                                    BlockEvent.OnDisableFill,
+                                                )
+                                            },
                                             onColorSelected = {
                                                 onEvent(BlockEvent.OnChangeFillColor(it))
                                                 if (it != fillState.fillColor) {
@@ -114,7 +122,7 @@ fun FillStrokeOptionsSheet(
                                             openColorPicker = {
                                                 screenState = ScreenState.FillColorPicker
                                             },
-                                            colors = uiState.fillUiState.colorPalette
+                                            colors = uiState.fillUiState.colorPalette,
                                         )
                                     }
 
@@ -127,7 +135,9 @@ fun FillStrokeOptionsSheet(
                                             },
                                             allowDisableColor = false,
                                             onColorSelected = {
-                                                onEvent(BlockEvent.OnChangeGradientFillColors(0, it))
+                                                onEvent(
+                                                    BlockEvent.OnChangeGradientFillColors(0, it),
+                                                )
                                                 if (it != fillState.fillColor) {
                                                     onEvent(BlockEvent.OnChangeFinish)
                                                 }
@@ -135,7 +145,7 @@ fun FillStrokeOptionsSheet(
                                             openColorPicker = {
                                                 screenState = ScreenState.FirstGradientColorPicker
                                             },
-                                            colors = uiState.fillUiState.colorPalette
+                                            colors = uiState.fillUiState.colorPalette,
                                         )
                                         Divider(Modifier.padding(horizontal = 16.dp))
                                         ScalePicker(
@@ -143,17 +153,18 @@ fun FillStrokeOptionsSheet(
                                             valueRange = FILL_ROTATION_LOWER_BOUND..FILL_ROTATION_UPPER_BOUND,
                                             rangeInclusionType = RangeInclusionType.RangeInclusiveExclusive,
                                             onValueChange = {
-                                                val newFill = LinearGradientFill.calculateLinearGradientFromRotation(
-                                                    it,
-                                                    fillState.colorStops
-                                                )
+                                                val newFill =
+                                                    LinearGradientFill.calculateLinearGradientFromRotation(
+                                                        it,
+                                                        fillState.colorStops,
+                                                    )
                                                 onEvent(
                                                     BlockEvent.OnChangeLinearGradientParams(
                                                         newFill.startPointX,
                                                         newFill.startPointY,
                                                         newFill.endPointX,
-                                                        newFill.endPointY
-                                                    )
+                                                        newFill.endPointY,
+                                                    ),
                                                 )
                                             },
                                             onValueChangeFinished = {
@@ -161,16 +172,22 @@ fun FillStrokeOptionsSheet(
                                                     onEvent(BlockEvent.OnChangeFinish)
                                                 }
                                             },
-                                            modifier = Modifier.padding(top = 8.dp, bottom = 12.dp)
+                                            modifier = Modifier.padding(top = 8.dp, bottom = 12.dp),
                                         )
                                         Divider(Modifier.padding(horizontal = 16.dp))
                                         ColorOptions(
                                             enabled = true,
                                             selectedColor = (fillState.colorStops[1].color as RGBAColor).toComposeColor(),
-                                            onNoColorSelected = { onEvent(BlockEvent.OnDisableFill) },
+                                            onNoColorSelected = {
+                                                onEvent(
+                                                    BlockEvent.OnDisableFill,
+                                                )
+                                            },
                                             allowDisableColor = false,
                                             onColorSelected = {
-                                                onEvent(BlockEvent.OnChangeGradientFillColors(1, it))
+                                                onEvent(
+                                                    BlockEvent.OnChangeGradientFillColors(1, it),
+                                                )
                                                 if (it != fillState.fillColor) {
                                                     onEvent(BlockEvent.OnChangeFinish)
                                                 }
@@ -178,11 +195,13 @@ fun FillStrokeOptionsSheet(
                                             openColorPicker = {
                                                 screenState = ScreenState.SecondGradientColorPicker
                                             },
-                                            colors = uiState.fillUiState.colorPalette
+                                            colors = uiState.fillUiState.colorPalette,
                                         )
                                     }
 
-                                    else -> throw UnsupportedOperationException("Fill type not supported yet")
+                                    else -> throw UnsupportedOperationException(
+                                        "Fill type not supported yet",
+                                    )
                                 }
                             }
                         }
@@ -195,7 +214,7 @@ fun FillStrokeOptionsSheet(
                                 onEvent = onEvent,
                                 openColorPicker = {
                                     screenState = ScreenState.StrokeColorPicker
-                                }
+                                },
                             )
                         }
                     }
@@ -205,24 +224,36 @@ fun FillStrokeOptionsSheet(
 
         else -> {
             ColorPickerSheet(
-                color = when (screenState) {
-                    ScreenState.StrokeColorPicker -> {
-                        checkNotNull(uiState.strokeUiState).strokeColor
-                    }
+                color =
+                    when (screenState) {
+                        ScreenState.StrokeColorPicker -> {
+                            checkNotNull(uiState.strokeUiState).strokeColor
+                        }
 
-                    ScreenState.FirstGradientColorPicker -> {
-                        checkNotNull((uiState.fillUiState?.fillState as? GradientFill)?.colorStops?.getOrNull(0)?.color as? RGBAColor).toComposeColor()
-                    }
+                        ScreenState.FirstGradientColorPicker -> {
+                            checkNotNull(
+                                (uiState.fillUiState?.fillState as? GradientFill)?.colorStops?.getOrNull(
+                                    0,
+                                )?.color as? RGBAColor,
+                            ).toComposeColor()
+                        }
 
-                    ScreenState.SecondGradientColorPicker -> {
-                        checkNotNull((uiState.fillUiState?.fillState as? GradientFill)?.colorStops?.getOrNull(1)?.color as? RGBAColor).toComposeColor()
-                    }
+                        ScreenState.SecondGradientColorPicker -> {
+                            checkNotNull(
+                                (uiState.fillUiState?.fillState as? GradientFill)?.colorStops?.getOrNull(
+                                    1,
+                                )?.color as? RGBAColor,
+                            ).toComposeColor()
+                        }
 
-                    else -> {
-                        checkNotNull(uiState.fillUiState?.fillState?.fillColor)
-                    }
-                },
-                title = stringResource(id = if (screenState == ScreenState.StrokeColorPicker) R.string.cesdk_stroke_color else R.string.cesdk_fill_color),
+                        else -> {
+                            checkNotNull(uiState.fillUiState?.fillState?.fillColor)
+                        }
+                    },
+                title =
+                    stringResource(
+                        id = if (screenState == ScreenState.StrokeColorPicker) R.string.ly_img_editor_stroke_color else R.string.ly_img_editor_fill_color,
+                    ),
                 onBack = { screenState = ScreenState.Main },
                 onColorChange = {
                     when (screenState) {
@@ -245,7 +276,7 @@ fun FillStrokeOptionsSheet(
                         else -> {}
                     }
                 },
-                onEvent = onEvent
+                onEvent = onEvent,
             )
         }
     }
@@ -255,5 +286,9 @@ private const val FILL_ROTATION_LOWER_BOUND = 0f
 private const val FILL_ROTATION_UPPER_BOUND = 360f
 
 private enum class ScreenState {
-    Main, StrokeColorPicker, FillColorPicker, FirstGradientColorPicker, SecondGradientColorPicker
+    Main,
+    StrokeColorPicker,
+    FillColorPicker,
+    FirstGradientColorPicker,
+    SecondGradientColorPicker,
 }

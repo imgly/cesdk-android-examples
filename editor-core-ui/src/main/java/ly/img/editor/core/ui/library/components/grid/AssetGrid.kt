@@ -24,7 +24,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.core.R
-import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.iconpack.Folder
 import ly.img.editor.core.ui.iconpack.IconPack
@@ -32,16 +31,16 @@ import ly.img.editor.core.ui.iconpack.Search
 import ly.img.editor.core.ui.library.components.asset.AssetsLoadingContent
 import ly.img.editor.core.ui.library.state.AssetLibraryUiState
 import ly.img.editor.core.ui.library.state.AssetsLoadState
+import ly.img.editor.core.ui.library.state.WrappedAsset
 import ly.img.editor.core.ui.library.util.AssetLibraryUiConfig
 import ly.img.editor.core.ui.library.util.LibraryEvent
-import ly.img.engine.Asset
 
 @Composable
 internal fun AssetGrid(
     uiState: AssetLibraryUiState,
-    onAssetClick: (AssetSourceType, Asset) -> Unit,
+    onAssetClick: (WrappedAsset) -> Unit,
     onUriPick: (UploadAssetSourceType, Uri) -> Unit,
-    onLibraryEvent: (LibraryEvent) -> Unit
+    onLibraryEvent: (LibraryEvent) -> Unit,
 ) {
     val lazyGridState = rememberLazyGridState()
     val libraryCategory = uiState.libraryCategory
@@ -53,23 +52,28 @@ internal fun AssetGrid(
         }
     }
 
-    val nestedScrollConnection = remember(libraryCategory) {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                onLibraryEvent(LibraryEvent.OnEnterSearchMode(false, libraryCategory))
-                return Offset.Zero
+    val nestedScrollConnection =
+        remember(libraryCategory) {
+            object : NestedScrollConnection {
+                override fun onPreScroll(
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    onLibraryEvent(LibraryEvent.OnEnterSearchMode(false, libraryCategory))
+                    return Offset.Zero
+                }
             }
         }
-    }
 
     LaunchedEffect(shouldStartPaginate, uiState.assetsData.assetsLoadState) {
-        if (shouldStartPaginate && uiState.assetsData.assetsLoadState == AssetsLoadState.Idle)
+        if (shouldStartPaginate && uiState.assetsData.assetsLoadState == AssetsLoadState.Idle) {
             onLibraryEvent(LibraryEvent.OnFetch(libraryCategory))
+        }
     }
 
     when (uiState.assetsData.assetsLoadState) {
         AssetsLoadState.Loading -> {
-            AssetsLoadingContent(checkNotNull(uiState.assetsData.assetSourceGroupType))
+            AssetsLoadingContent(checkNotNull(uiState.assetsData.assetType))
         }
 
         AssetsLoadState.Error -> {
@@ -82,62 +86,68 @@ internal fun AssetGrid(
             if (uiState.searchText.isNotEmpty()) {
                 EmptyResultContent(
                     icon = IconPack.Search,
-                    text = stringResource(R.string.cesdk_no_elements)
+                    text = stringResource(R.string.ly_img_editor_no_elements),
                 )
             } else {
                 val assetSource = uiState.assetsData.assetSourceType
                 EmptyResultContent(
                     icon = IconPack.Folder,
-                    text = stringResource(R.string.cesdk_no_elements),
-                    button = if (assetSource is UploadAssetSourceType) {
-                        {
-                            val launcher =
-                                rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
-                                    uri?.let { onUriPick(assetSource, it) }
+                    text = stringResource(R.string.ly_img_editor_no_elements),
+                    button =
+                        if (assetSource is UploadAssetSourceType) {
+                            {
+                                val launcher =
+                                    rememberLauncherForActivityResult(
+                                        contract = ActivityResultContracts.GetContent(),
+                                    ) { uri: Uri? ->
+                                        uri?.let { onUriPick(assetSource, it) }
+                                    }
+                                Button(onClick = {
+                                    launcher.launch(assetSource.mimeTypeFilter)
+                                }) {
+                                    Text(text = stringResource(R.string.ly_img_editor_add))
                                 }
-                            Button(onClick = {
-                                launcher.launch(assetSource.mimeTypeFilter)
-                            }) {
-                                Text(text = stringResource(R.string.cesdk_add))
                             }
-                        }
-                    } else null
+                        } else {
+                            null
+                        },
                 )
             }
         }
 
         else -> {
-            val assetSourceGroupType = uiState.assetsData.assetSourceGroupType
+            val assetType = uiState.assetsData.assetType
             val assetSource = uiState.assetsData.assetSourceType
-            if (assetSourceGroupType != null && assetSource != null) {
+            if (assetType != null && assetSource != null) {
                 LazyVerticalGrid(
                     state = lazyGridState,
-                    verticalArrangement = AssetLibraryUiConfig.assetGridVerticalArrangement(assetSourceGroupType),
-                    horizontalArrangement = AssetLibraryUiConfig.assetGridHorizontalArrangement(assetSourceGroupType),
+                    verticalArrangement = AssetLibraryUiConfig.assetGridVerticalArrangement(assetType),
+                    horizontalArrangement = AssetLibraryUiConfig.assetGridHorizontalArrangement(assetType),
                     contentPadding = PaddingValues(4.dp),
-                    columns = GridCells.Fixed(AssetLibraryUiConfig.assetGridColumns(assetSourceGroupType)),
-                    modifier = Modifier
-                        .nestedScroll(nestedScrollConnection)
-                        .fillMaxSize()
+                    columns = GridCells.Fixed(AssetLibraryUiConfig.assetGridColumns(assetType)),
+                    modifier =
+                        Modifier
+                            .nestedScroll(nestedScrollConnection)
+                            .fillMaxSize(),
                 ) {
                     val assets = uiState.assetsData.assets
                     if (assetSource is UploadAssetSourceType && assets.isNotEmpty()) {
                         item {
                             AssetGridUploadItemContent(
                                 uploadAssetSource = assetSource,
-                                assetSourceGroupType = assetSourceGroupType,
-                                onUriPick = onUriPick
+                                assetType = assetType,
+                                onUriPick = onUriPick,
                             )
                         }
                     }
                     items(assets) { asset ->
                         AssetGridItemContent(
                             wrappedAsset = asset,
-                            assetSourceGroupType = assetSourceGroupType,
+                            assetType = assetType,
                             onAssetClick = onAssetClick,
-                            onAssetLongClick = { source, clickedAsset ->
-                                onLibraryEvent(LibraryEvent.OnAssetLongClick(source, clickedAsset))
-                            }
+                            onAssetLongClick = {
+                                onLibraryEvent(LibraryEvent.OnAssetLongClick(it))
+                            },
                         )
                     }
                 }
