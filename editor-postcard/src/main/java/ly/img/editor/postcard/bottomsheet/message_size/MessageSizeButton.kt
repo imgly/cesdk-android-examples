@@ -8,7 +8,7 @@ import ly.img.editor.base.components.ToggleIconButton
 fun MessageSizeButton(
     messageSize: MessageSize,
     currentMessageSize: MessageSize,
-    changeMessageSize: (MessageSize) -> Unit
+    changeMessageSize: (MessageSize) -> Unit,
 ) {
     ToggleIconButton(
         checked = currentMessageSize == messageSize,
@@ -18,7 +18,7 @@ fun MessageSizeButton(
     ) {
         Icon(
             imageVector = messageSize.icon,
-            contentDescription = null
+            contentDescription = null,
         )
     }
 }

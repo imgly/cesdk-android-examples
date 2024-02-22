@@ -16,7 +16,7 @@ interface GradientFill : Fill {
 }
 
 class SolidFill(
-    override val fillColor: Color
+    override val fillColor: Color,
 ) : Fill
 
 data class LinearGradientFill(
@@ -24,7 +24,7 @@ data class LinearGradientFill(
     val startPointY: Float,
     val endPointX: Float,
     val endPointY: Float,
-    override val colorStops: List<GradientColorStop>
+    override val colorStops: List<GradientColorStop>,
 ) : GradientFill {
     val gradientRotation: Float
         get() {
@@ -35,8 +35,10 @@ data class LinearGradientFill(
         }
 
     companion object {
-        fun calculateLinearGradientFromRotation(rotationInDegrees: Float, colorStops: List<GradientColorStop>): LinearGradientFill {
-
+        fun calculateLinearGradientFromRotation(
+            rotationInDegrees: Float,
+            colorStops: List<GradientColorStop>,
+        ): LinearGradientFill {
             val absRotationInDegrees = ((rotationInDegrees % 360.0) + 360.0) % 360.0
 
             val slope = tan(Math.toRadians(absRotationInDegrees))
@@ -73,7 +75,13 @@ data class LinearGradientFill(
                 }
             }
 
-            return LinearGradientFill(startX.toFloat(), startY.toFloat(), endX.toFloat(), endY.toFloat(), colorStops)
+            return LinearGradientFill(
+                startX.toFloat(),
+                startY.toFloat(),
+                endX.toFloat(),
+                endY.toFloat(),
+                colorStops,
+            )
         }
     }
 }
@@ -82,11 +90,11 @@ class RadialGradientFill(
     val centerX: Float,
     val centerY: Float,
     val radius: Float,
-    override val colorStops: List<GradientColorStop>
+    override val colorStops: List<GradientColorStop>,
 ) : GradientFill
 
 class ConicalGradientFill(
     val centerX: Float,
     val centerY: Float,
-    override val colorStops: List<GradientColorStop>
+    override val colorStops: List<GradientColorStop>,
 ) : GradientFill

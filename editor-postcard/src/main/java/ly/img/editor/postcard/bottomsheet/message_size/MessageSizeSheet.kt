@@ -27,38 +27,42 @@ import ly.img.editor.postcard.R
 @Composable
 fun MessageSizeSheet(
     messageSize: MessageSize,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
 ) {
     HalfHeightContainer {
         Column {
             SheetHeader(
-                title = stringResource(id = R.string.cesdk_size),
-                onClose = { onEvent(Event.OnHideSheet) }
+                title = stringResource(id = R.string.ly_img_editor_size),
+                onClose = { onEvent(Event.OnHideSheet) },
             )
 
             Card(
                 Modifier
                     .inspectorSheetPadding()
                     .verticalScroll(rememberScrollState()),
-                colors = UiDefaults.cardColors
+                colors = UiDefaults.cardColors,
             ) {
                 Row(
                     Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        stringResource(R.string.cesdk_message),
-                        style = MaterialTheme.typography.bodyLarge
+                        stringResource(R.string.ly_img_editor_message),
+                        style = MaterialTheme.typography.bodyLarge,
                     )
                     Row {
                         MessageSize.values().forEach {
                             MessageSizeButton(
                                 messageSize = it,
                                 currentMessageSize = messageSize,
-                                changeMessageSize = { onEvent(PostcardEvent.OnChangeMessageSize(it)) }
+                                changeMessageSize = {
+                                    onEvent(
+                                        PostcardEvent.OnChangeMessageSize(it),
+                                    )
+                                },
                             )
                         }
                     }

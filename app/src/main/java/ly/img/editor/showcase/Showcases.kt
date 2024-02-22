@@ -20,25 +20,54 @@ fun Showcases(navigateTo: (String) -> Unit) {
     Scaffold(topBar = {
         TopAppBar(title = { Text("CE.SDK Showcases") })
     }) {
-        Box(modifier = Modifier
-            .padding(
-                top = it.calculateTopPadding(),
-                start = 8.dp,
-                end = 8.dp,
-                bottom = it.calculateBottomPadding()
-            )
-            .fillMaxHeight()
+        Box(
+            modifier =
+                Modifier
+                    .padding(
+                        top = it.calculateTopPadding(),
+                        start = 8.dp,
+                        end = 8.dp,
+                        bottom = it.calculateBottomPadding(),
+                    )
+                    .fillMaxHeight(),
         ) {
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                item {
+                    ShowcaseItem(
+                        title = "Default UI",
+                        subtitle = "Multiple empty pages.",
+                        onClick = {
+                            navigateTo(Screen.DesignUi.getRoute("default"))
+                        },
+                    )
+                }
+                item {
+                    ShowcaseItem(
+                        title = "Default Apparel UI",
+                        subtitle = "Customize and export a print-ready design with a mobile apparel editor.",
+                        onClick = {
+                            navigateTo(Screen.ApparelUi.getRoute("default"))
+                        },
+                    )
+                }
                 item {
                     ShowcaseItem(
                         title = "Apparel UI",
                         subtitle = "Customize and export a print-ready design with a mobile apparel editor.",
                         onClick = {
                             navigateTo(Screen.ApparelUi.getRoute("apparel-ui-b-1"))
-                        }
+                        },
+                    )
+                }
+                item {
+                    ShowcaseItem(
+                        title = "Default Post- & Greeting-Card UI",
+                        subtitle = "Built to facilitate optimal card design, from changing accent colors to selecting fonts.",
+                        onClick = {
+                            navigateTo(Screen.PostcardUi.getRoute("default"))
+                        },
                     )
                 }
                 item {
@@ -47,15 +76,16 @@ fun Showcases(navigateTo: (String) -> Unit) {
                         subtitle = "Built to facilitate optimal card design, from changing accent colors to selecting fonts.",
                         onClick = {
                             navigateTo(Screen.PostcardUi.getRoute("bonjour_paris"))
-                        }
+                        },
                     )
                 }
             }
             if (BuildConfig.BUILD_NAME.isNotEmpty()) {
                 Card(
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .align(Alignment.BottomCenter)
+                    modifier =
+                        Modifier
+                            .padding(bottom = 16.dp)
+                            .align(Alignment.BottomCenter),
                 ) {
                     Text(
                         modifier = Modifier.padding(8.dp),
@@ -71,22 +101,27 @@ fun Showcases(navigateTo: (String) -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShowcaseItem(title: String, subtitle: String, onClick: () -> Unit) {
+fun ShowcaseItem(
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+) {
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
-            modifier = Modifier
-                .padding(12.dp)
+            modifier =
+                Modifier
+                    .padding(12.dp),
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
             )
         }
     }

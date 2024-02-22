@@ -42,17 +42,15 @@ internal fun PostcardUiToolbar(
     navigationIcon: ImageVector,
     onEvent: (Event) -> Unit,
     postcardMode: PostcardMode,
-    isLoading: Boolean,
     isInPreviewMode: Boolean,
     isUndoEnabled: Boolean,
     isRedoEnabled: Boolean,
 ) {
-
     Surface(
         Modifier
             .fillMaxWidth()
             .height(64.dp),
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
     ) {
         Box {
             Row(Modifier.align(Alignment.CenterStart)) {
@@ -64,28 +62,29 @@ internal fun PostcardUiToolbar(
                         }) {
                             Icon(
                                 navigationIcon,
-                                contentDescription = stringResource(coreR.string.cesdk_back),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                contentDescription = stringResource(coreR.string.ly_img_editor_back),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     } else {
                         TextButton(
-                            colors = ButtonDefaults.textButtonColors(
-                                contentColor = MaterialTheme.colorScheme.onSurface
-                            ),
+                            colors =
+                                ButtonDefaults.textButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.onSurface,
+                                ),
                             onClick = {
-                                onEvent(PostcardEvent.OnPreviousPage)
+                                onEvent(Event.OnPreviousPage)
                             },
                         ) {
                             Icon(
                                 IconPack.Arrowback,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                             Text(
-                                text = stringResource(postCardR.string.cesdk_design),
+                                text = stringResource(postCardR.string.ly_img_editor_design),
                                 modifier = Modifier.padding(start = 4.dp),
-                                style = MaterialTheme.typography.titleSmall
+                                style = MaterialTheme.typography.titleSmall,
                             )
                         }
                     }
@@ -99,15 +98,21 @@ internal fun PostcardUiToolbar(
                     if (!isInPreviewMode) {
                         IconButton(
                             onClick = { onEvent(Event.OnUndoClick) },
-                            enabled = isUndoEnabled
+                            enabled = isUndoEnabled,
                         ) {
-                            Icon(IconPack.Undo, contentDescription = stringResource(R.string.cesdk_undo))
+                            Icon(
+                                IconPack.Undo,
+                                contentDescription = stringResource(R.string.ly_img_editor_undo),
+                            )
                         }
                         IconButton(
                             onClick = { onEvent(Event.OnRedoClick) },
-                            enabled = isRedoEnabled
+                            enabled = isRedoEnabled,
                         ) {
-                            Icon(IconPack.Redo, contentDescription = stringResource(R.string.cesdk_redo))
+                            Icon(
+                                IconPack.Redo,
+                                contentDescription = stringResource(R.string.ly_img_editor_redo),
+                            )
                         }
                     } else {
                         Spacer(modifier = Modifier.width(96.dp))
@@ -115,11 +120,10 @@ internal fun PostcardUiToolbar(
                     ToggleIconButton(
                         checked = isInPreviewMode,
                         onCheckedChange = { onEvent(Event.OnTogglePreviewMode(it)) },
-                        enabled = !isLoading
                     ) {
                         Icon(
                             if (isInPreviewMode) IconPack.Visibility else IconPack.Visibilityoutline,
-                            contentDescription = stringResource(R.string.cesdk_toggle_preview_mode)
+                            contentDescription = stringResource(R.string.ly_img_editor_toggle_preview_mode),
                         )
                     }
                 }
@@ -129,38 +133,37 @@ internal fun PostcardUiToolbar(
                 if (isInPreviewMode || postcardMode == PostcardMode.Write) {
                     IconButton(
                         onClick = { onEvent(Event.OnExportClick) },
-                        enabled = !isLoading
                     ) {
                         Icon(
                             IconPack.Share,
-                            contentDescription = stringResource(R.string.cesdk_share),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            contentDescription = stringResource(R.string.ly_img_editor_share),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 } else {
                     TextButton(
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ),
+                        colors =
+                            ButtonDefaults.textButtonColors(
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                            ),
                         onClick = {
-                            onEvent(PostcardEvent.OnNextPage)
+                            onEvent(Event.OnNextPage)
                         },
                     ) {
                         Text(
-                            text = stringResource(postCardR.string.cesdk_write),
+                            text = stringResource(postCardR.string.ly_img_editor_write),
                             modifier = Modifier.padding(end = 4.dp),
-                            style = MaterialTheme.typography.titleSmall
+                            style = MaterialTheme.typography.titleSmall,
                         )
                         Icon(
                             Icons.Default.ArrowForward,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
                 Spacer(modifier = Modifier.width(4.dp))
             }
-
         }
     }
 }

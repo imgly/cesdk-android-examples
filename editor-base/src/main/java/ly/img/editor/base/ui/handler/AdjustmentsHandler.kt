@@ -10,6 +10,7 @@ import ly.img.editor.base.ui.BlockEvent.*
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.ui.EventsHandler
 import ly.img.editor.core.ui.inject
+import ly.img.editor.core.ui.library.AppearanceAssetSourceType
 import ly.img.editor.core.ui.library.getMeta
 import ly.img.editor.core.ui.library.getUri
 import ly.img.editor.core.ui.register
@@ -31,7 +32,7 @@ import kotlin.math.roundToInt
 @Suppress("NAME_SHADOWING")
 fun EventsHandler.appearanceEvents(
     engine: () -> Engine,
-    block: () -> DesignBlock
+    block: () -> DesignBlock,
 ) {
     val engine by inject(engine)
     val block by inject(block)
@@ -52,33 +53,42 @@ fun EventsHandler.appearanceEvents(
     }
 
     register<OnChangeEffectSettings> {
-        val filter = when (it.adjustment.type) {
-            is BlurType -> {
-                engine.block.getBlur(block)
-            }
+        val filter =
+            when (it.adjustment.type) {
+                is BlurType -> {
+                    engine.block.getBlur(block)
+                }
 
-            is EffectType -> {
-                engine.block.getEffectOrCreateAndAppend(block, it.adjustment.type)
-            }
+                is EffectType -> {
+                    engine.block.getEffectOrCreateAndAppend(block, it.adjustment.type)
+                }
 
-            else -> throw IllegalArgumentException("Unsupported adjustment type: ${it.adjustment.type}")
-        }
+                else -> throw IllegalArgumentException(
+                    "Unsupported adjustment type: ${it.adjustment.type}",
+                )
+            }
         when (it.adjustment.propertyType) {
-            AdjustmentsValueType.INT -> engine.block.setInt(
-                block = filter,
-                property = it.adjustment.propertyPath,
-                value = it.value.roundToInt()
-            )
-            AdjustmentsValueType.FLOAT -> engine.block.setFloat(
-                block = filter,
-                property = it.adjustment.propertyPath,
-                value = it.value
-            )
+            AdjustmentsValueType.INT ->
+                engine.block.setInt(
+                    block = filter,
+                    property = it.adjustment.propertyPath,
+                    value = it.value.roundToInt(),
+                )
+            AdjustmentsValueType.FLOAT ->
+                engine.block.setFloat(
+                    block = filter,
+                    property = it.adjustment.propertyPath,
+                    value = it.value,
+                )
         }
     }
 }
 
-private fun replaceFxEffect(blockApi: BlockApi, block: DesignBlock, effect: EffectType?) {
+private fun replaceFxEffect(
+    blockApi: BlockApi,
+    block: DesignBlock,
+    effect: EffectType?,
+) {
     EffectType.values().forEach {
         if (effect != it && it.getGroup() == EffectGroup.FxEffect) {
             blockApi.removeEffectByType(block, it)
@@ -90,11 +100,16 @@ private fun replaceFxEffect(blockApi: BlockApi, block: DesignBlock, effect: Effe
     }
 }
 
-private fun replaceFilter(blockApi: BlockApi, block: DesignBlock, assetSourceType: AssetSourceType?, asset: Asset?) {
+private fun replaceFilter(
+    blockApi: BlockApi,
+    block: DesignBlock,
+    assetSourceType: AssetSourceType?,
+    asset: Asset?,
+) {
     EffectType.values().filter {
         when (it) {
-            EffectType.LutFilter -> assetSourceType !is AssetSourceType.LutFilter
-            EffectType.DuoToneFilter -> assetSourceType !is AssetSourceType.DuoToneFilter
+            EffectType.LutFilter -> assetSourceType !== AppearanceAssetSourceType.LutFilter
+            EffectType.DuoToneFilter -> assetSourceType !== AppearanceAssetSourceType.DuoToneFilter
             else -> it.getGroup() == EffectGroup.Filter
         }
     }.forEach {
@@ -103,14 +118,22 @@ private fun replaceFilter(blockApi: BlockApi, block: DesignBlock, assetSourceTyp
 
     asset ?: return
 
-    if (assetSourceType is AssetSourceType.DuoToneFilter) {
+    if (assetSourceType === AppearanceAssetSourceType.DuoToneFilter) {
         val path = EffectType.DuoToneFilter.key
         blockApi.getEffectOrCreateAndAppend(block, EffectType.DuoToneFilter).also { effect ->
-            blockApi.setColor(effect, "$path/darkColor", Color.fromHex(asset.getMeta("darkColor")!!))
+            blockApi.setColor(
+                effect,
+                "$path/darkColor",
+                Color.fromHex(asset.getMeta("darkColor")!!),
+            )
             blockApi.setFloat(effect, "$path/intensity", asset.getMeta("intensity", "0").toFloat())
-            blockApi.setColor(effect, "$path/lightColor", Color.fromHex(asset.getMeta("lightColor")!!))
+            blockApi.setColor(
+                effect,
+                "$path/lightColor",
+                Color.fromHex(asset.getMeta("lightColor")!!),
+            )
         }
-    } else if (assetSourceType is AssetSourceType.LutFilter) {
+    } else if (assetSourceType === AppearanceAssetSourceType.LutFilter) {
         val path = EffectType.LutFilter.key
         blockApi.getEffectOrCreateAndAppend(block, EffectType.LutFilter).also { effect ->
             val verticalTileCountMeta = asset.getMeta("verticalTileCount")?.toInt()

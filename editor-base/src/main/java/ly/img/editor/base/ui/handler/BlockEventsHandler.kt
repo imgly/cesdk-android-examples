@@ -22,7 +22,7 @@ import ly.img.engine.Engine
 @Suppress("NAME_SHADOWING")
 fun EventsHandler.blockEvents(
     engine: () -> Engine,
-    block: () -> DesignBlock
+    block: () -> DesignBlock,
 ) {
     val engine by inject(engine)
     val block by inject(block)
@@ -50,5 +50,3 @@ fun EventsHandler.blockEvents(
 
     register<OnChangeOpacity> { engine.block.setOpacity(block, it.opacity) }
 }
-
-

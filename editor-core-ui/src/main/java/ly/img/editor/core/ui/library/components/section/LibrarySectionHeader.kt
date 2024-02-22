@@ -21,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ly.img.editor.core.R
+import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.iconpack.Add
 import ly.img.editor.core.ui.iconpack.Arrowright
@@ -29,22 +30,23 @@ import ly.img.editor.core.ui.iconpack.IconPack
 @Composable
 internal fun LibrarySectionHeader(
     item: LibrarySectionItem.Header,
-    onDrillDown: () -> Unit,
-    onUriPick: (UploadAssetSourceType, Uri) -> Unit
+    onDrillDown: (LibraryContent) -> Unit,
+    onUriPick: (UploadAssetSourceType, Uri) -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .padding(start = 16.dp, end = 8.dp)
-            .fillMaxWidth(),
+        modifier =
+            Modifier
+                .padding(start = 16.dp, end = 8.dp)
+                .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = stringResource(id = item.titleRes),
             style = MaterialTheme.typography.titleMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
 
         val uploadAssetSource = item.uploadAssetSource
@@ -54,22 +56,25 @@ internal fun LibrarySectionHeader(
                     onUriPick(uploadAssetSource, it)
                 },
                 mimeTypeFilter = uploadAssetSource.mimeTypeFilter,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.padding(end = 8.dp),
             )
         }
 
-        TextButton(
-            onClick = onDrillDown,
-        ) {
-            val countText = item.count?.let { count ->
-                if (count > 999) stringResource(id = R.string.cesdk_more_count) else count.toString()
-            } ?: ""
-            Text(
-                text = countText,
-                style = MaterialTheme.typography.labelLarge
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Icon(IconPack.Arrowright, contentDescription = null)
+        if (item.expandContent != null) {
+            TextButton(
+                onClick = { onDrillDown(item.expandContent) },
+            ) {
+                val countText =
+                    item.count?.let { count ->
+                        if (count > 999) stringResource(id = R.string.ly_img_editor_more_count) else count.toString()
+                    } ?: ""
+                Text(
+                    text = countText,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Icon(IconPack.Arrowright, contentDescription = null)
+            }
         }
     }
 }
@@ -80,11 +85,12 @@ private fun UploadButton(
     mimeTypeFilter: String,
     modifier: Modifier,
 ) {
-    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            onUriPick(it)
+    val launcher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                onUriPick(it)
+            }
         }
-    }
     TextButton(
         modifier = modifier,
         onClick = {
@@ -93,9 +99,9 @@ private fun UploadButton(
     ) {
         Icon(IconPack.Add, contentDescription = null, modifier = Modifier.size(18.dp))
         Text(
-            text = stringResource(R.string.cesdk_add),
+            text = stringResource(R.string.ly_img_editor_add),
             modifier = Modifier.padding(start = 8.dp),
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelLarge,
         )
     }
 }

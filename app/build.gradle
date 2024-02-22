@@ -4,6 +4,14 @@ plugins {
     id 'com.dropbox.dropshots'
 }
 
+String getLocalProperty(String property) {
+    def propertiesFile = new File(rootDir, "local.properties")
+    if (!propertiesFile.exists()) return null
+    def properties = new Properties()
+    properties.load(propertiesFile.newDataInputStream())
+    return properties.getProperty(property)
+}
+
 android {
     namespace "ly.img.editor.showcase"
     compileSdk libs.versions.androidCompileSdk.get().toInteger()
@@ -79,6 +87,8 @@ android {
 
     buildTypes.each {
         it.buildConfigField "String", "BUILD_NAME", "\"${System.getenv("CESDK_AND_BUILD_NAME") ?: ""}\""
+        it.buildConfigField 'String', 'LICENSE', "\"${System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""}\""
+        it.buildConfigField 'String', 'UNSPLASH_HOST', "\"${System.env.CESDK_AND_UNSPLASH_HOST ?: getLocalProperty("unsplash_host") ?: ""}\""
     }
 
     compileOptions {
@@ -114,8 +124,7 @@ tasks.register('validateDropshotsRecordIsDisabled') {
 }
 
 dependencies {
-    implementation project(':editor-apparel')
-    implementation project(':editor-postcard')
+    implementation project(':editor')
     implementation findProject(":ubq-android-engine") ?: libs.cesdk.engine
     implementation findProject(":ubq-android-camera") ?: libs.cesdk.engine.camera
 
@@ -128,9 +137,7 @@ dependencies {
     def composeBom = platform(libs.compose.bom)
     implementation composeBom
     implementation libs.compose.material3
-    implementation libs.compose.activity
     implementation libs.compose.navigation
-
     implementation(libs.material) {
         because "MaterialComponents DayNight theme"
     }

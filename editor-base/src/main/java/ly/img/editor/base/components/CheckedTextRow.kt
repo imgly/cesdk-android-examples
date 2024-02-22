@@ -28,7 +28,7 @@ fun CheckedTextRow(
     icon: ImageVector? = null,
     fontWeight: FontWeight? = null,
     fontFamily: FontFamily? = null,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
         Modifier
@@ -36,21 +36,36 @@ fun CheckedTextRow(
             .clickable { onClick() }
             .heightIn(min = 56.dp) // to ensure the UI doesn't jump around when the check is toggled
             .padding(vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         CompositionLocalProvider(
             LocalContentColor provides if (isChecked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
         ) {
             if (isChecked) {
-                Icon(IconPack.Check, contentDescription = null, Modifier.padding(horizontal = 16.dp))
+                Icon(
+                    IconPack.Check,
+                    contentDescription = null,
+                    Modifier.padding(horizontal = 16.dp),
+                )
             }
             Text(
                 text = text,
-                style = if (fontWeight == null && fontFamily == null) MaterialTheme.typography.bodyLarge
-                else MaterialTheme.typography.bodyLarge.copy(fontWeight = fontWeight, fontFamily = fontFamily),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = if (isChecked) 0.dp else 56.dp, end = if (icon != null) 0.dp else 24.dp)
+                style =
+                    if (fontWeight == null && fontFamily == null) {
+                        MaterialTheme.typography.bodyLarge
+                    } else {
+                        MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = fontWeight,
+                            fontFamily = fontFamily,
+                        )
+                    },
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(
+                            start = if (isChecked) 0.dp else 56.dp,
+                            end = if (icon != null) 0.dp else 24.dp,
+                        ),
             )
             if (icon != null) {
                 Icon(icon, contentDescription = null, Modifier.padding(start = 16.dp, end = 24.dp))

@@ -17,22 +17,29 @@ data class StrokeUiState(
     val isStrokePositionEnabled: Boolean,
     val isStrokeJointEnabled: Boolean = true,
     @StringRes val strokePositionRes: Int,
-    @StringRes val strokeJoinRes: Int
+    @StringRes val strokeJoinRes: Int,
 )
 
-internal fun createStrokeUiState(block: Block, engine: Engine, colorPalette: List<Color>): StrokeUiState {
+internal fun createStrokeUiState(
+    block: Block,
+    engine: Engine,
+    colorPalette: List<Color>,
+): StrokeUiState {
     val designBlock = block.designBlock
     val isEnabled = engine.block.isStrokeEnabled(designBlock)
     return StrokeUiState(
         colorPalette = colorPalette,
         isStrokeEnabled = isEnabled,
         strokeColor = checkNotNull(engine.getStrokeColor(designBlock)),
-        strokeWidth = engine.block.getStrokeWidth(designBlock).takeIf { it > 0 }?.let { ln(it) } ?: STROKE_WIDTH_LOWER_BOUND,
+        strokeWidth =
+            engine.block.getStrokeWidth(designBlock).takeIf {
+                it > 0
+            }?.let { ln(it) } ?: STROKE_WIDTH_LOWER_BOUND,
         strokeStyleRes = engine.block.getStrokeStyle(designBlock).getText(),
         isStrokePositionEnabled = block.type != BlockType.Text && block.type != BlockType.Page,
         isStrokeJointEnabled = block.type != BlockType.Page,
         strokePositionRes = engine.block.getStrokePosition(designBlock).getText(),
-        strokeJoinRes = engine.block.getStrokeCornerGeometry(designBlock).getText()
+        strokeJoinRes = engine.block.getStrokeCornerGeometry(designBlock).getText(),
     )
 }
 

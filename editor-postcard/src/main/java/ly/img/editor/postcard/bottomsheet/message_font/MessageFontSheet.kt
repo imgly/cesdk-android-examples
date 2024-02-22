@@ -14,19 +14,19 @@ import ly.img.editor.postcard.PostcardEvent
 @Composable
 fun MessageFontSheet(
     uiState: MessageFontUiState,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
 ) {
     HalfHeightContainer {
         Column {
             SheetHeader(
-                title = stringResource(id = R.string.cesdk_font),
-                onClose = { onEvent(Event.OnHideSheet) }
+                title = stringResource(id = R.string.ly_img_editor_font),
+                onClose = { onEvent(Event.OnHideSheet) },
             )
 
             FontListUi(
                 fontFamily = uiState.fontFamily,
                 fontFamilies = uiState.fontFamilies,
-                onSelectFont = { onEvent(PostcardEvent.OnChangeMessageFont(it)) }
+                onSelectFont = { onEvent(PostcardEvent.OnChangeMessageFont(it)) },
             )
         }
     }

@@ -1,7 +1,4 @@
-plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-}
+apply from: "$projectDir/../release/editor-library.gradle"
 
 def localLicense = {
     def propertiesFile = new File(rootDir, "local.properties")
@@ -13,36 +10,10 @@ def localLicense = {
 
 android {
     namespace 'ly.img.editor.core.ui'
-    compileSdk libs.versions.androidCompileSdk.get().toInteger()
-
-    defaultConfig {
-        minSdk libs.versions.androidMinSdk.get().toInteger()
-        targetSdk libs.versions.androidTargetSdk.get().toInteger()
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
-    }
 
     buildTypes.each {
         it.buildConfigField 'String', 'LICENSE', "\"${System.env.CESDK_APP_STORE_LICENSE ?: localLicense() ?: ""}\""
         it.buildConfigField 'String', 'UNSPLASH_HOST', "\"${System.env.CESDK_AND_UNSPLASH_HOST ?: ""}\""
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
-
-    buildFeatures {
-        compose true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.kotlinCompilerExtension.get()
     }
 }
 
@@ -50,7 +21,7 @@ dependencies {
     api project(":editor-core")
     api findProject(":ubq-android-engine") ?: libs.cesdk.engine
 
-    api platform(libs.compose.bom)
+    implementation platform(libs.compose.bom)
     api libs.compose.material3
 
     api(libs.compose.activity) {

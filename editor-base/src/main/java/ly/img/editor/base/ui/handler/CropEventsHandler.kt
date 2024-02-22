@@ -18,12 +18,16 @@ import ly.img.engine.Engine
 @Suppress("NAME_SHADOWING")
 fun EventsHandler.cropEvents(
     engine: () -> Engine,
-    block: () -> DesignBlock
+    block: () -> DesignBlock,
 ) {
     val engine by inject(engine)
     val block by inject(block)
 
-    fun onCropRotateDegrees(scaleRatio: Float, angle: Float, addUndo: Boolean = true) {
+    fun onCropRotateDegrees(
+        scaleRatio: Float,
+        angle: Float,
+        addUndo: Boolean = true,
+    ) {
         val cropRotationRadians = angle * (Math.PI.toFloat() / 180f)
         engine.block.setCropRotation(block, cropRotationRadians)
         engine.block.adjustCropToFillFrame(block, scaleRatio)

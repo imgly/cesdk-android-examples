@@ -18,13 +18,13 @@ fun ColorPickerSheet(
     title: String,
     onBack: () -> Unit,
     onColorChange: (Color) -> Unit,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
 ) {
     Column {
         NestedSheetHeader(
             title = title,
             onBack = onBack,
-            onClose = { onEvent(Event.OnHideSheet) }
+            onClose = { onEvent(Event.OnHideSheet) },
         )
         ColorPicker(
             color = color,
@@ -32,7 +32,7 @@ fun ColorPickerSheet(
             onColorChange = onColorChange,
             onColorChangeFinished = {
                 onEvent(BlockEvent.OnChangeFinish)
-            }
+            },
         )
 
         // Disable allowing undo/redo while color picker is open

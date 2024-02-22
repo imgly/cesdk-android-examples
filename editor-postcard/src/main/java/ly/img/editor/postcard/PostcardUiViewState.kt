@@ -6,10 +6,10 @@ import ly.img.editor.postcard.rootbar.RootBarItemData
 data class PostcardUiViewState(
     val editorUiViewState: EditorUiViewState,
     val postcardMode: PostcardMode = PostcardMode.Design,
-    val rootBarItems: List<RootBarItemData> = listOf()
+    val rootBarItems: List<RootBarItemData> = listOf(),
 )
 
 enum class PostcardMode {
     Design,
-    Write
+    Write,
 }

@@ -1,23 +1,80 @@
 package ly.img.editor.core.library.data
 
-sealed class AssetSourceType(val sourceId: String) {
-    data object Shapes : AssetSourceType(sourceId = "ly.img.vectorpath")
-    data object Stickers : AssetSourceType(sourceId = "ly.img.sticker")
+/**
+ * A class that wraps the asset source id and is used in [ly.img.editor.core.library.LibraryContent]. Note that you should
+ * register an asset source or local asset source with the same id as [sourceId] before using the asset source:
+ * [ly.img.engine.AssetApi.addSource] / [ly.img.engine.AssetApi.addLocalSource].
+ */
+open class AssetSourceType(val sourceId: String) {
+    companion object {
+        /**
+         * The default source type for shapes.
+         */
+        val Shapes by lazy {
+            AssetSourceType(sourceId = "ly.img.vectorpath")
+        }
 
-    data object DuoToneFilter : AssetSourceType(sourceId = "ly.img.filter.duotone")
-    data object LutFilter : AssetSourceType(sourceId = "ly.img.filter.lut")
-    data object FxEffect : AssetSourceType(sourceId = "ly.img.effect")
+        /**
+         * The default source type for stickers.
+         */
+        val Stickers by lazy {
+            AssetSourceType(sourceId = "ly.img.sticker")
+        }
 
-    data object Blur : AssetSourceType(sourceId = "ly.img.blur")
-    data object Images : AssetSourceType(sourceId = "ly.img.image")
-    data object Unsplash : AssetSourceType(sourceId = "ly.img.asset.source.unsplash")
-    data object Videos : AssetSourceType(sourceId = "ly.img.video")
-    data object Audio : AssetSourceType(sourceId = "ly.img.audio")
-    data object Text : AssetSourceType(sourceId = "ly.img.asset.source.text")
+        /**
+         * The default source type for images.
+         */
+        val Images by lazy {
+            AssetSourceType(sourceId = "ly.img.image")
+        }
 
-    data object ImageUploads : UploadAssetSourceType(sourceId = "ly.img.image.upload", mimeTypeFilter = "image/*")
-    data object VideoUploads : UploadAssetSourceType(sourceId = "ly.img.video.upload", mimeTypeFilter = "video/*")
-    data object AudioUploads : UploadAssetSourceType(sourceId = "ly.img.audio.upload", mimeTypeFilter = "audio/*")
+        /**
+         * The default source type for videos.
+         */
+        val Videos by lazy {
+            AssetSourceType(sourceId = "ly.img.video")
+        }
+
+        /**
+         * The default source type for audios.
+         */
+        val Audio by lazy {
+            AssetSourceType(sourceId = "ly.img.audio")
+        }
+
+        /**
+         * The default source type for text.
+         */
+        val Text by lazy {
+            AssetSourceType(sourceId = "ly.img.asset.source.text")
+        }
+
+        /**
+         * The default source type for image uploads.
+         */
+        val ImageUploads by lazy {
+            UploadAssetSourceType(sourceId = "ly.img.image.upload", mimeTypeFilter = "image/*")
+        }
+
+        /**
+         * The default source type for video uploads.
+         */
+        val VideoUploads by lazy {
+            UploadAssetSourceType(sourceId = "ly.img.video.upload", mimeTypeFilter = "video/*")
+        }
+
+        /**
+         * The default source type for audio uploads.
+         */
+        val AudioUploads by lazy {
+            UploadAssetSourceType(sourceId = "ly.img.audio.upload", mimeTypeFilter = "audio/*")
+        }
+    }
 }
 
-sealed class UploadAssetSourceType(sourceId: String, val mimeTypeFilter: String) : AssetSourceType(sourceId)
+/**
+ * Same as [AssetSourceType] but for assets that should be uploaded from your device and that have mime type of [mimeTypeFilter].
+ *
+ * @param mimeTypeFilter the mime type filter that is used to filter out the device assets when system picker is displayed.
+ */
+class UploadAssetSourceType(sourceId: String, val mimeTypeFilter: String) : AssetSourceType(sourceId)

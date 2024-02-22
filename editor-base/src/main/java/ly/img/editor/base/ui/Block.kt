@@ -53,74 +53,107 @@ import ly.img.engine.ShapeType
 data class Block(
     val designBlock: DesignBlock,
     val type: BlockType,
-    val options: List<OptionItemData>
+    val options: List<OptionItemData>,
 )
 
 private val shapesWithOptions = arrayOf(ShapeType.Star, ShapeType.Polygon, ShapeType.Line)
-internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
+
+internal fun createBlock(
+    designBlock: DesignBlock,
+    engine: Engine,
+): Block {
     val type = DesignBlockType.getOrNull(engine.block.getType(designBlock))
     val isGraphicBlock = type == DesignBlockType.Graphic
     val kind = if (isGraphicBlock) engine.block.getKindEnum(designBlock) else null
-    val shapeType = if (kind == BlockKind.Shape) ShapeType.get(engine.block.getType(engine.block.getShape(designBlock))) else null
+    val shapeType =
+        if (kind == BlockKind.Shape) {
+            ShapeType.get(
+                engine.block.getType(engine.block.getShape(designBlock)),
+            )
+        } else {
+            null
+        }
 
     val optionItems = mutableListOf<OptionItemData>()
 
-    /* Check if an operation is allowed by scope */
+    // Check if an operation is allowed by scope
     fun isAllowedByScope(scope: String) = engine.block.isAllowedByScope(designBlock, scope)
-    /* Add options entry based on optionType type */
+
+    // Add options entry based on optionType type
     infix fun OptionType.addIf(enabled: Boolean) {
         if (enabled) {
-            fun addOption(titleRes: Int, icon: TabIcon) {
+            fun addOption(
+                titleRes: Int,
+                icon: TabIcon,
+            ) {
                 optionItems += OptionItemData(this, titleRes, icon)
             }
             when (this) {
-                Crop -> addOption(R.string.cesdk_crop, VectorIcon(IconPack.Croprotate))
-                Edit -> addOption(R.string.cesdk_edit, VectorIcon(IconPack.Keyboard))
-                Layer -> addOption(R.string.cesdk_layer, VectorIcon(IconPack.Layersoutline))
-                Filter -> addOption(R.string.cesdk_filter, VectorIcon(IconPack.Filter))
-                Effect -> addOption(R.string.cesdk_effect, VectorIcon(IconPack.Effect))
-                Blur -> addOption(R.string.cesdk_blur, VectorIcon(IconPack.Blur))
-                Format -> addOption(R.string.cesdk_format, VectorIcon(IconPack.Typeface))
-                Replace -> addOption(R.string.cesdk_replace, VectorIcon(IconPack.Replace))
-                EnterGroup -> addOption(R.string.cesdk_enter_group, VectorIcon(IconPack.Groupenter))
+                Crop -> addOption(R.string.ly_img_editor_crop, VectorIcon(IconPack.Croprotate))
+                Edit -> addOption(R.string.ly_img_editor_edit, VectorIcon(IconPack.Keyboard))
+                Layer -> addOption(R.string.ly_img_editor_layer, VectorIcon(IconPack.Layersoutline))
+                Filter -> addOption(R.string.ly_img_editor_filter, VectorIcon(IconPack.Filter))
+                Effect -> addOption(R.string.ly_img_editor_effect, VectorIcon(IconPack.Effect))
+                Blur -> addOption(R.string.ly_img_editor_blur, VectorIcon(IconPack.Blur))
+                Format -> addOption(R.string.ly_img_editor_format, VectorIcon(IconPack.Typeface))
+                Replace -> addOption(R.string.ly_img_editor_replace, VectorIcon(IconPack.Replace))
+                EnterGroup -> addOption(R.string.ly_img_editor_enter_group, VectorIcon(IconPack.Groupenter))
                 FillStroke -> {
                     val hasStroke = engine.block.hasStroke(designBlock)
                     val fillType = engine.block.getFillType(designBlock)
                     val hasSolidOrGradientFill = (
-                        fillType == FillType.Color
-                            || fillType == FillType.LinearGradient
-                            || fillType == FillType.RadialGradient
-                            || fillType == FillType.ConicalGradient
-                        )
+                        fillType == FillType.Color ||
+                            fillType == FillType.LinearGradient ||
+                            fillType == FillType.RadialGradient ||
+                            fillType == FillType.ConicalGradient
+                    )
                     if (hasSolidOrGradientFill || hasStroke) {
                         addOption(
-                            FillStrokeUiState.getFillStrokeTitleRes(hasSolidOrGradientFill, hasStroke),
+                            FillStrokeUiState.getFillStrokeTitleRes(
+                                hasSolidOrGradientFill,
+                                hasStroke,
+                            ),
                             FillStrokeIcon(
-                                fill = engine.block.getFillInfo(designBlock)?.takeIf { engine.block.isFillEnabled(designBlock) },
+                                fill =
+                                    engine.block.getFillInfo(
+                                        designBlock,
+                                    )?.takeIf { engine.block.isFillEnabled(designBlock) },
                                 hasFill = hasSolidOrGradientFill,
                                 hasStroke = hasStroke,
-                                strokeColor = engine.getStrokeColor(designBlock)?.takeIf { engine.block.isStrokeEnabled(designBlock) },
-                            )
+                                strokeColor =
+                                    engine.getStrokeColor(designBlock)?.takeIf {
+                                        engine.block.isStrokeEnabled(designBlock)
+                                    },
+                            ),
                         )
                     }
                 }
-                SelectGroup -> addOption(R.string.cesdk_select_group, VectorIcon(IconPack.Selectgroup))
-                Adjustments -> addOption(R.string.cesdk_adjustment, VectorIcon(IconPack.Adjustments))
-                ShapeOptions -> addOption(R.string.cesdk_options, VectorIcon(IconPack.Tunevariant))
+                SelectGroup ->
+                    addOption(
+                        R.string.ly_img_editor_select_group,
+                        VectorIcon(IconPack.Selectgroup),
+                    )
+                Adjustments ->
+                    addOption(
+                        R.string.ly_img_editor_adjustment,
+                        VectorIcon(IconPack.Adjustments),
+                    )
+                ShapeOptions -> addOption(R.string.ly_img_editor_options, VectorIcon(IconPack.Tunevariant))
             }
         }
     }
 
     val hasLayerOption =
-        type != DesignBlockType.Page
-            && (isAllowedByScope(Scope.LayerBlendMode)
-            || isAllowedByScope(Scope.LayerOpacity)
-            || engine.isMoveAllowed(designBlock)
-            || engine.isDeleteAllowed(designBlock)
-            || engine.isDuplicateAllowed(designBlock)
+        type != DesignBlockType.Page &&
+            (
+                isAllowedByScope(Scope.LayerBlendMode) ||
+                    isAllowedByScope(Scope.LayerOpacity) ||
+                    engine.isMoveAllowed(designBlock) ||
+                    engine.isDeleteAllowed(designBlock) ||
+                    engine.isDuplicateAllowed(designBlock)
             )
 
-    /* Add options entry based on block type and kind */
+    // Add options entry based on block type and kind
     when (kind) {
         BlockKind.Image -> {
             Replace addIf isAllowedByScope(Scope.FillChange)
@@ -147,7 +180,7 @@ internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
             SelectGroup addIf engine.isGrouped(designBlock)
         }
         null -> null // Using null instead of else, to force a compile error if a new kind is added.
-    } ?: when(type) {
+    } ?: when (type) {
         DesignBlockType.Text -> {
             Edit addIf isAllowedByScope(Scope.TextEdit)
             Format addIf isAllowedByScope(Scope.TextCharacter)
@@ -172,17 +205,18 @@ internal fun createBlock(designBlock: DesignBlock, engine: Engine): Block {
 
     return Block(
         designBlock = designBlock,
-        type = when (kind) {
-            BlockKind.Image -> BlockType.Image
-            BlockKind.Shape -> BlockType.Shape
-            BlockKind.Sticker -> BlockType.Sticker
-            null -> null // Using null instead of else, to force a compile error if a new kind is added.
-        } ?: when (type) {
-            DesignBlockType.Text -> BlockType.Text
-            DesignBlockType.Page -> BlockType.Page
-            DesignBlockType.Group -> BlockType.Group
-            else -> throw UnsupportedOperationException()
-        },
-        options = optionItems
+        type =
+            when (kind) {
+                BlockKind.Image -> BlockType.Image
+                BlockKind.Shape -> BlockType.Shape
+                BlockKind.Sticker -> BlockType.Sticker
+                null -> null // Using null instead of else, to force a compile error if a new kind is added.
+            } ?: when (type) {
+                DesignBlockType.Text -> BlockType.Text
+                DesignBlockType.Page -> BlockType.Page
+                DesignBlockType.Group -> BlockType.Group
+                else -> throw UnsupportedOperationException()
+            },
+        options = optionItems,
     )
 }

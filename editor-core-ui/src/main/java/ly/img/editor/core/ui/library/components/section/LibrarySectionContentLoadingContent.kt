@@ -6,16 +6,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ly.img.editor.core.library.AssetSourceGroupType
+import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.ui.library.components.asset.AssetsIntermediateStateContent
 import ly.img.editor.core.ui.library.components.asset.IntermediateState
 
 @Composable
-internal fun LibrarySectionContentLoadingContent(assetSourceGroupType: AssetSourceGroupType) {
+internal fun LibrarySectionContentLoadingContent(assetType: AssetType) {
     Column {
         AssetsIntermediateStateContent(
             state = IntermediateState.Loading,
-            assetSourceGroupType = assetSourceGroupType
+            assetType = assetType,
         )
         Spacer(modifier = Modifier.height(24.dp))
     }

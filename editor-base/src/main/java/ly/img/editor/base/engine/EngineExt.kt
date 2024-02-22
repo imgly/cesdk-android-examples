@@ -28,7 +28,10 @@ fun Engine.setClearColor(color: Color) {
     editor.setSettingColor("clearColor", color.toEngineColor())
 }
 
-fun Engine.addOutline(designBlock: DesignBlock, parent: DesignBlock) {
+fun Engine.addOutline(
+    designBlock: DesignBlock,
+    parent: DesignBlock,
+) {
     val outline = block.create(DesignBlockType.Graphic)
     block.setShape(outline, block.createShape(ShapeType.Rect))
     val width = block.getWidth(parent)
@@ -49,7 +52,10 @@ fun Engine.addOutline(designBlock: DesignBlock, parent: DesignBlock) {
     block.setScopeEnabled(outline, Scope.EditorSelect, false)
 }
 
-fun Engine.showOutline(show: Boolean, name: String = OUTLINE_BLOCK_NAME) {
+fun Engine.showOutline(
+    show: Boolean,
+    name: String = OUTLINE_BLOCK_NAME,
+) {
     val outline = block.findByName(name).firstOrNull() ?: return
     block.setVisible(outline, show)
     block.setOpacity(outline, if (show) 1f else 0f)
@@ -170,7 +176,10 @@ fun Engine.getStrokeColor(designBlock: DesignBlock): Color? {
 
 fun Engine.canResetCrop(designBlock: DesignBlock) = block.getContentFillMode(designBlock) == ContentFillMode.CROP
 
-suspend fun Engine.zoomToPage(pageIndex: Int, insets: Rect) {
+suspend fun Engine.zoomToPage(
+    pageIndex: Int,
+    insets: Rect,
+) {
     zoomToBlock(getPage(pageIndex), insets)
 }
 
@@ -182,7 +191,10 @@ suspend fun Engine.zoomToBackdrop(insets: Rect) {
     zoomToBlock(getBackdropImage(), insets)
 }
 
-fun Engine.zoomToSelectedText(insets: Rect, canvasHeight: Float) {
+fun Engine.zoomToSelectedText(
+    insets: Rect,
+    canvasHeight: Float,
+) {
     val paddingTop = insets.top
     val paddingBottom = insets.bottom
 
@@ -211,7 +223,11 @@ fun Engine.showAllPages(axis: LayoutAxis) {
     showPage(index = null, axis = axis, spacing = 16f)
 }
 
-fun Engine.showPage(index: Int?, axis: LayoutAxis = LayoutAxis.Depth, spacing: Float? = null) {
+fun Engine.showPage(
+    index: Int?,
+    axis: LayoutAxis = LayoutAxis.Depth,
+    spacing: Float? = null,
+) {
     deselectAllBlocks()
 
     val stack = getStack()
@@ -229,13 +245,16 @@ fun Engine.showPage(index: Int?, axis: LayoutAxis = LayoutAxis.Depth, spacing: F
     }
 }
 
-private suspend fun Engine.zoomToBlock(designBlock: DesignBlock, insets: Rect) {
+private suspend fun Engine.zoomToBlock(
+    designBlock: DesignBlock,
+    insets: Rect,
+) {
     scene.zoomToBlock(
         block = designBlock,
         paddingLeft = insets.left,
         paddingTop = insets.top,
         paddingRight = insets.right,
-        paddingBottom = insets.bottom
+        paddingBottom = insets.bottom,
     )
 }
 

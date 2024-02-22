@@ -14,16 +14,16 @@ import ly.img.editor.core.ui.iconpack.IconPack
 @Composable
 fun EditingTextCard(
     modifier: Modifier,
-    onClose: () -> Unit
+    onClose: () -> Unit,
 ) {
     Surface(
         modifier = modifier.imePadding(),
-        shape = UiDefaults.CornerLargeTop
+        shape = UiDefaults.CornerLargeTop,
     ) {
         SheetHeader(
-            title = stringResource(R.string.cesdk_editing_text),
+            title = stringResource(R.string.ly_img_editor_editing_text),
             icon = IconPack.Check,
-            onClose = onClose
+            onClose = onClose,
         )
     }
 }

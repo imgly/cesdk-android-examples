@@ -12,7 +12,6 @@ import ly.img.editor.core.ui.tab_item.TabIconComposable
 import ly.img.editor.core.ui.utils.ifTrue
 
 object TemplateColorsIconComposable : TabIconComposable<TemplateColorsIcon>() {
-
     @Composable
     override fun IconContent(icon: TemplateColorsIcon) {
         Box {
@@ -21,7 +20,7 @@ object TemplateColorsIconComposable : TabIconComposable<TemplateColorsIcon>() {
                     color = color,
                     buttonSize = 24.dp,
                     selectionStrokeWidth = 0.dp,
-                    modifier = Modifier.ifTrue(index > 0) { padding(start = 12.dp) }
+                    modifier = Modifier.ifTrue(index > 0) { padding(start = 12.dp) },
                 )
             }
         }

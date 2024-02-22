@@ -6,13 +6,13 @@ import ly.img.engine.Engine
 
 data class MessageFontUiState(
     val fontFamily: String,
-    val fontFamilies: List<FontFamilyData>
+    val fontFamilies: List<FontFamilyData>,
 )
 
 internal fun createMessageFontUiState(
     designBlock: DesignBlock,
     engine: Engine,
-    families: Map<String, FontFamilyData>
+    families: Map<String, FontFamilyData>,
 ): MessageFontUiState {
     val fontPath = engine.block.getString(designBlock, "text/fontFileUri")
 
@@ -24,12 +24,18 @@ internal fun createMessageFontUiState(
         break
     }
 
-    val requiredFamiliesSet = hashSetOf(
-        "Caveat", "AmaticSC", "Courier Prime", "Archivo", "Roboto", "Parisienne"
-    )
+    val requiredFamiliesSet =
+        hashSetOf(
+            "Caveat",
+            "AmaticSC",
+            "Courier Prime",
+            "Archivo",
+            "Roboto",
+            "Parisienne",
+        )
 
     return MessageFontUiState(
         requireNotNull(fontFamilyData).name,
-        families.values.filter { requiredFamiliesSet.contains(it.name) }
+        families.values.filter { requiredFamiliesSet.contains(it.name) },
     )
 }

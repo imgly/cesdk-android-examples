@@ -18,7 +18,7 @@ data class FormatUiState(
     val lineHeight: Float,
     @StringRes val sizeModeRes: Int,
     val fontFamilies: List<FontFamilyData>,
-    val isArrangeResizeAllowed: Boolean
+    val isArrangeResizeAllowed: Boolean,
 )
 
 internal fun createFormatUiState(
@@ -56,13 +56,19 @@ internal fun createFormatUiState(
         fontFamily = fontFamilyData.name,
         isBold = isBold,
         isItalic = isItalic,
-        horizontalAlignment = HorizontalAlignment.valueOf(engine.block.getEnum(designBlock, "text/horizontalAlignment")),
-        verticalAlignment = VerticalAlignment.valueOf(engine.block.getEnum(designBlock, "text/verticalAlignment")),
+        horizontalAlignment =
+            HorizontalAlignment.valueOf(
+                engine.block.getEnum(designBlock, "text/horizontalAlignment"),
+            ),
+        verticalAlignment =
+            VerticalAlignment.valueOf(
+                engine.block.getEnum(designBlock, "text/verticalAlignment"),
+            ),
         fontSize = engine.block.getFloat(designBlock, "text/fontSize"),
         letterSpacing = engine.block.getFloat(designBlock, "text/letterSpacing"),
         lineHeight = engine.block.getFloat(designBlock, "text/lineHeight"),
         sizeModeRes = engine.block.getHeightMode(designBlock).getText(),
         fontFamilies = families.values.toList(),
-        isArrangeResizeAllowed = engine.block.isAllowedByScope(designBlock, Scope.LayerResize)
+        isArrangeResizeAllowed = engine.block.isAllowedByScope(designBlock, Scope.LayerResize),
     )
 }

@@ -20,27 +20,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ly.img.editor.core.R
-import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.theme.surface3
 import ly.img.editor.core.ui.iconpack.Add
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.library.getMeta
 import ly.img.editor.core.ui.library.state.WrappedAsset
-import ly.img.engine.Asset
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun TextAssetContent(
     wrappedAsset: WrappedAsset.TextAsset,
-    onAssetClick: (AssetSourceType, Asset) -> Unit,
-    onAssetLongClick: (AssetSourceType, Asset) -> Unit
+    onAssetClick: (WrappedAsset) -> Unit,
+    onAssetLongClick: (WrappedAsset) -> Unit,
 ) {
     ListItem(
-        modifier = Modifier
-            .combinedClickable(
-                onClick = { onAssetClick(wrappedAsset.assetSourceType, wrappedAsset.asset) },
-                onLongClick = { onAssetLongClick(wrappedAsset.assetSourceType, wrappedAsset.asset) }
-            ),
+        modifier =
+            Modifier
+                .combinedClickable(
+                    onClick = { onAssetClick(wrappedAsset) },
+                    onLongClick = { onAssetLongClick(wrappedAsset) },
+                ),
         headlineContent = {
             Text(
                 text = wrappedAsset.asset.label ?: "",
@@ -48,25 +47,27 @@ internal fun TextAssetContent(
                 fontWeight = FontWeight(requireNotNull(wrappedAsset.asset.getMeta("fontWeight", "")).toInt()),
                 fontSize = requireNotNull(wrappedAsset.asset.getMeta("fontSize", "")).toInt().sp,
                 fontStyle = FontStyle.Normal,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp),
             )
         },
         trailingContent = {
             Box(
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .background(MaterialTheme.colorScheme.surface3)
-                    .size(24.dp)
+                modifier =
+                    Modifier
+                        .clip(MaterialTheme.shapes.extraSmall)
+                        .background(MaterialTheme.colorScheme.surface3)
+                        .size(24.dp),
             ) {
                 Icon(
                     imageVector = IconPack.Add,
-                    contentDescription = stringResource(id = R.string.cesdk_add),
+                    contentDescription = stringResource(id = R.string.ly_img_editor_add),
                     tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .size(16.dp)
-                        .align(Alignment.Center)
+                    modifier =
+                        Modifier
+                            .size(16.dp)
+                            .align(Alignment.Center),
                 )
             }
-        }
+        },
     )
 }

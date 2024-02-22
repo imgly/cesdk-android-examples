@@ -32,13 +32,29 @@ fun EventsHandler.textBlockEvents(
     val fontFamilyMap by inject(fontFamilyMap)
 
     fun onChangeFont(font: FontData) {
-        engine.block.setString(block, "text/fontFileUri", Uri.parse("$FONT_BASE_PATH/${font.fontPath}").toString())
+        engine.block.setString(
+            block,
+            "text/fontFileUri",
+            Uri.parse("$FONT_BASE_PATH/${font.fontPath}").toString(),
+        )
         engine.editor.addUndoStep()
     }
-    fun onChangeFontStyle(fontFamily: String, bold: Boolean? = null, italicize: Boolean? = null) {
+
+    fun onChangeFontStyle(
+        fontFamily: String,
+        bold: Boolean? = null,
+        italicize: Boolean? = null,
+    ) {
         val fontFamilyData = checkNotNull(fontFamilyMap[fontFamily])
-        val currentFontData = requireNotNull(fontFamilyData.getFontData(engine.block.getString(block, "text/fontFileUri")))
-        val font = fontFamilyData.getFontData(bold ?: currentFontData.isBold(), italicize ?: currentFontData.isItalic())
+        val currentFontData =
+            requireNotNull(
+                fontFamilyData.getFontData(engine.block.getString(block, "text/fontFileUri")),
+            )
+        val font =
+            fontFamilyData.getFontData(
+                bold ?: currentFontData.isBold(),
+                italicize ?: currentFontData.isItalic(),
+            )
         onChangeFont(font)
     }
 

@@ -5,5 +5,5 @@ import ly.img.editor.postcard.util.NamedColor
 
 data class TemplateColorsUiState(
     val colorPalette: List<Color>,
-    val colorSections: List<NamedColor>
+    val colorSections: List<NamedColor>,
 )

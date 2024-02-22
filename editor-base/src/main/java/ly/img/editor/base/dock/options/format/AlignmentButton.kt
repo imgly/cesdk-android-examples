@@ -17,7 +17,7 @@ import ly.img.editor.core.ui.iconpack.Verticalaligntop
 fun <T : Alignment> AlignmentButton(
     alignment: Alignment,
     currentAlignment: T,
-    changeAlignment: (T) -> Unit
+    changeAlignment: (T) -> Unit,
 ) {
     ToggleIconButton(
         checked = currentAlignment == alignment,
@@ -27,21 +27,26 @@ fun <T : Alignment> AlignmentButton(
         },
     ) {
         Icon(
-            imageVector = when (alignment) {
-                HorizontalAlignment.Left -> IconPack.Formatalignleft
-                HorizontalAlignment.Center -> IconPack.Formataligncenter
-                HorizontalAlignment.Right -> IconPack.Formatalignright
-                VerticalAlignment.Bottom -> IconPack.Verticalalignbottom
-                VerticalAlignment.Center -> IconPack.Verticalaligncenter
-                VerticalAlignment.Top -> IconPack.Verticalaligntop
-            },
-            contentDescription = when (alignment) {
-                HorizontalAlignment.Left -> stringResource(R.string.cesdk_align_left)
-                HorizontalAlignment.Center, VerticalAlignment.Center -> stringResource(R.string.cesdk_align_center)
-                HorizontalAlignment.Right -> stringResource(R.string.cesdk_align_right)
-                VerticalAlignment.Top -> stringResource(R.string.cesdk_align_top)
-                VerticalAlignment.Bottom -> stringResource(R.string.cesdk_align_bottom)
-            }
+            imageVector =
+                when (alignment) {
+                    HorizontalAlignment.Left -> IconPack.Formatalignleft
+                    HorizontalAlignment.Center -> IconPack.Formataligncenter
+                    HorizontalAlignment.Right -> IconPack.Formatalignright
+                    VerticalAlignment.Bottom -> IconPack.Verticalalignbottom
+                    VerticalAlignment.Center -> IconPack.Verticalaligncenter
+                    VerticalAlignment.Top -> IconPack.Verticalaligntop
+                },
+            contentDescription =
+                when (alignment) {
+                    HorizontalAlignment.Left -> stringResource(R.string.ly_img_editor_align_left)
+                    HorizontalAlignment.Center, VerticalAlignment.Center ->
+                        stringResource(
+                            R.string.ly_img_editor_align_center,
+                        )
+                    HorizontalAlignment.Right -> stringResource(R.string.ly_img_editor_align_right)
+                    VerticalAlignment.Top -> stringResource(R.string.ly_img_editor_align_top)
+                    VerticalAlignment.Bottom -> stringResource(R.string.ly_img_editor_align_bottom)
+                },
         )
     }
 }

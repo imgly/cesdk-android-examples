@@ -1,34 +1,43 @@
 package ly.img.editor.core.ui.library.components.section
 
 import androidx.annotation.StringRes
-import ly.img.editor.core.library.AssetSourceGroupType
+import ly.img.editor.core.library.AssetType
+import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.data.UploadAssetSourceType
-import ly.img.editor.core.ui.library.state.LibraryStackData
 import ly.img.editor.core.ui.library.state.WrappedAsset
-import kotlin.random.Random
 
 internal sealed class LibrarySectionItem(val id: String) {
     data class Header(
-        val stackData: LibraryStackData,
+        val stackIndex: Int,
+        val sectionIndex: Int,
         @StringRes val titleRes: Int,
         val uploadAssetSource: UploadAssetSourceType?,
         val count: Int? = null,
-    ) : LibrarySectionItem("Header ${stackData.hashCode()}")
+        val expandContent: LibraryContent?,
+    ) : LibrarySectionItem("Header $stackIndex $sectionIndex")
 
     data class Content(
+        val stackIndex: Int,
+        val sectionIndex: Int,
         val wrappedAssets: List<WrappedAsset>,
-        val assetSourceGroupType: AssetSourceGroupType,
-        val stackData: LibraryStackData,
-        val moreAssetsAvailable: Boolean
-    ) : LibrarySectionItem("Content ${stackData.hashCode()}")
+        val assetType: AssetType,
+        val expandContent: LibraryContent?,
+    ) : LibrarySectionItem("Content $stackIndex $sectionIndex")
 
     data class ContentLoading(
-        val assetSourceGroupType: AssetSourceGroupType
-    ) : LibrarySectionItem("Content Loading ${Random.nextInt()}")
+        val stackIndex: Int,
+        val sectionIndex: Int,
+        val subSectionIndex: Int,
+        val section: LibraryContent.Section,
+    ) : LibrarySectionItem("Content Loading $stackIndex $sectionIndex $subSectionIndex")
 
-    object Loading : LibrarySectionItem("Loading ${Random.nextInt()}")
+    data class Loading(
+        val stackIndex: Int,
+    ) : LibrarySectionItem("Loading $stackIndex")
 
     data class Error(
-        val assetSourceGroupType: AssetSourceGroupType
-    ) : LibrarySectionItem("Error ${Random.nextInt()}")
+        val stackIndex: Int,
+        val sectionIndex: Int,
+        val assetType: AssetType,
+    ) : LibrarySectionItem("Error $stackIndex $sectionIndex")
 }

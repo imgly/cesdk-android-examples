@@ -14,10 +14,14 @@ import ly.img.engine.Engine
 enum class MessageSize(val size: Float, val circledIcon: ImageVector, val icon: ImageVector) {
     Small(14f, IconPack.Sizescircled, IconPack.Sizes),
     Medium(18f, IconPack.Sizemcircled, IconPack.Sizem),
-    Large(22f, IconPack.Sizelcircled, IconPack.Sizel);
+    Large(22f, IconPack.Sizelcircled, IconPack.Sizel),
+    ;
 
     companion object {
-        fun get(engine: Engine, block: DesignBlock): MessageSize {
+        fun get(
+            engine: Engine,
+            block: DesignBlock,
+        ): MessageSize {
             val size = engine.block.getFloat(block, "text/fontSize")
             return MessageSize.values().firstOrNull { it.size == size } ?: Large
         }

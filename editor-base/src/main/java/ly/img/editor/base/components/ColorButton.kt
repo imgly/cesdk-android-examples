@@ -17,4 +17,17 @@ fun ColorButton(
     onClick: (() -> Unit)? = null,
     buttonSize: Dp = 40.dp,
     selectionStrokeWidth: Dp = 2.dp,
-) = FillButton(fill = remember(color){ color?.let { SolidFill(color) }}, modifier, selected, punchHole, onClick, buttonSize, selectionStrokeWidth)
+) = FillButton(
+    fill =
+        remember(color) {
+            color?.let {
+                SolidFill(color)
+            }
+        },
+    modifier,
+    selected,
+    punchHole,
+    onClick,
+    buttonSize,
+    selectionStrokeWidth,
+)

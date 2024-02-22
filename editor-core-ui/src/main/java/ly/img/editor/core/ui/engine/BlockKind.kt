@@ -6,7 +6,7 @@ import ly.img.engine.DesignBlock
 enum class BlockKind(val key: String) {
     Image("image"),
     Sticker("sticker"),
-    Shape("shape")
+    Shape("shape"),
 }
 
 fun BlockApi.getKindEnum(designBlock: DesignBlock): BlockKind {

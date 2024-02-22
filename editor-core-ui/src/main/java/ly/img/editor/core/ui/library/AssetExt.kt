@@ -14,4 +14,8 @@ internal fun Asset.getDuration(): String {
 }
 
 fun Asset.getMeta(key: String) = meta?.find { it.first == key }?.second
-fun Asset.getMeta(key: String, default: String) = this.getMeta(key) ?: default
+
+fun Asset.getMeta(
+    key: String,
+    default: String,
+) = this.getMeta(key) ?: default

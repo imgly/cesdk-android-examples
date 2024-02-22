@@ -1,9 +1,12 @@
 package ly.img.editor.apparel
 
+import android.app.Activity
 import android.net.Uri
+import android.os.Parcelable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,26 +14,67 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.base.components.color_picker.LibraryButton
 import ly.img.editor.base.ui.EditorUi
 import ly.img.editor.base.ui.EditorUiTabIconMappings
+import ly.img.editor.core.event.EditorEvent
+import ly.img.editor.core.event.EditorEventHandler
+import ly.img.editor.core.library.AssetLibrary
+import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.Environment
-import ly.img.editor.core.ui.iconpack.Arrowback
-import ly.img.editor.core.ui.iconpack.IconPack
+import ly.img.editor.core.ui.utils.activity
+import ly.img.engine.AssetDefinition
+import ly.img.engine.Engine
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ApparelUi(
-    navigationIcon: ImageVector = IconPack.Arrowback,
-    sceneUri: Uri,
-    goBack: () -> Boolean,
-    viewModel: ApparelUiViewModel = viewModel()
+    initialExternalState: Parcelable,
+    license: String,
+    userId: String?,
+    navigationIcon: ImageVector,
+    baseUri: Uri,
+    colorPalette: List<Color>,
+    assetLibrary: AssetLibrary,
+    onCreate: suspend (Engine, EditorEventHandler) -> Unit,
+    onExport: suspend (Engine, EditorEventHandler) -> Unit,
+    onUpload: suspend AssetDefinition.(Engine, EditorEventHandler, UploadAssetSourceType) -> AssetDefinition,
+    onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
+    onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
+    onEvent: (Activity, MutableState<out Parcelable>, EditorEvent) -> Unit,
+    overlay: @Composable ((Parcelable, EditorEventHandler) -> Unit),
+    close: () -> Unit,
 ) {
-    val initSetup by remember {
+    val activity = requireNotNull(LocalContext.current.activity)
+    remember {
+        Environment.init(activity.application)
+        mutableStateOf(Unit)
+    }
+
+    val viewModel =
+        viewModel {
+            ApparelUiViewModel(
+                baseUri = baseUri,
+                onCreate = onCreate,
+                onExport = onExport,
+                onClose = onClose,
+                onError = onError,
+                colorPalette = colorPalette,
+            )
+        }
+
+    // cannot combine remember blocks because onUpload requires viewModel instance
+    remember {
         Environment.tabIconMappings = EditorUiTabIconMappings()
+        Environment.assetLibrary = assetLibrary
+        Environment.onUpload = { engine, assetSourceType ->
+            onUpload(this, engine, viewModel, assetSourceType)
+        }
         mutableStateOf(Unit)
     }
 
@@ -38,31 +82,35 @@ fun ApparelUi(
     val uiState by viewModel.uiState.collectAsState()
 
     EditorUi(
-        sceneUri = sceneUri,
-        goBack = goBack,
+        initialExternalState = initialExternalState,
+        license = license,
+        userId = userId,
         uiState = uiState,
+        overlay = overlay,
+        onEvent = onEvent,
         topBar = {
             ApparelUiToolbar(
                 navigationIcon = navigationIcon,
                 onEvent = viewModel::onEvent,
-                isLoading = uiState.isLoading,
                 isInPreviewMode = uiState.isInPreviewMode,
                 isUndoEnabled = uiState.isUndoEnabled,
-                isRedoEnabled = uiState.isRedoEnabled
+                isRedoEnabled = uiState.isRedoEnabled,
             )
         },
         canvasOverlay = {
             if (!uiState.isInPreviewMode && uiState.selectedBlock == null) {
                 LibraryButton(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(16.dp),
                     uiScope = uiScope,
                     bottomSheetState = uiState.bottomSheetState,
-                    onEvent = viewModel::onEvent
+                    onEvent = viewModel::onEvent,
                 )
             }
         },
-        viewModel = viewModel
+        viewModel = viewModel,
+        close = close,
     )
 }

@@ -5,28 +5,35 @@ import java.io.*
 import java.net.URL
 import java.util.*
 
-fun createSceneFromImageBlob(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
+fun createSceneFromImageBlob(
+    license: String,
+    userId: String,
+) = CoroutineScope(
+    Dispatchers.Main,
+).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-blob
     val blobUrl = URL("https://img.ly/static/ubq_samples/sample_4.jpg")
-    val blob = withContext(Dispatchers.IO) {
-        val outputStream = ByteArrayOutputStream()
-        blobUrl.openStream().use { inputStream ->
-            outputStream.use(inputStream::copyTo)
+    val blob =
+        withContext(Dispatchers.IO) {
+            val outputStream = ByteArrayOutputStream()
+            blobUrl.openStream().use { inputStream ->
+                outputStream.use(inputStream::copyTo)
+            }
+            outputStream.toByteArray()
         }
-        outputStream.toByteArray()
-    }
     // highlight-blob
 
     // highlight-objectURL
-    val blobFile = withContext(Dispatchers.IO) {
-        File.createTempFile(UUID.randomUUID().toString(), ".tmp").apply {
-            outputStream().use { it.write(blob) }
+    val blobFile =
+        withContext(Dispatchers.IO) {
+            File.createTempFile(UUID.randomUUID().toString(), ".tmp").apply {
+                outputStream().use { it.write(blob) }
+            }
         }
-    }
     val blobUri = Uri.fromFile(blobFile)
     // highlight-objectURL
 

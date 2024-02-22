@@ -12,12 +12,18 @@ import ly.img.engine.PositionMode
 import ly.img.engine.SizeMode
 import kotlin.random.Random
 
-internal fun Engine.replaceSticker(stickerBlock: DesignBlock, uri: String) {
+internal fun Engine.replaceSticker(
+    stickerBlock: DesignBlock,
+    uri: String,
+) {
     block.setString(block.getFill(stickerBlock), "fill/image/imageFileURI", uri)
     block.setContentFillMode(stickerBlock, ContentFillMode.CONTAIN)
 }
 
-internal fun Engine.addText(path: String, size: Float) : DesignBlock {
+internal fun Engine.addText(
+    path: String,
+    size: Float,
+): DesignBlock {
     val fontSize = (50.0f / 24.0f) * size
     val textBlock = block.create(DesignBlockType.Text)
     block.setString(textBlock, "text/fontFileUri", Uri.parse("$FONT_BASE_PATH/$path").toString())
@@ -33,8 +39,7 @@ internal fun Engine.addText(path: String, size: Float) : DesignBlock {
  */
 private fun Engine.addBlockToPage(designBlock: DesignBlock) {
     deselectAllBlocks()
-    // TODO: unhardcode page index
-    block.appendChild(getPage(0), designBlock)
+    block.appendChild(scene.getCurrentPage() ?: getPage(0), designBlock)
     block.setPositionXMode(designBlock, PositionMode.ABSOLUTE)
     block.setPositionX(designBlock, 15 + (Random.nextFloat() * 20))
     block.setPositionYMode(designBlock, PositionMode.ABSOLUTE)

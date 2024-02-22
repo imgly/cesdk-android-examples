@@ -1,6 +1,5 @@
 package ly.img.editor.core.ui.library.data
 
-import android.net.Uri
 import androidx.core.content.edit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,18 +10,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ly.img.editor.core.library.data.TextAssetSource
-import ly.img.editor.core.library.data.UnsplashAssetSource
 import ly.img.editor.core.ui.Environment
-import ly.img.editor.core.ui.Secrets
-import ly.img.editor.core.ui.engine.BASE_PATH
 import ly.img.editor.core.ui.engine.FONT_BASE_PATH
 import ly.img.editor.core.ui.library.data.font.FontData
 import ly.img.editor.core.ui.library.data.font.FontData.Companion.createFontData
 import ly.img.editor.core.ui.library.data.font.FontFamilyData
-import ly.img.engine.Engine
-import ly.img.engine.addDefaultAssetSources
-import ly.img.engine.addDemoAssetSources
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
@@ -32,64 +24,41 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
-private const val FONTS_MANIFEST_URL = "$BASE_PATH$FONT_BASE_PATH/manifest.json"
-
 class AssetsRepository {
-
-    private val _fontFamilies = MutableStateFlow<Result<Map<String, FontFamilyData>>?>(null)
+    private val _fontFamilies = MutableStateFlow<Map<String, FontFamilyData>?>(null)
     val fontFamilies = _fontFamilies.asStateFlow()
 
-    suspend fun loadAssetSources(engine: Engine) {
-        engine.asset.addSource(UnsplashAssetSource(Secrets.unsplashHost))
-        engine.asset.addSource(TextAssetSource())
-        coroutineScope {
-            launch {
-                val baseUri = Uri.parse("https://cdn.img.ly/assets/v2")
-                engine.addDefaultAssetSources(baseUri = baseUri)
-            }
-            launch {
-                engine.addDemoAssetSources(
-                    sceneMode = Environment.sceneMode,
-                    withUploadAssetSources = true,
-                    baseUri = Uri.parse("https://cdn.img.ly/assets/demo/v2")
-                )
-            }
-        }
-    }
-
-    suspend fun loadFonts() {
+    suspend fun loadFonts(basePath: String) =
         withContext(Dispatchers.IO) {
-            try {
-                val parsedFontFamilies: Map<String, FontFamilyData>
-                if (areFontsDownloaded()) {
-                    // read fonts from manifest file
-                    val jsonAssets = JSONArray(getManifestFile().inputStream().bufferedReader().use { it.readText() })
-                    parsedFontFamilies = parseFontsJson(jsonAssets)
-                } else {
-                    val response = getResponseAsInputStream(FONTS_MANIFEST_URL).bufferedReader().use { it.readText() }
-                    val jsonAssets = JSONObject(response).getJSONArray("assets").getJSONObject(0).getJSONArray("assets")
+            val parsedFontFamilies: Map<String, FontFamilyData>
+            if (areFontsDownloaded()) {
+                // read fonts from manifest file
+                val jsonAssets = JSONArray(getManifestFile().inputStream().bufferedReader().use { it.readText() })
+                parsedFontFamilies = parseFontsJson(jsonAssets)
+            } else {
+                val fontsManifestUrl = "$basePath$FONT_BASE_PATH/manifest.json"
+                val response = getResponseAsInputStream(fontsManifestUrl).bufferedReader().use { it.readText() }
+                val jsonAssets = JSONObject(response).getJSONArray("assets").getJSONObject(0).getJSONArray("assets")
 
-                    // delete if already exists
-                    getFontsDir().deleteRecursively()
-                    getFontsDir().mkdir()
+                // delete if already exists
+                getFontsDir().deleteRecursively()
+                getFontsDir().mkdir()
 
-                    // write manifest to file
-                    FileWriter(getManifestFile().also {
+                // write manifest to file
+                FileWriter(
+                    getManifestFile().also {
                         it.createNewFile()
-                    }).use {
-                        it.write(jsonAssets.toString())
-                    }
-
-                    parsedFontFamilies = parseFontsJson(jsonAssets)
-                    downloadFonts(parsedFontFamilies)
-                    setFontsDownloaded()
+                    },
+                ).use {
+                    it.write(jsonAssets.toString())
                 }
-                _fontFamilies.update { Result.success(parsedFontFamilies) }
-            } catch (ex: Exception) {
-                _fontFamilies.update { Result.failure(ex) }
+
+                parsedFontFamilies = parseFontsJson(jsonAssets)
+                downloadFonts(basePath, parsedFontFamilies)
+                setFontsDownloaded()
             }
+            _fontFamilies.update { parsedFontFamilies }
         }
-    }
 
     private fun parseFontsJson(json: JSONArray): Map<String, FontFamilyData> {
         val fontFamilyMap = hashMapOf<String, ArrayList<FontData>>()
@@ -104,21 +73,25 @@ class AssetsRepository {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun downloadFonts(map: Map<String, FontFamilyData>) {
+    private suspend fun downloadFonts(
+        basePath: String,
+        map: Map<String, FontFamilyData>,
+    ) {
         val fontList = map.values.flatMap { it.displayFontsData.toList() }
         val limitedParallelismDispatcher = Dispatchers.IO.limitedParallelism(8)
         coroutineScope {
-            val jobs = fontList.map {
-                launch(limitedParallelismDispatcher) {
-                    getResponseAsInputStream("$BASE_PATH$FONT_BASE_PATH/${it.fontPath}").use { input ->
-                        File(getFontsDir(), it.fontPath).also {
-                            it.parentFile?.mkdirs()
-                        }.outputStream().use { output ->
-                            input.copyTo(output)
+            val jobs =
+                fontList.map {
+                    launch(limitedParallelismDispatcher) {
+                        getResponseAsInputStream("$basePath$FONT_BASE_PATH/${it.fontPath}").use { input ->
+                            File(getFontsDir(), it.fontPath).also {
+                                it.parentFile?.mkdirs()
+                            }.outputStream().use { output ->
+                                input.copyTo(output)
+                            }
                         }
                     }
                 }
-            }
             jobs.joinAll()
         }
     }
@@ -144,4 +117,4 @@ class AssetsRepository {
     private fun getManifestFile(): File = File(getFontsDir(), "manifest.json")
 }
 
-fun getFontsDir(): File = File(Environment.getFilesDir(), "cesdk_fonts")
+fun getFontsDir(): File = File(Environment.getFilesDir(), "editor_fonts")

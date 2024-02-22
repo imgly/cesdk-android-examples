@@ -28,5 +28,4 @@ object Scope {
     const val AppearanceFilter = "appearance/filter"
     const val AppearanceEffect = "appearance/effect"
     const val AppearanceBlur = "appearance/blur"
-
 }

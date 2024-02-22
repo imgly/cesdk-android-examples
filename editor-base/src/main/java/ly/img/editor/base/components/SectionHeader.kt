@@ -10,20 +10,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SectionHeader(
-    text: String
-) {
+fun SectionHeader(text: String) {
     Text(
         text,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         style = MaterialTheme.typography.labelLarge,
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
     )
 }
 
 @Composable
 fun SectionHeader(
-    @StringRes text: Int
+    @StringRes text: Int,
 ) = SectionHeader(
-    text = stringResource(text)
+    text = stringResource(text),
 )
