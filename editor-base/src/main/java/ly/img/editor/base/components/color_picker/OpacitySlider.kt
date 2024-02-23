@@ -31,12 +31,13 @@ internal fun OpacitySlider(
     color: Color,
     modifier: Modifier = Modifier,
     onValueChange: (Float) -> Unit,
-    onValueChangeFinished: () -> Unit
+    onValueChangeFinished: () -> Unit,
 ) {
     var sliderValue by remember(color) { mutableStateOf(color.alpha) }
-    val colors = SliderDefaults.colors(
-        thumbColor = Color.White
-    )
+    val colors =
+        SliderDefaults.colors(
+            thumbColor = Color.White,
+        )
 
     Slider(
         sliderValue,
@@ -49,32 +50,33 @@ internal fun OpacitySlider(
         colors = colors,
         track = {
             Track(color)
-        }
+        },
     )
 }
 
 @Composable
 private fun Track(
     color: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val trackHeight = 4.dp
     val image = ImageBitmap.imageResource(R.drawable.checkerboard_pattern)
-    val opacityBrush = remember(image) { ShaderBrush(ImageShader(image, TileMode.Repeated, TileMode.Repeated)) }
-    val gradientBrush = remember(color) {
-        Brush.linearGradient(
-            listOf(
-                color.copy(alpha = 0f),
-                color.copy(alpha = 1f)
+    val opacityBrush =
+        remember(image) { ShaderBrush(ImageShader(image, TileMode.Repeated, TileMode.Repeated)) }
+    val gradientBrush =
+        remember(color) {
+            Brush.linearGradient(
+                listOf(
+                    color.copy(alpha = 0f),
+                    color.copy(alpha = 1f),
+                ),
             )
-        )
-    }
+        }
     Canvas(
         modifier
             .fillMaxWidth()
-            .height(trackHeight)
+            .height(trackHeight),
     ) {
-
         val isRtl = layoutDirection == LayoutDirection.Rtl
         val sliderLeft = Offset(0f, center.y)
         val sliderRight = Offset(size.width, center.y)
@@ -87,7 +89,7 @@ private fun Track(
             start = sliderStart,
             end = sliderEnd,
             strokeWidth = trackStrokeWidth,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
 
         drawLine(
@@ -95,7 +97,7 @@ private fun Track(
             start = sliderStart,
             end = sliderEnd,
             strokeWidth = trackStrokeWidth,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
     }
 }

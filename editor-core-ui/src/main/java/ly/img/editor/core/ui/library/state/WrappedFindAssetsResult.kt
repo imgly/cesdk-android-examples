@@ -5,5 +5,5 @@ import ly.img.engine.FindAssetsResult
 
 internal data class WrappedFindAssetsResult(
     val assetSourceType: AssetSourceType,
-    val findAssetsResult: FindAssetsResult
+    val findAssetsResult: FindAssetsResult,
 )

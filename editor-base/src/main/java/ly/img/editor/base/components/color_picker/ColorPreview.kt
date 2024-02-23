@@ -15,17 +15,17 @@ import androidx.compose.ui.unit.dp
 fun ColorPreview(
     color: Color,
     modifier: Modifier = Modifier,
-    outlineColor: Color = MaterialTheme.colorScheme.outline
+    outlineColor: Color = MaterialTheme.colorScheme.outline,
 ) {
     Canvas(
-        modifier = modifier.size(80.dp)
+        modifier = modifier.size(80.dp),
     ) {
         val cornerRadiusPx = 12.dp.toPx()
         val cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)
 
         drawRoundRect(
             color = outlineColor,
-            cornerRadius = cornerRadius
+            cornerRadius = cornerRadius,
         )
 
         val outlineWidth = 1.dp.toPx()
@@ -35,7 +35,7 @@ fun ColorPreview(
             color = color,
             cornerRadius = cornerRadius,
             topLeft = offset,
-            size = Size(size.width - 2 * outlineWidth, size.height - 2 * outlineWidth)
+            size = Size(size.width - 2 * outlineWidth, size.height - 2 * outlineWidth),
         )
     }
 }

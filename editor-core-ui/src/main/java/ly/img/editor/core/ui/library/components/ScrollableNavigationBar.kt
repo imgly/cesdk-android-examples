@@ -63,23 +63,24 @@ internal fun ScrollableNavigationBar(
     contentColor: Color = MaterialTheme.colorScheme.contentColorFor(containerColor),
     tonalElevation: Dp = NavigationBarDefaults.Elevation,
     windowInsets: WindowInsets = NavigationBarDefaults.windowInsets,
-    content: LazyListScope.() -> Unit
+    content: LazyListScope.() -> Unit,
 ) {
     Surface(
         color = containerColor,
         contentColor = contentColor,
         tonalElevation = tonalElevation,
-        modifier = modifier
+        modifier = modifier,
     ) {
         LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(windowInsets)
-                .height(80.dp)
-                .selectableGroup(),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(windowInsets)
+                    .height(80.dp)
+                    .selectableGroup(),
             contentPadding = PaddingValues(horizontal = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            content = content
+            content = content,
         )
     }
 }
@@ -93,17 +94,18 @@ internal fun WeightlessNavigationBarItem(
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
     alwaysShowLabel: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
     val styledIcon = @Composable {
-        val targetValue = when {
-            !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-            selected -> MaterialTheme.colorScheme.onSecondaryContainer
-            else -> MaterialTheme.colorScheme.onSurfaceVariant
-        }
+        val targetValue =
+            when {
+                !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                selected -> MaterialTheme.colorScheme.onSecondaryContainer
+                else -> MaterialTheme.colorScheme.onSurfaceVariant
+            }
         val iconColor by animateColorAsState(
             targetValue = targetValue,
-            animationSpec = tween(100)
+            animationSpec = tween(100),
         )
         // If there's a label, don't have a11y services repeat the icon description.
         val clearSemantics = label != null && (alwaysShowLabel || selected)
@@ -112,23 +114,25 @@ internal fun WeightlessNavigationBarItem(
         }
     }
 
-    val styledLabel: @Composable (() -> Unit)? = label?.let {
-        @Composable {
-            val style = MaterialTheme.typography.labelMedium
-            val targetValue = when {
-                !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
-                selected -> MaterialTheme.colorScheme.onSurface
-                else -> MaterialTheme.colorScheme.onSurfaceVariant
-            }
-            val textColor by animateColorAsState(
-                targetValue = targetValue,
-                animationSpec = tween(100)
-            )
-            CompositionLocalProvider(LocalContentColor provides textColor) {
-                ProvideTextStyle(style, content = label)
+    val styledLabel: @Composable (() -> Unit)? =
+        label?.let {
+            @Composable {
+                val style = MaterialTheme.typography.labelMedium
+                val targetValue =
+                    when {
+                        !enabled -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                        selected -> MaterialTheme.colorScheme.onSurface
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                val textColor by animateColorAsState(
+                    targetValue = targetValue,
+                    animationSpec = tween(100),
+                )
+                CompositionLocalProvider(LocalContentColor provides textColor) {
+                    ProvideTextStyle(style, content = label)
+                }
             }
         }
-    }
 
     var itemWidth by remember { mutableStateOf(0) }
 
@@ -146,11 +150,11 @@ internal fun WeightlessNavigationBarItem(
             .onSizeChanged {
                 itemWidth = it.width
             },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         val animationProgress: Float by animateFloatAsState(
             targetValue = if (selected) 1f else 0f,
-            animationSpec = tween(100)
+            animationSpec = tween(100),
         )
 
         // The entire item is selectable, but only the indicator pill shows the ripple. To achieve
@@ -159,14 +163,16 @@ internal fun WeightlessNavigationBarItem(
         val deltaOffset: Offset
         with(LocalDensity.current) {
             val indicatorWidth = 64.dp.roundToPx()
-            deltaOffset = Offset(
-                (itemWidth - indicatorWidth).toFloat() / 2,
-                12.dp.toPx()
-            )
+            deltaOffset =
+                Offset(
+                    (itemWidth - indicatorWidth).toFloat() / 2,
+                    12.dp.toPx(),
+                )
         }
-        val offsetInteractionSource = remember(interactionSource, deltaOffset) {
-            MappedInteractionSource(interactionSource, deltaOffset)
-        }
+        val offsetInteractionSource =
+            remember(interactionSource, deltaOffset) {
+                MappedInteractionSource(interactionSource, deltaOffset)
+            }
 
         // The indicator has a width-expansion animation which interferes with the timing of the
         // ripple, which is why they are separate composables
@@ -175,7 +181,7 @@ internal fun WeightlessNavigationBarItem(
                 Modifier
                     .layoutId(IndicatorRippleLayoutIdTag)
                     .clip(CircleShape)
-                    .indication(offsetInteractionSource, rememberRipple())
+                    .indication(offsetInteractionSource, rememberRipple()),
             )
         }
         val indicator = @Composable {
@@ -183,9 +189,12 @@ internal fun WeightlessNavigationBarItem(
                 Modifier
                     .layoutId(IndicatorLayoutIdTag)
                     .background(
-                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = animationProgress),
+                        color =
+                            MaterialTheme.colorScheme.secondaryContainer.copy(
+                                alpha = animationProgress,
+                            ),
                         shape = CircleShape,
-                    )
+                    ),
             )
         }
 
@@ -195,7 +204,7 @@ internal fun WeightlessNavigationBarItem(
             icon = styledIcon,
             label = styledLabel,
             alwaysShowLabel = alwaysShowLabel,
-            animationProgress = animationProgress
+            animationProgress = animationProgress,
         )
     }
 }
@@ -222,7 +231,7 @@ private fun NavigationBarItemBaselineLayout(
                 Modifier
                     .layoutId(LabelLayoutIdTag)
                     .alpha(if (alwaysShowLabel) 1f else animationProgress)
-                    .padding(horizontal = NavigationBarItemHorizontalPadding / 2)
+                    .padding(horizontal = NavigationBarItemHorizontalPadding / 2),
             ) { label() }
         }
     }) { measurables, constraints ->
@@ -238,8 +247,8 @@ private fun NavigationBarItemBaselineLayout(
                 .measure(
                     Constraints.fixed(
                         width = totalIndicatorWidth,
-                        height = indicatorHeight
-                    )
+                        height = indicatorHeight,
+                    ),
                 )
         val indicatorPlaceable =
             measurables
@@ -247,8 +256,8 @@ private fun NavigationBarItemBaselineLayout(
                 ?.measure(
                     Constraints.fixed(
                         width = animatedIndicatorWidth,
-                        height = indicatorHeight
-                    )
+                        height = indicatorHeight,
+                    ),
                 )
 
         val labelPlaceable =
@@ -258,7 +267,7 @@ private fun NavigationBarItemBaselineLayout(
                     .measure(
                         // Measure with loose constraints for height as we don't want the label to
                         // take up more space than it needs
-                        constraints.copy(minHeight = 0)
+                        constraints.copy(minHeight = 0),
                     )
             }
 
@@ -272,7 +281,7 @@ private fun NavigationBarItemBaselineLayout(
                 indicatorPlaceable,
                 constraints,
                 alwaysShowLabel,
-                animationProgress
+                animationProgress,
             )
         }
     }
@@ -285,7 +294,7 @@ private fun MeasureScope.placeIcon(
     iconPlaceable: Placeable,
     indicatorRipplePlaceable: Placeable,
     indicatorPlaceable: Placeable?,
-    constraints: Constraints
+    constraints: Constraints,
 ): MeasureResult {
     val width = if (constraints.hasBoundedWidth) constraints.maxWidth else constraints.minWidth
     val height = constraints.maxHeight
@@ -366,7 +375,14 @@ private fun MeasureScope.placeLabelAndIcon(
     val offset = (iconDistance * (1 - animationProgress)).roundToInt()
 
     val containerWidth =
-        if (constraints.hasBoundedWidth) constraints.maxWidth else maxOf(constraints.minWidth, labelPlaceable.width)
+        if (constraints.hasBoundedWidth) {
+            constraints.maxWidth
+        } else {
+            maxOf(
+                constraints.minWidth,
+                labelPlaceable.width,
+            )
+        }
 
     val labelX = (containerWidth - labelPlaceable.width) / 2
     val iconX = (containerWidth - iconPlaceable.width) / 2
@@ -390,40 +406,41 @@ private fun MeasureScope.placeLabelAndIcon(
 
 internal class MappedInteractionSource(
     underlyingInteractionSource: InteractionSource,
-    private val delta: Offset
+    private val delta: Offset,
 ) : InteractionSource {
     private val mappedPresses =
         mutableMapOf<PressInteraction.Press, PressInteraction.Press>()
 
-    override val interactions = underlyingInteractionSource.interactions.map { interaction ->
-        when (interaction) {
-            is PressInteraction.Press -> {
-                val mappedPress = mapPress(interaction)
-                mappedPresses[interaction] = mappedPress
-                mappedPress
-            }
-
-            is PressInteraction.Cancel -> {
-                val mappedPress = mappedPresses.remove(interaction.press)
-                if (mappedPress == null) {
-                    interaction
-                } else {
-                    PressInteraction.Cancel(mappedPress)
+    override val interactions =
+        underlyingInteractionSource.interactions.map { interaction ->
+            when (interaction) {
+                is PressInteraction.Press -> {
+                    val mappedPress = mapPress(interaction)
+                    mappedPresses[interaction] = mappedPress
+                    mappedPress
                 }
-            }
 
-            is PressInteraction.Release -> {
-                val mappedPress = mappedPresses.remove(interaction.press)
-                if (mappedPress == null) {
-                    interaction
-                } else {
-                    PressInteraction.Release(mappedPress)
+                is PressInteraction.Cancel -> {
+                    val mappedPress = mappedPresses.remove(interaction.press)
+                    if (mappedPress == null) {
+                        interaction
+                    } else {
+                        PressInteraction.Cancel(mappedPress)
+                    }
                 }
-            }
 
-            else -> interaction
+                is PressInteraction.Release -> {
+                    val mappedPress = mappedPresses.remove(interaction.press)
+                    if (mappedPress == null) {
+                        interaction
+                    } else {
+                        PressInteraction.Release(mappedPress)
+                    }
+                }
+
+                else -> interaction
+            }
         }
-    }
 
     private fun mapPress(press: PressInteraction.Press): PressInteraction.Press =
         PressInteraction.Press(press.pressPosition - delta)
@@ -437,10 +454,10 @@ private const val IconLayoutIdTag: String = "icon"
 
 private const val LabelLayoutIdTag: String = "label"
 
-/*@VisibleForTesting*/
+// @VisibleForTesting
 internal val NavigationBarItemHorizontalPadding: Dp = 8.dp
 
-/*@VisibleForTesting*/
+// @VisibleForTesting
 internal val NavigationBarItemVerticalPadding: Dp = 16.dp
 
 private val IndicatorHorizontalPadding: Dp = 20.dp

@@ -21,7 +21,7 @@ fun EffectOptionsSheet(
     onBack: () -> Unit,
     onEvent: (Event) -> Unit,
     title: String,
-    adjustments: List<AdjustmentState>
+    adjustments: List<AdjustmentState>,
 ) {
     BackHandler {
         onBack()
@@ -30,12 +30,12 @@ fun EffectOptionsSheet(
         NestedSheetHeader(
             title = title,
             onBack = onBack,
-            onClose = { onEvent(Event.OnHideSheet) }
+            onClose = { onEvent(Event.OnHideSheet) },
         )
         Column(
             Modifier
                 .inspectorSheetPadding()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
         ) {
             adjustments.forEach { (type, currentValue) ->
                 PropertySlider(

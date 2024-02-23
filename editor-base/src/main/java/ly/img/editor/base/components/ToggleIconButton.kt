@@ -11,17 +11,18 @@ fun ToggleIconButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean = true,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     FilledIconToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
-        colors = IconButtonDefaults.filledIconToggleButtonColors(
-            containerColor = Color.Transparent,
-            contentColor = LocalContentColor.current,
-            disabledContainerColor = Color.Transparent
-        ),
+        colors =
+            IconButtonDefaults.filledIconToggleButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = LocalContentColor.current,
+                disabledContainerColor = Color.Transparent,
+            ),
         enabled = enabled,
-        content = content
+        content = content,
     )
 }

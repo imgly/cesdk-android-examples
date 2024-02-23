@@ -15,23 +15,31 @@ val IconPack.Arrowright: ImageVector
         if (_arrowright != null) {
             return _arrowright!!
         }
-        _arrowright = Builder(
-            name = "Arrowright", defaultWidth = 24.0.dp, defaultHeight = 24.0.dp,
-            viewportWidth = 24.0f, viewportHeight = 24.0f
-        ).apply {
-            path(
-                fill = SolidColor(Color(0xFF1C1B1F)), stroke = null, strokeLineWidth = 0.0f,
-                strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-                pathFillType = NonZero
-            ) {
-                moveTo(10.0f, 17.0f)
-                lineTo(15.0f, 12.0f)
-                lineTo(10.0f, 7.0f)
-                verticalLineTo(17.0f)
-                close()
+        _arrowright =
+            Builder(
+                name = "Arrowright",
+                defaultWidth = 24.0.dp,
+                defaultHeight = 24.0.dp,
+                viewportWidth = 24.0f,
+                viewportHeight = 24.0f,
+            ).apply {
+                path(
+                    fill = SolidColor(Color(0xFF1C1B1F)),
+                    stroke = null,
+                    strokeLineWidth = 0.0f,
+                    strokeLineCap = Butt,
+                    strokeLineJoin = Miter,
+                    strokeLineMiter = 4.0f,
+                    pathFillType = NonZero,
+                ) {
+                    moveTo(10.0f, 17.0f)
+                    lineTo(15.0f, 12.0f)
+                    lineTo(10.0f, 7.0f)
+                    verticalLineTo(17.0f)
+                    close()
+                }
             }
-        }
-            .build()
+                .build()
         return _arrowright!!
     }
 

@@ -23,30 +23,30 @@ import ly.img.editor.core.R as coreR
 fun NestedSheetHeader(
     title: String,
     onBack: () -> Unit,
-    onClose: () -> Unit
+    onClose: () -> Unit,
 ) {
     Row(
         Modifier
             .fillMaxWidth()
             .height(UiDefaults.sheetHeaderHeight),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
             modifier = Modifier.padding(horizontal = 4.dp),
-            onClick = onBack
+            onClick = onBack,
         ) {
-            Icon(IconPack.Arrowback, contentDescription = stringResource(coreR.string.cesdk_back))
+            Icon(IconPack.Arrowback, contentDescription = stringResource(coreR.string.ly_img_editor_back))
         }
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         IconButton(
             modifier = Modifier.padding(horizontal = 4.dp),
             onClick = onClose,
         ) {
-            Icon(IconPack.Expandmore, contentDescription = stringResource(coreR.string.cesdk_close))
+            Icon(IconPack.Expandmore, contentDescription = stringResource(coreR.string.ly_img_editor_close))
         }
     }
 }

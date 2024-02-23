@@ -1,7 +1,10 @@
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
-fun usingShapes(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
+fun usingShapes(
+    license: String,
+    userId: String,
+) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 100, height = 100)
@@ -14,14 +17,20 @@ fun usingShapes(license: String, userId: String) = CoroutineScope(Dispatchers.Ma
     engine.block.setString(
         block = imageFill,
         property = "fill/image/imageFileURI",
-        value = "https://img.ly/static/ubq_samples/sample_1.jpg"
+        value = "https://img.ly/static/ubq_samples/sample_1.jpg",
     )
     engine.block.setFill(graphic, fill = imageFill)
     engine.block.setWidth(graphic, value = 100F)
     engine.block.setHeight(graphic, value = 100F)
     engine.block.appendChild(parent = scene, child = graphic)
 
-    engine.scene.zoomToBlock(graphic, paddingLeft = 40F, paddingTop = 40F, paddingRight = 40F, paddingBottom = 40F)
+    engine.scene.zoomToBlock(
+        graphic,
+        paddingLeft = 40F,
+        paddingTop = 40F,
+        paddingRight = 40F,
+        paddingBottom = 40F,
+    )
 
     // highlight-setup
 
@@ -44,7 +53,7 @@ fun usingShapes(license: String, userId: String) = CoroutineScope(Dispatchers.Ma
     val starShape = engine.block.createShape(ShapeType.Star)
     engine.block.destroy(engine.block.getShape(graphic))
     engine.block.setShape(graphic, shape = starShape)
-    /* The following line would also destroy the currently attached starShape */
+    // The following line would also destroy the currently attached starShape
     // engine.block.destroy(graphic)
     // highlight-replaceShape
 

@@ -21,23 +21,25 @@ fun ColorPickerButton(
     punchHole: Boolean = false,
     onClick: () -> Unit,
 ) {
-    val gradient = remember {
-        Brush.sweepGradient(
-            0.0f to Color(0xFFFFC700),
-            0.18f to Color(0xFF05FF00),
-            0.34f to Color(0xFF00FFFF),
-            0.47f to Color(0xFF001AFF),
-            0.6f to Color(0xFFFA00FF),
-            0.75f to Color(0xFFFF0000),
-            0.9f to Color(0xFFFF6500),
-            1.0f to Color(0xFFFFC700),
-        )
-    }
+    val gradient =
+        remember {
+            Brush.sweepGradient(
+                0.0f to Color(0xFFFFC700),
+                0.18f to Color(0xFF05FF00),
+                0.34f to Color(0xFF00FFFF),
+                0.47f to Color(0xFF001AFF),
+                0.6f to Color(0xFFFA00FF),
+                0.75f to Color(0xFFFF0000),
+                0.9f to Color(0xFFFF6500),
+                1.0f to Color(0xFFFFC700),
+            )
+        }
     val outlineColor = MaterialTheme.colorScheme.outline
     Canvas(
-        modifier = modifier
-            .size(40.dp)
-            .clickable { onClick() },
+        modifier =
+            modifier
+                .size(40.dp)
+                .clickable { onClick() },
         onDraw = {
             // Blend modes are only working with using the layer directly
             // Consider using CompositionStrategy instead when it's available
@@ -50,27 +52,31 @@ fun ColorPickerButton(
                 drawCircle(
                     brush = gradient,
                     radius = size.minDimension / 2 - (strokeWidthPx / 2),
-                    style = Stroke(width = strokeWidthPx)
+                    style = Stroke(width = strokeWidthPx),
                 )
 
                 // contrast stroke
                 drawCircle(
                     color = outlineColor,
-                    radius = size.minDimension / 2 - (strokeWidthPx * 2)
+                    radius = size.minDimension / 2 - (strokeWidthPx * 2),
                 )
 
                 // color circle
                 drawCircle(
                     color = color,
-                    radius = (size.minDimension / 2) - (strokeWidthPx * 2) - (strokeWidthPx / 2)
+                    radius = (size.minDimension / 2) - (strokeWidthPx * 2) - (strokeWidthPx / 2),
                 )
 
                 if (punchHole) {
                     drawCircle(outlineColor, size.minDimension / 4)
-                    drawCircle(Color.Black, size.minDimension / 4 - 1.dp.toPx(), blendMode = BlendMode.Clear)
+                    drawCircle(
+                        Color.Black,
+                        size.minDimension / 4 - 1.dp.toPx(),
+                        blendMode = BlendMode.Clear,
+                    )
                 }
                 restoreToCount(checkPoint)
             }
-        }
+        },
     )
 }

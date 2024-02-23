@@ -24,18 +24,18 @@ fun SheetHeader(
     title: String,
     onClose: () -> Unit,
     actionContent: @Composable (BoxScope.() -> Unit)? = null,
-    icon: ImageVector = IconPack.Expandmore
+    icon: ImageVector = IconPack.Expandmore,
 ) {
     Box(
         Modifier
             .fillMaxWidth()
-            .height(UiDefaults.sheetHeaderHeight)
+            .height(UiDefaults.sheetHeaderHeight),
     ) {
         actionContent?.let {
             Box(
                 Modifier
                     .padding(horizontal = 4.dp)
-                    .align(Alignment.CenterStart)
+                    .align(Alignment.CenterStart),
             ) {
                 it()
             }
@@ -43,15 +43,16 @@ fun SheetHeader(
         Text(
             text = title,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.align(Alignment.Center)
+            modifier = Modifier.align(Alignment.Center),
         )
         IconButton(
             onClick = onClose,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(horizontal = 4.dp)
+            modifier =
+                Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(horizontal = 4.dp),
         ) {
-            Icon(icon, contentDescription = stringResource(R.string.cesdk_close))
+            Icon(icon, contentDescription = stringResource(R.string.ly_img_editor_close))
         }
     }
 }

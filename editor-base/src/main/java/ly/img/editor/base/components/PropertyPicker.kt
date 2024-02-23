@@ -36,40 +36,49 @@ fun PropertyPicker(
     @StringRes propertyTextRes: Int,
     enabled: Boolean = true,
     properties: List<Property>,
-    onPropertyPicked: (String) -> Unit
+    onPropertyPicked: (String) -> Unit,
 ) {
     var showMenu by remember { mutableStateOf(false) }
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface1)
-            .ifTrue(enabled) {
-                clickable { showMenu = true }
-            }
-            .padding(vertical = 4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface1)
+                .ifTrue(enabled) {
+                    clickable { showMenu = true }
+                }
+                .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp))
+        Text(
+            title,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 16.dp),
+        )
         CompositionLocalProvider(
             LocalContentColor provides
-                if (enabled) MaterialTheme.colorScheme.primary
-                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                if (enabled) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                },
         ) {
             Row(
                 modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     stringResource(propertyTextRes),
                     modifier = Modifier.padding(horizontal = 10.dp),
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
                 )
                 Box {
                     Icon(IconPack.Arrowdropdown, contentDescription = null)
                     DropdownMenu(
                         expanded = showMenu,
-                        onDismissRequest = { showMenu = false }) {
+                        onDismissRequest = { showMenu = false },
+                    ) {
                         properties.forEach {
                             CheckedTextRow(
                                 isChecked = it.textRes == propertyTextRes,
@@ -78,7 +87,7 @@ fun PropertyPicker(
                                 onClick = {
                                     onPropertyPicked(it.value)
                                     showMenu = false
-                                }
+                                },
                             )
                         }
                     }
@@ -91,5 +100,5 @@ fun PropertyPicker(
 data class Property(
     @StringRes val textRes: Int,
     val value: String,
-    val icon: ImageVector? = null
+    val icon: ImageVector? = null,
 )

@@ -18,13 +18,17 @@ data class CanvasActionMenuUiState(
     val canBringBackward: Boolean?,
     val isDuplicateAllowed: Boolean,
     val isDeleteAllowed: Boolean,
-    val show: Boolean = true
+    val show: Boolean = true,
 ) {
     fun firstPageExists() = isDuplicateAllowed || isDeleteAllowed
+
     fun secondPageExists() = canBringBackward ?: false || canBringForward ?: false
 }
 
-internal fun createCanvasActionMenuUiState(designBlock: DesignBlock, engine: Engine): CanvasActionMenuUiState? {
+internal fun createCanvasActionMenuUiState(
+    designBlock: DesignBlock,
+    engine: Engine,
+): CanvasActionMenuUiState? {
     if (engine.isGrouped(designBlock)) return null
     val isMoveAllowed = engine.isMoveAllowed(designBlock)
     val isDuplicateAllowed = engine.isDuplicateAllowed(designBlock)

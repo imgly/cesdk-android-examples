@@ -15,26 +15,35 @@ val IconPack.NavigateBefore: ImageVector
         if (`_navigate-before` != null) {
             return `_navigate-before`!!
         }
-        `_navigate-before` = Builder(
-            name = "Navigate-before", defaultWidth = 24.0.dp, defaultHeight
-            = 24.0.dp, viewportWidth = 24.0f, viewportHeight = 24.0f
-        ).apply {
-            path(
-                fill = SolidColor(Color(0xFF1C1B1F)), stroke = null, strokeLineWidth = 0.0f,
-                strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-                pathFillType = NonZero
-            ) {
-                moveTo(15.7049f, 7.41f)
-                lineTo(14.2949f, 6.0f)
-                lineTo(8.2949f, 12.0f)
-                lineTo(14.2949f, 18.0f)
-                lineTo(15.7049f, 16.59f)
-                lineTo(11.1249f, 12.0f)
-                lineTo(15.7049f, 7.41f)
-                close()
+        `_navigate-before` =
+            Builder(
+                name = "Navigate-before",
+                defaultWidth = 24.0.dp,
+                defaultHeight =
+                    24.0.dp,
+                viewportWidth = 24.0f,
+                viewportHeight = 24.0f,
+            ).apply {
+                path(
+                    fill = SolidColor(Color(0xFF1C1B1F)),
+                    stroke = null,
+                    strokeLineWidth = 0.0f,
+                    strokeLineCap = Butt,
+                    strokeLineJoin = Miter,
+                    strokeLineMiter = 4.0f,
+                    pathFillType = NonZero,
+                ) {
+                    moveTo(15.7049f, 7.41f)
+                    lineTo(14.2949f, 6.0f)
+                    lineTo(8.2949f, 12.0f)
+                    lineTo(14.2949f, 18.0f)
+                    lineTo(15.7049f, 16.59f)
+                    lineTo(11.1249f, 12.0f)
+                    lineTo(15.7049f, 7.41f)
+                    close()
+                }
             }
-        }
-            .build()
+                .build()
         return `_navigate-before`!!
     }
 

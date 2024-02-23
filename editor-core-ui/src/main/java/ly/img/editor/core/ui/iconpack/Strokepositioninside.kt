@@ -15,58 +15,66 @@ val IconPack.Strokepositioninside: ImageVector
         if (_strokepositioninside != null) {
             return _strokepositioninside!!
         }
-        _strokepositioninside = Builder(
-            name = "Strokepositioninside", defaultWidth = 24.0.dp,
-            defaultHeight = 24.0.dp, viewportWidth = 24.0f, viewportHeight = 24.0f
-        ).apply {
-            path(
-                fill = SolidColor(Color(0xFF49454F)), stroke = null, strokeLineWidth = 0.0f,
-                strokeLineCap = Butt, strokeLineJoin = Miter, strokeLineMiter = 4.0f,
-                pathFillType = EvenOdd
-            ) {
-                moveTo(3.0f, 4.0f)
-                curveTo(3.0f, 3.4477f, 3.4477f, 3.0f, 4.0f, 3.0f)
-                horizontalLineTo(6.0f)
-                curveTo(6.5523f, 3.0f, 7.0f, 3.4477f, 7.0f, 4.0f)
-                verticalLineTo(6.0f)
-                horizontalLineTo(17.0f)
-                verticalLineTo(4.0f)
-                curveTo(17.0f, 3.4477f, 17.4477f, 3.0f, 18.0f, 3.0f)
-                horizontalLineTo(20.0f)
-                curveTo(20.5523f, 3.0f, 21.0f, 3.4477f, 21.0f, 4.0f)
-                verticalLineTo(6.0f)
-                curveTo(21.0f, 6.5523f, 20.5523f, 7.0f, 20.0f, 7.0f)
-                horizontalLineTo(18.0f)
-                verticalLineTo(17.0f)
-                horizontalLineTo(20.0f)
-                curveTo(20.5523f, 17.0f, 21.0f, 17.4477f, 21.0f, 18.0f)
-                verticalLineTo(20.0f)
-                curveTo(21.0f, 20.5523f, 20.5523f, 21.0f, 20.0f, 21.0f)
-                horizontalLineTo(18.0f)
-                curveTo(17.4477f, 21.0f, 17.0f, 20.5523f, 17.0f, 20.0f)
-                verticalLineTo(18.0f)
-                horizontalLineTo(7.0f)
-                verticalLineTo(20.0f)
-                curveTo(7.0f, 20.5523f, 6.5523f, 21.0f, 6.0f, 21.0f)
-                horizontalLineTo(4.0f)
-                curveTo(3.4477f, 21.0f, 3.0f, 20.5523f, 3.0f, 20.0f)
-                verticalLineTo(18.0f)
-                curveTo(3.0f, 17.4477f, 3.4477f, 17.0f, 4.0f, 17.0f)
-                horizontalLineTo(6.0f)
-                verticalLineTo(7.0f)
-                horizontalLineTo(4.0f)
-                curveTo(3.4477f, 7.0f, 3.0f, 6.5523f, 3.0f, 6.0f)
-                verticalLineTo(4.0f)
-                close()
-                moveTo(8.0f, 8.0f)
-                horizontalLineTo(16.0f)
-                verticalLineTo(16.0f)
-                horizontalLineTo(8.0f)
-                verticalLineTo(8.0f)
-                close()
+        _strokepositioninside =
+            Builder(
+                name = "Strokepositioninside",
+                defaultWidth = 24.0.dp,
+                defaultHeight = 24.0.dp,
+                viewportWidth = 24.0f,
+                viewportHeight = 24.0f,
+            ).apply {
+                path(
+                    fill = SolidColor(Color(0xFF49454F)),
+                    stroke = null,
+                    strokeLineWidth = 0.0f,
+                    strokeLineCap = Butt,
+                    strokeLineJoin = Miter,
+                    strokeLineMiter = 4.0f,
+                    pathFillType = EvenOdd,
+                ) {
+                    moveTo(3.0f, 4.0f)
+                    curveTo(3.0f, 3.4477f, 3.4477f, 3.0f, 4.0f, 3.0f)
+                    horizontalLineTo(6.0f)
+                    curveTo(6.5523f, 3.0f, 7.0f, 3.4477f, 7.0f, 4.0f)
+                    verticalLineTo(6.0f)
+                    horizontalLineTo(17.0f)
+                    verticalLineTo(4.0f)
+                    curveTo(17.0f, 3.4477f, 17.4477f, 3.0f, 18.0f, 3.0f)
+                    horizontalLineTo(20.0f)
+                    curveTo(20.5523f, 3.0f, 21.0f, 3.4477f, 21.0f, 4.0f)
+                    verticalLineTo(6.0f)
+                    curveTo(21.0f, 6.5523f, 20.5523f, 7.0f, 20.0f, 7.0f)
+                    horizontalLineTo(18.0f)
+                    verticalLineTo(17.0f)
+                    horizontalLineTo(20.0f)
+                    curveTo(20.5523f, 17.0f, 21.0f, 17.4477f, 21.0f, 18.0f)
+                    verticalLineTo(20.0f)
+                    curveTo(21.0f, 20.5523f, 20.5523f, 21.0f, 20.0f, 21.0f)
+                    horizontalLineTo(18.0f)
+                    curveTo(17.4477f, 21.0f, 17.0f, 20.5523f, 17.0f, 20.0f)
+                    verticalLineTo(18.0f)
+                    horizontalLineTo(7.0f)
+                    verticalLineTo(20.0f)
+                    curveTo(7.0f, 20.5523f, 6.5523f, 21.0f, 6.0f, 21.0f)
+                    horizontalLineTo(4.0f)
+                    curveTo(3.4477f, 21.0f, 3.0f, 20.5523f, 3.0f, 20.0f)
+                    verticalLineTo(18.0f)
+                    curveTo(3.0f, 17.4477f, 3.4477f, 17.0f, 4.0f, 17.0f)
+                    horizontalLineTo(6.0f)
+                    verticalLineTo(7.0f)
+                    horizontalLineTo(4.0f)
+                    curveTo(3.4477f, 7.0f, 3.0f, 6.5523f, 3.0f, 6.0f)
+                    verticalLineTo(4.0f)
+                    close()
+                    moveTo(8.0f, 8.0f)
+                    horizontalLineTo(16.0f)
+                    verticalLineTo(16.0f)
+                    horizontalLineTo(8.0f)
+                    verticalLineTo(8.0f)
+                    close()
+                }
             }
-        }
-            .build()
+                .build()
         return _strokepositioninside!!
     }
 

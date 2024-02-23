@@ -15,24 +15,27 @@ fun usingCamera(
     surfaceView: SurfaceView,
     cameraProvider: ProcessCameraProvider,
     license: String,
-    userId: String
+    userId: String,
 ) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
     engine.bindSurfaceView(surfaceView)
 
     // highlight-setupCamera
-    val cameraSelector = CameraSelector.Builder()
-        .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
-        .build()
+    val cameraSelector =
+        CameraSelector.Builder()
+            .requireLensFacing(CameraSelector.LENS_FACING_FRONT)
+            .build()
     val preview = Preview.Builder().build()
     val qualitySelector = QualitySelector.from(Quality.FHD)
-    val recorder = Recorder.Builder()
-        .setQualitySelector(qualitySelector)
-        .build()
-    val videoCapture = VideoCapture.Builder(recorder)
-        .setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
-        .build()
+    val recorder =
+        Recorder.Builder()
+            .setQualitySelector(qualitySelector)
+            .build()
+    val videoCapture =
+        VideoCapture.Builder(recorder)
+            .setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+            .build()
 
     cameraProvider.bindToLifecycle(activity, cameraSelector, preview, videoCapture)
     // highlight-setupCamera
@@ -44,29 +47,37 @@ fun usingCamera(
     val pixelStreamFill = engine.block.createFill(FillType.PixelStream)
     engine.block.setFill(block = page, fill = pixelStreamFill)
     engine.setCameraPreview(pixelStreamFill, preview, mirrored = false)
-    engine.block.appendEffect(block = page, effectBlock = engine.block.createEffect(EffectType.HalfTone))
+    engine.block.appendEffect(
+        block = page,
+        effectBlock = engine.block.createEffect(EffectType.HalfTone),
+    )
     // highlight-setupScene
 
     // highlight-orientation
     // If camerax preview transformation info rotation is 90, this will return Left. If we passed mirrored = true, this would be LeftMirrored.
-    val orientation = engine.block.getEnum(block = pixelStreamFill, property = "fill/pixelStream/orientation")
+    val orientation =
+        engine.block.getEnum(
+            block = pixelStreamFill,
+            property = "fill/pixelStream/orientation",
+        )
     // highlight-orientation
 
     // highlight-camera
     val recordingFile = File(surfaceView.context.filesDir, "temp.mp4")
     val fileOutputOptions = FileOutputOptions.Builder(recordingFile).build()
-    val recording = videoCapture.output
-        .prepareRecording(activity, fileOutputOptions)
-        .start(ContextCompat.getMainExecutor(surfaceView.context)) {
-            if (it !is VideoRecordEvent.Finalize) return@start
-            val videoFill = engine.block.createFill(FillType.Video)
-            engine.block.setFill(block = page, fill = videoFill)
-            engine.block.setString(
-                block = videoFill,
-                property = "fill/video/fileURI",
-                value = recordingFile.toUri().toString()
-            )
-        }
+    val recording =
+        videoCapture.output
+            .prepareRecording(activity, fileOutputOptions)
+            .start(ContextCompat.getMainExecutor(surfaceView.context)) {
+                if (it !is VideoRecordEvent.Finalize) return@start
+                val videoFill = engine.block.createFill(FillType.Video)
+                engine.block.setFill(block = page, fill = videoFill)
+                engine.block.setString(
+                    block = videoFill,
+                    property = "fill/video/fileURI",
+                    value = recordingFile.toUri().toString(),
+                )
+            }
     delay(5000L)
     recording.stop()
     // highlight-camera

@@ -15,7 +15,7 @@ import kotlin.math.exp
 @Suppress("NAME_SHADOWING")
 fun EventsHandler.strokeEvents(
     engine: () -> Engine,
-    block: () -> DesignBlock
+    block: () -> DesignBlock,
 ) {
     val engine by inject(engine)
     val block by inject(block)

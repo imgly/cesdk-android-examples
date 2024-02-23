@@ -23,9 +23,9 @@ import ly.img.editor.core.ui.UiDefaults
 fun StrokeOptions(
     uiState: StrokeUiState,
     onEvent: (Event) -> Unit,
-    openColorPicker: () -> Unit
+    openColorPicker: () -> Unit,
 ) {
-    SectionHeader(stringResource(R.string.cesdk_stroke))
+    SectionHeader(stringResource(R.string.ly_img_editor_stroke))
     Card(
         colors = UiDefaults.cardColors,
     ) {
@@ -41,7 +41,7 @@ fun StrokeOptions(
             },
             openColorPicker = openColorPicker,
             colors = uiState.colorPalette,
-            punchHole = true
+            punchHole = true,
         )
 
         if (uiState.isStrokeEnabled) {
@@ -60,30 +60,30 @@ fun StrokeOptions(
                         onEvent(BlockEvent.OnChangeFinish)
                     }
                 },
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp),
             )
             Divider(Modifier.padding(horizontal = 16.dp))
             PropertyPicker(
-                title = stringResource(R.string.cesdk_style),
+                title = stringResource(R.string.ly_img_editor_style),
                 propertyTextRes = uiState.strokeStyleRes,
                 properties = strokeStylePropertiesList,
-                onPropertyPicked = { onEvent(BlockEvent.OnChangeStrokeStyle(it)) }
+                onPropertyPicked = { onEvent(BlockEvent.OnChangeStrokeStyle(it)) },
             )
             Divider(Modifier.padding(horizontal = 16.dp))
             PropertyPicker(
-                title = stringResource(R.string.cesdk_position),
+                title = stringResource(R.string.ly_img_editor_position),
                 propertyTextRes = uiState.strokePositionRes,
                 enabled = uiState.isStrokePositionEnabled,
                 properties = strokePositionPropertiesList,
-                onPropertyPicked = { onEvent(BlockEvent.OnChangeStrokePosition(it)) }
+                onPropertyPicked = { onEvent(BlockEvent.OnChangeStrokePosition(it)) },
             )
             Divider(Modifier.padding(horizontal = 16.dp))
             PropertyPicker(
-                title = stringResource(R.string.cesdk_join),
+                title = stringResource(R.string.ly_img_editor_join),
                 propertyTextRes = uiState.strokeJoinRes,
                 properties = strokeJoinPropertiesList,
                 enabled = uiState.isStrokeJointEnabled,
-                onPropertyPicked = { onEvent(BlockEvent.OnChangeStrokeJoin(it)) }
+                onPropertyPicked = { onEvent(BlockEvent.OnChangeStrokeJoin(it)) },
             )
         }
     }

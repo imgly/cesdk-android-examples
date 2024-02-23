@@ -5,7 +5,11 @@ import ly.img.engine.Engine
 import kotlin.math.ceil
 import kotlin.math.floor
 
-fun getNormalizedDegrees(engine: Engine, designBlock: DesignBlock, offset: Int = 0): Float {
+fun getNormalizedDegrees(
+    engine: Engine,
+    designBlock: DesignBlock,
+    offset: Int = 0,
+): Float {
     val cropRotationDegrees = engine.block.getCropRotation(designBlock) * (180f / Math.PI.toFloat())
     val cropRotatedDegrees = cropRotationDegrees + offset
     var normalizedDegrees = cropRotatedDegrees % 360
@@ -13,15 +17,24 @@ fun getNormalizedDegrees(engine: Engine, designBlock: DesignBlock, offset: Int =
     return normalizedDegrees
 }
 
-fun getRotationDegrees(engine: Engine, designBlock: DesignBlock): Float {
+fun getRotationDegrees(
+    engine: Engine,
+    designBlock: DesignBlock,
+): Float {
     return getDecomposedDegrees(engine, designBlock).first
 }
 
-fun getStraightenDegrees(engine: Engine, designBlock: DesignBlock): Float {
+fun getStraightenDegrees(
+    engine: Engine,
+    designBlock: DesignBlock,
+): Float {
     return getDecomposedDegrees(engine, designBlock).second
 }
 
-private fun getDecomposedDegrees(engine: Engine, designBlock: DesignBlock): Pair<Float, Float> {
+private fun getDecomposedDegrees(
+    engine: Engine,
+    designBlock: DesignBlock,
+): Pair<Float, Float> {
     val normalizedDegrees = getNormalizedDegrees(engine, designBlock)
     var rotationCounts = (normalizedDegrees / 90).roundToZero()
     var rotationDeg = 0f

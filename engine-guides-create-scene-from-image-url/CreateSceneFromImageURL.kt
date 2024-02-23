@@ -2,7 +2,12 @@ import android.net.Uri
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
-fun createSceneFromImageURL(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
+fun createSceneFromImageURL(
+    license: String,
+    userId: String,
+) = CoroutineScope(
+    Dispatchers.Main,
+).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 100, height = 100)

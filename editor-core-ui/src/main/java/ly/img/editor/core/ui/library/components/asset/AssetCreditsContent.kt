@@ -22,67 +22,75 @@ import ly.img.editor.core.ui.library.util.LibraryUiEvent
 @Composable
 internal fun AssetCreditsContent(
     assetCreditsEvent: LibraryUiEvent.ShowAssetCredits,
-    onCloseAssetDetails: () -> Unit
+    onCloseAssetDetails: () -> Unit,
 ) {
     Column {
         Spacer(modifier = Modifier.height(8.dp))
         SheetHeader(
-            title = stringResource(id = R.string.cesdk_credits_title),
+            title = stringResource(id = R.string.ly_img_editor_credits_title),
             onClose = onCloseAssetDetails,
-            icon = IconPack.Close
+            icon = IconPack.Close,
         )
         Column(Modifier.padding(top = 8.dp, bottom = 32.dp)) {
             Text(
                 assetCreditsEvent.assetLabel,
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(horizontal = 16.dp),
             )
 
-            val creditsLabel = if (assetCreditsEvent.assetCredits != null && assetCreditsEvent.assetSourceCredits != null) {
-                stringResource(
-                    R.string.cesdk_credits_artist_on_source,
-                    assetCreditsEvent.assetCredits.name,
-                    assetCreditsEvent.assetSourceCredits.name
-                )
-            } else if (assetCreditsEvent.assetCredits != null) {
-                stringResource(
-                    R.string.cesdk_credits_artist,
-                    assetCreditsEvent.assetCredits.name
-                )
-            } else if (assetCreditsEvent.assetSourceCredits != null) {
-                stringResource(
-                    R.string.cesdk_credits_on_source,
-                    assetCreditsEvent.assetSourceCredits.name
-                )
-            } else null
+            val creditsLabel =
+                if (assetCreditsEvent.assetCredits != null && assetCreditsEvent.assetSourceCredits != null) {
+                    stringResource(
+                        R.string.ly_img_editor_credits_artist_on_source,
+                        assetCreditsEvent.assetCredits.name,
+                        assetCreditsEvent.assetSourceCredits.name,
+                    )
+                } else if (assetCreditsEvent.assetCredits != null) {
+                    stringResource(
+                        R.string.ly_img_editor_credits_artist,
+                        assetCreditsEvent.assetCredits.name,
+                    )
+                } else if (assetCreditsEvent.assetSourceCredits != null) {
+                    stringResource(
+                        R.string.ly_img_editor_credits_on_source,
+                        assetCreditsEvent.assetSourceCredits.name,
+                    )
+                } else {
+                    null
+                }
 
             if (creditsLabel != null) {
                 HyperlinkText(
                     fullText = creditsLabel,
-                    hyperLinks = mutableMapOf(
-                        assetCreditsEvent.assetCredits?.name to assetCreditsEvent.assetCredits?.resourcePath,
-                        assetCreditsEvent.assetSourceCredits?.name to assetCreditsEvent.assetSourceCredits?.resourcePath
-                    ),
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                    hyperLinks =
+                        mutableMapOf(
+                            assetCreditsEvent.assetCredits?.name to assetCreditsEvent.assetCredits?.resourcePath,
+                            assetCreditsEvent.assetSourceCredits?.name to assetCreditsEvent.assetSourceCredits?.resourcePath,
+                        ),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 )
             }
 
-            val licenseLabel = if (assetCreditsEvent.assetLicense != null) {
-                assetCreditsEvent.assetLicense.name
-            } else if (assetCreditsEvent.assetSourceLicense != null) {
-                assetCreditsEvent.assetSourceLicense.name
-            } else null
+            val licenseLabel =
+                if (assetCreditsEvent.assetLicense != null) {
+                    assetCreditsEvent.assetLicense.name
+                } else if (assetCreditsEvent.assetSourceLicense != null) {
+                    assetCreditsEvent.assetSourceLicense.name
+                } else {
+                    null
+                }
 
             if (licenseLabel != null) {
                 Divider()
                 HyperlinkText(
                     fullText = licenseLabel,
-                    hyperLinks = mutableMapOf(
-                        assetCreditsEvent.assetLicense?.name to assetCreditsEvent.assetLicense?.resourcePath,
-                        assetCreditsEvent.assetSourceLicense?.name to assetCreditsEvent.assetSourceLicense?.resourcePath
-                    ),
+                    hyperLinks =
+                        mutableMapOf(
+                            assetCreditsEvent.assetLicense?.name to assetCreditsEvent.assetLicense?.resourcePath,
+                            assetCreditsEvent.assetSourceLicense?.name to assetCreditsEvent.assetSourceLicense?.resourcePath,
+                        ),
                     textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 )
             }
         }

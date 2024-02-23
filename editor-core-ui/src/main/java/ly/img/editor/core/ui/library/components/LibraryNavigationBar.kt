@@ -8,13 +8,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import ly.img.editor.core.library.LibraryCategory
 
 @Composable
 internal fun LibraryNavigationBar(
-    items: List<LibraryNavBarItem>,
+    items: List<LibraryCategory>,
     modifier: Modifier = Modifier,
     selectedItemIndex: Int,
-    onSelectionChange: (Int) -> Unit
+    onSelectionChange: (Int) -> Unit,
 ) {
     if (items.size > 5) {
         ScrollableNavigationBar(modifier) {
@@ -22,13 +23,13 @@ internal fun LibraryNavigationBar(
                 WeightlessNavigationBarItem(
                     icon = {
                         Icon(
-                            if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
-                            contentDescription = null
+                            if (selectedItemIndex == index) item.tabSelectedIcon else item.tabUnselectedIcon,
+                            contentDescription = null,
                         )
                     },
-                    label = { Text(stringResource(item.titleRes)) },
+                    label = { Text(stringResource(item.tabTitleRes)) },
                     selected = selectedItemIndex == index,
-                    onClick = { onSelectionChange(index) }
+                    onClick = { onSelectionChange(index) },
                 )
             }
         }
@@ -38,13 +39,13 @@ internal fun LibraryNavigationBar(
                 NavigationBarItem(
                     icon = {
                         Icon(
-                            if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
-                            contentDescription = null
+                            if (selectedItemIndex == index) item.tabSelectedIcon else item.tabUnselectedIcon,
+                            contentDescription = null,
                         )
                     },
-                    label = { Text(stringResource(item.titleRes)) },
+                    label = { Text(stringResource(item.tabTitleRes)) },
                     selected = selectedItemIndex == index,
-                    onClick = { onSelectionChange(index) }
+                    onClick = { onSelectionChange(index) },
                 )
             }
         }

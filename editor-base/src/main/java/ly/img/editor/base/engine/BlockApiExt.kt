@@ -12,15 +12,24 @@ import ly.img.engine.RGBAColor
 const val NoneDesignBlock: DesignBlock = -1
 
 fun BlockApi.getFillType(designBlock: DesignBlock): FillType? {
-    return if (!this.hasFill(designBlock)) null
-    else FillType.get(this.getType(this.getFill(designBlock)))
+    return if (!this.hasFill(designBlock)) {
+        null
+    } else {
+        FillType.get(this.getType(this.getFill(designBlock)))
+    }
 }
 
-fun BlockApi.setFillType(designBlock: DesignBlock, fillType: FillType): DesignBlock {
-    val oldFill = if (this.hasFill(designBlock)) {
-        this.getType(block = designBlock)
-        this.getFill(designBlock).takeIf { it != NoneDesignBlock }
-    } else null
+fun BlockApi.setFillType(
+    designBlock: DesignBlock,
+    fillType: FillType,
+): DesignBlock {
+    val oldFill =
+        if (this.hasFill(designBlock)) {
+            this.getType(block = designBlock)
+            this.getFill(designBlock).takeIf { it != NoneDesignBlock }
+        } else {
+            null
+        }
 
     return if (oldFill != null && this.getFillType(designBlock) == fillType) {
         oldFill
@@ -35,13 +44,19 @@ fun BlockApi.setFillType(designBlock: DesignBlock, fillType: FillType): DesignBl
     }
 }
 
-fun BlockApi.setBlurType(designBlock: DesignBlock, type: BlurType?) : DesignBlock? {
-    val oldBlur = if (this.hasBlur(designBlock)) {
-        this.getBlur(designBlock).takeIf { it != NoneDesignBlock }
-    } else null
+fun BlockApi.setBlurType(
+    designBlock: DesignBlock,
+    type: BlurType?,
+): DesignBlock? {
+    val oldBlur =
+        if (this.hasBlur(designBlock)) {
+            this.getBlur(designBlock).takeIf { it != NoneDesignBlock }
+        } else {
+            null
+        }
 
     if (type == null) {
-        this.setBlurEnabled(designBlock,false)
+        this.setBlurEnabled(designBlock, false)
         return null
     } else {
         return if (oldBlur != null && this.getType(oldBlur).endsWith(type.key)) {
@@ -55,7 +70,7 @@ fun BlockApi.setBlurType(designBlock: DesignBlock, type: BlurType?) : DesignBloc
             }
             newBlur
         }.also {
-            this.setBlurEnabled(designBlock,true)
+            this.setBlurEnabled(designBlock, true)
         }
     }
 }
@@ -66,9 +81,8 @@ fun BlockApi.setLinearGradientFill(
     startPointY: Float,
     endPointX: Float,
     endPointY: Float,
-    colorStops: List<GradientColorStop>? = null
+    colorStops: List<GradientColorStop>? = null,
 ) {
-
     val fill = this.setFillType(designBlock, FillType.LinearGradient)
 
     this.setFloat(fill, property = "fill/gradient/linear/startPointX", value = startPointX)
@@ -85,7 +99,7 @@ fun BlockApi.setRadialGradientFill(
     centerPointX: Float,
     centerPointY: Float,
     radius: Float,
-    colorStops: List<GradientColorStop>? = null
+    colorStops: List<GradientColorStop>? = null,
 ) {
     val fill = this.setFillType(designBlock, FillType.RadialGradient)
 
@@ -101,7 +115,7 @@ fun BlockApi.setConicalGradientFill(
     designBlock: DesignBlock,
     centerPointX: Float,
     centerPointY: Float,
-    colorStops: List<GradientColorStop>? = null
+    colorStops: List<GradientColorStop>? = null,
 ) {
     val fill = this.setFillType(designBlock, FillType.ConicalGradient)
 
@@ -113,64 +127,74 @@ fun BlockApi.setConicalGradientFill(
 }
 
 fun BlockApi.getFillInfo(designBlock: DesignBlock): Fill? {
-    return if (!this.hasFill(designBlock)) null
-    else when (this.getFillType(designBlock)) {
-        FillType.Color -> {
-            val rgbaColor = this.getColor(designBlock, "fill/solid/color") as RGBAColor
-            SolidFill(rgbaColor.toComposeColor())
-        }
+    return if (!this.hasFill(designBlock)) {
+        null
+    } else {
+        when (this.getFillType(designBlock)) {
+            FillType.Color -> {
+                val rgbaColor = this.getColor(designBlock, "fill/solid/color") as RGBAColor
+                SolidFill(rgbaColor.toComposeColor())
+            }
 
-        FillType.LinearGradient -> {
-            val fill = this.getFill(designBlock)
-            LinearGradientFill(
-                startPointX = this.getFloat(fill, "fill/gradient/linear/startPointX"),
-                startPointY = this.getFloat(fill, "fill/gradient/linear/startPointY"),
-                endPointX = this.getFloat(fill, "fill/gradient/linear/endPointX"),
-                endPointY = this.getFloat(fill, "fill/gradient/linear/endPointY"),
-                colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
-            )
-        }
+            FillType.LinearGradient -> {
+                val fill = this.getFill(designBlock)
+                LinearGradientFill(
+                    startPointX = this.getFloat(fill, "fill/gradient/linear/startPointX"),
+                    startPointY = this.getFloat(fill, "fill/gradient/linear/startPointY"),
+                    endPointX = this.getFloat(fill, "fill/gradient/linear/endPointX"),
+                    endPointY = this.getFloat(fill, "fill/gradient/linear/endPointY"),
+                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors"),
+                )
+            }
 
-        FillType.RadialGradient -> {
-            val fill = this.getFill(designBlock)
-            RadialGradientFill(
-                centerX = this.getFloat(fill, "fill/gradient/radial/centerPointX"),
-                centerY = this.getFloat(fill, "fill/gradient/radial/centerPointY"),
-                radius = this.getFloat(fill, "fill/gradient/radial/radius"),
-                colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
-            )
-        }
+            FillType.RadialGradient -> {
+                val fill = this.getFill(designBlock)
+                RadialGradientFill(
+                    centerX = this.getFloat(fill, "fill/gradient/radial/centerPointX"),
+                    centerY = this.getFloat(fill, "fill/gradient/radial/centerPointY"),
+                    radius = this.getFloat(fill, "fill/gradient/radial/radius"),
+                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors"),
+                )
+            }
 
-        FillType.ConicalGradient -> {
-            val fill = this.getFill(designBlock)
-            ConicalGradientFill(
-                centerX = this.getFloat(fill, "fill/gradient/conical/centerPointX"),
-                centerY = this.getFloat(fill, "fill/gradient/conical/centerPointY"),
-                colorStops = this.getGradientColorStops(fill, "fill/gradient/colors")
-            )
-        }
+            FillType.ConicalGradient -> {
+                val fill = this.getFill(designBlock)
+                ConicalGradientFill(
+                    centerX = this.getFloat(fill, "fill/gradient/conical/centerPointX"),
+                    centerY = this.getFloat(fill, "fill/gradient/conical/centerPointY"),
+                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors"),
+                )
+            }
 
-        // Image fill and Video fill are not supported yet
-        else -> null
+            // Image fill and Video fill are not supported yet
+            else -> null
+        }
     }
 }
 
-fun BlockApi.findEffect(block: DesignBlock, type: EffectType) =
-    this.getEffects(block).find { effect ->
-        this.getType(effect).endsWith(type.key, ignoreCase = true)
-    }
+fun BlockApi.findEffect(
+    block: DesignBlock,
+    type: EffectType,
+) = this.getEffects(block).find { effect ->
+    this.getType(effect).endsWith(type.key, ignoreCase = true)
+}
 
-
-fun BlockApi.getEffectOrCreateAndAppend(block: DesignBlock, type: EffectType) =
-    this.findEffect(block, type) ?:
-    this.createEffect(type).also { effect ->
+fun BlockApi.getEffectOrCreateAndAppend(
+    block: DesignBlock,
+    type: EffectType,
+) = this.findEffect(block, type)
+    ?: this.createEffect(type).also { effect ->
         this.appendEffect(block, effect)
     }
 
-fun BlockApi.removeEffectByType(block: DesignBlock, type: EffectType) {
-    val filterId = this.getEffects(block).indexOfFirst { effect ->
-        this.getType(effect).endsWith(type.key, ignoreCase = true)
-    }
+fun BlockApi.removeEffectByType(
+    block: DesignBlock,
+    type: EffectType,
+) {
+    val filterId =
+        this.getEffects(block).indexOfFirst { effect ->
+            this.getType(effect).endsWith(type.key, ignoreCase = true)
+        }
     if (filterId != -1) {
         this.removeEffect(block, filterId)
     }

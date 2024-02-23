@@ -1,48 +1,61 @@
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
+import ly.img.engine.FillType
+import ly.img.engine.MimeType
+import ly.img.engine.ShapeType
 
-fun editVideo(license: String, userId: String) = CoroutineScope(Dispatchers.Main).launch {
+fun editVideo(
+    license: String,
+    userId: String,
+) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-setupScene
     val scene = engine.scene.createForVideo()
-    val stack = engine.block.findByType(DesignBlockType.Stack).first()
-
-    val page1 = engine.block.create(DesignBlockType.Page)
-    val page2 = engine.block.create(DesignBlockType.Page)
-    engine.block.appendChild(parent = stack, child = page1)
-    engine.block.appendChild(parent = stack, child = page2)
-
-    engine.block.setWidth(page1, value = 1280F)
-    engine.block.setHeight(page1, value = 720F)
-    engine.block.setWidth(page2, value = 1280F)
-    engine.block.setHeight(page2, value = 720F)
+    val page = engine.block.create(DesignBlockType.Page)
+    engine.block.appendChild(parent = scene, child = page)
+    engine.block.setWidth(page, value = 1280F)
+    engine.block.setHeight(page, value = 720F)
     // highlight-setupScene
     // highlight-setPageDuration
-    // Show the first page for 4 seconds and the second page for 20 seconds.
-    engine.block.setDuration(page1, duration = 4.0)
-    engine.block.setDuration(page2, duration = 20.0)
+    engine.block.setDuration(page, duration = 20.0)
     // highlight-setPageDuration
     // highlight-assignVideoFill
-    val block = engine.block.create(DesignBlockType.Graphic)
-    engine.block.setShape(block, shape = engine.block.createShape(ShapeType.Rect))
+    val video1 = engine.block.create(DesignBlockType.Graphic)
+    engine.block.setShape(video1, shape = engine.block.createShape(ShapeType.Rect))
     val videoFill = engine.block.createFill(FillType.Video)
-    engine.block.setFill(block, fill = videoFill)
-
     engine.block.setString(
         block = videoFill,
         property = "fill/video/fileURI",
-        value = "https://cdn.img.ly/assets/demo/v1/ly.img.video/videos/pexels-drone-footage-of-a-surfer-barrelling-a-wave-12715991.mp4"
+        value = "https://cdn.img.ly/assets/demo/v1/ly.img.video/videos/pexels-drone-footage-of-a-surfer-barrelling-a-wave-12715991.mp4",
     )
+    engine.block.setFill(video1, fill = videoFill)
 
-    engine.block.appendChild(parent = page2, child = block)
-    engine.block.setPositionX(block, value = 0F)
-    engine.block.setPositionY(block, value = 0F)
-    engine.block.setWidth(block, value = engine.block.getWidth (page2))
-    engine.block.setHeight(block, value = engine.block.getHeight (page2))
+    val video2 = engine.block.create(DesignBlockType.Graphic)
+    engine.block.setShape(video1, shape = engine.block.createShape(ShapeType.Rect))
+    val videoFill2 = engine.block.createFill(FillType.Video)
+    engine.block.setString(
+        block = videoFill,
+        property = "fill/video/fileURI",
+        value = "https://cdn.img.ly/assets/demo/v2/ly.img.video/videos/pexels-kampus-production-8154913.mp4",
+    )
+    engine.block.setFill(video2, fill = videoFill2)
     // highlight-assignVideoFill
+    // highlight-addToTrack
+    val track = engine.block.create(DesignBlockType.Track)
+    engine.block.appendChild(parent = page, child = track)
+    engine.block.appendChild(parent = track, child = video1)
+    engine.block.appendChild(parent = track, child = video2)
+    engine.block.fillParent(track)
+    // highlight-addToTrack
+    // highlight-setDuration
+    engine.block.setDuration(video1, duration = 15.0)
+    // highlight-setDuration
     // highlight-trim
     // Make sure that the video is loaded before calling the trim APIs.
     engine.block.forceLoadAVResource(videoFill)
@@ -57,11 +70,11 @@ fun editVideo(license: String, userId: String) = CoroutineScope(Dispatchers.Main
 
     // highlight-audio
     val audio = engine.block.create(DesignBlockType.Audio)
-    engine.block.appendChild(parent = scene, child = audio)
+    engine.block.appendChild(parent = page, child = audio)
     engine.block.setString(
         block = audio,
         property = "audio/fileURI",
-        value = "https://cdn.img.ly/assets/demo/v1/ly.img.audio/audios/far_from_home.m4a"
+        value = "https://cdn.img.ly/assets/demo/v1/ly.img.audio/audios/far_from_home.m4a",
     )
     // highlight-audio
     // highlight-audio-volume
@@ -77,16 +90,19 @@ fun editVideo(license: String, userId: String) = CoroutineScope(Dispatchers.Main
     engine.block.setDuration(audio, duration = 7.0)
     // highlight-audioDuration
     // highlight-exportVideo
-    // Export scene as mp4 video.
-    val blob = engine.block.exportVideo(
-        block = scene,
-        timeOffset = 0.0,
-        duration = engine.block.getTotalSceneDuration(scene = scene),
-        mimeType = MimeType.MP4,
-        progressCallback = {
-            println("Rendered ${it.renderedFrames} frames and encoded ${it.encodedFrames} frames out of ${it.totalFrames} frames")
-        }
-    )
+    // Export page as mp4 video.
+    val blob =
+        engine.block.exportVideo(
+            block = page,
+            timeOffset = 0.0,
+            duration = engine.block.getDuration(page),
+            mimeType = MimeType.MP4,
+            progressCallback = {
+                println(
+                    "Rendered ${it.renderedFrames} frames and encoded ${it.encodedFrames} frames out of ${it.totalFrames} frames",
+                )
+            },
+        )
     // highlight-exportVideo
 
     engine.stop()

@@ -16,7 +16,7 @@ import java.util.TreeMap
 
 enum class ColorType {
     Fill,
-    Stroke
+    Stroke,
 }
 
 class NamedColor(val name: String, val color: RGBAColor) {
@@ -26,7 +26,12 @@ class NamedColor(val name: String, val color: RGBAColor) {
 class SelectionColors {
     private val namedColors: TreeMap<String, NamedColor> = TreeMap()
 
-    fun add(designBlock: DesignBlock, name: String, color: RGBAColor, colorType: ColorType) {
+    fun add(
+        designBlock: DesignBlock,
+        name: String,
+        color: RGBAColor,
+        colorType: ColorType,
+    ) {
         val namedColor = namedColors.getOrPut(name) { NamedColor(name, color) }
         val blockSet = namedColor.colorTypeBlocksMapping.getOrPut(colorType) { HashSet() }
         blockSet.add(designBlock)
@@ -45,10 +50,12 @@ private fun Engine.getSelectionColors(
     includeDisabled: Boolean,
     setDisabled: Boolean,
     ignoreScope: Boolean,
-    selectionColors: SelectionColors
+    selectionColors: SelectionColors,
 ) {
-    if (!(block.isScopeEnabled(designBlock, Scope.FillChange) ||
-            block.isScopeEnabled(designBlock, Scope.StrokeChange)) &&
+    if (!(
+            block.isScopeEnabled(designBlock, Scope.FillChange) ||
+                block.isScopeEnabled(designBlock, Scope.StrokeChange)
+        ) &&
         !ignoreScope
     ) {
         return
@@ -61,35 +68,48 @@ private fun Engine.getSelectionColors(
     val hasFill = block.hasFill(designBlock)
     val hasStroke = block.hasStroke(designBlock)
 
-    fun addColor(colorType: ColorType, includeDisabled: Boolean = false): RGBAColor? {
-        val color = when (colorType) {
-            ColorType.Fill -> if ((block.isFillEnabled(designBlock) || includeDisabled)) {
-                when (val fillInfo = block.getFillInfo(designBlock)) {
-                    is SolidFill, is GradientFill -> fillInfo.fillColor.toEngineColor()
-                    else -> null
-                }
-            } else null
+    fun addColor(
+        colorType: ColorType,
+        includeDisabled: Boolean = false,
+    ): RGBAColor? {
+        val color =
+            when (colorType) {
+                ColorType.Fill ->
+                    if ((block.isFillEnabled(designBlock) || includeDisabled)) {
+                        when (val fillInfo = block.getFillInfo(designBlock)) {
+                            is SolidFill, is GradientFill -> fillInfo.fillColor.toEngineColor()
+                            else -> null
+                        }
+                    } else {
+                        null
+                    }
 
-            ColorType.Stroke -> if (block.isStrokeEnabled(designBlock) || includeDisabled) {
-                block.getStrokeColor(designBlock) as RGBAColor
-            } else null
-        } ?: return null
+                ColorType.Stroke ->
+                    if (block.isStrokeEnabled(designBlock) || includeDisabled) {
+                        block.getStrokeColor(designBlock) as RGBAColor
+                    } else {
+                        null
+                    }
+            } ?: return null
 
         selectionColors.add(designBlock, name, color, colorType)
         return color
     }
-
 
     if (hasFill && hasStroke) {
         // Assign enabled color to disabled color to ease template creation.
         val fillColor = addColor(ColorType.Fill)
         val strokeColor = addColor(ColorType.Stroke)
 
-        fun setAndAddColor(colorType: ColorType, color: RGBAColor) {
-            val propertyColor = when (colorType) {
-                ColorType.Fill -> block.getFillInfo(designBlock)?.fillColor?.toEngineColor()
-                ColorType.Stroke -> block.getStrokeColor(designBlock)
-            }
+        fun setAndAddColor(
+            colorType: ColorType,
+            color: RGBAColor,
+        ) {
+            val propertyColor =
+                when (colorType) {
+                    ColorType.Fill -> block.getFillInfo(designBlock)?.fillColor?.toEngineColor()
+                    ColorType.Stroke -> block.getStrokeColor(designBlock)
+                }
             if (setDisabled && propertyColor != color) {
                 when (colorType) {
                     ColorType.Fill -> {
@@ -99,9 +119,10 @@ private fun Engine.getSelectionColors(
                         }
                     }
 
-                    ColorType.Stroke -> overrideAndRestore(designBlock, Scope.StrokeChange) {
-                        block.setStrokeColor(designBlock, color)
-                    }
+                    ColorType.Stroke ->
+                        overrideAndRestore(designBlock, Scope.StrokeChange) {
+                            block.setStrokeColor(designBlock, color)
+                        }
                 }
             }
             addColor(colorType, includeDisabled)
@@ -136,16 +157,19 @@ private fun Engine.getBlockSelectionColors(
     includeUnnamed: Boolean,
     includeDisabled: Boolean,
     setDisabled: Boolean,
-    ignoreScope: Boolean
+    ignoreScope: Boolean,
 ): SelectionColors {
-    fun traverse(designBlock: DesignBlock, selectionColors: SelectionColors) {
+    fun traverse(
+        designBlock: DesignBlock,
+        selectionColors: SelectionColors,
+    ) {
         getSelectionColors(
             designBlock = designBlock,
             includeUnnamed = includeUnnamed,
             includeDisabled = includeDisabled,
             setDisabled = setDisabled,
             ignoreScope = ignoreScope,
-            selectionColors = selectionColors
+            selectionColors = selectionColors,
         )
         val children = block.getChildren(designBlock)
         children.forEach { traverse(it, selectionColors) }
@@ -161,13 +185,13 @@ internal fun Engine.getPageSelectionColors(
     includeUnnamed: Boolean = false,
     includeDisabled: Boolean = false,
     setDisabled: Boolean = false,
-    ignoreScope: Boolean = false
+    ignoreScope: Boolean = false,
 ): SelectionColors {
     return getBlockSelectionColors(
         designBlock = getPage(forPage),
         includeUnnamed = includeUnnamed,
         includeDisabled = includeDisabled,
         setDisabled = setDisabled,
-        ignoreScope = ignoreScope
+        ignoreScope = ignoreScope,
     )
 }

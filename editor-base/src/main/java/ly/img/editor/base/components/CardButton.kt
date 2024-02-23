@@ -17,7 +17,13 @@ import ly.img.editor.core.ui.UiDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CardButton(text: String, icon: ImageVector, modifier: Modifier, enabled: Boolean, onClick: () -> Unit) {
+fun CardButton(
+    text: String,
+    icon: ImageVector,
+    modifier: Modifier,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
     Card(
         modifier = modifier,
         onClick = onClick,
@@ -25,9 +31,10 @@ fun CardButton(text: String, icon: ImageVector, modifier: Modifier, enabled: Boo
         colors = UiDefaults.cardColors,
     ) {
         Column(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(8.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Icon(imageVector = icon, contentDescription = null)
@@ -35,7 +42,7 @@ fun CardButton(text: String, icon: ImageVector, modifier: Modifier, enabled: Boo
                 text = text,
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.padding(top = 4.dp),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
     }

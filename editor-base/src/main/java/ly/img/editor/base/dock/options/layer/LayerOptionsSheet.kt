@@ -51,7 +51,7 @@ import ly.img.editor.core.ui.inspectorSheetPadding
 @Composable
 fun LayerOptionsSheet(
     uiState: LayerUiState,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
 ) {
     HalfHeightContainer {
         var selectBlendMode by remember { mutableStateOf(false) }
@@ -62,17 +62,20 @@ fun LayerOptionsSheet(
             }
             Column {
                 NestedSheetHeader(
-                    title = stringResource(R.string.cesdk_blendmode),
+                    title = stringResource(R.string.ly_img_editor_blendmode),
                     onBack = { selectBlendMode = false },
-                    onClose = { onEvent(Event.OnHideSheet) }
+                    onClose = { onEvent(Event.OnHideSheet) },
                 )
                 Card(
                     colors = UiDefaults.cardColors,
-                    modifier = Modifier.inspectorSheetPadding()
+                    modifier = Modifier.inspectorSheetPadding(),
                 ) {
                     val selectedIndex =
-                        remember(uiState.blendMode) { blendModesList.indexOfFirst { uiState.blendMode == it.second } }
-                    val lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = selectedIndex)
+                        remember(
+                            uiState.blendMode,
+                        ) { blendModesList.indexOfFirst { uiState.blendMode == it.second } }
+                    val lazyListState =
+                        rememberLazyListState(initialFirstVisibleItemIndex = selectedIndex)
                     LazyColumn(state = lazyListState) {
                         items(blendModesList) {
                             val isChecked = uiState.blendMode == it.second
@@ -81,7 +84,7 @@ fun LayerOptionsSheet(
                                 text = stringResource(it.second),
                                 onClick = {
                                     onEvent(BlockEvent.OnChangeBlendMode(it.first))
-                                }
+                                },
                             )
                         }
                     }
@@ -90,32 +93,32 @@ fun LayerOptionsSheet(
         } else {
             Column {
                 SheetHeader(
-                    title = stringResource(id = R.string.cesdk_layer),
-                    onClose = { onEvent(Event.OnHideSheet) }
+                    title = stringResource(id = R.string.ly_img_editor_layer),
+                    onClose = { onEvent(Event.OnHideSheet) },
                 )
 
                 Column(
                     Modifier
                         .inspectorSheetPadding()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(rememberScrollState()),
                 ) {
                     if (uiState.opacity != null) {
                         PropertySlider(
-                            title = stringResource(R.string.cesdk_opacity),
+                            title = stringResource(R.string.ly_img_editor_opacity),
                             value = uiState.opacity,
                             onValueChange = { onEvent(BlockEvent.OnChangeOpacity(it)) },
-                            onValueChangeFinished = { onEvent(BlockEvent.OnChangeFinish) }
+                            onValueChangeFinished = { onEvent(BlockEvent.OnChangeFinish) },
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
                     if (uiState.blendMode != null) {
                         Card(
-                            colors = UiDefaults.cardColors
+                            colors = UiDefaults.cardColors,
                         ) {
                             PropertyLink(
-                                title = stringResource(id = R.string.cesdk_blendmode),
-                                value = stringResource(id = uiState.blendMode)
+                                title = stringResource(id = R.string.ly_img_editor_blendmode),
+                                value = stringResource(id = uiState.blendMode),
                             ) {
                                 selectBlendMode = true
                             }
@@ -127,35 +130,35 @@ fun LayerOptionsSheet(
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             CardButton(
-                                text = stringResource(R.string.cesdk_to_front),
+                                text = stringResource(R.string.ly_img_editor_to_front),
                                 icon = IconPack.Bringtofront,
                                 modifier = Modifier.weight(1f),
                                 enabled = uiState.canBringForward,
-                                onClick = { onEvent(BlockEvent.ToFront) }
+                                onClick = { onEvent(BlockEvent.ToFront) },
                             )
                             CardButton(
-                                text = stringResource(R.string.cesdk_forward),
+                                text = stringResource(R.string.ly_img_editor_forward),
                                 icon = IconPack.Bringforward,
                                 modifier = Modifier.weight(1f),
                                 enabled = uiState.canBringForward,
-                                onClick = { onEvent(BlockEvent.OnForward) }
+                                onClick = { onEvent(BlockEvent.OnForward) },
                             )
                             CardButton(
-                                text = stringResource(R.string.cesdk_backward),
+                                text = stringResource(R.string.ly_img_editor_backward),
                                 icon = IconPack.Sendbackward,
                                 modifier = Modifier.weight(1f),
                                 enabled = uiState.canSendBackward,
-                                onClick = { onEvent(BlockEvent.OnBackward) }
+                                onClick = { onEvent(BlockEvent.OnBackward) },
                             )
                             CardButton(
-                                text = stringResource(R.string.cesdk_to_back),
+                                text = stringResource(R.string.ly_img_editor_to_back),
                                 icon = IconPack.Sendtoback,
                                 modifier = Modifier.weight(1f),
                                 enabled = uiState.canSendBackward,
-                                onClick = { onEvent(BlockEvent.ToBack) }
+                                onClick = { onEvent(BlockEvent.ToBack) },
                             )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
@@ -165,13 +168,13 @@ fun LayerOptionsSheet(
                     val isDeleteAllowed = uiState.isDeleteAllowed
                     if (isDeleteAllowed || isDuplicateAllowed) {
                         Card(
-                            colors = UiDefaults.cardColors
+                            colors = UiDefaults.cardColors,
                         ) {
                             if (isDuplicateAllowed) {
                                 ActionRow(
-                                    text = stringResource(R.string.cesdk_duplicate),
+                                    text = stringResource(R.string.ly_img_editor_duplicate),
                                     icon = IconPack.Controlpointduplicate,
-                                    onClick = { onEvent(BlockEvent.OnDuplicate) }
+                                    onClick = { onEvent(BlockEvent.OnDuplicate) },
                                 )
                             }
                             if (isDeleteAllowed && isDuplicateAllowed) {
@@ -182,9 +185,9 @@ fun LayerOptionsSheet(
                                     LocalContentColor provides MaterialTheme.colorScheme.error,
                                 ) {
                                     ActionRow(
-                                        text = stringResource(R.string.cesdk_delete),
+                                        text = stringResource(R.string.ly_img_editor_delete),
                                         icon = IconPack.Delete,
-                                        onClick = { onEvent(BlockEvent.OnDelete) }
+                                        onClick = { onEvent(BlockEvent.OnDelete) },
                                     )
                                 }
                             }

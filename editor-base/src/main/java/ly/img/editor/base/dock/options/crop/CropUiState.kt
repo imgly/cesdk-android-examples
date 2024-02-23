@@ -7,13 +7,17 @@ import ly.img.engine.Engine
 data class CropUiState(
     val straightenAngle: Float,
     val cropScaleRatio: Float,
-    val canResetCrop: Boolean
+    val canResetCrop: Boolean,
 )
 
-internal fun createCropUiState(designBlock: DesignBlock, engine: Engine, cropScaleRatio: Float? = null): CropUiState {
+internal fun createCropUiState(
+    designBlock: DesignBlock,
+    engine: Engine,
+    cropScaleRatio: Float? = null,
+): CropUiState {
     return CropUiState(
         straightenAngle = getStraightenDegrees(engine, designBlock),
         cropScaleRatio = cropScaleRatio ?: engine.block.getCropScaleRatio(designBlock),
-        canResetCrop = engine.canResetCrop(designBlock)
+        canResetCrop = engine.canResetCrop(designBlock),
     )
 }

@@ -18,13 +18,13 @@ import androidx.compose.ui.unit.dp
 internal fun EmptyResultContent(
     icon: ImageVector,
     text: String,
-    button: @Composable (() -> Unit)? = null
+    button: @Composable (() -> Unit)? = null,
 ) {
     Column(
         Modifier
             .fillMaxWidth()
             .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         CompositionLocalProvider(
             LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant,
@@ -33,7 +33,7 @@ internal fun EmptyResultContent(
             Text(
                 text,
                 style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
+                modifier = Modifier.padding(top = 4.dp, bottom = 16.dp),
             )
         }
         button?.invoke()

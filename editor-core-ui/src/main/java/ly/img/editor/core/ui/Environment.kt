@@ -7,35 +7,53 @@ import android.content.SharedPreferences
 import android.net.Uri
 import coil.imageLoader
 import coil.request.ImageRequest
+import ly.img.editor.core.event.EditorEventHandler
+import ly.img.editor.core.library.AssetLibrary
+import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.library.data.AssetsRepository
 import ly.img.editor.core.ui.tab_item.TabIconMappings
+import ly.img.engine.AssetDefinition
 import ly.img.engine.Engine
-import ly.img.engine.SceneMode
 
 @SuppressLint("StaticFieldLeak")
 object Environment {
     private lateinit var context: Context
+
     fun init(application: Application) {
-        context = application
+        if (::context.isInitialized.not()) {
+            context = application.applicationContext
+            Engine.init(application)
+        }
     }
 
     var tabIconMappings = TabIconMappings()
-    var sceneMode = SceneMode.DESIGN
+    var assetLibrary: AssetLibrary? = null
+    var onUpload: (suspend AssetDefinition.(Engine, UploadAssetSourceType) -> AssetDefinition)? = null
+    var onClose: (suspend (Engine, EditorEventHandler) -> Unit)? = null
 
-    fun getPreferences(): SharedPreferences = context.getSharedPreferences("cesdk_prefs", Context.MODE_PRIVATE)
+    fun getPreferences(): SharedPreferences =
+        context.getSharedPreferences(
+            "cesdk_prefs",
+            Context.MODE_PRIVATE,
+        )
+
     fun getImageLoader() = context.imageLoader
+
     fun getFilesDir() = context.filesDir
+
     fun newImageRequest(uri: Uri) = ImageRequest.Builder(context).data(uri).build()
 
     private var engine: Engine? = null
+
     fun getEngine(): Engine {
-        return engine ?: Engine.getInstance(id = "ly.img.cesdk.showcase").also {
+        return engine ?: Engine.getInstance(id = "ly.img.editor").also {
             it.idlingEnabled = true
             engine = it
         }
     }
 
     private var assetsRepo: AssetsRepository? = null
+
     fun getAssetsRepo(): AssetsRepository {
         return assetsRepo ?: AssetsRepository().also {
             assetsRepo = it

@@ -10,12 +10,18 @@ import ly.img.engine.Engine
 @Suppress("NAME_SHADOWING")
 fun EventsHandler.shapeOptionEvents(
     engine: () -> Engine,
-    block: () -> DesignBlock
+    block: () -> DesignBlock,
 ) {
     val engine by inject(engine)
     val block by inject(block)
 
-    register<OnChangeStarInnerDiameter> { engine.block.setFloat(engine.block.getShape(block), "shape/star/innerDiameter", it.diameter) }
-    register<OnChangeStarPoints> { engine.block.setInt(engine.block.getShape(block), "shape/star/points", it.points.toInt()) }
-    register<OnChangePolygonSides> { engine.block.setInt(engine.block.getShape(block), "shape/polygon/sides", it.sides.toInt())}
+    register<OnChangeStarInnerDiameter> {
+        engine.block.setFloat(engine.block.getShape(block), "shape/star/innerDiameter", it.diameter)
+    }
+    register<OnChangeStarPoints> {
+        engine.block.setInt(engine.block.getShape(block), "shape/star/points", it.points.toInt())
+    }
+    register<OnChangePolygonSides> {
+        engine.block.setInt(engine.block.getShape(block), "shape/polygon/sides", it.sides.toInt())
+    }
 }

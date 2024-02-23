@@ -33,7 +33,7 @@ import ly.img.editor.postcard.util.NamedColor
 @Composable
 fun TemplateColorsSheet(
     uiState: TemplateColorsUiState,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
 ) {
     var screenState: ScreenState by remember { mutableStateOf(ScreenState.Main) }
 
@@ -46,13 +46,13 @@ fun TemplateColorsSheet(
             HalfHeightContainer {
                 Column {
                     SheetHeader(
-                        title = stringResource(id = R.string.cesdk_template_colors),
-                        onClose = { onEvent(Event.OnHideSheet) }
+                        title = stringResource(id = R.string.ly_img_editor_template_colors),
+                        onClose = { onEvent(Event.OnHideSheet) },
                     )
                     Column(
                         Modifier
                             .inspectorSheetPadding()
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(rememberScrollState()),
                     ) {
                         uiState.colorSections.forEachIndexed { index, namedColor ->
                             SectionHeader(namedColor.name)
@@ -65,13 +65,15 @@ fun TemplateColorsSheet(
                                     selectedColor = namedColor.color.toComposeColor(),
                                     onNoColorSelected = { },
                                     onColorSelected = {
-                                        onEvent(PostcardEvent.OnChangeTemplateColor(namedColor.name, it))
+                                        onEvent(
+                                            PostcardEvent.OnChangeTemplateColor(namedColor.name, it),
+                                        )
                                         onEvent(BlockEvent.OnChangeFinish)
                                     },
                                     openColorPicker = {
                                         screenState = ScreenState.SectionColorPicker(namedColor)
                                     },
-                                    colors = uiState.colorPalette
+                                    colors = uiState.colorPalette,
                                 )
                             }
                             if (index < uiState.colorSections.size - 1) {
@@ -87,12 +89,12 @@ fun TemplateColorsSheet(
             val state = screenState as? ScreenState.SectionColorPicker ?: return
             ColorPickerSheet(
                 color = state.namedColor.color.toComposeColor(),
-                title = stringResource(R.string.cesdk_template_color, state.namedColor.name),
+                title = stringResource(R.string.ly_img_editor_template_color, state.namedColor.name),
                 onBack = { screenState = ScreenState.Main },
                 onColorChange = {
                     onEvent(PostcardEvent.OnChangeTemplateColor(state.namedColor.name, it))
                 },
-                onEvent = onEvent
+                onEvent = onEvent,
             )
         }
     }
@@ -100,6 +102,7 @@ fun TemplateColorsSheet(
 
 private sealed interface ScreenState {
     data object Main : ScreenState
+
     data class SectionColorPicker(val namedColor: NamedColor) : ScreenState
 }
 

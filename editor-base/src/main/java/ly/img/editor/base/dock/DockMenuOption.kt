@@ -6,7 +6,7 @@ import ly.img.editor.core.ui.tab_item.TabItem
 @Composable
 fun DockMenuOption(
     data: OptionItemData,
-    onClick: (OptionType) -> Unit
+    onClick: (OptionType) -> Unit,
 ) {
     TabItem(
         onClick = { onClick(data.optionType) },

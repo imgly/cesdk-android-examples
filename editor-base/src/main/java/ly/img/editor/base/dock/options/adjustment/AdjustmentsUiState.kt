@@ -6,12 +6,21 @@ import ly.img.editor.base.ui.Block
 import ly.img.engine.EffectType
 import ly.img.engine.Engine
 
-data class AdjustmentUiState (
-    val adjustments: List<AdjustmentState>
+data class AdjustmentUiState(
+    val adjustments: List<AdjustmentState>,
 ) {
     companion object Factory {
-        fun create(block: Block, engine: Engine): AdjustmentUiState {
-            return AdjustmentUiState(EffectAndBlurOptions.getEffectAdjustments(engine, block.designBlock, EffectType.Adjustments))
+        fun create(
+            block: Block,
+            engine: Engine,
+        ): AdjustmentUiState {
+            return AdjustmentUiState(
+                EffectAndBlurOptions.getEffectAdjustments(
+                    engine,
+                    block.designBlock,
+                    EffectType.Adjustments,
+                ),
+            )
         }
     }
 }

@@ -1,101 +1,286 @@
 package ly.img.editor.core.library
 
+import androidx.annotation.StringRes
+import androidx.compose.ui.graphics.vector.ImageVector
 import ly.img.editor.core.R
+import ly.img.editor.core.iconpack.IconPack
+import ly.img.editor.core.iconpack.Image
+import ly.img.editor.core.iconpack.Imageoutline
+import ly.img.editor.core.iconpack.Libraryelements
+import ly.img.editor.core.iconpack.Libraryelementsoutline
+import ly.img.editor.core.iconpack.Music
+import ly.img.editor.core.iconpack.Playbox
+import ly.img.editor.core.iconpack.Playboxoutline
+import ly.img.editor.core.iconpack.Shapes
+import ly.img.editor.core.iconpack.Shapesoutline
+import ly.img.editor.core.iconpack.Stickeremoji
+import ly.img.editor.core.iconpack.Stickeremojioutline
+import ly.img.editor.core.iconpack.Textfields
 import ly.img.editor.core.library.data.AssetSourceType
+import ly.img.engine.SceneMode
 
-sealed class LibraryCategory private constructor(
-    val assetSourceGroups: List<AssetSourceGroup>,
-    val hiddenInAddLibrary: Boolean = false
+/**
+ * Configuration class of the UI of each library category. Each category contains a title (check [tabTitleRes]) and a [content]
+ * to render the UI. If the category is part of the tabs specified in [AssetLibrary.tabs], [tabSelectedIcon] and
+ * [tabUnselectedIcon] are used to display the icon of the category in the tabs.
+ *
+ * @param tabTitleRes string resource of the category's title that is displayed at the very top of the UI of [content].
+ * @param tabSelectedIcon the icon to display when the category is displayed as a tab element and the tab is selected.
+ * @param tabSelectedIcon the icon to display when the category is displayed as a tab element and the tab is not selected.
+ * @param content the content of the category. Check the documentation of [LibraryContent] for more information.
+ */
+data class LibraryCategory(
+    @StringRes val tabTitleRes: Int,
+    val tabSelectedIcon: ImageVector,
+    val tabUnselectedIcon: ImageVector,
+    val content: LibraryContent,
 ) {
-    class Elements(groups: List<AssetSourceGroup>) : LibraryCategory(groups)
-    class Gallery(groups: List<AssetSourceGroup>) : LibraryCategory(groups)
+    companion object {
+        /**
+         * A helper function to construct an abstract "Elements" category that is a combination of categories.
+         */
+        fun getElements(
+            sceneMode: SceneMode,
+            images: LibraryCategory = Images,
+            videos: LibraryCategory = Video,
+            audios: LibraryCategory = Audio,
+            text: LibraryCategory = Text,
+            shapes: LibraryCategory = Shapes,
+            stickers: LibraryCategory = Stickers,
+        ): LibraryCategory {
+            val isSceneModeVideo = sceneMode == SceneMode.VIDEO
+            return LibraryCategory(
+                tabTitleRes = R.string.ly_img_editor_elements,
+                tabSelectedIcon = IconPack.Libraryelements,
+                tabUnselectedIcon = IconPack.Libraryelementsoutline,
+                content =
+                    LibraryContent.Sections(
+                        titleRes = R.string.ly_img_editor_elements,
+                        sections =
+                            buildList {
+                                LibraryContent.Section(
+                                    titleRes = R.string.ly_img_editor_gallery,
+                                    sourceTypes =
+                                        buildList {
+                                            add(AssetSourceType.ImageUploads)
+                                            if (isSceneModeVideo) {
+                                                add(AssetSourceType.VideoUploads)
+                                            }
+                                        },
+                                    showUpload = false,
+                                    assetType = AssetType.Gallery,
+                                    expandContent =
+                                        LibraryContent.Sections(
+                                            titleRes = R.string.ly_img_editor_gallery,
+                                            sections =
+                                                buildList {
+                                                    LibraryContent.Section(
+                                                        titleRes = R.string.ly_img_editor_image_uploads,
+                                                        sourceTypes = listOf(AssetSourceType.ImageUploads),
+                                                        assetType = AssetType.Image,
+                                                    ).let(::add)
+                                                    if (isSceneModeVideo) {
+                                                        LibraryContent.Section(
+                                                            titleRes = R.string.ly_img_editor_video_uploads,
+                                                            sourceTypes = listOf(AssetSourceType.VideoUploads),
+                                                            assetType = AssetType.Video,
+                                                        ).let(::add)
+                                                    }
+                                                },
+                                        ),
+                                ).let(::add)
 
-    data object Video : LibraryCategory(
-        listOf(
-            AssetSourceGroup(
-                R.string.cesdk_videos,
-                listOf(AssetSourceType.VideoUploads, AssetSourceType.Videos),
-                AssetSourceGroupType.Video
-            ),
-        )
-    )
+                                if (isSceneModeVideo) {
+                                    videos.apply {
+                                        LibraryContent.Section(
+                                            titleRes = R.string.ly_img_editor_videos,
+                                            sourceTypes = content.sourceTypes,
+                                            assetType = AssetType.Video,
+                                            expandContent = content,
+                                        ).let(::add)
+                                    }
+                                    audios.apply {
+                                        LibraryContent.Section(
+                                            titleRes = R.string.ly_img_editor_audio,
+                                            sourceTypes = content.sourceTypes,
+                                            count = 3,
+                                            assetType = AssetType.Audio,
+                                            expandContent = content,
+                                        ).let(::add)
+                                    }
+                                }
 
-    data object Audio : LibraryCategory(
-        listOf(
-            AssetSourceGroup(
-                R.string.cesdk_audio,
-                listOf(AssetSourceType.AudioUploads, AssetSourceType.Audio),
-                AssetSourceGroupType.Audio
-            ),
-        )
-    )
+                                images.apply {
+                                    LibraryContent.Section(
+                                        titleRes = R.string.ly_img_editor_images,
+                                        sourceTypes = content.sourceTypes,
+                                        assetType = AssetType.Image,
+                                        expandContent = content,
+                                    ).let(::add)
+                                }
 
-    data object Images : LibraryCategory(
-        listOf(
-            AssetSourceGroup(
-                R.string.cesdk_images,
-                listOf(AssetSourceType.ImageUploads, AssetSourceType.Images, AssetSourceType.Unsplash),
-                AssetSourceGroupType.Image
+                                text.apply {
+                                    LibraryContent.Section(
+                                        titleRes = R.string.ly_img_editor_text,
+                                        sourceTypes = content.sourceTypes,
+                                        assetType = AssetType.Text,
+                                        expandContent = content,
+                                    ).let(::add)
+                                }
+
+                                shapes.apply {
+                                    LibraryContent.Section(
+                                        titleRes = R.string.ly_img_editor_shapes,
+                                        sourceTypes = content.sourceTypes,
+                                        assetType = AssetType.Shape,
+                                        expandContent = content,
+                                    ).let(::add)
+                                }
+
+                                stickers.apply {
+                                    LibraryContent.Section(
+                                        titleRes = R.string.ly_img_editor_stickers,
+                                        sourceTypes = content.sourceTypes,
+                                        assetType = AssetType.Sticker,
+                                        expandContent = content,
+                                    ).let(::add)
+                                }
+                            },
+                    ),
             )
-        )
-    )
+        }
 
-    object Text : LibraryCategory(
-        listOf(
-            AssetSourceGroup(
-                R.string.cesdk_text,
-                listOf(AssetSourceType.Text),
-                AssetSourceGroupType.Text
+        /**
+         * The default library category for video assets.
+         */
+        val Video by lazy {
+            LibraryCategory(
+                tabTitleRes = R.string.ly_img_editor_videos,
+                tabSelectedIcon = IconPack.Playbox,
+                tabUnselectedIcon = IconPack.Playboxoutline,
+                content = LibraryContent.Video,
             )
-        )
-    )
+        }
 
-    data object Shapes : LibraryCategory(
-        listOf(
-            AssetSourceGroup(
-                R.string.cesdk_shapes,
-                listOf(AssetSourceType.Shapes),
-                AssetSourceGroupType.Shape
+        /**
+         * The default library category for audio assets.
+         */
+        val Audio by lazy {
+            LibraryCategory(
+                tabTitleRes = R.string.ly_img_editor_audio,
+                tabSelectedIcon = IconPack.Music,
+                tabUnselectedIcon = IconPack.Music,
+                content = LibraryContent.Audio,
             )
-        )
-    )
+        }
 
-    data object Stickers : LibraryCategory(
-        listOf(
-            AssetSourceGroup(
-                R.string.cesdk_stickers,
-                listOf(AssetSourceType.Stickers),
-                AssetSourceGroupType.Sticker
+        /**
+         * The default library category for image assets.
+         */
+        val Images by lazy {
+            LibraryCategory(
+                tabTitleRes = R.string.ly_img_editor_images,
+                tabSelectedIcon = IconPack.Image,
+                tabUnselectedIcon = IconPack.Imageoutline,
+                content = LibraryContent.Images,
             )
-        )
-    )
+        }
 
-    object Filters : LibraryCategory(
-        listOf(
-            AssetSourceGroup(
-                R.string.cesdk_filters,
-                listOf(AssetSourceType.DuoToneFilter, AssetSourceType.LutFilter),
-                AssetSourceGroupType.Filter
+        /**
+         * The default library category for text assets.
+         */
+        val Text by lazy {
+            LibraryCategory(
+                tabTitleRes = R.string.ly_img_editor_text,
+                tabSelectedIcon = IconPack.Textfields,
+                tabUnselectedIcon = IconPack.Textfields,
+                content = LibraryContent.Text,
             )
-        ), hiddenInAddLibrary = true
-    )
+        }
 
-    object FxEffects : LibraryCategory(
-        listOf(
-            AssetSourceGroup(
-                R.string.cesdk_effects,
-                listOf(AssetSourceType.FxEffect),
-                AssetSourceGroupType.Effect
+        /**
+         * The default library category for shape assets.
+         */
+        val Shapes by lazy {
+            LibraryCategory(
+                tabTitleRes = R.string.ly_img_editor_shapes,
+                tabSelectedIcon = IconPack.Shapes,
+                tabUnselectedIcon = IconPack.Shapesoutline,
+                content = LibraryContent.Shapes,
             )
-        ), hiddenInAddLibrary = true
-    )
-    object Blur : LibraryCategory(
-        listOf(
-            AssetSourceGroup(
-                R.string.cesdk_blur,
-                listOf(AssetSourceType.Blur),
-                AssetSourceGroupType.Blur
+        }
+
+        /**
+         * The default library category for sticker assets.
+         */
+        val Stickers by lazy {
+            LibraryCategory(
+                tabTitleRes = R.string.ly_img_editor_stickers,
+                tabSelectedIcon = IconPack.Stickeremoji,
+                tabUnselectedIcon = IconPack.Stickeremojioutline,
+                content = LibraryContent.Stickers,
             )
-        ), hiddenInAddLibrary = true
-    )
+        }
+
+        private val LibraryContent.sourceTypes: List<AssetSourceType>
+            get() =
+                when (this) {
+                    is LibraryContent.Sections ->
+                        sections
+                            .flatMap { it.sourceTypes }
+                            .toSet()
+                            .toList()
+                    is LibraryContent.Grid -> listOf(sourceType)
+                }
+    }
+}
+
+/**
+ * Add a new section to the content of the library category. Note that the function will throw an exception if the
+ * content of the library category is not [LibraryContent.Sections].
+ *
+ * @param section the section to add at the bottom.
+ */
+fun LibraryCategory.addSection(section: LibraryContent.Section): LibraryCategory {
+    require(content is LibraryContent.Sections) {
+        "addSection can be called only for categories that have sections content."
+    }
+    return copy(content = content.copy(sections = content.sections + section))
+}
+
+/**
+ * Drop a section from the content of the library category. Note that the function will throw an exception if the
+ * content of the library category is not [LibraryContent.Sections].
+ *
+ * @param index the index to drop.
+ */
+fun LibraryCategory.dropSection(index: Int): LibraryCategory {
+    require(content is LibraryContent.Sections) {
+        "addSection can be called only for categories that have sections content."
+    }
+    return content.sections.toMutableList().run {
+        removeAt(index)
+        copy(content = content.copy(sections = this))
+    }
+}
+
+/**
+ * Replace a section in the content of the library category. Note that the function will throw an exception if the
+ * content of the library category is not [LibraryContent.Sections].
+ *
+ * @param index the index to replace.
+ * @param sectionReducer the reducer that converts the existing section at [index] into a new one.
+ */
+fun LibraryCategory.replaceSection(
+    index: Int,
+    sectionReducer: LibraryContent.Section.() -> LibraryContent.Section,
+): LibraryCategory {
+    require(content is LibraryContent.Sections) {
+        "replaceSection can be called only for categories that have sections content."
+    }
+    val sections =
+        content.sections.mapIndexed { internalIndex, section ->
+            if (index == internalIndex) sectionReducer(section) else section
+        }
+    return copy(content = content.copy(sections = sections))
 }

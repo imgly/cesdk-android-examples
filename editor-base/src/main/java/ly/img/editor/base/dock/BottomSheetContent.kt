@@ -16,10 +16,20 @@ interface BottomSheetContent {
 }
 
 object LibraryBottomSheetContent : BottomSheetContent
-class ReplaceBottomSheetContent(val designBlock: DesignBlock, val blockType: BlockType) : BottomSheetContent
+
+class ReplaceBottomSheetContent(
+    val designBlock: DesignBlock,
+    val blockType: BlockType,
+) : BottomSheetContent
+
 class LayerBottomSheetContent(val uiState: LayerUiState) : BottomSheetContent
+
 class OptionsBottomSheetContent(val uiState: ShapeOptionsUiState) : BottomSheetContent
+
 class FillStrokeBottomSheetContent(val uiState: FillStrokeUiState) : BottomSheetContent
+
 class FormatBottomSheetContent(val uiState: FormatUiState) : BottomSheetContent
+
 class AdjustmentSheetContent(val uiState: AdjustmentUiState) : BottomSheetContent
+
 class EffectSheetContent(val uiState: EffectUiState) : BottomSheetContent

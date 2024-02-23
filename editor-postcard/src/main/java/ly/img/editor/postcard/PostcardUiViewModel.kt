@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ly.img.editor.base.engine.LayoutAxis
 import ly.img.editor.base.engine.resetHistory
@@ -19,10 +18,10 @@ import ly.img.editor.base.engine.toEngineColor
 import ly.img.editor.base.engine.zoomToScene
 import ly.img.editor.base.ui.EditorUiViewModel
 import ly.img.editor.base.ui.Event
+import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.ui.engine.FONT_BASE_PATH
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.deselectAllBlocks
-import ly.img.editor.core.ui.engine.getScene
 import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.editor.core.ui.library.data.font.FontData
 import ly.img.editor.postcard.bottomsheet.message_color.MessageColorBottomSheetContent
@@ -40,34 +39,45 @@ import ly.img.editor.postcard.util.getPageSelectionColors
 import ly.img.editor.postcard.util.getPinnedBlock
 import ly.img.editor.postcard.util.requirePinnedBlock
 import ly.img.engine.DesignBlock
+import ly.img.engine.Engine
 import ly.img.engine.FillType
-import ly.img.engine.GlobalScope
-import ly.img.engine.MimeType
 
-class PostcardUiViewModel : EditorUiViewModel() {
-
+class PostcardUiViewModel(
+    baseUri: Uri,
+    onCreate: suspend (Engine, EditorEventHandler) -> Unit,
+    onExport: suspend (Engine, EditorEventHandler) -> Unit,
+    onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
+    onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
+    colorPalette: List<Color>,
+) : EditorUiViewModel(
+        baseUri = baseUri,
+        onCreate = onCreate,
+        onExport = onExport,
+        onClose = onClose,
+        onError = onError,
+        colorPalette = colorPalette,
+    ) {
     private var pageSelectionColors: SelectionColors? = null
     private var hasUnsavedChanges = false
 
-    val uiState = merge(_uiState, pageIndex, historyChangeTrigger).map {
-        updatePageSelectionColors()
-        PostcardUiViewState(
-            editorUiViewState = _uiState.value,
-            postcardMode = if (pageIndex.value == 0) PostcardMode.Design else PostcardMode.Write,
-            rootBarItems = rootBarItems(engine, pageIndex.value, pageSelectionColors)
+    val uiState =
+        merge(_uiState, pageIndex, historyChangeTrigger).map {
+            updatePageSelectionColors()
+            PostcardUiViewState(
+                editorUiViewState = _uiState.value,
+                postcardMode = if (pageIndex.value == 0) PostcardMode.Design else PostcardMode.Write,
+                rootBarItems = rootBarItems(engine, pageIndex.value, pageSelectionColors),
+            )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = PostcardUiViewState(_uiState.value),
         )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = PostcardUiViewState(_uiState.value)
-    )
 
     override fun onEvent(event: Event) {
         when (event) {
             is PostcardEvent -> {
                 when (event) {
-                    is PostcardEvent.OnNextPage -> setPage(pageIndex.value + 1)
-                    is PostcardEvent.OnPreviousPage -> setPage(pageIndex.value - 1)
                     is PostcardEvent.OnRootBarItemClick -> onRootBarItemClick(event.itemType)
                     is PostcardEvent.OnChangeMessageSize -> onChangeMessageSize(event.messageSize)
                     is PostcardEvent.OnChangeMessageColor -> onChangeMessageColor(event.color)
@@ -76,12 +86,7 @@ class PostcardUiViewModel : EditorUiViewModel() {
                 }
             }
 
-            else -> {
-                if (event is Event.OnLoadScene) {
-                    setColorPaletteColors(event.sceneUriString)
-                }
-                super.onEvent(event)
-            }
+            else -> super.onEvent(event)
         }
     }
 
@@ -93,7 +98,10 @@ class PostcardUiViewModel : EditorUiViewModel() {
         }
     }
 
-    private fun onChangeTemplateColor(name: String, color: Color) {
+    private fun onChangeTemplateColor(
+        name: String,
+        color: Color,
+    ) {
         val namedColor = checkNotNull(pageSelectionColors).getNamedColor(name)
         val engineColor = color.toEngineColor()
         namedColor.colorTypeBlocksMapping.forEach {
@@ -101,21 +109,19 @@ class PostcardUiViewModel : EditorUiViewModel() {
             val designBlockSet = it.value
             designBlockSet.forEach { block ->
                 when (colorType) {
-                    ColorType.Fill -> engine.overrideAndRestore(block, Scope.FillChange) {
-                        engine.block.setFillType(block, FillType.Color)
-                        engine.block.setFillSolidColor(block, engineColor)
-                    }
+                    ColorType.Fill ->
+                        engine.overrideAndRestore(block, Scope.FillChange) {
+                            engine.block.setFillType(block, FillType.Color)
+                            engine.block.setFillSolidColor(block, engineColor)
+                        }
 
-                    ColorType.Stroke -> engine.overrideAndRestore(block, Scope.StrokeChange) {
-                        engine.block.setStrokeColor(block, engineColor)
-                    }
+                    ColorType.Stroke ->
+                        engine.overrideAndRestore(block, Scope.StrokeChange) {
+                            engine.block.setStrokeColor(block, engineColor)
+                        }
                 }
             }
         }
-    }
-
-    override fun onSceneLoad() {
-        engine.editor.setGlobalScope(Scope.EditorAdd, GlobalScope.DEFER)
     }
 
     override fun enterEditMode() {
@@ -130,41 +136,40 @@ class PostcardUiViewModel : EditorUiViewModel() {
         }
     }
 
-    override suspend fun exportSceneAsByteArray(): ByteArray {
-        engine.showAllPages(LayoutAxis.Vertical)
-        val byteArray = engine.block.export(engine.getScene(), MimeType.PDF)
-        if (_uiState.value.isInPreviewMode) {
-            showAllPages()
-        } else {
-            engine.showPage(pageIndex.value)
-        }
-        return byteArray
-    }
+    override suspend fun onPreExport() = Unit
+
+    override suspend fun onPostExport() = Unit
 
     override fun updateBottomSheetUiState() {
         super.updateBottomSheetUiState()
         setBottomSheetContent {
             when (it) {
-                is MessageSizeBottomSheetContent -> MessageSizeBottomSheetContent(
-                    MessageSize.get(engine, engine.requirePinnedBlock())
-                )
-
-                is MessageColorBottomSheetContent -> MessageColorBottomSheetContent(
-                    engine.block.getFillSolidColor(engine.requirePinnedBlock()).toComposeColor()
-                )
-
-                is MessageFontBottomSheetContent -> MessageFontBottomSheetContent(
-                    createMessageFontUiState(
-                        engine.requirePinnedBlock(), engine, checkNotNull(assetsRepo.fontFamilies.value).getOrThrow()
+                is MessageSizeBottomSheetContent ->
+                    MessageSizeBottomSheetContent(
+                        MessageSize.get(engine, engine.requirePinnedBlock()),
                     )
-                )
+
+                is MessageColorBottomSheetContent ->
+                    MessageColorBottomSheetContent(
+                        engine.block.getFillSolidColor(engine.requirePinnedBlock()).toComposeColor(),
+                    )
+
+                is MessageFontBottomSheetContent ->
+                    MessageFontBottomSheetContent(
+                        createMessageFontUiState(
+                            engine.requirePinnedBlock(),
+                            engine,
+                            checkNotNull(assetsRepo.fontFamilies.value),
+                        ),
+                    )
 
                 is TemplateColorsBottomSheetContent -> {
                     updatePageSelectionColors()
                     TemplateColorsBottomSheetContent(
                         TemplateColorsUiState(
-                            colorPalette, checkNotNull(pageSelectionColors).getColors()
-                        )
+                            colorPalette,
+                            checkNotNull(pageSelectionColors).getColors(),
+                        ),
                     )
                 }
 
@@ -181,8 +186,12 @@ class PostcardUiViewModel : EditorUiViewModel() {
             if (page > 0) {
                 setPage(page - 1)
                 true
-            } else false
-        } else true
+            } else {
+                false
+            }
+        } else {
+            true
+        }
     }
 
     override fun hasUnsavedChanges(): Boolean {
@@ -192,39 +201,45 @@ class PostcardUiViewModel : EditorUiViewModel() {
     private fun onRootBarItemClick(itemType: RootBarItemType) {
         setBottomSheetContent {
             when (itemType) {
-                RootBarItemType.TemplateColors -> TemplateColorsBottomSheetContent(
-                    TemplateColorsUiState(colorPalette, checkNotNull(pageSelectionColors).getColors())
-                )
-
-                RootBarItemType.Font -> MessageFontBottomSheetContent(
-                    createMessageFontUiState(
-                        engine.requirePinnedBlock(), engine, checkNotNull(assetsRepo.fontFamilies.value).getOrThrow()
+                RootBarItemType.TemplateColors ->
+                    TemplateColorsBottomSheetContent(
+                        TemplateColorsUiState(colorPalette, checkNotNull(pageSelectionColors).getColors()),
                     )
-                )
+
+                RootBarItemType.Font ->
+                    MessageFontBottomSheetContent(
+                        createMessageFontUiState(
+                            engine.requirePinnedBlock(),
+                            engine,
+                            checkNotNull(assetsRepo.fontFamilies.value),
+                        ),
+                    )
 
                 RootBarItemType.Size -> MessageSizeBottomSheetContent(MessageSize.get(engine, engine.requirePinnedBlock()))
-                RootBarItemType.Color -> MessageColorBottomSheetContent(
-                    engine.block.getFillSolidColor(engine.requirePinnedBlock()).toComposeColor()
-                )
+                RootBarItemType.Color ->
+                    MessageColorBottomSheetContent(
+                        engine.block.getFillSolidColor(engine.requirePinnedBlock()).toComposeColor(),
+                    )
             }
         }
     }
 
     private fun updatePageSelectionColors() {
         if (_isSceneLoaded.value && pageIndex.value == 0) {
-            pageSelectionColors = engine.getPageSelectionColors(
-                forPage = 0, includeDisabled = true, setDisabled = true, ignoreScope = true
-            )
+            pageSelectionColors =
+                engine.getPageSelectionColors(
+                    forPage = 0,
+                    includeDisabled = true,
+                    setDisabled = true,
+                    ignoreScope = true,
+                )
         }
     }
 
-    private fun setPage(index: Int) {
-        if (index == pageIndex.value) return
-        pageIndex.update { index }
-        engine.showPage(index)
+    override fun setPage(index: Int) {
+        super.setPage(index)
         if (_uiState.value.isUndoEnabled) hasUnsavedChanges = true
         engine.resetHistory()
-        setBottomSheetContent { null }
     }
 
     private fun showAllPages() {
@@ -246,57 +261,8 @@ class PostcardUiViewModel : EditorUiViewModel() {
         engine.block.setString(
             engine.requirePinnedBlock(),
             "text/fontFileUri",
-            Uri.parse("$FONT_BASE_PATH/${fontData.fontPath}").toString()
+            Uri.parse("$FONT_BASE_PATH/${fontData.fontPath}").toString(),
         )
         engine.editor.addUndoStep()
-    }
-
-    private fun setColorPaletteColors(sceneUri: String) {
-        val scene = sceneUri.split("/").last().split(".").first()
-        colorPalette = when (scene) {
-            "bonjour_paris" -> listOf(
-                Color(0xFF000000),
-                Color(0xFFFFFFFF),
-                Color(0xFF4932D1),
-                Color(0xFFFE6755),
-                Color(0xFF606060),
-                Color(0xFF696969),
-                Color(0xFF999999),
-            )
-
-            "merry_christmas" -> listOf(
-                Color(0xFF536F1A),
-                Color(0xFFFFFFFF),
-                Color(0xFF6B2923),
-                Color(0xFFF3AE2B),
-                Color(0xFF051111),
-                Color(0xFF696969),
-                Color(0xFF999999),
-            )
-
-            "thank_you" -> listOf(
-                Color(0xFFE09F96),
-                Color(0xFFFFFFFF),
-                Color(0xFF761E40),
-                Color(0xFF7471A3),
-                Color(0xFF20121F),
-                Color(0xFF696969),
-                Color(0xFF999999),
-            )
-
-            "wish_you_were_here" -> listOf(
-                Color(0xFFE75050),
-                Color(0xFFFFFFFF),
-                Color(0xFF111111),
-                Color(0xFF282929),
-                Color(0xFF619888),
-                Color(0xFF696969),
-                Color(0xFF999999),
-            )
-
-            else -> listOf(
-                Color.Blue, Color.Green, Color.Yellow, Color.Red, Color.Black, Color.White, Color.Gray
-            )
-        }
     }
 }

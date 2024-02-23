@@ -33,7 +33,7 @@ fun ColorPicker(
     modifier: Modifier = Modifier,
     color: Color,
     onColorChange: (Color) -> Unit,
-    onColorChangeFinished: () -> Unit
+    onColorChangeFinished: () -> Unit,
 ) {
     var hsvColor by remember {
         mutableStateOf(HsvColor.from(color))
@@ -51,11 +51,11 @@ fun ColorPicker(
                 hsvColor = hsvColor.copy(saturation = saturation, value = value)
                 onColorChange(hsvColor.toComposeColor())
             },
-            onSaturationValueChangeFinished = onFinish
+            onSaturationValueChangeFinished = onFinish,
         )
 
         Spacer(Modifier.height(16.dp))
-        SectionHeader(text = stringResource(R.string.cesdk_hue))
+        SectionHeader(text = stringResource(R.string.ly_img_editor_hue))
         Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             HueSlider(
                 modifier = Modifier.weight(1f),
@@ -64,19 +64,19 @@ fun ColorPicker(
                     hsvColor = hsvColor.copy(hue = it)
                     onColorChange(hsvColor.toComposeColor())
                 },
-                onValueChangeFinished = onFinish
+                onValueChangeFinished = onFinish,
             )
             Spacer(Modifier.width(16.dp))
             Text(
                 hsvColor.hue.toInt().toString(),
                 modifier = Modifier.widthIn(32.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium
+                style = MaterialTheme.typography.labelMedium,
             )
         }
 
         Spacer(Modifier.height(16.dp))
-        SectionHeader(text = stringResource(R.string.cesdk_opacity))
+        SectionHeader(text = stringResource(R.string.ly_img_editor_opacity))
         Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             OpacitySlider(
                 modifier = Modifier.weight(1f),
@@ -85,14 +85,14 @@ fun ColorPicker(
                     hsvColor = hsvColor.copy(alpha = it)
                     onColorChange(hsvColor.toComposeColor())
                 },
-                onValueChangeFinished = onFinish
+                onValueChangeFinished = onFinish,
             )
             Spacer(Modifier.width(16.dp))
             Text(
                 "${(hsvColor.alpha * 100).toInt()}%",
                 modifier = Modifier.widthIn(32.dp),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium
+                style = MaterialTheme.typography.labelMedium,
             )
         }
 
@@ -107,20 +107,20 @@ fun ColorPicker(
 
         Row(
             Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             val composeColor by remember(hsvColor) {
                 mutableStateOf(hsvColor.toComposeColor())
             }
             ColorPreview(
                 color = composeColor,
-                modifier = Modifier.padding(vertical = 4.dp)
+                modifier = Modifier.padding(vertical = 4.dp),
             )
             Spacer(modifier = Modifier.width(24.dp))
             LazyVerticalGrid(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                columns = GridCells.Fixed(5)
+                columns = GridCells.Fixed(5),
             ) {
                 items(fillAndStrokeColors + secondaryColors) {
                     ColorButton(color = it, selected = composeColor == it, onClick = {

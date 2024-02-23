@@ -28,7 +28,7 @@ import ly.img.editor.postcard.R
 @Composable
 fun MessageColorSheet(
     color: Color,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
 ) {
     var screenState by remember { mutableStateOf(ScreenState.Main) }
 
@@ -41,15 +41,15 @@ fun MessageColorSheet(
             HalfHeightContainer {
                 Column {
                     SheetHeader(
-                        title = stringResource(id = R.string.cesdk_color),
-                        onClose = { onEvent(Event.OnHideSheet) }
+                        title = stringResource(id = R.string.ly_img_editor_color),
+                        onClose = { onEvent(Event.OnHideSheet) },
                     )
 
                     Card(
                         Modifier
                             .inspectorSheetPadding()
                             .verticalScroll(rememberScrollState()),
-                        colors = UiDefaults.cardColors
+                        colors = UiDefaults.cardColors,
                     ) {
                         ColorOptions(
                             enabled = true,
@@ -65,14 +65,15 @@ fun MessageColorSheet(
                             openColorPicker = {
                                 screenState = ScreenState.ColorPicker
                             },
-                            colors = listOf(
-                                Color(0xFF263BAA),
-                                Color(0xFF002094),
-                                Color(0xFF001346),
-                                Color(0xFF000000),
-                                Color(0xFF696969),
-                                Color(0xFF999999)
-                            )
+                            colors =
+                                listOf(
+                                    Color(0xFF263BAA),
+                                    Color(0xFF002094),
+                                    Color(0xFF001346),
+                                    Color(0xFF000000),
+                                    Color(0xFF696969),
+                                    Color(0xFF999999),
+                                ),
                         )
                     }
                 }
@@ -82,19 +83,20 @@ fun MessageColorSheet(
         ScreenState.ColorPicker -> {
             ColorPickerSheet(
                 color = color,
-                title = stringResource(id = R.string.cesdk_message_color),
+                title = stringResource(id = R.string.ly_img_editor_message_color),
                 onBack = { screenState = ScreenState.Main },
                 onColorChange = {
                     onEvent(PostcardEvent.OnChangeMessageColor(it))
                 },
-                onEvent = onEvent
+                onEvent = onEvent,
             )
         }
     }
 }
 
 private enum class ScreenState {
-    Main, ColorPicker
+    Main,
+    ColorPicker,
 }
 
 class MessageColorBottomSheetContent(val color: Color) : BottomSheetContent

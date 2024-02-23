@@ -22,27 +22,34 @@ import ly.img.editor.core.ui.iconpack.IconPack
 fun PropertyLink(
     title: String,
     value: String? = null,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 4.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable { onClick() }
+                .padding(vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(title, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(start = 16.dp))
+        Text(
+            title,
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 16.dp),
+        )
         CompositionLocalProvider(
             LocalContentColor provides MaterialTheme.colorScheme.primary,
         ) {
             Row(
                 modifier = Modifier.padding(ButtonDefaults.TextButtonContentPadding),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (value != null) {
                     Text(
-                        value, modifier = Modifier.padding(horizontal = 10.dp), style = MaterialTheme.typography.labelLarge
+                        value,
+                        modifier = Modifier.padding(horizontal = 10.dp),
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
                 Icon(IconPack.Arrowright, contentDescription = null)
