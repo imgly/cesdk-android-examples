@@ -103,7 +103,6 @@ data class LibraryCategory(
                                         LibraryContent.Section(
                                             titleRes = R.string.ly_img_editor_audio,
                                             sourceTypes = content.sourceTypes,
-                                            count = 3,
                                             assetType = AssetType.Audio,
                                             expandContent = content,
                                         ).let(::add)

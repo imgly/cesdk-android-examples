@@ -135,7 +135,6 @@ sealed interface LibraryContent {
                         Section(
                             titleRes = R.string.ly_img_editor_audio,
                             sourceTypes = listOf(AssetSourceType.Audio),
-                            count = 3,
                             assetType = AssetType.Audio,
                         ),
                     ),
