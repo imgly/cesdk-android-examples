@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'com.dropbox.dropshots'
+    id 'com.github.gmazzo.buildconfig'
 }
 
 String getLocalProperty(String property) {
@@ -10,6 +11,14 @@ String getLocalProperty(String property) {
     def properties = new Properties()
     properties.load(propertiesFile.newDataInputStream())
     return properties.getProperty(property)
+}
+
+buildConfig {
+    className "ShowcasesBuildConfig"
+    packageName "ly.img.editor.showcase"
+    buildConfigField String, "BUILD_NAME", System.getenv("CESDK_AND_BUILD_NAME") ?: ""
+    buildConfigField String, "LICENSE", System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""
+    buildConfigField String, "UNSPLASH_HOST", System.env.CESDK_AND_UNSPLASH_HOST ?: getLocalProperty("unsplash_host") ?: ""
 }
 
 android {
@@ -85,12 +94,6 @@ android {
         }
     }
 
-    buildTypes.each {
-        it.buildConfigField "String", "BUILD_NAME", "\"${System.getenv("CESDK_AND_BUILD_NAME") ?: ""}\""
-        it.buildConfigField 'String', 'LICENSE', "\"${System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""}\""
-        it.buildConfigField 'String', 'UNSPLASH_HOST', "\"${System.env.CESDK_AND_UNSPLASH_HOST ?: getLocalProperty("unsplash_host") ?: ""}\""
-    }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -102,6 +105,7 @@ android {
 
     buildFeatures {
         compose true
+        buildConfig false
     }
 
     composeOptions {

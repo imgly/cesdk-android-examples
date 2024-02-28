@@ -92,11 +92,11 @@ fun DesignUiToolbar(
                     }
                 }
             }
-            
+
             IconButton(
                 onClick = { onEvent(Event.OnExportClick) },
                 enabled = !isLoading,
-                modifier = Modifier.align(Alignment.CenterEnd)
+                modifier = Modifier.align(Alignment.CenterEnd),
             ) {
                 Icon(
                     IconPack.Share,

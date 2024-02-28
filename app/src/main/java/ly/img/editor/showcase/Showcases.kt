@@ -80,7 +80,7 @@ fun Showcases(navigateTo: (String) -> Unit) {
                     )
                 }
             }
-            if (BuildConfig.BUILD_NAME.isNotEmpty()) {
+            if (ShowcasesBuildConfig.BUILD_NAME.isNotEmpty()) {
                 Card(
                     modifier =
                         Modifier
@@ -89,7 +89,7 @@ fun Showcases(navigateTo: (String) -> Unit) {
                 ) {
                     Text(
                         modifier = Modifier.padding(8.dp),
-                        text = BuildConfig.BUILD_NAME,
+                        text = ShowcasesBuildConfig.BUILD_NAME,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleSmall,
                     )
