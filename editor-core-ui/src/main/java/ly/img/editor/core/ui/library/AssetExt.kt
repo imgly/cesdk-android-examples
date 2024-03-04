@@ -13,7 +13,7 @@ internal fun Asset.getDuration(): String {
     return String.format("%d:%02d", minutes, seconds)
 }
 
-fun Asset.getMeta(key: String) = meta?.find { it.first == key }?.second
+fun Asset.getMeta(key: String): String? = meta?.get(key)
 
 fun Asset.getMeta(
     key: String,

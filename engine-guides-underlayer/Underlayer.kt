@@ -1,5 +1,6 @@
 import kotlinx.coroutines.*
 import ly.img.engine.*
+import java.io.File
 
 fun underlayer(
     license: String,
@@ -36,7 +37,12 @@ fun underlayer(
 
     // highlight-export-pdf-underlayer
     val mimeType = MimeType.PDF
-    val options = ExportOptions(exportPdfWithUnderlayer = true, underlayerColor = "RDG_WHITE", underlayerOffset = -2.0F)
+    val options =
+        ExportOptions(
+            exportPdfWithUnderlayer = true,
+            underlayerSpotColorName = "RDG_WHITE",
+            underlayerOffset = -2.0F,
+        )
     val blob = engine.block.export(scene, mimeType = mimeType, options = options)
     withContext(Dispatchers.IO) {
         File.createTempFile("underlayer_example", ".pdf").apply {
