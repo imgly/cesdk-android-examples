@@ -64,8 +64,8 @@ internal fun AssetCreditsContent(
                     fullText = creditsLabel,
                     hyperLinks =
                         mutableMapOf(
-                            assetCreditsEvent.assetCredits?.name to assetCreditsEvent.assetCredits?.resourcePath,
-                            assetCreditsEvent.assetSourceCredits?.name to assetCreditsEvent.assetSourceCredits?.resourcePath,
+                            assetCreditsEvent.assetCredits?.name to assetCreditsEvent.assetCredits?.uri?.toString(),
+                            assetCreditsEvent.assetSourceCredits?.name to assetCreditsEvent.assetSourceCredits?.uri?.toString(),
                         ),
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 )
@@ -86,8 +86,8 @@ internal fun AssetCreditsContent(
                     fullText = licenseLabel,
                     hyperLinks =
                         mutableMapOf(
-                            assetCreditsEvent.assetLicense?.name to assetCreditsEvent.assetLicense?.resourcePath,
-                            assetCreditsEvent.assetSourceLicense?.name to assetCreditsEvent.assetSourceLicense?.resourcePath,
+                            assetCreditsEvent.assetLicense?.name to assetCreditsEvent.assetLicense?.uri?.toString(),
+                            assetCreditsEvent.assetSourceLicense?.name to assetCreditsEvent.assetSourceLicense?.uri?.toString(),
                         ),
                     textColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),

@@ -28,7 +28,9 @@ import spotColors
 import storeMetadata
 import textProperties
 import textWithEmojis
+import underlayer
 import uriResolver
+import usingBoolOps
 import usingEffects
 import usingFills
 import usingShapes
@@ -43,7 +45,13 @@ class GuidesTest {
     }
 
     @Test
+    fun testBoolOps() = runGuide(::usingBoolOps)
+
+    @Test
     fun testColors() = runGuide(::colors)
+
+    @Test
+    fun testUnderlayer() = runGuide(::underlayer)
 
     @Test
     fun testCreateSceneFromImageBlob() = runGuide(::createSceneFromImageBlob)
