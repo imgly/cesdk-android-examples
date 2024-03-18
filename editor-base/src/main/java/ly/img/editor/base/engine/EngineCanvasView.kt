@@ -1,6 +1,7 @@
 package ly.img.editor.base.engine
 
 import android.view.SurfaceView
+import android.view.TextureView
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import ly.img.editor.base.R
+import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.theme.surface1
 import ly.img.editor.core.ui.utils.activity
 import ly.img.engine.Engine
@@ -27,6 +29,7 @@ import ly.img.engine.Engine
 fun EngineCanvasView(
     license: String,
     userId: String?,
+    renderTarget: EngineRenderTarget,
     engine: Engine,
     isCanvasVisible: Boolean,
     passTouches: Boolean,
@@ -41,15 +44,18 @@ fun EngineCanvasView(
         requireNotNull(LocalContext.current.activity) {
             "Unable to find the activity. This is an internal error. Please report this issue."
         }
-    val surfaceView =
+    val renderView =
         remember {
-            SurfaceView(activity).apply { id = R.id.editor_surface_view }
+            when (renderTarget) {
+                EngineRenderTarget.SURFACE_VIEW -> SurfaceView(activity)
+                EngineRenderTarget.TEXTURE_VIEW -> TextureView(activity)
+            }.apply { id = R.id.editor_render_view }
         }
-    surfaceView.alpha = if (isCanvasVisible) 1F else 0F
+    renderView.alpha = if (isCanvasVisible) 1F else 0F
     val clearColor = MaterialTheme.colorScheme.surface1
     var onMoveStarted by remember { mutableStateOf(false) }
     AndroidView(
-        factory = { surfaceView },
+        factory = { renderView },
         modifier =
             Modifier
                 .pointerInput(passTouches) {
@@ -86,7 +92,14 @@ fun EngineCanvasView(
             onLicenseValidationError(it)
         }.onSuccess {
             engine.setClearColor(clearColor)
-            engine.bindSurfaceView(surfaceView)
+            when (renderTarget) {
+                EngineRenderTarget.SURFACE_VIEW -> {
+                    engine.bindSurfaceView(renderView as SurfaceView)
+                }
+                EngineRenderTarget.TEXTURE_VIEW -> {
+                    engine.bindTextureView(renderView as TextureView)
+                }
+            }
             loadScene()
         }
     }

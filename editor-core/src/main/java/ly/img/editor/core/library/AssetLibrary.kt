@@ -6,13 +6,13 @@ import ly.img.engine.SceneMode
  * Configuration class for the asset library.
  *
  * @param tabs a provider for the list of categories that are displayed as tabs in the asset library.
- * @param imagesTab a provider for the category that is displayed when replacing an image.
- * @param stickersTab a provider for the category that is displayed when replacing a sticker.
+ * @param images a provider for the category that is displayed when replacing an image.
+ * @param stickers a provider for the category that is displayed when replacing a sticker.
  */
 data class AssetLibrary(
     val tabs: (SceneMode) -> List<LibraryCategory>,
-    val imagesTab: (SceneMode) -> LibraryCategory = { LibraryCategory.Images },
-    val stickersTab: (SceneMode) -> LibraryCategory = { LibraryCategory.Stickers },
+    val images: (SceneMode) -> LibraryCategory = { LibraryCategory.Images },
+    val stickers: (SceneMode) -> LibraryCategory = { LibraryCategory.Stickers },
 ) {
     /**
      * Predefined tabs that can be displayed in the asset library.
@@ -35,12 +35,12 @@ data class AssetLibrary(
          * [LibraryCategory.replaceSection].
          *
          * @param tabs the list of tabs that should be displayed. The tabs are displayed in the same order as that of this list.
-         * @param images the images category that is used in the tabs and the [imagesTab].
+         * @param images the images category that is used in the tabs and the [images].
          * @param videos the videos category that is used in the tabs.
          * @param audios the audios category that is used in the tabs.
          * @param text the text category that is used in the tabs.
          * @param shapes the shapes category that is used in the tabs.
-         * @param stickers the stickers category that is used in the tabs and the [stickersTab].
+         * @param stickers the stickers category that is used in the tabs and the [stickers].
          */
         fun getDefault(
             tabs: List<Tab> = Tab.entries,
@@ -73,8 +73,8 @@ data class AssetLibrary(
                     }
                 }
             },
-            imagesTab = { images },
-            stickersTab = { stickers },
+            images = { images },
+            stickers = { stickers },
         )
     }
 }

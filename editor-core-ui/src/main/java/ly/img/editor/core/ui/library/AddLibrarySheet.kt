@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -19,16 +18,15 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
+import ly.img.editor.compose.bottomsheet.SwipeableV2State
 import ly.img.editor.core.ui.AnyComposable
-import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetValue
-import ly.img.editor.core.ui.bottomsheet.SwipeableV2State
 import ly.img.editor.core.ui.library.components.LibraryNavigationBar
 import ly.img.editor.core.ui.library.util.LibraryEvent
 import kotlin.math.roundToInt
 
 internal class OffsetWrapper(var offset: Float = 0f)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddLibrarySheet(
     swipeableState: SwipeableV2State<ModalBottomSheetValue>,

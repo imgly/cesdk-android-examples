@@ -1,17 +1,16 @@
 package ly.img.editor.apparel
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import ly.img.editor.base.R
 import ly.img.editor.base.components.ToggleIconButton
 import ly.img.editor.base.ui.Event
+import ly.img.editor.compose.material3.TopAppBar
+import ly.img.editor.compose.material3.TopAppBarDefaults
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Redo
 import ly.img.editor.core.ui.iconpack.Share
@@ -20,7 +19,6 @@ import ly.img.editor.core.ui.iconpack.Visibility
 import ly.img.editor.core.ui.iconpack.Visibilityoutline
 import ly.img.editor.core.R as coreR
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ApparelUiToolbar(
     navigationIcon: ImageVector,

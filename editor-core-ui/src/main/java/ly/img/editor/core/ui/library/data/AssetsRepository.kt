@@ -72,6 +72,9 @@ class AssetsRepository {
         }.toSortedMap()
     }
 
+    // this one is safe for 2 reasons:
+    // 1. We are soon going to delete manual download
+    // 2. API is highly unlikely to change as it contains only 1 parameter
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun downloadFonts(
         basePath: String,

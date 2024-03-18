@@ -3,9 +3,6 @@ package ly.img.editor.base.components.color_picker
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,8 +17,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.github.ajalt.colormath.extensions.android.composecolor.toComposeColor
 import com.github.ajalt.colormath.model.HSV
+import ly.img.editor.compose.material3.Slider
+import ly.img.editor.compose.material3.SliderDefaults
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun HueSlider(
     value: Float,

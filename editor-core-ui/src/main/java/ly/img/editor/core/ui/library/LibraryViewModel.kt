@@ -3,7 +3,6 @@ package ly.img.editor.core.ui.library
 import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
-import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import coil.request.SuccessResult
@@ -34,7 +33,6 @@ import ly.img.editor.core.ui.engine.getKindEnum
 import ly.img.editor.core.ui.engine.getPage
 import ly.img.editor.core.ui.library.components.section.LibrarySectionItem
 import ly.img.editor.core.ui.library.data.font.FontFamilyData
-import ly.img.editor.core.ui.library.engine.addText
 import ly.img.editor.core.ui.library.engine.replaceSticker
 import ly.img.editor.core.ui.library.state.AssetLibraryUiState
 import ly.img.editor.core.ui.library.state.AssetsData
@@ -88,10 +86,10 @@ internal class LibraryViewModel : ViewModel() {
         assetLibrary.tabs(sceneMode)
     }
     val replaceImageCategory by lazy {
-        assetLibrary.imagesTab(sceneMode)
+        assetLibrary.images(sceneMode)
     }
     val replaceStickerCategory by lazy {
-        assetLibrary.stickersTab(sceneMode)
+        assetLibrary.stickers(sceneMode)
     }
     private val libraryCategories by lazy {
         navBarItems +
@@ -193,16 +191,7 @@ internal class LibraryViewModel : ViewModel() {
         asset: Asset,
     ) {
         viewModelScope.launch {
-            val designBlock =
-                if (assetSourceType == AssetSourceType.Text) {
-                    val fontFamilyString = asset.getMeta("fontFamily", "")
-                    val fontFamily = checkNotNull(checkNotNull(fontFamilies.value)[fontFamilyString])
-                    val fontSize = requireNotNull(asset.getMeta("fontSize", "")).toFloat()
-                    val fontWeight = FontWeight(requireNotNull(asset.getMeta("fontWeight", "")).toInt())
-                    engine.addText(fontFamily.getFontData(fontWeight).fontPath, fontSize)
-                } else {
-                    engine.asset.applyAssetSourceAsset(assetSourceType.sourceId, asset) ?: return@launch
-                }
+            val designBlock = engine.asset.applyAssetSourceAsset(assetSourceType.sourceId, asset) ?: return@launch
 
             val camera = engine.getCamera()
             val width = engine.block.getFrameWidth(designBlock)
@@ -380,7 +369,8 @@ internal class LibraryViewModel : ViewModel() {
         val uiStateFlow = categoryData.uiStateFlow
         val assetsData = uiStateFlow.value.assetsData
         val canLoadMore = (assetsData.page == 0 && assetsData.assets.isEmpty()) || assetsData.canPaginate
-        val isLoading = assetsData.assetsLoadState == AssetsLoadState.Loading || assetsData.assetsLoadState == AssetsLoadState.Paginating
+        val isLoading =
+            assetsData.assetsLoadState == AssetsLoadState.Loading || assetsData.assetsLoadState == AssetsLoadState.Paginating
         if (canLoadMore.not() || isLoading) return@launch
         categoryData.dirty = false
         uiStateFlow.update {
@@ -557,11 +547,13 @@ internal class LibraryViewModel : ViewModel() {
                                             item is LibrarySectionItem.Header && item.sectionIndex == content.sectionIndex -> {
                                                 item.copy(count = total)
                                             }
+
                                             item is LibrarySectionItem.ContentLoading &&
                                                 item.sectionIndex == content.sectionIndex &&
                                                 item.subSectionIndex == content.subSectionIndex -> {
                                                 updatedContent
                                             }
+
                                             else -> item
                                         }
                                     },

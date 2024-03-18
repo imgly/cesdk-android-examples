@@ -1,6 +1,5 @@
 package ly.img.editor.base.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,8 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,6 +25,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
+import ly.img.editor.compose.foundation.pager.HorizontalPager
+import ly.img.editor.compose.foundation.pager.rememberPagerState
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.PageNextArrow
 import ly.img.editor.core.ui.iconpack.PagePrevArrow
@@ -67,7 +66,6 @@ fun PageNavigation(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PageIndicators(
     modifier: Modifier = Modifier,

@@ -5,6 +5,7 @@ android {
 }
 
 dependencies {
+    api project(":editor-experimental")
     api project(":editor-core")
     api findProject(":ubq-android-engine") ?: libs.cesdk.engine
 
