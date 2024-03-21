@@ -1,9 +1,6 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package ly.img.editor.base.ui
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetValue
+import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
 
 /**
  * To communicate one-time events from the ViewModel to the UI. These are not part of the state.

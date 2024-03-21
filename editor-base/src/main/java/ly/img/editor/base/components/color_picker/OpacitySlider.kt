@@ -3,9 +3,6 @@ package ly.img.editor.base.components.color_picker
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,8 +21,9 @@ import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
+import ly.img.editor.compose.material3.Slider
+import ly.img.editor.compose.material3.SliderDefaults
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun OpacitySlider(
     color: Color,
@@ -40,7 +38,7 @@ internal fun OpacitySlider(
         )
 
     Slider(
-        sliderValue,
+        value = sliderValue,
         modifier = modifier,
         onValueChange = {
             sliderValue = it

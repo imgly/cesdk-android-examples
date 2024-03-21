@@ -17,6 +17,10 @@ object UiDefaults {
         @Composable
         get() = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface1)
 
+    val cardColorsExperimental: ly.img.editor.compose.material3.CardColors
+        @Composable
+        get() = ly.img.editor.compose.material3.CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface1)
+
     val CornerLargeTop =
         RoundedCornerShape(
             topStart = 16.0.dp,

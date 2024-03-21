@@ -222,7 +222,10 @@ data class LibraryCategory(
             )
         }
 
-        private val LibraryContent.sourceTypes: List<AssetSourceType>
+        /**
+         * All the source types of the library content.
+         */
+        val LibraryContent.sourceTypes: List<AssetSourceType>
             get() =
                 when (this) {
                     is LibraryContent.Sections ->

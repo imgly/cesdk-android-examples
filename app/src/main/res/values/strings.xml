@@ -2,4 +2,6 @@
 <resources>
     <string name="app_name">Showcases</string>
     <string name="unsplash">Unsplash</string>
+    <string name="uploads">Uploads</string>
+    <string name="my_assets">My Assets</string>
 </resources>

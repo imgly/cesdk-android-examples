@@ -95,7 +95,7 @@ class ShowcasesTest {
             }
         val (canvasBitmap, canvasLocation) =
             activity.findViewById<SurfaceView>(
-                R.id.editor_surface_view,
+                R.id.editor_render_view,
             ).run {
                 val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                 val location = IntArray(2)
