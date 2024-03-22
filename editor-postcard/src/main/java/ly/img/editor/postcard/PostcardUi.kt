@@ -11,11 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.base.components.color_picker.LibraryButton
 import ly.img.editor.base.ui.EditorUi
+import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.AssetLibrary
@@ -50,12 +49,12 @@ import ly.img.editor.postcard.rootbar.tab_icons.PostcardUiTabIconMappings
 import ly.img.engine.AssetDefinition
 import ly.img.engine.Engine
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostcardUi(
     initialExternalState: Parcelable,
     license: String,
     userId: String? = null,
+    renderTarget: EngineRenderTarget,
     navigationIcon: ImageVector,
     baseUri: Uri,
     colorPalette: List<Color>,
@@ -65,7 +64,7 @@ fun PostcardUi(
     onUpload: suspend AssetDefinition.(Engine, EditorEventHandler, UploadAssetSourceType) -> AssetDefinition,
     onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
     onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
-    onEvent: (Activity, MutableState<out Parcelable>, EditorEvent) -> Unit,
+    onEvent: (Activity, Parcelable, EditorEvent) -> Parcelable,
     overlay: @Composable ((Parcelable, EditorEventHandler) -> Unit),
     close: () -> Unit,
 ) {
@@ -104,6 +103,7 @@ fun PostcardUi(
         initialExternalState = initialExternalState,
         license = license,
         userId = userId,
+        renderTarget = renderTarget,
         uiState = uiState.editorUiViewState,
         overlay = overlay,
         onEvent = onEvent,

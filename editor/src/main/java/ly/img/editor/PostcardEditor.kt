@@ -3,7 +3,6 @@ package ly.img.editor
 import android.app.Activity
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.theme.EditorTheme
 import ly.img.editor.core.ui.scope.EditorScope
@@ -40,6 +39,7 @@ fun PostcardEditor(
                 initialExternalState = editorConfiguration.initialState,
                 license = engineConfiguration.license,
                 userId = engineConfiguration.userId,
+                renderTarget = engineConfiguration.renderTarget,
                 navigationIcon = editorConfiguration.navigationIcon,
                 baseUri = engineConfiguration.baseUri,
                 colorPalette = editorConfiguration.colorPalette,
@@ -49,7 +49,7 @@ fun PostcardEditor(
                 onUpload = engineConfiguration.onUpload,
                 onClose = engineConfiguration.onClose,
                 onError = engineConfiguration.onError,
-                onEvent = editorConfiguration.onEvent as (Activity, MutableState<out Parcelable>, EditorEvent) -> Unit,
+                onEvent = editorConfiguration.onEvent as (Activity, Parcelable, EditorEvent) -> Parcelable,
                 overlay = { state, eventHandler ->
                     (editorConfiguration as EditorConfiguration<Parcelable>).overlay(state, eventHandler)
                 },

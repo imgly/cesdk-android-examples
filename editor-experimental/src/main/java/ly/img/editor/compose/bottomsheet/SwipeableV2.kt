@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package ly.img.editor.core.ui.bottomsheet
+package ly.img.editor.compose.bottomsheet
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.animate
@@ -24,7 +25,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
@@ -70,7 +70,7 @@ import kotlin.math.abs
  * @param interactionSource Optional [MutableInteractionSource] that will passed on to
  * the internal [Modifier.draggable].
  */
-@ExperimentalMaterial3Api
+@SuppressLint("ModifierFactoryUnreferencedReceiver")
 internal fun <T> Modifier.swipeableV2(
     state: SwipeableV2State<T>,
     orientation: Orientation,
@@ -100,7 +100,6 @@ internal fun <T> Modifier.swipeableV2(
  * [possibleValues], given this node's layout size. Return the anchor's offset from the initial
  * anchor, or `null` to indicate that a value does not have an anchor.
  */
-@ExperimentalMaterial3Api
 internal fun <T> Modifier.swipeAnchors(
     state: SwipeableV2State<T>,
     possibleValues: Set<T>,
@@ -161,7 +160,6 @@ internal fun <T> Modifier.swipeAnchors(
  * reached.
  */
 @Stable
-@ExperimentalMaterial3Api
 class SwipeableV2State<T>(
     initialValue: T,
     internal val animationSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
@@ -467,7 +465,6 @@ class SwipeableV2State<T>(
         /**
          * The default [Saver] implementation for [SwipeableV2State].
          */
-        @ExperimentalMaterial3Api
         fun <T : Any> Saver(
             animationSpec: AnimationSpec<Float>,
             confirmValueChange: (T) -> Boolean,
@@ -496,7 +493,6 @@ class SwipeableV2State<T>(
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending value change.
  */
 @Composable
-@ExperimentalMaterial3Api
 internal fun <T : Any> rememberSwipeableV2State(
     initialValue: T,
     animationSpec: AnimationSpec<Float> = SwipeableV2Defaults.AnimationSpec,
@@ -530,7 +526,6 @@ internal fun <T : Any> rememberSwipeableV2State(
  *
  * @see [fractionalPositionalThreshold] for a fractional positional threshold
  */
-@ExperimentalMaterial3Api
 internal fun fixedPositionalThreshold(threshold: Dp): Density.(distance: Float) -> Float =
     {
         threshold.toPx()
@@ -543,7 +538,6 @@ internal fun fixedPositionalThreshold(threshold: Dp): Density.(distance: Float) 
  *
  * @see [fixedPositionalThreshold] for a fixed positional threshold
  */
-@ExperimentalMaterial3Api
 internal fun fractionalPositionalThreshold(fraction: Float): Density.(distance: Float) -> Float =
     { distance -> distance * fraction }
 
@@ -551,24 +545,20 @@ internal fun fractionalPositionalThreshold(fraction: Float): Density.(distance: 
  * Contains useful defaults for [swipeableV2] and [SwipeableV2State].
  */
 @Stable
-@ExperimentalMaterial3Api
 internal object SwipeableV2Defaults {
     /**
      * The default animation used by [SwipeableV2State].
      */
-    @ExperimentalMaterial3Api
     val AnimationSpec = SpringSpec<Float>()
 
     /**
      * The default velocity threshold (1.8 dp per millisecond) used by [rememberSwipeableV2State].
      */
-    @ExperimentalMaterial3Api
     val VelocityThreshold: Dp = 125.dp
 
     /**
      * The default positional threshold (56 dp) used by [rememberSwipeableV2State]
      */
-    @ExperimentalMaterial3Api
     val PositionalThreshold: Density.(totalDistance: Float) -> Float =
         fixedPositionalThreshold(56.dp)
 
@@ -586,7 +576,6 @@ internal object SwipeableV2Defaults {
      * @param animate A lambda that gets invoked to start an animation to a new target
      * @param snap A lambda that gets invoked to snap to a new target
      */
-    @ExperimentalMaterial3Api
     internal fun <T> ReconcileAnimationOnAnchorChangeHandler(
         state: SwipeableV2State<T>,
         animate: (target: T, velocity: Float) -> Unit,
@@ -612,7 +601,6 @@ internal object SwipeableV2Defaults {
  *
  * @see SwipeableV2Defaults.ReconcileAnimationOnAnchorChangeHandler for a default implementation
  */
-@ExperimentalMaterial3Api
 internal fun interface AnchorChangeHandler<T> {
     /**
      * Callback that is invoked when the anchors have changed, after the [SwipeableV2State] has been

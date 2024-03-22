@@ -13,13 +13,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,6 +35,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -62,28 +61,30 @@ import ly.img.editor.base.dock.options.format.FormatOptionsSheet
 import ly.img.editor.base.dock.options.layer.LayerOptionsSheet
 import ly.img.editor.base.dock.options.shapeoptions.ShapeOptionsSheet
 import ly.img.editor.base.engine.EngineCanvasView
+import ly.img.editor.compose.bottomsheet.ModalBottomSheetLayout
+import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
+import ly.img.editor.compose.bottomsheet.rememberModalBottomSheetState
+import ly.img.editor.core.R
+import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.theme.surface1
 import ly.img.editor.core.theme.surface2
 import ly.img.editor.core.ui.AnyComposable
-import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetLayout
-import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetValue
-import ly.img.editor.core.ui.bottomsheet.rememberModalBottomSheetState
 import ly.img.editor.core.ui.library.AddLibrarySheet
 import ly.img.editor.core.ui.library.ReplaceLibrarySheet
 import ly.img.editor.core.ui.utils.activity
 import ly.img.editor.core.ui.utils.toPx
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditorUi(
     initialExternalState: Parcelable,
     license: String,
     userId: String?,
+    renderTarget: EngineRenderTarget,
     uiState: EditorUiViewState,
-    onEvent: (Activity, MutableState<out Parcelable>, EditorEvent) -> Unit,
+    onEvent: (Activity, Parcelable, EditorEvent) -> Parcelable,
     overlay: @Composable ((Parcelable, EditorEventHandler) -> Unit),
     topBar: @Composable () -> Unit,
     canvasOverlay: @Composable BoxScope.() -> Unit,
@@ -201,12 +202,13 @@ fun EditorUi(
         }
     LaunchedEffect(Unit) {
         viewModel.externalEvent.collect {
-            onEvent(activity, externalState, it)
+            externalState.value = onEvent(activity, externalState.value, it)
         }
     }
 
     ModalBottomSheetLayout(
         sheetState = scrimBottomSheetState,
+        dismissContentDescription = stringResource(id = R.string.ly_img_editor_close),
         sheetContent = {
             anyComposable?.let {
                 it.Content()
@@ -233,6 +235,7 @@ fun EditorUi(
         ModalBottomSheetLayout(
             sheetState = uiState.bottomSheetState,
             modifier = Modifier.systemBarsPadding(),
+            dismissContentDescription = stringResource(id = R.string.ly_img_editor_close),
             sheetContent = {
                 val content = bottomSheetContent
                 if (content != null) {
@@ -304,6 +307,7 @@ fun EditorUi(
                     EngineCanvasView(
                         license = license,
                         userId = userId,
+                        renderTarget = renderTarget,
                         engine = viewModel.engine,
                         isCanvasVisible = uiState.isCanvasVisible,
                         passTouches = uiState.allowEditorInteraction,

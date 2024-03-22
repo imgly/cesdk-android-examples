@@ -1,8 +1,6 @@
 package ly.img.editor.core.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Spacer
@@ -14,9 +12,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import ly.img.editor.compose.foundation.combinedClickable
 import ly.img.editor.core.ui.utils.ifTrue
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GradientCard(
     modifier: Modifier,

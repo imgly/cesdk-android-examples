@@ -1,5 +1,11 @@
 apply from: "$projectDir/../release/editor-library.gradle"
 
+buildConfig {
+    className "EditorBuildConfig"
+    packageName "ly.img.editor"
+    buildConfigField String, "VERSION", libs.versions.engine
+}
+
 android {
     namespace 'ly.img.editor'
 }

@@ -1,4 +1,4 @@
-package ly.img.editor.core.ui.bottomsheet
+package ly.img.editor.compose.bottomsheet
 
 import androidx.compose.animation.core.SpringSpec
 

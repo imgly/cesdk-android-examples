@@ -1,8 +1,6 @@
 package ly.img.editor.core.ui.library.components.asset
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,6 +17,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ly.img.editor.compose.foundation.combinedClickable
 import ly.img.editor.core.R
 import ly.img.editor.core.theme.surface3
 import ly.img.editor.core.ui.iconpack.Add
@@ -26,7 +25,6 @@ import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.library.getMeta
 import ly.img.editor.core.ui.library.state.WrappedAsset
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun TextAssetContent(
     wrappedAsset: WrappedAsset.TextAsset,

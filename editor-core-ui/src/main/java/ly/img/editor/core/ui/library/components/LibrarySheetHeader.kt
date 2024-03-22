@@ -1,13 +1,5 @@
 package ly.img.editor.core.ui.library.components
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.with
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,18 +12,11 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.InputChip
-import androidx.compose.material3.InputChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TextFieldDefaults.indicatorLine
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,6 +39,19 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import ly.img.editor.compose.animation.AnimatedContent
+import ly.img.editor.compose.animation.with
+import ly.img.editor.compose.animation_core.fadeIn
+import ly.img.editor.compose.animation_core.fadeOut
+import ly.img.editor.compose.animation_core.slideInHorizontally
+import ly.img.editor.compose.animation_core.slideOutHorizontally
+import ly.img.editor.compose.animation_core.tween
+import ly.img.editor.compose.material3.InputChip
+import ly.img.editor.compose.material3.InputChipDefaults
+import ly.img.editor.compose.material3.TextFieldColors
+import ly.img.editor.compose.material3.TextFieldDefaults
+import ly.img.editor.compose.material3.TextFieldDefaults.indicatorLine
+import ly.img.editor.compose.material3.TopAppBar
 import ly.img.editor.core.R
 import ly.img.editor.core.theme.surface3
 import ly.img.editor.core.ui.iconpack.Arrowback
@@ -64,7 +62,6 @@ import ly.img.editor.core.ui.iconpack.Search
 import ly.img.editor.core.ui.library.state.AssetLibraryUiState
 import ly.img.editor.core.ui.library.util.LibraryEvent
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 internal fun LibrarySearchHeader(
     uiState: AssetLibraryUiState,
@@ -221,7 +218,6 @@ internal fun LibrarySearchHeader(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchTextField(
     textFieldValue: TextFieldValue,
@@ -272,7 +268,7 @@ private fun SearchTextField(
         maxLines = maxLines,
         decorationBox = @Composable { innerTextField ->
             // places leading icon, text field with label and placeholder, trailing icon
-            TextFieldDefaults.TextFieldDecorationBox(
+            TextFieldDefaults.DecorationBox(
                 value = textFieldValue.text,
                 visualTransformation = visualTransformation,
                 innerTextField = innerTextField,
