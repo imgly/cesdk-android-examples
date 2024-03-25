@@ -1,6 +1,7 @@
 package ly.img.editor
 
 import android.net.Uri
+import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.engine.AssetDefinition
@@ -20,6 +21,8 @@ import ly.img.engine.MimeType
  * For instance, baseUri can be set to android assets: file:///android_asset/.
  * After setting this path you can, for instance, load example.scene from assets/scenes folder using relative path:
  *      engine.scene.load(sceneUri = Uri.parse("scenes/example.scene"))
+ * @param renderTarget the target which should be used by the [ly.img.engine.Engine] to render.
+ * Default value is [EngineRenderTarget.SURFACE_VIEW].
  * @param onCreate the callback that is invoked when the editor is created. This is the main initialization block of both the editor
  * and engine. Normally, you should create/load a scene as well as prepare asset sources in this block.
  * We recommend that you check the availability of the scene before creating/loading a new scene since a recreated scene may already
@@ -41,7 +44,7 @@ import ly.img.engine.MimeType
  * Note that the "upload" coroutine job will survive configuration changes and will be cancelled only if the editor is closed or the process is killed
  * when in the background.
  * @param onClose the callback that is invoked after a tap on the navigation icon of the toolbar or on the system back button.
- * The callback receives a Boolean parameter that indicates whether editor has unsaved changes. In case the flag is true,
+ * The callback receives a boolean parameter that indicates whether editor has unsaved changes. In case the flag is true,
  * [ShowCloseConfirmationDialogEvent] event is sent in the default implementation which displays a confirmation dialog. If
  * the flag is false, the editor is closed.
  * Note that the "close" coroutine job will survive configuration changes and will be cancelled only if the editor is closed or
@@ -54,7 +57,8 @@ import ly.img.engine.MimeType
 class EngineConfiguration(
     val license: String,
     val userId: String? = null,
-    val baseUri: Uri = Uri.parse(BASE_URI),
+    val baseUri: Uri = defaultBaseUri,
+    val renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
     val onCreate: suspend (Engine, EditorEventHandler) -> Unit,
     val onExport: suspend (Engine, EditorEventHandler) -> Unit = { engine, eventHandler ->
         EditorDefaults.run {
@@ -91,7 +95,33 @@ class EngineConfiguration(
     },
 ) {
     companion object {
-        private const val BASE_URI = "https://cdn.img.ly/packages/imgly/cesdk-engine/1.19.0/assets"
+        /**
+         * The default baseUri value used in [EngineConfiguration].
+         */
+        val defaultBaseUri: Uri by lazy {
+            Uri.parse("https://cdn.img.ly/packages/imgly/cesdk-engine/${EditorBuildConfig.VERSION}/assets")
+        }
+
+        /**
+         * The default sceneUri value used in [EngineConfiguration.getForDesign].
+         */
+        val defaultDesignSceneUri: Uri by lazy {
+            Uri.parse("file:///android_asset/scenes/empty.scene")
+        }
+
+        /**
+         * The default sceneUri value used in [EngineConfiguration.getForApparel].
+         */
+        val defaultApparelSceneUri: Uri by lazy {
+            Uri.parse("file:///android_asset/scenes/apparel.scene")
+        }
+
+        /**
+         * The default sceneUri value used in [EngineConfiguration.getForPostcard].
+         */
+        val defaultPostcardSceneUri: Uri by lazy {
+            Uri.parse("file:///android_asset/scenes/postcard.scene")
+        }
 
         /**
          * Helper function for creating an [EngineConfiguration] object when launching [DesignEditor]. This function simplifies
@@ -101,21 +131,25 @@ class EngineConfiguration(
          * @param license the license required to activate the [ly.img.engine.Engine].
          * @param userId an optional identifier for the application's user, enhancing the accuracy of monthly active users (MAU) calculations.
          * This is particularly beneficial for tracking users across multiple devices when they sign in, ensuring they are counted uniquely.
-         * @param baseUri the foundational URI for constructing absolute paths from relative ones. For example, setting it to
+         * @param baseUri the foundational uri for constructing absolute paths from relative ones. For example, setting it to
          * the Android assets directory allows loading resources directly from there: file:///android_asset/.
-         * This base URI enables the loading of specific scenes or assets using their relative paths.
-         * @param sceneUri the specific scene URI to load content within the [DesignEditor]. This URI is passed to
+         * This base uri enables the loading of specific scenes or assets using their relative paths.
+         * @param sceneUri the specific scene uri to load content within the [DesignEditor]. This uri is passed to
          * [EditorDefaults.onCreate] to facilitate scene and asset loading at initialization.
+         * @param renderTarget the target which should be used by the [ly.img.engine.Engine] to render.
+         * Default value is [EngineRenderTarget.SURFACE_VIEW].
          */
         fun getForDesign(
             license: String,
             userId: String? = null,
-            baseUri: Uri = Uri.parse(BASE_URI),
-            sceneUri: Uri = Uri.parse("file:///android_asset/scenes/empty.scene"),
+            baseUri: Uri = defaultBaseUri,
+            sceneUri: Uri = defaultDesignSceneUri,
+            renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
         ) = EngineConfiguration(
             license = license,
             userId = userId,
             baseUri = baseUri,
+            renderTarget = renderTarget,
             onCreate = { engine, eventHandler ->
                 EditorDefaults.onCreate(engine, sceneUri, eventHandler)
             },
@@ -136,16 +170,20 @@ class EngineConfiguration(
          *      engine.scene.load(sceneUri = Uri.parse("scenes/example.scene"))
          * @param sceneUri the scene Uri that is used to load the content of the [ApparelEditor]. This Uri is delegated to
          * [EditorDefaults.onCreate] in order to load the scene and asset sources.
+         * @param renderTarget the target which should be used by the [ly.img.engine.Engine] to render.
+         * Default value is [EngineRenderTarget.SURFACE_VIEW].
          */
         fun getForApparel(
             license: String,
             userId: String? = null,
-            baseUri: Uri = Uri.parse(BASE_URI),
-            sceneUri: Uri = Uri.parse("file:///android_asset/scenes/apparel.scene"),
+            baseUri: Uri = defaultBaseUri,
+            sceneUri: Uri = defaultApparelSceneUri,
+            renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
         ) = EngineConfiguration(
             license = license,
             userId = userId,
             baseUri = baseUri,
+            renderTarget = renderTarget,
             onCreate = { engine, eventHandler ->
                 EditorDefaults.onCreate(engine, sceneUri, eventHandler)
             },
@@ -166,16 +204,20 @@ class EngineConfiguration(
          *      engine.scene.load(sceneUri = Uri.parse("scenes/example.scene"))
          * @param sceneUri the scene Uri that is used to load the content of the [PostcardEditor]. This Uri is delegated to
          * [EditorDefaults.onCreate] in order to load the scene and asset sources.
+         * @param renderTarget the target which should be used by the [ly.img.engine.Engine] to render.
+         * Default value is [EngineRenderTarget.SURFACE_VIEW].
          */
         fun getForPostcard(
             license: String,
             userId: String? = null,
-            baseUri: Uri = Uri.parse(BASE_URI),
-            sceneUri: Uri = Uri.parse("file:///android_asset/scenes/postcard.scene"),
+            baseUri: Uri = defaultBaseUri,
+            sceneUri: Uri = defaultPostcardSceneUri,
+            renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
         ) = EngineConfiguration(
             license = license,
             userId = userId,
             baseUri = baseUri,
+            renderTarget = renderTarget,
             onCreate = { engine, eventHandler ->
                 EditorDefaults.onCreate(engine, sceneUri, eventHandler)
             },

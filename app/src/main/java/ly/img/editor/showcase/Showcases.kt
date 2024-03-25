@@ -1,6 +1,11 @@
 package ly.img.editor.showcase
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,8 +41,8 @@ fun Showcases(navigateTo: (String) -> Unit) {
             ) {
                 item {
                     ShowcaseItem(
-                        title = "Default UI",
-                        subtitle = "Multiple empty pages.",
+                        title = "Default Design UI",
+                        subtitle = "An empty page.",
                         onClick = {
                             navigateTo(Screen.DesignUi.getRoute("default"))
                         },

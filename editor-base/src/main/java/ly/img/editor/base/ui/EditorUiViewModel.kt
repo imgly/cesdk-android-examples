@@ -1,7 +1,6 @@
 package ly.img.editor.base.ui
 
 import android.net.Uri
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -61,11 +60,11 @@ import ly.img.editor.base.ui.handler.cropEvents
 import ly.img.editor.base.ui.handler.shapeOptionEvents
 import ly.img.editor.base.ui.handler.strokeEvents
 import ly.img.editor.base.ui.handler.textBlockEvents
+import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.ui.Environment
 import ly.img.editor.core.ui.EventsHandler
-import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetValue
 import ly.img.editor.core.ui.engine.BlockType
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.deselectAllBlocks
@@ -82,7 +81,7 @@ import kotlin.math.abs
 
 internal const val PAGE_MARGIN = 16f
 
-@OptIn(ExperimentalMaterial3Api::class, FlowPreview::class)
+@OptIn(FlowPreview::class)
 abstract class EditorUiViewModel(
     private val baseUri: Uri,
     private val onCreate: suspend (Engine, EditorEventHandler) -> Unit,

@@ -8,11 +8,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,6 +28,7 @@ import ly.img.editor.base.components.color_picker.LibraryButton
 import ly.img.editor.base.ui.EditorUi
 import ly.img.editor.base.ui.EditorUiTabIconMappings
 import ly.img.editor.base.ui.Event
+import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.AssetLibrary
@@ -40,12 +39,12 @@ import ly.img.editor.core.ui.utils.activity
 import ly.img.engine.AssetDefinition
 import ly.img.engine.Engine
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DesignUi(
     initialExternalState: Parcelable,
     license: String,
     userId: String? = null,
+    renderTarget: EngineRenderTarget,
     navigationIcon: ImageVector,
     baseUri: Uri,
     colorPalette: List<Color>,
@@ -55,7 +54,7 @@ fun DesignUi(
     onUpload: suspend AssetDefinition.(Engine, EditorEventHandler, UploadAssetSourceType) -> AssetDefinition,
     onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
     onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
-    onEvent: (Activity, MutableState<out Parcelable>, EditorEvent) -> Unit,
+    onEvent: (Activity, Parcelable, EditorEvent) -> Parcelable,
     overlay: @Composable ((Parcelable, EditorEventHandler) -> Unit),
     close: () -> Unit,
 ) {
@@ -94,6 +93,7 @@ fun DesignUi(
         initialExternalState = initialExternalState,
         license = license,
         userId = userId,
+        renderTarget = renderTarget,
         uiState = uiState.editorUiViewState,
         overlay = overlay,
         onEvent = onEvent,

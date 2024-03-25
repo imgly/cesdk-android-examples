@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -60,7 +59,7 @@ object EditorDefaults {
         if (engine.scene.get() == null) {
             engine.scene.load(sceneUri)
         }
-        engine.asset.addSource(TextAssetSource())
+        engine.asset.addSource(TextAssetSource(engine))
         launch {
             val baseUri = Uri.parse("https://cdn.img.ly/assets/v2")
             engine.addDefaultAssetSources(baseUri = baseUri)
@@ -145,18 +144,24 @@ object EditorDefaults {
      */
     fun onEvent(
         activity: Activity,
-        state: MutableState<EditorUiState>,
+        state: EditorUiState,
         event: EditorEvent,
-    ) {
-        when (event) {
+    ): EditorUiState {
+        return when (event) {
             is ShowLoading -> {
-                state.value = state.value.copy(showLoading = true)
+                state.copy(showLoading = true)
             }
             is HideLoading -> {
-                state.value = state.value.copy(showLoading = false)
+                state.copy(showLoading = false)
             }
             is ShowErrorDialogEvent -> {
-                state.value = state.value.copy(error = event.error)
+                state.copy(error = event.error)
+            }
+            is ShowCloseConfirmationDialogEvent -> {
+                state.copy(showCloseConfirmationDialog = true)
+            }
+            is DismissCloseConfirmationDialogEvent -> {
+                state.copy(showCloseConfirmationDialog = false)
             }
             is ShareFileEvent -> {
                 shareFile(
@@ -164,13 +169,9 @@ object EditorDefaults {
                     file = event.file,
                     mimeType = "application/pdf",
                 )
+                state
             }
-            is ShowCloseConfirmationDialogEvent -> {
-                state.value = state.value.copy(showCloseConfirmationDialog = true)
-            }
-            is DismissCloseConfirmationDialogEvent -> {
-                state.value = state.value.copy(showCloseConfirmationDialog = false)
-            }
+            else -> state
         }
     }
 
