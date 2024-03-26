@@ -12,9 +12,9 @@ import android.os.Parcelable
  * provided apiKey/license is invalid or [ly.img.engine.EngineException] for other Engine errors.
  */
 data class EditorUiState(
-    val showLoading: Boolean,
-    val showCloseConfirmationDialog: Boolean,
-    val error: Throwable?,
+    val showLoading: Boolean = true,
+    val showCloseConfirmationDialog: Boolean = false,
+    val error: Throwable? = null,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         showLoading = parcel.readByte() != 0.toByte(),

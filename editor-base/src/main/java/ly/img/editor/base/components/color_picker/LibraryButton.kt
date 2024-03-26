@@ -1,6 +1,5 @@
 package ly.img.editor.base.components.color_picker
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -12,12 +11,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ly.img.editor.base.R
 import ly.img.editor.base.ui.Event
-import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetState
-import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetValue
+import ly.img.editor.compose.bottomsheet.ModalBottomSheetState
+import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
 import ly.img.editor.core.ui.iconpack.Add
 import ly.img.editor.core.ui.iconpack.IconPack
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryButton(
     modifier: Modifier,

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package ly.img.editor.core.ui.bottomsheet
+package ly.img.editor.compose.bottomsheet
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.TweenSpec
@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.contentColorFor
@@ -51,7 +50,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
@@ -65,17 +63,15 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
-import ly.img.editor.core.R
-import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetValue.Expanded
-import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetValue.HalfExpanded
-import ly.img.editor.core.ui.bottomsheet.ModalBottomSheetValue.Hidden
+import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue.Expanded
+import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue.HalfExpanded
+import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue.Hidden
 import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
  * Possible values of [ModalBottomSheetState].
  */
-@ExperimentalMaterial3Api
 enum class ModalBottomSheetValue {
     /**
      * The bottom sheet is not visible.
@@ -108,7 +104,6 @@ enum class ModalBottomSheetValue {
  * If supplied with [ModalBottomSheetValue.HalfExpanded] for the initialValue, an
  * [IllegalArgumentException] will be thrown.
  */
-@ExperimentalMaterial3Api
 @Suppress("Deprecation")
 fun ModalBottomSheetState(
     initialValue: ModalBottomSheetValue,
@@ -136,7 +131,6 @@ fun ModalBottomSheetState(
  * [IllegalArgumentException] will be thrown.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
-@ExperimentalMaterial3Api
 class ModalBottomSheetState
     @Deprecated(
         message =
@@ -288,7 +282,6 @@ class ModalBottomSheetState
  * If supplied with [ModalBottomSheetValue.HalfExpanded] for the [initialValue], an
  * [IllegalArgumentException] will be thrown.
  */
-@ExperimentalMaterial3Api
 @Composable
 fun rememberModalBottomSheetState(
     initialValue: ModalBottomSheetValue,
@@ -347,17 +340,16 @@ fun rememberModalBottomSheetState(
  * @param content The content of rest of the screen.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun ModalBottomSheetLayout(
     sheetContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
-    sheetState: ModalBottomSheetState =
-        rememberModalBottomSheetState(Hidden),
+    sheetState: ModalBottomSheetState = rememberModalBottomSheetState(Hidden),
     sheetShape: Shape = MaterialTheme.shapes.large,
     sheetElevation: Dp = ModalBottomSheetDefaults.Elevation,
     sheetBackgroundColor: Color = MaterialTheme.colorScheme.surface,
     sheetContentColor: Color = contentColorFor(sheetBackgroundColor),
     scrimEnabled: Boolean = false,
+    dismissContentDescription: String = "",
     content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -378,6 +370,7 @@ fun ModalBottomSheetLayout(
             content()
             Scrim(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.32f),
+                dismissContentDescription = dismissContentDescription,
                 onDismiss = {
                     if (sheetState.swipeableState.confirmValueChange(Hidden)) {
                         scope.launch { sheetState.hide() }
@@ -475,6 +468,7 @@ fun ModalBottomSheetLayout(
 @Composable
 private fun Scrim(
     color: Color,
+    dismissContentDescription: String,
     onDismiss: () -> Unit,
     visible: Boolean,
 ) {
@@ -483,13 +477,12 @@ private fun Scrim(
             targetValue = if (visible) 1f else 0f,
             animationSpec = TweenSpec(),
         )
-        val closeSheetString = stringResource(id = R.string.ly_img_editor_close)
         val dismissModifier =
             if (visible) {
                 Modifier
                     .pointerInput(onDismiss) { detectTapGestures { onDismiss() } }
                     .semantics(mergeDescendants = true) {
-                        contentDescription = closeSheetString
+                        contentDescription = dismissContentDescription
                         onClick {
                             onDismiss()
                             true
@@ -519,7 +512,6 @@ object ModalBottomSheetDefaults {
     val Elevation = 16.dp
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     state: SwipeableV2State<*>,
     orientation: Orientation,
@@ -582,7 +574,6 @@ private fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         private fun Offset.toFloat(): Float = if (orientation == Orientation.Horizontal) x else y
     }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private fun ModalBottomSheetAnchorChangeHandler(
     state: ModalBottomSheetState,
     animateTo: (target: ModalBottomSheetValue, velocity: Float) -> Unit,

@@ -3,7 +3,6 @@ package ly.img.editor
 import android.app.Activity
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import ly.img.editor.EditorConfiguration.Companion.getDefault
@@ -39,7 +38,7 @@ class EditorConfiguration<STATE : Parcelable>(
     val navigationIcon: ImageVector = IconPack.Arrowback,
     val assetLibrary: AssetLibrary = AssetLibrary.getDefault(),
     val colorPalette: List<Color> = fillAndStrokeColors,
-    val onEvent: (Activity, MutableState<STATE>, EditorEvent) -> Unit = { _, _, _ -> },
+    val onEvent: (Activity, STATE, EditorEvent) -> STATE = { _, state, _ -> state },
     val overlay: @Composable ((STATE, EditorEventHandler) -> Unit) = { _, _ -> },
 ) {
     companion object {
@@ -57,12 +56,7 @@ class EditorConfiguration<STATE : Parcelable>(
             assetLibrary: AssetLibrary = AssetLibrary.getDefault(),
             colorPalette: List<Color> = fillAndStrokeColors,
         ) = EditorConfiguration(
-            initialState =
-                EditorUiState(
-                    showLoading = true,
-                    showCloseConfirmationDialog = false,
-                    error = null,
-                ),
+            initialState = EditorUiState(),
             uiMode = uiMode,
             navigationIcon = navigationIcon,
             assetLibrary = assetLibrary,

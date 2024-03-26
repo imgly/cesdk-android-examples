@@ -1,5 +1,11 @@
 apply from: "$projectDir/../release/editor-library.gradle"
 
+buildConfig {
+    className "EditorBuildConfig"
+    packageName "ly.img.editor"
+    buildConfigField String, "VERSION", libs.versions.engine
+}
+
 android {
     namespace 'ly.img.editor'
 }
@@ -10,4 +16,11 @@ dependencies {
     implementation project(':editor-design')
     implementation project(":editor-base")
     api project(":editor-core")
+}
+
+afterEvaluate {
+    // workaround of AGP issue failing to pick generated build config as part of the sources
+    tasks.named("sourceReleaseJar").configure {
+        mustRunAfter("generateNonAndroidBuildConfig")
+    }
 }

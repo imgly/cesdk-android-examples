@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="editor_surface_view" type="id"/>
+    <item name="editor_render_view" type="id"/>
 </resources>
