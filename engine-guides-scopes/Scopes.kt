@@ -16,6 +16,10 @@ fun scopes(
     val block = engine.block.findByType(DesignBlockType.Graphic).first()
     // highlight-setup
 
+    // highlight-findAllScopes
+    val scopes = engine.editor.findAllScopes()
+    // highlight-findAllScopes
+
     // highlight-setGlobalScope
     // Let the global scope defer to the block-level.
     engine.editor.setGlobalScope(key = "layer/move", globalScope = GlobalScope.DEFER)
