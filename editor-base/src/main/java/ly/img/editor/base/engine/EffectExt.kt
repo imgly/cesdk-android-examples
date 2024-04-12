@@ -1,5 +1,6 @@
 package ly.img.editor.base.engine
 
+import androidx.compose.ui.graphics.Color
 import ly.img.editor.base.R
 import ly.img.engine.BlockApi
 import ly.img.engine.BlurType
@@ -7,11 +8,7 @@ import ly.img.engine.DesignBlock
 import ly.img.engine.EffectType
 import ly.img.engine.Engine
 import ly.img.engine.ObjectType
-
-enum class AdjustmentsValueType {
-    INT,
-    FLOAT,
-}
+import ly.img.engine.RGBAColor
 
 /*
  * Only one effect of the same group can be applied at a time.
@@ -48,6 +45,8 @@ fun EffectType.getGroup() =
         EffectType.TiltShift,
         EffectType.TvGlitch,
         EffectType.Vignette,
+        EffectType.Recolor,
+        EffectType.GreenScreen,
         ->
             EffectGroup.FxEffect
 
@@ -60,8 +59,16 @@ fun EffectType.getGroup() =
  */
 data class AdjustmentState(
     val type: EffectAndBlurOptions,
-    var value: Float,
-)
+    val value: Value,
+) {
+    sealed interface Value {
+        data class Int(val value: kotlin.Int) : Value
+
+        data class Float(val value: kotlin.Float) : Value
+
+        data class Color(val value: androidx.compose.ui.graphics.Color) : Value
+    }
+}
 
 /**
  * Returns the type of the blur or effect applied to the given [DesignBlock], or null if no blur or effect is applied.
@@ -80,570 +87,893 @@ enum class EffectAndBlurOptions(
     val type: ObjectType,
     relativePath: String,
     val nameRes: Int,
-    val range: ClosedFloatingPointRange<Float> = 0.0f..1.0f,
-    val step: Float = 0.0f,
-    val defaultValue: Float = 1.0f,
-    val propertyType: AdjustmentsValueType = AdjustmentsValueType.FLOAT,
+    val valueOptions: ValueOptions,
 ) {
     // ADJUSTMENT_CONTRAST
     ADJUSTMENT_BRIGHTNESS(
-        EffectType.Adjustments,
-        "brightness",
-        R.string.ly_img_editor_adjustment_brightness,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "brightness",
+        nameRes = R.string.ly_img_editor_adjustment_brightness,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
     ADJUSTMENT_SATURATION(
-        EffectType.Adjustments,
-        "saturation",
-        R.string.ly_img_editor_adjustment_saturation,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "saturation",
+        nameRes = R.string.ly_img_editor_adjustment_saturation,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
     ADJUSTMENT_CONTRAST(
-        EffectType.Adjustments,
-        "contrast",
-        R.string.ly_img_editor_adjustment_contrast,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "contrast",
+        nameRes = R.string.ly_img_editor_adjustment_contrast,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
     ADJUSTMENT_GAMMA(
-        EffectType.Adjustments,
-        "gamma",
-        R.string.ly_img_editor_adjustment_gamma,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "gamma",
+        nameRes = R.string.ly_img_editor_adjustment_gamma,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
 
     ADJUSTMENT_CLARITY(
-        EffectType.Adjustments,
-        "clarity",
-        R.string.ly_img_editor_adjustment_clarity,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "clarity",
+        nameRes = R.string.ly_img_editor_adjustment_clarity,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
     ADJUSTMENT_EXPOSURE(
-        EffectType.Adjustments,
-        "exposure",
-        R.string.ly_img_editor_adjustment_exposure,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "exposure",
+        nameRes = R.string.ly_img_editor_adjustment_exposure,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
     ADJUSTMENT_SHADOWS(
-        EffectType.Adjustments,
-        "shadows",
-        R.string.ly_img_editor_adjustment_shadows,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "shadows",
+        nameRes = R.string.ly_img_editor_adjustment_shadows,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
     ADJUSTMENT_HIGHLIGHTS(
-        EffectType.Adjustments,
-        "highlights",
-        R.string.ly_img_editor_adjustment_highlights,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "highlights",
+        nameRes = R.string.ly_img_editor_adjustment_highlights,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
     ADJUSTMENT_BLACKS(
-        EffectType.Adjustments,
-        "blacks",
-        R.string.ly_img_editor_adjustment_blacks,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "blacks",
+        nameRes = R.string.ly_img_editor_adjustment_blacks,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
     ADJUSTMENT_WHITES(
-        EffectType.Adjustments,
-        "whites",
-        R.string.ly_img_editor_adjustment_whites,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "whites",
+        nameRes = R.string.ly_img_editor_adjustment_whites,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
     ADJUSTMENT_TEMPERATURE(
-        EffectType.Adjustments,
-        "temperature",
-        R.string.ly_img_editor_adjustment_temperature,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "temperature",
+        nameRes = R.string.ly_img_editor_adjustment_temperature,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
     ADJUSTMENT_SHARPNESS(
-        EffectType.Adjustments,
-        "sharpness",
-        R.string.ly_img_editor_adjustment_sharpness,
-        -1f..1f,
-        defaultValue = .0f,
+        type = EffectType.Adjustments,
+        relativePath = "sharpness",
+        nameRes = R.string.ly_img_editor_adjustment_sharpness,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
 
     // Color Filter
-    LUT_INTENSITY(EffectType.LutFilter, "intensity", R.string.ly_img_editor_filter_intensity),
+    LUT_INTENSITY(
+        type = EffectType.LutFilter,
+        relativePath = "intensity",
+        nameRes = R.string.ly_img_editor_filter_intensity,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                defaultValue = 1F,
+            ),
+    ),
 
     // DouTone Filter
     DUOTONE_INTENSITY(
-        EffectType.DuoToneFilter,
-        "intensity",
-        R.string.ly_img_editor_filter_intensity,
-        -1f..1f,
-        defaultValue = 0.0f,
+        type = EffectType.DuoToneFilter,
+        relativePath = "intensity",
+        nameRes = R.string.ly_img_editor_filter_intensity,
+        valueOptions =
+            ValueOptions.Float(
+                range = -1F..1F,
+                defaultValue = 0F,
+            ),
     ),
 
     // Pixelize Effect
     PIXELIZE_HORIZONTALPIXELSIZE(
-        EffectType.Pixelize,
-        "horizontalPixelSize",
-        R.string.ly_img_editor_filter_pixelize_horizontalpixelsize,
-        5.0f..50.0f,
-        1.0f,
-        20.0f,
-        propertyType = AdjustmentsValueType.INT,
+        type = EffectType.Pixelize,
+        relativePath = "horizontalPixelSize",
+        nameRes = R.string.ly_img_editor_filter_pixelize_horizontalpixelsize,
+        valueOptions =
+            ValueOptions.Int(
+                range = 5..50,
+                step = 1,
+                defaultValue = 20,
+            ),
     ),
     PIXELIZE_VERTICALPIXELSIZE(
-        EffectType.Pixelize,
-        "verticalPixelSize",
-        R.string.ly_img_editor_filter_pixelize_verticalpixelsize,
-        5.0f..50.0f,
-        1.0f,
-        20.0f,
-        propertyType = AdjustmentsValueType.INT,
+        type = EffectType.Pixelize,
+        relativePath = "verticalPixelSize",
+        nameRes = R.string.ly_img_editor_filter_pixelize_verticalpixelsize,
+        valueOptions =
+            ValueOptions.Int(
+                range = 5..50,
+                step = 1,
+                defaultValue = 20,
+            ),
     ),
 
     // Radial Pixel Effect
     RADIAL_PIXEL_RADIUS(
-        EffectType.RadialPixel,
-        "radius",
-        R.string.ly_img_editor_filter_radial_pixel_radius,
-        0.05f..1.0f,
-        0.01f,
-        0.1f,
+        type = EffectType.RadialPixel,
+        relativePath = "radius",
+        nameRes = R.string.ly_img_editor_filter_radial_pixel_radius,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0.05F..1F,
+                step = 0.01F,
+                defaultValue = 0.1F,
+            ),
     ),
     RADIAL_PIXEL_SEGMENTS(
-        EffectType.RadialPixel,
-        "segments",
-        R.string.ly_img_editor_filter_radial_pixel_segments,
-        0.01f..1.0f,
-        0.01f,
-        0.01f,
+        type = EffectType.RadialPixel,
+        relativePath = "segments",
+        nameRes = R.string.ly_img_editor_filter_radial_pixel_segments,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0.01F..1F,
+                step = 0.01F,
+                defaultValue = 0.01F,
+            ),
     ),
 
     // Cross Cut Effect
     CROSS_CUT_SLICES(
-        EffectType.CrossCut,
-        "slices",
-        R.string.ly_img_editor_filter_cross_cut_slices,
-        1.0f..10.0f,
-        1.0f,
-        5.0f,
+        type = EffectType.CrossCut,
+        relativePath = "slices",
+        nameRes = R.string.ly_img_editor_filter_cross_cut_slices,
+        valueOptions =
+            ValueOptions.Float(
+                range = 1F..10F,
+                step = 1F,
+                defaultValue = 5F,
+            ),
     ),
     CROSS_CUT_OFFSET(
-        EffectType.CrossCut,
-        "offset",
-        R.string.ly_img_editor_filter_cross_cut_offset,
-        0.0f..1.0f,
-        0.01f,
-        0.07f,
+        type = EffectType.CrossCut,
+        relativePath = "offset",
+        nameRes = R.string.ly_img_editor_filter_cross_cut_offset,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.07F,
+            ),
     ),
     CROSS_CUT_SPEEDV(
-        EffectType.CrossCut,
-        "speedV",
-        R.string.ly_img_editor_filter_cross_cut_speedv,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = EffectType.CrossCut,
+        relativePath = "speedV",
+        nameRes = R.string.ly_img_editor_filter_cross_cut_speedv,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
     CROSS_CUT_TIME(
-        EffectType.CrossCut,
-        "time",
-        R.string.ly_img_editor_filter_cross_cut_time,
-        0.0f..1.0f,
-        0.01f,
-        1.0f,
+        type = EffectType.CrossCut,
+        relativePath = "time",
+        nameRes = R.string.ly_img_editor_filter_cross_cut_time,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 1F,
+            ),
     ),
 
     // Liquid Effect
     LIQUID_AMOUNT(
-        EffectType.Liquid,
-        "amount",
-        R.string.ly_img_editor_filter_liquid_amount,
-        0.0f..1.0f,
-        0.01f,
-        0.06f,
+        type = EffectType.Liquid,
+        relativePath = "amount",
+        nameRes = R.string.ly_img_editor_filter_liquid_amount,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.06F,
+            ),
     ),
     LIQUID_SCALE(
-        EffectType.Liquid,
-        "scale",
-        R.string.ly_img_editor_filter_liquid_scale,
-        0.0f..1.0f,
-        0.01f,
-        0.62f,
+        type = EffectType.Liquid,
+        relativePath = "scale",
+        nameRes = R.string.ly_img_editor_filter_liquid_scale,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.62F,
+            ),
     ),
     LIQUID_TIME(
-        EffectType.Liquid,
-        "time",
-        R.string.ly_img_editor_filter_liquid_time,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = EffectType.Liquid,
+        relativePath = "time",
+        nameRes = R.string.ly_img_editor_filter_liquid_time,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
 
     // Outliner Effect
     OUTLINER_AMOUNT(
-        EffectType.Outliner,
-        "amount",
-        R.string.ly_img_editor_filter_outliner_amount,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = EffectType.Outliner,
+        relativePath = "amount",
+        nameRes = R.string.ly_img_editor_filter_outliner_amount,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
     OUTLINER_PASSTHROUGH(
-        EffectType.Outliner,
-        "passthrough",
-        R.string.ly_img_editor_filter_outliner_passthrough,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = EffectType.Outliner,
+        relativePath = "passthrough",
+        nameRes = R.string.ly_img_editor_filter_outliner_passthrough,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
 
     // Dot Pattern Effect
     DOT_PATTERN_DOTS(
-        EffectType.DotPattern,
-        "dots",
-        R.string.ly_img_editor_filter_dot_pattern_dots,
-        1.0f..80.0f,
-        1.0f,
-        30.0f,
+        type = EffectType.DotPattern,
+        relativePath = "dots",
+        nameRes = R.string.ly_img_editor_filter_dot_pattern_dots,
+        valueOptions =
+            ValueOptions.Float(
+                range = 1F..80F,
+                step = 1F,
+                defaultValue = 30F,
+            ),
     ),
     DOT_PATTERN_SIZE(
-        EffectType.DotPattern,
-        "size",
-        R.string.ly_img_editor_filter_dot_pattern_size,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = EffectType.DotPattern,
+        relativePath = "size",
+        nameRes = R.string.ly_img_editor_filter_dot_pattern_size,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
     DOT_PATTERN_BLUR(
-        EffectType.DotPattern,
-        "blur",
-        R.string.ly_img_editor_filter_dot_pattern_blur,
-        0.0f..1.0f,
-        0.01f,
-        0.3f,
+        type = EffectType.DotPattern,
+        relativePath = "blur",
+        nameRes = R.string.ly_img_editor_filter_dot_pattern_blur,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.3F,
+            ),
     ),
 
     // Posterize Effect
     POSTERIZE_LEVELS(
-        EffectType.Posterize,
-        "levels",
-        R.string.ly_img_editor_filter_posterize_levels,
-        1.0f..15.0f,
-        1.0f,
-        3.0f,
+        type = EffectType.Posterize,
+        relativePath = "levels",
+        nameRes = R.string.ly_img_editor_filter_posterize_levels,
+        valueOptions =
+            ValueOptions.Float(
+                range = 1F..15F,
+                step = 1F,
+                defaultValue = 3F,
+            ),
     ),
 
     // TV Glitch Effect
     TV_GLITCH_DISTORTION(
-        EffectType.TvGlitch,
-        "distortion",
-        R.string.ly_img_editor_filter_tv_glitch_distortion,
-        0.0f..10.0f,
-        0.1f,
-        3.0f,
+        type = EffectType.TvGlitch,
+        relativePath = "distortion",
+        nameRes = R.string.ly_img_editor_filter_tv_glitch_distortion,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..10F,
+                step = 0.1F,
+                defaultValue = 3F,
+            ),
     ),
     TV_GLITCH_DISTORTION2(
-        EffectType.TvGlitch,
-        "distortion2",
-        R.string.ly_img_editor_filter_tv_glitch_distortion2,
-        0.0f..5.0f,
-        0.05f,
-        1.0f,
+        type = EffectType.TvGlitch,
+        relativePath = "distortion2",
+        nameRes = R.string.ly_img_editor_filter_tv_glitch_distortion2,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..5F,
+                step = 0.05F,
+                defaultValue = 1F,
+            ),
     ),
     TV_GLITCH_SPEED(
-        EffectType.TvGlitch,
-        "speed",
-        R.string.ly_img_editor_filter_tv_glitch_speed,
-        0.0f..5.0f,
-        0.05f,
-        2.0f,
+        type = EffectType.TvGlitch,
+        relativePath = "speed",
+        nameRes = R.string.ly_img_editor_filter_tv_glitch_speed,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..5F,
+                step = 0.05F,
+                defaultValue = 2F,
+            ),
     ),
     TV_GLITCH_ROLLSPEED(
-        EffectType.TvGlitch,
-        "rollSpeed",
-        R.string.ly_img_editor_filter_tv_glitch_rollspeed,
-        0.0f..3.0f,
-        0.1f,
-        1.0f,
+        type = EffectType.TvGlitch,
+        relativePath = "rollSpeed",
+        nameRes = R.string.ly_img_editor_filter_tv_glitch_rollspeed,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..3F,
+                step = 0.1F,
+                defaultValue = 1F,
+            ),
     ),
 
     // Half Tone Effect
     HALF_TONE_ANGLE(
-        EffectType.HalfTone,
-        "angle",
-        R.string.ly_img_editor_filter_half_tone_angle,
-        0.0f..1.0f,
-        0.01f,
-        0.0f,
+        type = EffectType.HalfTone,
+        relativePath = "angle",
+        nameRes = R.string.ly_img_editor_filter_half_tone_angle,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0F,
+            ),
     ),
     HALF_TONE_SCALE(
-        EffectType.HalfTone,
-        "scale",
-        R.string.ly_img_editor_filter_half_tone_scale,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = EffectType.HalfTone,
+        relativePath = "scale",
+        nameRes = R.string.ly_img_editor_filter_half_tone_scale,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
 
     // Linocut Effect
     LINOCUT_SCALE(
-        EffectType.Linocut,
-        "scale",
-        R.string.ly_img_editor_filter_linocut_scale,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = EffectType.Linocut,
+        relativePath = "scale",
+        nameRes = R.string.ly_img_editor_filter_linocut_scale,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
 
     // Shifter Effect
     SHIFTER_AMOUNT(
-        EffectType.Shifter,
-        "amount",
-        R.string.ly_img_editor_filter_shifter_amount,
-        0.0f..1.0f,
-        0.01f,
-        0.05f,
+        type = EffectType.Shifter,
+        relativePath = "amount",
+        nameRes = R.string.ly_img_editor_filter_shifter_amount,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.05F,
+            ),
     ),
     SHIFTER_ANGLE(
-        EffectType.Shifter,
-        "angle",
-        R.string.ly_img_editor_filter_shifter_angle,
-        0.0f..6.3f,
-        0.1f,
-        0.3f,
+        type = EffectType.Shifter,
+        relativePath = "angle",
+        nameRes = R.string.ly_img_editor_filter_shifter_angle,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..6.3F,
+                step = 0.1F,
+                defaultValue = 0.3F,
+            ),
     ),
 
     // Mirror Effect
     MIRROR_SIDE(
-        EffectType.Mirror,
-        "side",
-        R.string.ly_img_editor_filter_mirror_side,
-        0.0f..3.0f,
-        1.0f,
-        1.0f,
-        propertyType = AdjustmentsValueType.INT,
+        type = EffectType.Mirror,
+        relativePath = "side",
+        nameRes = R.string.ly_img_editor_filter_mirror_side,
+        valueOptions =
+            ValueOptions.Int(
+                range = 0..3,
+                step = 1,
+                defaultValue = 1,
+            ),
     ),
 
     // Glow Effect
-    GLOW_SIZE(EffectType.Glow, "size", R.string.ly_img_editor_filter_glow_size, 0.0f..10.0f, 0.1f, 4.0f),
+    GLOW_SIZE(
+        type = EffectType.Glow,
+        relativePath = "size",
+        nameRes = R.string.ly_img_editor_filter_glow_size,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..10F,
+                step = 0.1F,
+                defaultValue = 4F,
+            ),
+    ),
     GLOW_AMOUNT(
-        EffectType.Glow,
-        "amount",
-        R.string.ly_img_editor_filter_glow_amount,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = EffectType.Glow,
+        relativePath = "amount",
+        nameRes = R.string.ly_img_editor_filter_glow_amount,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
     GLOW_DARKNESS(
-        EffectType.Glow,
-        "darkness",
-        R.string.ly_img_editor_filter_glow_darkness,
-        0.0f..1.0f,
-        0.01f,
-        0.3f,
+        type = EffectType.Glow,
+        relativePath = "darkness",
+        nameRes = R.string.ly_img_editor_filter_glow_darkness,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.3F,
+            ),
     ),
 
     // Vignette Effect
     VIGNETTE_OFFSET(
-        EffectType.Vignette,
-        "offset",
-        R.string.ly_img_editor_filter_vignette_offset,
-        0.0f..5.0f,
-        0.05f,
-        1.0f,
+        type = EffectType.Vignette,
+        relativePath = "offset",
+        nameRes = R.string.ly_img_editor_filter_vignette_offset,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..5F,
+                step = 0.05F,
+                defaultValue = 1F,
+            ),
     ),
     VIGNETTE_DARKNESS(
-        EffectType.Vignette,
-        "darkness",
-        R.string.ly_img_editor_filter_vignette_darkness,
-        0.0f..1.0f,
-        0.01f,
-        1.0f,
+        type = EffectType.Vignette,
+        relativePath = "darkness",
+        nameRes = R.string.ly_img_editor_filter_vignette_darkness,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 1F,
+            ),
     ),
 
     // Tilt Shift Effect
     TILT_SHIFT_AMOUNT(
-        EffectType.TiltShift,
-        "amount",
-        R.string.ly_img_editor_filter_tilt_shift_amount,
-        0.0f..0.02f,
-        0.001f,
-        0.016f,
+        type = EffectType.TiltShift,
+        relativePath = "amount",
+        nameRes = R.string.ly_img_editor_filter_tilt_shift_amount,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..0.02F,
+                step = 0.001F,
+                defaultValue = 0.016F,
+            ),
     ),
     TILT_SHIFT_POSITION(
-        EffectType.TiltShift,
-        "position",
-        R.string.ly_img_editor_filter_tilt_shift_position,
-        0.0f..1.0f,
-        0.01f,
-        0.4f,
+        type = EffectType.TiltShift,
+        relativePath = "position",
+        nameRes = R.string.ly_img_editor_filter_tilt_shift_position,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.4F,
+            ),
+    ),
+
+    // Recolor Effect
+    RECOLOR_FROM_COLOR(
+        type = EffectType.Recolor,
+        relativePath = "fromColor",
+        nameRes = R.string.ly_img_editor_filter_recolor_from_color,
+        valueOptions =
+            ValueOptions.Color(
+                defaultValue = Color.Black,
+            ),
+    ),
+    RECOLOR_TO_COLOR(
+        type = EffectType.Recolor,
+        relativePath = "toColor",
+        nameRes = R.string.ly_img_editor_filter_recolor_to_color,
+        valueOptions =
+            ValueOptions.Color(
+                defaultValue = Color.Black,
+            ),
+    ),
+    RECOLOR_COLOR_MATCH(
+        type = EffectType.Recolor,
+        relativePath = "colorMatch",
+        nameRes = R.string.ly_img_editor_filter_recolor_color_match,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 4F,
+            ),
+    ),
+    RECOLOR_BRIGHTNESS_MATCH(
+        type = EffectType.Recolor,
+        relativePath = "brightnessMatch",
+        nameRes = R.string.ly_img_editor_filter_recolor_brightness_match,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 1F,
+            ),
+    ),
+    RECOLOR_SMOOTHNESS(
+        type = EffectType.Recolor,
+        relativePath = "smoothness",
+        nameRes = R.string.ly_img_editor_filter_recolor_smoothness,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.08F,
+            ),
+    ),
+
+    // Green Screen Effect
+    GREEN_SCREEN_FROM_COLOR(
+        type = EffectType.GreenScreen,
+        relativePath = "fromColor",
+        nameRes = R.string.ly_img_editor_filter_green_screen_from_color,
+        valueOptions =
+            ValueOptions.Color(
+                defaultValue = Color.Black,
+            ),
+    ),
+    GREEN_SCREEN_COLOR_MATCH(
+        type = EffectType.GreenScreen,
+        relativePath = "colorMatch",
+        nameRes = R.string.ly_img_editor_filter_green_screen_color_match,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 4F,
+            ),
+    ),
+    GREEN_SCREEN_SMOOTHNESS(
+        type = EffectType.GreenScreen,
+        relativePath = "smoothness",
+        nameRes = R.string.ly_img_editor_filter_green_screen_smoothness,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.08F,
+            ),
+    ),
+    GREEN_SCREEN_SPILL(
+        type = EffectType.GreenScreen,
+        relativePath = "spill",
+        nameRes = R.string.ly_img_editor_filter_green_screen_spill,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0F,
+            ),
     ),
 
     // Extrude Blur Effect
     EXTRUDE_BLUR_AMOUNT(
-        EffectType.ExtrudeBlur,
-        "amount",
-        R.string.ly_img_editor_filter_extrude_blur_amount,
-        0.0f..1.0f,
-        0.01f,
-        0.2f,
+        type = EffectType.ExtrudeBlur,
+        relativePath = "amount",
+        nameRes = R.string.ly_img_editor_filter_extrude_blur_amount,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.2F,
+            ),
     ),
 
     // Uniform Blur Effect
     BLUR_UNIFORM_INTENSITY(
-        BlurType.Uniform,
-        "intensity",
-        R.string.ly_img_editor_filter_blur_uniform_intensity,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = BlurType.Uniform,
+        relativePath = "intensity",
+        nameRes = R.string.ly_img_editor_filter_blur_uniform_intensity,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
 
     // Linear Blur
     BLUR_LINEAR_BLURRADIUS(
-        BlurType.Linear,
-        "blurRadius",
-        R.string.ly_img_editor_filter_blur_linear_blurradius,
-        0.0f..100.0f,
-        0.5f,
-        30.0f,
+        type = BlurType.Linear,
+        relativePath = "blurRadius",
+        nameRes = R.string.ly_img_editor_filter_blur_linear_blurradius,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..100F,
+                step = 0.5F,
+                defaultValue = 30F,
+            ),
     ),
     BLUR_LINEAR_X1(
-        BlurType.Linear,
-        "x1",
-        R.string.ly_img_editor_filter_blur_linear_x1,
-        0.0f..1.0f,
-        0.01f,
-        0.0f,
+        type = BlurType.Linear,
+        relativePath = "x1",
+        nameRes = R.string.ly_img_editor_filter_blur_linear_x1,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0F,
+            ),
     ),
     BLUR_LINEAR_Y1(
-        BlurType.Linear,
-        "y1",
-        R.string.ly_img_editor_filter_blur_linear_y1,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = BlurType.Linear,
+        relativePath = "y1",
+        nameRes = R.string.ly_img_editor_filter_blur_linear_y1,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
     BLUR_LINEAR_X2(
-        BlurType.Linear,
-        "x2",
-        R.string.ly_img_editor_filter_blur_linear_x2,
-        0.0f..1.0f,
-        0.01f,
-        1.0f,
+        type = BlurType.Linear,
+        relativePath = "x2",
+        nameRes = R.string.ly_img_editor_filter_blur_linear_x2,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 1F,
+            ),
     ),
     BLUR_LINEAR_Y2(
-        BlurType.Linear,
-        "y2",
-        R.string.ly_img_editor_filter_blur_linear_y2,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = BlurType.Linear,
+        relativePath = "y2",
+        nameRes = R.string.ly_img_editor_filter_blur_linear_y2,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
 
     // Mirrored Blur
     BLUR_MIRRORED_BLURRADIUS(
-        BlurType.Mirrored,
-        "blurRadius",
-        R.string.ly_img_editor_filter_blur_mirrored_blurradius,
-        0.0f..100.0f,
-        1.0f,
-        30.0f,
+        type = BlurType.Mirrored,
+        relativePath = "blurRadius",
+        nameRes = R.string.ly_img_editor_filter_blur_mirrored_blurradius,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..100F,
+                step = 1F,
+                defaultValue = 30F,
+            ),
     ),
     BLUR_MIRRORED_GRADIENTSIZE(
-        BlurType.Mirrored,
-        "gradientSize",
-        R.string.ly_img_editor_filter_blur_mirrored_gradientsize,
-        0.0f..1000.0f,
-        1.0f,
-        50.0f,
+        type = BlurType.Mirrored,
+        relativePath = "gradientSize",
+        nameRes = R.string.ly_img_editor_filter_blur_mirrored_gradientsize,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1000F,
+                step = 1F,
+                defaultValue = 50F,
+            ),
     ),
     BLUR_MIRRORED_SIZE(
-        BlurType.Mirrored,
-        "size",
-        R.string.ly_img_editor_filter_blur_mirrored_size,
-        0.0f..1000.0f,
-        1.0f,
-        75.0f,
+        type = BlurType.Mirrored,
+        relativePath = "size",
+        nameRes = R.string.ly_img_editor_filter_blur_mirrored_size,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1000F,
+                step = 1F,
+                defaultValue = 75F,
+            ),
     ),
     BLUR_MIRRORED_X1(
-        BlurType.Mirrored,
-        "x1",
-        R.string.ly_img_editor_filter_blur_mirrored_x1,
-        0.0f..1.0f,
-        0.01f,
-        0.0f,
+        type = BlurType.Mirrored,
+        relativePath = "x1",
+        nameRes = R.string.ly_img_editor_filter_blur_mirrored_x1,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0F,
+            ),
     ),
     BLUR_MIRRORED_Y1(
-        BlurType.Mirrored,
-        "y1",
-        R.string.ly_img_editor_filter_blur_mirrored_y1,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = BlurType.Mirrored,
+        relativePath = "y1",
+        nameRes = R.string.ly_img_editor_filter_blur_mirrored_y1,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
     BLUR_MIRRORED_X2(
-        BlurType.Mirrored,
-        "x2",
-        R.string.ly_img_editor_filter_blur_mirrored_x2,
-        0.0f..1.0f,
-        0.01f,
-        1.0f,
+        type = BlurType.Mirrored,
+        relativePath = "x2",
+        nameRes = R.string.ly_img_editor_filter_blur_mirrored_x2,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 1F,
+            ),
     ),
     BLUR_MIRRORED_Y2(
-        BlurType.Mirrored,
-        "y2",
-        R.string.ly_img_editor_filter_blur_mirrored_y2,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = BlurType.Mirrored,
+        relativePath = "y2",
+        nameRes = R.string.ly_img_editor_filter_blur_mirrored_y2,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
 
     // Radial Blur
     BLUR_RADIAL_BLURRADIUS(
-        BlurType.Radial,
-        "blurRadius",
-        R.string.ly_img_editor_filter_blur_radial_blurradius,
-        0.0f..100.0f,
-        1.0f,
-        30.0f,
+        type = BlurType.Radial,
+        relativePath = "blurRadius",
+        nameRes = R.string.ly_img_editor_filter_blur_radial_blurradius,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..100F,
+                step = 1F,
+                defaultValue = 30F,
+            ),
     ),
     BLUR_RADIAL_GRADIENTRADIUS(
-        BlurType.Radial,
-        "gradientRadius",
-        R.string.ly_img_editor_filter_blur_radial_gradientradius,
-        0.0f..1000.0f,
-        1.0f,
-        50.0f,
+        type = BlurType.Radial,
+        relativePath = "gradientRadius",
+        nameRes = R.string.ly_img_editor_filter_blur_radial_gradientradius,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1000F,
+                step = 1F,
+                defaultValue = 50F,
+            ),
     ),
     BLUR_RADIAL_RADIUS(
-        BlurType.Radial,
-        "radius",
-        R.string.ly_img_editor_filter_blur_radial_radius,
-        0.0f..1000f,
-        1.0f,
-        75.0f,
+        type = BlurType.Radial,
+        relativePath = "radius",
+        nameRes = R.string.ly_img_editor_filter_blur_radial_radius,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1000F,
+                step = 1F,
+                defaultValue = 75F,
+            ),
     ),
     BLUR_RADIAL_X(
-        BlurType.Radial,
-        "x",
-        R.string.ly_img_editor_filter_blur_radial_x,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = BlurType.Radial,
+        relativePath = "x",
+        nameRes = R.string.ly_img_editor_filter_blur_radial_x,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
     BLUR_RADIAL_Y(
-        BlurType.Radial,
-        "y",
-        R.string.ly_img_editor_filter_blur_radial_y,
-        0.0f..1.0f,
-        0.01f,
-        0.5f,
+        type = BlurType.Radial,
+        relativePath = "y",
+        nameRes = R.string.ly_img_editor_filter_blur_radial_y,
+        valueOptions =
+            ValueOptions.Float(
+                range = 0F..1F,
+                step = 0.01F,
+                defaultValue = 0.5F,
+            ),
     ),
     ;
+
+    sealed interface ValueOptions {
+        data class Int(
+            val range: IntRange,
+            val step: kotlin.Int = 1,
+            val defaultValue: kotlin.Int,
+        ) : ValueOptions
+
+        data class Float(
+            val range: ClosedFloatingPointRange<kotlin.Float>,
+            val step: kotlin.Float = 0F,
+            val defaultValue: kotlin.Float,
+        ) : ValueOptions
+
+        data class Color(
+            val defaultValue: androidx.compose.ui.graphics.Color,
+        ) : ValueOptions
+    }
 
     val propertyPath: String = "${type.key}/$relativePath"
 
@@ -657,17 +987,26 @@ enum class EffectAndBlurOptions(
 
             return EffectAndBlurOptions.values().filter {
                 it.type == effectType
-            }.map {
+            }.map { options ->
                 val currentValue =
-                    when (it.propertyType) {
-                        AdjustmentsValueType.INT ->
-                            engine.block.getInt(effect, it.propertyPath).toFloat()
+                    when (options.valueOptions) {
+                        is ValueOptions.Int ->
+                            engine.block.getInt(effect, options.propertyPath).let {
+                                AdjustmentState.Value.Int(it)
+                            }
 
-                        AdjustmentsValueType.FLOAT ->
-                            engine.block.getFloat(effect, it.propertyPath)
+                        is ValueOptions.Float ->
+                            engine.block.getFloat(effect, options.propertyPath).let {
+                                AdjustmentState.Value.Float(it)
+                            }
+
+                        is ValueOptions.Color ->
+                            engine.block.getColor(effect, options.propertyPath).let {
+                                AdjustmentState.Value.Color((it as RGBAColor).toComposeColor())
+                            }
                     }
                 AdjustmentState(
-                    type = it,
+                    type = options,
                     value = currentValue,
                 )
             }
@@ -693,25 +1032,37 @@ enum class EffectAndBlurOptions(
 
             return EffectAndBlurOptions.values().filter {
                 it.type == effectType
-            }.map {
+            }.map { options ->
                 val currentValue =
-                    when (it.propertyType) {
-                        AdjustmentsValueType.INT ->
+                    when (options.valueOptions) {
+                        is ValueOptions.Int ->
                             if (effect != null) {
-                                engine.block.getInt(effect, it.propertyPath).toFloat()
+                                engine.block.getInt(effect, options.propertyPath)
                             } else {
-                                it.defaultValue
+                                options.valueOptions.defaultValue
+                            }.let {
+                                AdjustmentState.Value.Int(it)
                             }
 
-                        AdjustmentsValueType.FLOAT ->
+                        is ValueOptions.Float ->
                             if (effect != null) {
-                                engine.block.getFloat(effect, it.propertyPath)
+                                engine.block.getFloat(effect, options.propertyPath)
                             } else {
-                                it.defaultValue
+                                options.valueOptions.defaultValue
+                            }.let {
+                                AdjustmentState.Value.Float(it)
+                            }
+                        is ValueOptions.Color ->
+                            if (effect != null) {
+                                (engine.block.getColor(effect, options.propertyPath) as RGBAColor).toComposeColor()
+                            } else {
+                                options.valueOptions.defaultValue
+                            }.let {
+                                AdjustmentState.Value.Color(it)
                             }
                     }
                 AdjustmentState(
-                    type = it,
+                    type = options,
                     value = currentValue,
                 )
             }

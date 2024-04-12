@@ -16,6 +16,7 @@ import ly.img.editor.base.ui.Event
 fun ColorPickerSheet(
     color: Color,
     title: String,
+    showOpacity: Boolean = true,
     onBack: () -> Unit,
     onColorChange: (Color) -> Unit,
     onEvent: (Event) -> Unit,
@@ -29,6 +30,7 @@ fun ColorPickerSheet(
         ColorPicker(
             color = color,
             modifier = Modifier.padding(horizontal = 16.dp),
+            showOpacity = showOpacity,
             onColorChange = onColorChange,
             onColorChangeFinished = {
                 onEvent(BlockEvent.OnChangeFinish)

@@ -403,6 +403,7 @@ abstract class EditorUiViewModel(
     private var fitToPageZoomLevel = 0f
 
     @OptIn(UnstableEngineApi::class)
+    // todo bug: some sheets do not zoom content correctly for Design Editor, i.e. Effects.Recolor
     private fun zoom(
         insets: Rect = defaultInsets,
         zoomToPage: Boolean = false,

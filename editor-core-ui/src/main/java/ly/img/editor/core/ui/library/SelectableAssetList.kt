@@ -1,5 +1,7 @@
 package ly.img.editor.core.ui.library
 
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,8 +24,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.core.R
 import ly.img.editor.core.library.LibraryCategory
-import ly.img.editor.core.ui.AnyComposable
 import ly.img.editor.core.ui.GradientCard
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.None
@@ -42,55 +45,64 @@ import ly.img.editor.core.ui.library.components.asset.SelectableAssetWrapper
 import ly.img.editor.core.ui.library.components.section.LibrarySectionItem
 import ly.img.editor.core.ui.library.state.WrappedAsset
 import ly.img.editor.core.ui.library.util.AssetLibraryUiConfig
-import ly.img.editor.core.ui.library.util.LibraryEvent
 
 @Composable
 fun SelectableAssetList(
-    onCloseAssetDetails: () -> Unit,
-    showAnyComposable: (AnyComposable) -> Unit,
+    selectedAsset: WrappedAsset?,
     libraryCategory: LibraryCategory,
-    onAssetReselected: (WrappedAsset?) -> Unit,
-    onAssetSelected: (WrappedAsset?) -> Unit,
-    onAssetLongClick: (WrappedAsset?) -> Unit,
-    checkInitialSelection: (WrappedAsset?) -> Boolean,
-    selectedIcon: (WrappedAsset) -> ImageVector?,
     listState: LazyListState,
+    selectedIcon: (WrappedAsset) -> ImageVector?,
+    onAssetSelected: (WrappedAsset?) -> Unit,
+    onAssetReselected: (WrappedAsset) -> Unit,
+    onAssetLongClick: (WrappedAsset?) -> Unit,
 ) {
     val viewModel = viewModel<LibraryViewModel>()
     val uiState = viewModel.getAssetLibraryUiState(libraryCategory).collectAsState()
-
-    var currentSelected: WrappedAsset? = null
-    val noneIsSelected =
-        remember(libraryCategory) {
-            mutableStateOf(checkInitialSelection(null))
-        }
-
-    LaunchedEffect(libraryCategory) {
-        viewModel.onEvent(LibraryEvent.OnFetch(libraryCategory))
+    var selectedAssetIndex by remember {
+        mutableStateOf(0)
     }
-    LaunchedEffect(uiState.value.sectionItems) {
-        fun findSelectedIndex(): Int {
-            var currentSectionIndex = 0
-            uiState.value.sectionItems.forEach {
-                if (it is LibrarySectionItem.Content) {
-                    val indexOf =
-                        it.wrappedAssets.indexOfFirst { wrappedAsset ->
-                            checkInitialSelection(wrappedAsset)
-                        }
-                    if (indexOf >= 0) {
-                        return currentSectionIndex + indexOf
-                    }
-                    currentSectionIndex += it.wrappedAssets.count() + 1 // + 1 for the Spacer
+
+    LaunchedEffect(selectedAsset, uiState.value.sectionItems) {
+        if (selectedAsset == null) {
+            selectedAssetIndex = 0
+            return@LaunchedEffect
+        }
+        var sectionStartIndex = 2 // "None" element + first section spacer
+        uiState.value.sectionItems.forEach { section ->
+            if (section !is LibrarySectionItem.Content) return@forEach
+            val assetIndex =
+                section.wrappedAssets.indexOfFirst { wrappedAsset ->
+                    wrappedAsset == selectedAsset
                 }
+            if (assetIndex != -1) {
+                selectedAssetIndex = sectionStartIndex + assetIndex
+                return@LaunchedEffect
             }
-            return -1
+            sectionStartIndex += section.wrappedAssets.size + 1
         }
-        if (currentSelected == null) {
-            val index = findSelectedIndex()
-            if (index > 0) {
-                listState.scrollToItem(index, scrollOffset = 1)
+    }
+
+    suspend fun centerSelectedItem(animate: Boolean = true) {
+        val target =
+            listState.layoutInfo.visibleItemsInfo.firstOrNull {
+                it.index == selectedAssetIndex
+            } ?: run {
+                listState.scrollToItem(selectedAssetIndex)
+                centerSelectedItem(animate = false)
+                return
             }
+        val center = listState.layoutInfo.viewportEndOffset / 2
+        val childCenter = target.offset + target.size / 2
+        val diff = (childCenter - center).toFloat()
+        if (animate) {
+            listState.animateScrollBy(diff)
+        } else {
+            listState.scrollBy(diff)
         }
+    }
+
+    LaunchedEffect(selectedAssetIndex) {
+        centerSelectedItem()
     }
 
     Surface(
@@ -117,22 +129,13 @@ fun SelectableAssetList(
                                 .wrapContentSize()
                                 .padding(bottom = 8.dp),
                     ) {
-                        // This can happen if history is changed while the library is open.
-                        val isNoneSelected = checkInitialSelection(null)
-                        if (isNoneSelected != noneIsSelected.value) {
-                            noneIsSelected.value = isNoneSelected
-                        }
                         SelectableAssetWrapper(
-                            isSelected = noneIsSelected.value,
+                            isSelected = selectedAsset == null,
                             selectedIcon = null,
                         ) {
                             GradientCard(
                                 modifier = Modifier.size(80.dp),
-                                onClick = {
-                                    noneIsSelected.value = true
-                                    currentSelected?.setSelected(false)
-                                    onAssetSelected(null)
-                                },
+                                onClick = { onAssetSelected(null) },
                                 onLongClick = { },
                             ) {
                                 Icon(
@@ -163,13 +166,6 @@ fun SelectableAssetList(
                     val assetType = sectionItem.assetType
                     val wrappedAssets = sectionItem.wrappedAssets
                     items(wrappedAssets) { wrappedAsset ->
-                        val isSelected = checkInitialSelection(wrappedAsset)
-                        if (isSelected) {
-                            currentSelected = wrappedAsset
-                            wrappedAsset.setSelected(true)
-                        } else {
-                            wrappedAsset.setSelected(false)
-                        }
                         Column {
                             Column(
                                 modifier =
@@ -178,7 +174,7 @@ fun SelectableAssetList(
                                         .padding(bottom = 8.dp),
                             ) {
                                 SelectableAssetWrapper(
-                                    isSelected = wrappedAsset.isSelected.value,
+                                    isSelected = wrappedAsset == selectedAsset,
                                     selectedIcon = selectedIcon(wrappedAsset),
                                     selectedIconTint = Color.White,
                                 ) {
@@ -187,12 +183,10 @@ fun SelectableAssetList(
                                         modifier = Modifier.width(80.dp),
                                         uri = asset.getThumbnailUri(),
                                         onClick = {
-                                            if (wrappedAsset.isSelected.value) {
+                                            if (wrappedAsset == selectedAsset) {
                                                 onAssetReselected(wrappedAsset)
                                             } else {
                                                 onAssetSelected(wrappedAsset)
-                                                currentSelected?.setSelected(checkInitialSelection(currentSelected))
-                                                noneIsSelected.value = checkInitialSelection(null)
                                             }
                                         },
                                         onLongClick = { onAssetLongClick(wrappedAsset) },

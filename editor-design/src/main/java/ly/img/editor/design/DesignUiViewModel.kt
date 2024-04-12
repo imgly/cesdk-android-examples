@@ -49,15 +49,15 @@ class DesignUiViewModel(
         )
 
     override fun enterEditMode() {
+        engine.editor.setRole("Adopter")
         engine.editor.setGlobalScope("editor/select", GlobalScope.DEFER)
-        engine.editor.setSettingEnum("role", "Adopter")
         engine.showPage(pageIndex.value)
     }
 
     override fun preEnterPreviewMode() {
         super.preEnterPreviewMode()
         engine.deselectAllBlocks()
-        engine.editor.setSettingEnum("role", "Creator")
+        engine.editor.setRole("Creator")
         engine.editor.setGlobalScope("editor/select", GlobalScope.DENY)
         showAllPages()
     }

@@ -9,7 +9,7 @@ import java.io.File
 
 private const val DEFAULT_FONT_FAMILY = "Roboto"
 
-class FontFamilyData(val name: String, private val fonts: List<FontData>) {
+data class FontFamilyData(val name: String, private val fonts: List<FontData>) {
     private val regularFont = fonts.find { it.isRegular() && !it.isItalic() }
     private val boldFont = fonts.find { it.isBold() && !it.isItalic() }
     private val italicFont = fonts.find { it.isRegular() && it.isItalic() }

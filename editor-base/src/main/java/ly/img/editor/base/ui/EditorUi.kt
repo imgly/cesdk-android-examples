@@ -283,15 +283,7 @@ fun EditorUi(
                             is FormatBottomSheetContent -> FormatOptionsSheet(content.uiState, viewModel::onEvent)
                             is CropBottomSheetContent -> CropSheet(content.uiState, viewModel::onEvent)
                             is AdjustmentSheetContent -> AdjustmentOptionsSheet(content.uiState, viewModel::onEvent)
-                            is EffectSheetContent ->
-                                EffectSelectionSheet(
-                                    uiState = content.uiState,
-                                    onEvent = viewModel::onEvent,
-                                    showAnyComposable = {
-                                        showScrimBottomSheet(it)
-                                    },
-                                )
-
+                            is EffectSheetContent -> EffectSelectionSheet(content.uiState, viewModel::onEvent)
                             else -> bottomSheetLayout(content)
                         }
                     }

@@ -32,6 +32,7 @@ import ly.img.editor.base.components.SectionHeader
 fun ColorPicker(
     modifier: Modifier = Modifier,
     color: Color,
+    showOpacity: Boolean,
     onColorChange: (Color) -> Unit,
     onColorChangeFinished: () -> Unit,
 ) {
@@ -74,29 +75,30 @@ fun ColorPicker(
                 style = MaterialTheme.typography.labelMedium,
             )
         }
-
         Spacer(Modifier.height(16.dp))
-        SectionHeader(text = stringResource(R.string.ly_img_editor_opacity))
-        Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-            OpacitySlider(
-                modifier = Modifier.weight(1f),
-                color = hsvColor.toComposeColor(),
-                onValueChange = {
-                    hsvColor = hsvColor.copy(alpha = it)
-                    onColorChange(hsvColor.toComposeColor())
-                },
-                onValueChangeFinished = onFinish,
-            )
-            Spacer(Modifier.width(16.dp))
-            Text(
-                "${(hsvColor.alpha * 100).toInt()}%",
-                modifier = Modifier.widthIn(32.dp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.labelMedium,
-            )
+
+        if (showOpacity) {
+            SectionHeader(text = stringResource(R.string.ly_img_editor_opacity))
+            Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                OpacitySlider(
+                    modifier = Modifier.weight(1f),
+                    color = hsvColor.toComposeColor(),
+                    onValueChange = {
+                        hsvColor = hsvColor.copy(alpha = it)
+                        onColorChange(hsvColor.toComposeColor())
+                    },
+                    onValueChangeFinished = onFinish,
+                )
+                Spacer(Modifier.width(16.dp))
+                Text(
+                    "${(hsvColor.alpha * 100).toInt()}%",
+                    modifier = Modifier.widthIn(32.dp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+            Spacer(Modifier.height(16.dp))
         }
-
-        Spacer(Modifier.height(16.dp))
         Divider(Modifier.padding(horizontal = 16.dp))
 
         val onPresetColorClick: (Color) -> Unit = {

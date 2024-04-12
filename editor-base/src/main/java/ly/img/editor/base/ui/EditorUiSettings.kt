@@ -1,10 +1,8 @@
 package ly.img.editor.base.ui
 
 import android.net.Uri
-import ly.img.editor.base.engine.DOUBLE_CLICK_SELECTION_MODE_DIRECT
 import ly.img.editor.base.engine.TOUCH_ACTION_NONE
 import ly.img.editor.base.engine.TOUCH_ACTION_ZOOM
-import ly.img.editor.core.ui.engine.ROLE
 import ly.img.editor.core.ui.engine.ROLE_ADOPTER
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.engine.Engine
@@ -21,8 +19,7 @@ internal fun setSettingsForEditorUi(
         setSettingEnum("touch/rotateAction", TOUCH_ACTION_NONE)
         setSettingBoolean("doubleClickToCropEnabled", true)
         setSettingString("basePath", baseUri.toString())
-        setSettingEnum(ROLE, ROLE_ADOPTER)
-        setSettingEnum("doubleClickSelectionMode", DOUBLE_CLICK_SELECTION_MODE_DIRECT)
+        setRole(ROLE_ADOPTER)
         setSettingEnum("camera/clamping/overshootMode", "Center")
     }
     arrayOf(

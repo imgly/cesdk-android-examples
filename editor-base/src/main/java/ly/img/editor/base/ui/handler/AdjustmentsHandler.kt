@@ -1,11 +1,12 @@
 package ly.img.editor.base.ui.handler
 
-import ly.img.editor.base.engine.AdjustmentsValueType
+import ly.img.editor.base.engine.AdjustmentState
 import ly.img.editor.base.engine.EffectGroup
 import ly.img.editor.base.engine.getEffectOrCreateAndAppend
 import ly.img.editor.base.engine.getGroup
 import ly.img.editor.base.engine.removeEffectByType
 import ly.img.editor.base.engine.setBlurType
+import ly.img.editor.base.engine.toEngineColor
 import ly.img.editor.base.ui.BlockEvent.*
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.ui.EventsHandler
@@ -21,7 +22,6 @@ import ly.img.engine.Color
 import ly.img.engine.DesignBlock
 import ly.img.engine.EffectType
 import ly.img.engine.Engine
-import kotlin.math.roundToInt
 
 /**
  * Register all events related to appearance, like adding/removing filters, fx effects, blur effects etc.
@@ -67,18 +67,24 @@ fun EventsHandler.appearanceEvents(
                     "Unsupported adjustment type: ${it.adjustment.type}",
                 )
             }
-        when (it.adjustment.propertyType) {
-            AdjustmentsValueType.INT ->
+        when (it.value) {
+            is AdjustmentState.Value.Int ->
                 engine.block.setInt(
                     block = filter,
                     property = it.adjustment.propertyPath,
-                    value = it.value.roundToInt(),
+                    value = it.value.value,
                 )
-            AdjustmentsValueType.FLOAT ->
+            is AdjustmentState.Value.Float ->
                 engine.block.setFloat(
                     block = filter,
                     property = it.adjustment.propertyPath,
-                    value = it.value,
+                    value = it.value.value,
+                )
+            is AdjustmentState.Value.Color ->
+                engine.block.setColor(
+                    block = filter,
+                    property = it.adjustment.propertyPath,
+                    value = it.value.value.toEngineColor(),
                 )
         }
     }

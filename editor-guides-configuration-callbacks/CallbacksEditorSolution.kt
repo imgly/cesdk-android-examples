@@ -35,7 +35,7 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                         }
                         engine.asset.addSource(TextAssetSource(engine))
                         launch {
-                            val baseUri = Uri.parse("https://cdn.img.ly/assets/v2")
+                            val baseUri = Uri.parse("https://cdn.img.ly/assets/v3")
                             engine.addDefaultAssetSources(baseUri = baseUri)
                         }
                         launch {

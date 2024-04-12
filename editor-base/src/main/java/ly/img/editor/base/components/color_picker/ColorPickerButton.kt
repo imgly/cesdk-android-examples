@@ -13,13 +13,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.dp
+import ly.img.editor.core.ui.utils.ifTrue
 
 @Composable
 fun ColorPickerButton(
     color: Color,
     modifier: Modifier = Modifier,
     punchHole: Boolean = false,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
 ) {
     val gradient =
         remember {
@@ -39,7 +40,9 @@ fun ColorPickerButton(
         modifier =
             modifier
                 .size(40.dp)
-                .clickable { onClick() },
+                .ifTrue(onClick != null) {
+                    clickable { onClick?.invoke() }
+                },
         onDraw = {
             // Blend modes are only working with using the layer directly
             // Consider using CompositionStrategy instead when it's available
