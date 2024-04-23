@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
 import ly.img.editor.base.components.PropertySlider
 import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.engine.AdjustmentState
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
@@ -34,12 +35,13 @@ fun AdjustmentOptionsSheet(
                     .verticalScroll(rememberScrollState()),
             ) {
                 uiState.adjustments.forEach { (type, currentValue) ->
+                    currentValue as AdjustmentState.Value.Float
                     PropertySlider(
                         title = type.nameRes,
-                        value = currentValue,
-                        valueRange = -1f..1f,
+                        value = currentValue.value,
+                        valueRange = -1F..1F,
                         onValueChange = { newValue ->
-                            onEvent(BlockEvent.OnChangeEffectSettings(type, newValue))
+                            onEvent(BlockEvent.OnChangeEffectSettings(type, AdjustmentState.Value.Float(newValue)))
                         },
                         onValueChangeFinished = { onEvent(BlockEvent.OnChangeFinish) },
                     )

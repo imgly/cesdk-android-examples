@@ -16,9 +16,9 @@ data class AdjustmentUiState(
         ): AdjustmentUiState {
             return AdjustmentUiState(
                 EffectAndBlurOptions.getEffectAdjustments(
-                    engine,
-                    block.designBlock,
-                    EffectType.Adjustments,
+                    engine = engine,
+                    designBlock = block.designBlock,
+                    effectType = EffectType.Adjustments,
                 ),
             )
         }

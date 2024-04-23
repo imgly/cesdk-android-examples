@@ -196,6 +196,17 @@
     <string name="ly_img_editor_filter_tilt_shift_amount">Intensity</string>
     <string name="ly_img_editor_filter_tilt_shift_position">Position</string>
 
+    <string name="ly_img_editor_filter_recolor_from_color">Source Color</string>
+    <string name="ly_img_editor_filter_recolor_to_color">Target Color</string>
+    <string name="ly_img_editor_filter_recolor_color_match">Color Match</string>
+    <string name="ly_img_editor_filter_recolor_brightness_match">Brightness Match</string>
+    <string name="ly_img_editor_filter_recolor_smoothness">Smoothness</string>
+
+    <string name="ly_img_editor_filter_green_screen_from_color">Source Color</string>
+    <string name="ly_img_editor_filter_green_screen_color_match">Color Match</string>
+    <string name="ly_img_editor_filter_green_screen_smoothness">Smoothness</string>
+    <string name="ly_img_editor_filter_green_screen_spill">Spill</string>
+
     <string name="ly_img_editor_filter_uniform_blur_intensity">Intensity</string>
 
     <string name="ly_img_editor_filter_extrude_blur_amount">Intensity</string>

@@ -25,7 +25,6 @@ import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.Environment
 import ly.img.editor.core.ui.EventsHandler
 import ly.img.editor.core.ui.engine.BlockKind
-import ly.img.editor.core.ui.engine.ROLE
 import ly.img.editor.core.ui.engine.ROLE_ADOPTER
 import ly.img.editor.core.ui.engine.dpToCanvasUnit
 import ly.img.editor.core.ui.engine.getCamera
@@ -260,7 +259,7 @@ internal class LibraryViewModel : ViewModel() {
                 engine.asset.applyAssetSourceAsset(assetSourceType.sourceId, asset, designBlock)
                 if (engine.block.getKindEnum(
                         designBlock,
-                    ) == BlockKind.Image && engine.editor.getSettingEnum(ROLE) == ROLE_ADOPTER
+                    ) == BlockKind.Image && engine.editor.getRole() == ROLE_ADOPTER
                 ) {
                     engine.block.setPlaceholderEnabled(designBlock, false)
                 }

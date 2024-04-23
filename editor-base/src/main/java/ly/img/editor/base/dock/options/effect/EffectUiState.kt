@@ -25,9 +25,9 @@ import ly.img.engine.Engine
 data class EffectUiState(
     val engine: Engine,
     val designBlock: DesignBlock,
-    var appliedEffectId: String?,
+    val appliedEffectId: String?,
     val libraryCategory: LibraryCategory,
-    var adjustments: List<AdjustmentState>,
+    val adjustments: List<AdjustmentState>,
 ) {
     val titleRes =
         when (libraryCategory) {
@@ -36,8 +36,6 @@ data class EffectUiState(
             AppearanceLibraryCategory.Blur -> R.string.ly_img_editor_blur
             else -> throw IllegalArgumentException("Unsupported library category: $libraryCategory")
         }
-
-    var selectedAsset: WrappedAsset? = null
 
     companion object Factory {
         private fun getEffectBlock(
@@ -98,16 +96,20 @@ data class EffectUiState(
         ): EffectUiState {
             val activeEffect = getEffectBlock(engine, block.designBlock, libraryCategory)
             return EffectUiState(
-                engine,
-                block.designBlock,
-                getEffectUri(engine, activeEffect),
-                libraryCategory,
-                EffectAndBlurOptions.getEffectAdjustments(engine, activeEffect),
+                engine = engine,
+                designBlock = block.designBlock,
+                appliedEffectId = getEffectUri(engine, activeEffect),
+                libraryCategory = libraryCategory,
+                adjustments = EffectAndBlurOptions.getEffectAdjustments(engine, activeEffect),
             )
         }
     }
 
-    fun checkSelection(asset: WrappedAsset?): Boolean {
+    fun getSelectedAsset(assets: List<WrappedAsset>): WrappedAsset? {
+        return assets.firstOrNull { isAssetSelected(it) }
+    }
+
+    private fun isAssetSelected(asset: WrappedAsset?): Boolean {
         return when (asset?.assetSourceType) {
             AppearanceAssetSourceType.LutFilter -> {
                 appliedEffectId == asset.asset.getUri()
@@ -131,39 +133,26 @@ data class EffectUiState(
         }
     }
 
-    /**
-     * Update the filter selection without creating a new UiState instance.
-     */
-    fun updateEffectSelection(
+    fun onAssetSelected(
         onEvent: (Event) -> Unit,
         wrappedAsset: WrappedAsset?,
     ) {
-        if (selectedAsset != wrappedAsset || wrappedAsset == null) {
-            selectedAsset?.setSelected(false)
-            wrappedAsset?.setSelected(true)
-            selectedAsset = wrappedAsset
-
-            when (libraryCategory) {
-                AppearanceLibraryCategory.Filters -> {
-                    onEvent(BlockEvent.OnReplaceColorFilter(designBlock, wrappedAsset?.assetSourceType, wrappedAsset?.asset))
-                }
-
-                AppearanceLibraryCategory.FxEffects -> {
-                    val effectType = wrappedAsset?.asset?.getMeta("effectType")
-                    onEvent(BlockEvent.OnReplaceFxEffect(designBlock, effectType?.let { EffectType.getOrNull(it) }))
-                }
-
-                AppearanceLibraryCategory.Blur -> {
-                    val blurType = wrappedAsset?.asset?.getMeta("blurType")
-                    onEvent(BlockEvent.OnReplaceBlurEffect(designBlock, blurType?.let { BlurType.getOrNull(it) }))
-                }
-
-                else -> throw IllegalArgumentException("Unsupported library category: $libraryCategory")
+        when (libraryCategory) {
+            AppearanceLibraryCategory.Filters -> {
+                onEvent(BlockEvent.OnReplaceColorFilter(designBlock, wrappedAsset?.assetSourceType, wrappedAsset?.asset))
             }
 
-            val activeEffect = getEffectBlock(engine, designBlock, libraryCategory)
-            this.appliedEffectId = getEffectUri(engine, activeEffect)
-            this.adjustments = EffectAndBlurOptions.getEffectAdjustments(engine, activeEffect)
+            AppearanceLibraryCategory.FxEffects -> {
+                val effectType = wrappedAsset?.asset?.getMeta("effectType")
+                onEvent(BlockEvent.OnReplaceFxEffect(designBlock, effectType?.let { EffectType.getOrNull(it) }))
+            }
+
+            AppearanceLibraryCategory.Blur -> {
+                val blurType = wrappedAsset?.asset?.getMeta("blurType")
+                onEvent(BlockEvent.OnReplaceBlurEffect(designBlock, blurType?.let { BlurType.getOrNull(it) }))
+            }
+
+            else -> throw IllegalArgumentException("Unsupported library category: $libraryCategory")
         }
     }
 }

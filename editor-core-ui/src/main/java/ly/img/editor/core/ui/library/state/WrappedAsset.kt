@@ -1,33 +1,25 @@
 package ly.img.editor.core.ui.library.state
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.ui.library.data.font.FontFamilyData
 import ly.img.engine.Asset
 
-sealed class WrappedAsset(
-    val asset: Asset,
-    val assetSourceType: AssetSourceType,
-    val assetType: AssetType,
-) {
-    var isSelected: MutableState<Boolean> = mutableStateOf(false)
+sealed interface WrappedAsset {
+    val asset: Asset
+    val assetSourceType: AssetSourceType
+    val assetType: AssetType
 
-    fun setSelected(selection: Boolean) {
-        isSelected.value = selection
-    }
-
-    class GenericAsset(
-        asset: Asset,
-        assetSourceType: AssetSourceType,
-        assetType: AssetType,
-    ) : WrappedAsset(asset, assetSourceType, assetType)
+    data class GenericAsset(
+        override val asset: Asset,
+        override val assetSourceType: AssetSourceType,
+        override val assetType: AssetType,
+    ) : WrappedAsset
 
     class TextAsset(
-        asset: Asset,
-        assetSourceType: AssetSourceType,
+        override val asset: Asset,
+        override val assetSourceType: AssetSourceType,
+        override val assetType: AssetType,
         val fontFamily: FontFamilyData,
-        assetType: AssetType,
-    ) : WrappedAsset(asset, assetSourceType, assetType)
+    ) : WrappedAsset
 }

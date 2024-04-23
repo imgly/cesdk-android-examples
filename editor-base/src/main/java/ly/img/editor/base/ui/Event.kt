@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import ly.img.editor.base.dock.OptionType
 import ly.img.editor.base.dock.options.format.HorizontalAlignment
 import ly.img.editor.base.dock.options.format.VerticalAlignment
+import ly.img.editor.base.engine.AdjustmentState
 import ly.img.editor.base.engine.EffectAndBlurOptions
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.ui.BaseEvent
@@ -158,7 +159,7 @@ interface BlockEvent : Event {
 
     data class OnReplaceBlurEffect(val designBlock: DesignBlock, val effect: BlurType?) : BlockEvent
 
-    data class OnChangeEffectSettings(val adjustment: EffectAndBlurOptions, val value: Float) : BlockEvent
+    data class OnChangeEffectSettings(val adjustment: EffectAndBlurOptions, val value: AdjustmentState.Value) : BlockEvent
     // endregion
 
     // region Crop Events

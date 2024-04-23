@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ly.img.editor.base.engine.LayoutAxis
 import ly.img.editor.base.engine.resetHistory
+import ly.img.editor.base.engine.setRoleButPreserveGlobalScopes
 import ly.img.editor.base.engine.showAllPages
 import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.engine.zoomToPage
@@ -49,16 +50,12 @@ class DesignUiViewModel(
         )
 
     override fun enterEditMode() {
-        engine.editor.setGlobalScope("editor/select", GlobalScope.DEFER)
-        engine.editor.setSettingEnum("role", "Adopter")
         engine.showPage(pageIndex.value)
     }
 
     override fun preEnterPreviewMode() {
         super.preEnterPreviewMode()
         engine.deselectAllBlocks()
-        engine.editor.setSettingEnum("role", "Creator")
-        engine.editor.setGlobalScope("editor/select", GlobalScope.DENY)
         showAllPages()
     }
 

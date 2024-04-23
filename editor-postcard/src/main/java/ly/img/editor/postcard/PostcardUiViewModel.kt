@@ -41,6 +41,7 @@ import ly.img.editor.postcard.util.requirePinnedBlock
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
 import ly.img.engine.FillType
+import ly.img.engine.GlobalScope
 
 class PostcardUiViewModel(
     baseUri: Uri,
@@ -96,6 +97,11 @@ class PostcardUiViewModel(
         } catch (ex: IllegalStateException) {
             checkNotNull(engine.getPinnedBlock())
         }
+    }
+
+    override fun setSettings() {
+        super.setSettings()
+        engine.editor.setGlobalScope(Scope.EditorAdd, GlobalScope.DEFER)
     }
 
     private fun onChangeTemplateColor(
