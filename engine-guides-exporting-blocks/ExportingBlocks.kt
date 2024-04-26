@@ -13,7 +13,7 @@ fun exportingBlocks(
     engine.bindOffscreen(width = 100, height = 100)
     engine.editor.setSettingString(
         "basePath",
-        value = "https://cdn.img.ly/packages/imgly/cesdk-engine/1.19.0/assets",
+        value = "https://cdn.img.ly/packages/imgly/cesdk-engine/1.23.0/assets",
     )
     engine.addDefaultAssetSources()
 

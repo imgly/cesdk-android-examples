@@ -24,9 +24,12 @@ fun MessageFontSheet(
             )
 
             FontListUi(
+                libraryCategory = uiState.libraryCategory,
                 fontFamily = uiState.fontFamily,
-                fontFamilies = uiState.fontFamilies,
-                onSelectFont = { onEvent(PostcardEvent.OnChangeMessageFont(it)) },
+                filter = uiState.filter,
+                onSelectFont = { fontUri, typeface ->
+                    onEvent(PostcardEvent.OnChangeFont(fontUri, typeface))
+                },
             )
         }
     }

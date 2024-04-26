@@ -1,61 +1,54 @@
 package ly.img.editor.base.dock.options.format
 
 import androidx.annotation.StringRes
+import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.ui.engine.Scope
-import ly.img.editor.core.ui.library.data.font.FontData
-import ly.img.editor.core.ui.library.data.font.FontFamilyData
+import ly.img.editor.core.ui.library.TypefaceLibraryCategory
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
+import ly.img.engine.FontStyle
+import ly.img.engine.FontWeight
 
 data class FormatUiState(
+    val libraryCategory: LibraryCategory,
     val fontFamily: String,
-    val isBold: Boolean?,
-    val isItalic: Boolean?,
+    val canToggleBold: Boolean,
+    val canToggleItalic: Boolean,
+    val isBold: Boolean,
+    val isItalic: Boolean,
     val horizontalAlignment: HorizontalAlignment,
     val verticalAlignment: VerticalAlignment,
     val fontSize: Float,
     val letterSpacing: Float,
     val lineHeight: Float,
     @StringRes val sizeModeRes: Int,
-    val fontFamilies: List<FontFamilyData>,
     val isArrangeResizeAllowed: Boolean,
 )
 
 internal fun createFormatUiState(
     designBlock: DesignBlock,
     engine: Engine,
-    families: Map<String, FontFamilyData>,
 ): FormatUiState {
-    val fontPath = engine.block.getString(designBlock, "text/fontFileUri")
-
-    var fontFamilyData: FontFamilyData? = null
-    var fontData: FontData? = null
-
-    for (value in families.values) {
-        val data = value.getFontData(fontPath) ?: continue
-        fontFamilyData = value
-        fontData = data
-        break
-    }
-
-    requireNotNull(fontFamilyData)
-    requireNotNull(fontData)
-
-    var isBold: Boolean? = null
-    var isItalic: Boolean? = null
-
-    if (fontFamilyData.hasRegular && fontFamilyData.hasBold && fontFamilyData.hasItalic && fontFamilyData.hasBoldItalic) {
-        isBold = fontData.isBold()
-        isItalic = fontData.isItalic()
-    } else if (fontFamilyData.hasRegular && !fontFamilyData.hasBold && fontFamilyData.hasItalic && !fontFamilyData.hasBoldItalic) {
-        isItalic = fontData.isItalic()
-    } else if (fontFamilyData.hasRegular && fontFamilyData.hasBold && !fontFamilyData.hasItalic && !fontFamilyData.hasBoldItalic) {
-        isBold = fontData.isBold()
-    }
+    val typeface = runCatching { engine.block.getTypeface(designBlock) }.getOrNull()
     return FormatUiState(
-        fontFamily = fontFamilyData.name,
-        isBold = isBold,
-        isItalic = isItalic,
+        libraryCategory = TypefaceLibraryCategory,
+        fontFamily = typeface?.name ?: "Default",
+        canToggleBold =
+            typeface?.let {
+                engine.block.canToggleBoldFont(designBlock)
+            } ?: false,
+        canToggleItalic =
+            typeface?.let {
+                engine.block.canToggleItalicFont(designBlock)
+            } ?: false,
+        isBold =
+            typeface?.let {
+                engine.block.getTextFontWeights(designBlock).contains(FontWeight.BOLD)
+            } ?: false,
+        isItalic =
+            typeface?.let {
+                engine.block.getTextFontStyles(designBlock).contains(FontStyle.ITALIC)
+            } ?: false,
         horizontalAlignment =
             HorizontalAlignment.valueOf(
                 engine.block.getEnum(designBlock, "text/horizontalAlignment"),
@@ -68,7 +61,6 @@ internal fun createFormatUiState(
         letterSpacing = engine.block.getFloat(designBlock, "text/letterSpacing"),
         lineHeight = engine.block.getFloat(designBlock, "text/lineHeight"),
         sizeModeRes = engine.block.getHeightMode(designBlock).getText(),
-        fontFamilies = families.values.toList(),
         isArrangeResizeAllowed = engine.block.isAllowedByScope(designBlock, Scope.LayerResize),
     )
 }

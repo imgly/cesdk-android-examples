@@ -1,3 +1,4 @@
+import android.net.Uri
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
@@ -18,10 +19,12 @@ fun textProperties(
     // highlight-replaceText
     engine.block.replaceText(text, text = "Hello World")
     // highlight-replaceText
+
     // highlight-replaceText-single-index
     // Add a "!" at the end of the text
     engine.block.replaceText(text, text = "!", from = 11)
     // highlight-replaceText-single-index
+
     // highlight-replaceText-range
     // Replace "World" with "Alex"
     engine.block.replaceText(text, text = "Alex", from = 6, to = 11)
@@ -43,15 +46,77 @@ fun textProperties(
     // highlight-setTextColor
     engine.block.setTextColor(text, color = Color.fromHex("#FFFF0000"))
     // highlight-setTextColor
+
     // highlight-setTextColor-range
     engine.block.setTextColor(text, color = Color.fromHex("#FFFF0000"), from = 1, to = 4)
     // highlight-setTextColor-range
+
     // highlight-getTextColors
     val allColors = engine.block.getTextColors(text)
     // highlight-getTextColors
+
     // highlight-getTextColors-range
     val colorsInRange = engine.block.getTextColors(text, from = 2, to = 5)
     // highlight-getTextColors-range
+
+    // highlight-setTextCase
+    engine.block.setTextCase(text, textCase = TextCase.TITLE_CASE)
+    // highlight-setTextCase
+
+    // highlight-getTextCases
+    val textCases = engine.block.getTextCases(text)
+    // highlight-getTextCases
+
+    // highlight-setFont
+    val typeface =
+        Typeface(
+            name = "Roboto",
+            fonts =
+                listOf(
+                    Font(
+                        uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Bold.ttf"),
+                        subFamily = "Bold",
+                        weight = FontWeight.BOLD,
+                        style = FontStyle.NORMAL,
+                    ),
+                    Font(
+                        uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-BoldItalic.ttf"),
+                        subFamily = "Bold Italic",
+                        weight = FontWeight.BOLD,
+                        style = FontStyle.ITALIC,
+                    ),
+                    Font(
+                        uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Italic.ttf"),
+                        subFamily = "Italic",
+                        weight = FontWeight.BOLD,
+                        style = FontStyle.NORMAL,
+                    ),
+                    Font(
+                        uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Regular.ttf"),
+                        subFamily = "Regular",
+                        weight = FontWeight.NORMAL,
+                        style = FontStyle.NORMAL,
+                    ),
+                ),
+        )
+    engine.block.setFont(text, typeface.fonts[3].uri, typeface)
+    // highlight-setFont
+
+    // highlight-getTypeface
+    val currentTypeface = engine.block.getTypeface(text)
+    // highlight-getTypeface
+
+    // highlight-toggleBold
+    if (engine.block.canToggleBoldFont(text)) {
+        engine.block.toggleBoldFont(text)
+    }
+    // highlight-toggleBold
+
+    // highlight-toggleItalic
+    if (engine.block.canToggleItalicFont(text)) {
+        engine.block.toggleItalicFont(text)
+    }
+    // highlight-toggleItalic
 
     // highlight-getTextFontWeights
     val fontWeights = engine.block.getTextFontWeights(text)

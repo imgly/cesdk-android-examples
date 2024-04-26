@@ -14,6 +14,7 @@ import ly.img.editor.ShowCloseConfirmationDialogEvent
 import ly.img.editor.ShowErrorDialogEvent
 import ly.img.editor.ShowLoading
 import ly.img.editor.core.library.data.TextAssetSource
+import ly.img.editor.core.library.data.TypefaceProvider
 import ly.img.engine.MimeType
 import ly.img.engine.addDefaultAssetSources
 import ly.img.engine.addDemoAssetSources
@@ -33,10 +34,12 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                         if (engine.scene.get() == null) {
                             engine.scene.load(EngineConfiguration.defaultDesignSceneUri)
                         }
-                        engine.asset.addSource(TextAssetSource(engine))
                         launch {
                             val baseUri = Uri.parse("https://cdn.img.ly/assets/v3")
                             engine.addDefaultAssetSources(baseUri = baseUri)
+                            val defaultTypeface = TypefaceProvider().provideTypeface(engine, "Roboto")
+                            requireNotNull(defaultTypeface)
+                            engine.asset.addSource(TextAssetSource(engine, defaultTypeface))
                         }
                         launch {
                             engine.addDemoAssetSources(

@@ -12,7 +12,23 @@ import ly.img.editor.core.ui.library.util.LibraryEvent
 @Composable
 fun SelectableAssetListProvider(
     libraryCategory: LibraryCategory,
+    filter: List<String> = emptyList(),
     onAssetsLoaded: (List<WrappedAsset>) -> Unit,
+) {
+    SelectableAssetListProvider(
+        libraryCategory = libraryCategory,
+        filter = filter,
+        mapper = { it },
+        onAssetsLoaded = onAssetsLoaded,
+    )
+}
+
+@Composable
+fun <T> SelectableAssetListProvider(
+    libraryCategory: LibraryCategory,
+    filter: List<String> = emptyList(),
+    mapper: (WrappedAsset) -> T,
+    onAssetsLoaded: (List<T>) -> Unit,
 ) {
     val viewModel = viewModel<LibraryViewModel>()
     val uiState = viewModel.getAssetLibraryUiState(libraryCategory).collectAsState()
@@ -24,8 +40,14 @@ fun SelectableAssetListProvider(
     LaunchedEffect(uiState.value.sectionItems) {
         uiState.value.sectionItems.flatMap {
             (it as? LibrarySectionItem.Content)?.wrappedAssets ?: emptyList()
-        }.let {
-            onAssetsLoaded(it)
+        }.let { assets ->
+            if (filter.isEmpty()) {
+                assets
+            } else {
+                assets.filter { filter.contains(it.asset.id) }
+            }.map(mapper).let {
+                onAssetsLoaded(it)
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.data.AssetSourceType
+import ly.img.editor.core.library.data.TypefaceProvider
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.Environment
 import ly.img.editor.core.ui.EventsHandler
@@ -31,7 +32,7 @@ import ly.img.editor.core.ui.engine.getCamera
 import ly.img.editor.core.ui.engine.getKindEnum
 import ly.img.editor.core.ui.engine.getPage
 import ly.img.editor.core.ui.library.components.section.LibrarySectionItem
-import ly.img.editor.core.ui.library.data.font.FontFamilyData
+import ly.img.editor.core.ui.library.data.font.FontDataMapper
 import ly.img.editor.core.ui.library.engine.replaceSticker
 import ly.img.editor.core.ui.library.state.AssetLibraryUiState
 import ly.img.editor.core.ui.library.state.AssetsData
@@ -66,11 +67,10 @@ import java.util.Stack
 import java.util.UUID
 
 internal class LibraryViewModel : ViewModel() {
-    private val assetsRepo = Environment.getAssetsRepo()
     private val imageLoader = Environment.getImageLoader()
     private val engine = Environment.getEngine()
-
-    private val fontFamilies: StateFlow<Map<String, FontFamilyData>?> = assetsRepo.fontFamilies
+    private val typefaceProvider = TypefaceProvider()
+    private val fontDataMapper = FontDataMapper()
 
     private val _uiEvent = Channel<LibraryUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -98,6 +98,7 @@ internal class LibraryViewModel : ViewModel() {
                 AppearanceLibraryCategory.Filters,
                 AppearanceLibraryCategory.FxEffects,
                 AppearanceLibraryCategory.Blur,
+                TypefaceLibraryCategory,
             ).toSet()
     }
     private val libraryStackDataMapping by lazy {
@@ -567,7 +568,7 @@ internal class LibraryViewModel : ViewModel() {
         }
     }
 
-    private fun createWrappedAsset(
+    private suspend fun createWrappedAsset(
         asset: Asset,
         assetSourceType: AssetSourceType,
         assetType: AssetType,
@@ -577,7 +578,10 @@ internal class LibraryViewModel : ViewModel() {
                 asset = asset,
                 assetSourceType = assetSourceType,
                 assetType = assetType,
-                fontFamily = checkNotNull(checkNotNull(fontFamilies.value)[asset.getMeta("fontFamily", "")]),
+                fontData =
+                    asset.getMeta("fontFamily")
+                        ?.let { typefaceProvider.provideTypeface(engine, it) }
+                        ?.let { fontDataMapper.getFontData(it, asset.getMeta("fontWeight")?.toInt()) },
             )
         } else {
             WrappedAsset.GenericAsset(

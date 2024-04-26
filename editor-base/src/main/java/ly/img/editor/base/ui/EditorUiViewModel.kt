@@ -49,11 +49,11 @@ import ly.img.editor.base.engine.TRANSFORM_EDIT_MODE
 import ly.img.editor.base.engine.addOutline
 import ly.img.editor.base.engine.isPlaceholder
 import ly.img.editor.base.engine.resetHistory
-import ly.img.editor.base.engine.setRoleButPreserveGlobalScopes
 import ly.img.editor.base.engine.showOutline
 import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.engine.zoomToPage
 import ly.img.editor.base.engine.zoomToSelectedText
+import ly.img.editor.base.migration.EditorMigrationHelper
 import ly.img.editor.base.ui.handler.appearanceEvents
 import ly.img.editor.base.ui.handler.blockEvents
 import ly.img.editor.base.ui.handler.blockFillEvents
@@ -77,7 +77,6 @@ import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.editor.core.ui.library.AppearanceLibraryCategory
 import ly.img.editor.core.ui.register
 import ly.img.engine.Engine
-import ly.img.engine.GlobalScope
 import ly.img.engine.UnstableEngineApi
 import kotlin.math.abs
 
@@ -93,8 +92,8 @@ abstract class EditorUiViewModel(
     protected val colorPalette: List<Color> = fillAndStrokeColors,
     private val scrollablePreview: Boolean = false,
 ) : ViewModel(), EditorEventHandler {
+    private val migrationHelper = EditorMigrationHelper()
     val engine = Environment.getEngine()
-    protected val assetsRepo = Environment.getAssetsRepo()
 
     private var firstLoad = true
     private var defaultInsets = Rect.Zero
@@ -162,7 +161,6 @@ abstract class EditorUiViewModel(
             textBlockEvents(
                 engine = ::engine,
                 block = ::getBlockForEvents,
-                fontFamilyMap = { checkNotNull(assetsRepo.fontFamilies.value) },
             )
             strokeEvents(
                 engine = ::engine,
@@ -278,7 +276,7 @@ abstract class EditorUiViewModel(
 
                 is FormatBottomSheetContent ->
                     FormatBottomSheetContent(
-                        createFormatUiState(designBlock, engine, checkNotNull(assetsRepo.fontFamilies.value)),
+                        createFormatUiState(designBlock, engine),
                     )
 
                 is CropBottomSheetContent -> {
@@ -350,11 +348,10 @@ abstract class EditorUiViewModel(
                 enableEditMode()
             }
         } else {
-            setSettings()
+            setSettingsForEditorUi(engine, baseUri)
             viewModelScope.launch {
                 runCatching {
-                    // Temporary invocation before fonts move to the asset source
-                    assetsRepo.loadFonts(basePath = baseUri.toString())
+                    migrationHelper.migrate()
                     onCreate(engine, this@EditorUiViewModel)
                     val scene = requireNotNull(engine.scene.get()) { "onCreate body must contain scene creation." }
                     engine.addOutline(scene, engine.getPage(pageIndex.value))
@@ -563,7 +560,7 @@ abstract class EditorUiViewModel(
 
                 OptionType.Format ->
                     FormatBottomSheetContent(
-                        createFormatUiState(designBlock, engine, checkNotNull(assetsRepo.fontFamilies.value)),
+                        createFormatUiState(designBlock, engine),
                     )
 
                 OptionType.ShapeOptions ->
@@ -619,7 +616,6 @@ abstract class EditorUiViewModel(
                 _isPreviewMode,
                 _isExporting,
                 _enableHistory,
-                assetsRepo.fontFamilies,
                 selectedBlock,
                 isKeyboardShowing,
             ).collect {
@@ -750,8 +746,6 @@ abstract class EditorUiViewModel(
 
     private fun enableEditMode(): Job {
         _isPreviewMode.update { false }
-        engine.editor.setGlobalScope(Scope.EditorSelect, GlobalScope.DEFER)
-        engine.editor.setRoleButPreserveGlobalScopes("Adopter")
         enterEditMode()
         return zoom(zoomToPage = true)
     }
@@ -759,8 +753,6 @@ abstract class EditorUiViewModel(
     private fun enablePreviewMode() {
         _isPreviewMode.update { true }
         setBottomSheetContent { null }
-        engine.editor.setGlobalScope(Scope.EditorSelect, GlobalScope.DENY)
-        engine.editor.setRoleButPreserveGlobalScopes("Creator")
         enterPreviewMode()
         zoom(defaultInsets.copy(bottom = PAGE_MARGIN))
     }
@@ -812,10 +804,6 @@ abstract class EditorUiViewModel(
     abstract fun enterEditMode()
 
     open fun preEnterPreviewMode() {}
-
-    open fun setSettings() {
-        setSettingsForEditorUi(engine, baseUri)
-    }
 
     abstract fun enterPreviewMode()
 

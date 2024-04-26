@@ -667,7 +667,7 @@ enum class EffectAndBlurOptions(
             ValueOptions.Float(
                 range = 0F..1F,
                 step = 0.01F,
-                defaultValue = 4F,
+                defaultValue = 0.4F,
             ),
     ),
     RECOLOR_BRIGHTNESS_MATCH(
@@ -711,7 +711,7 @@ enum class EffectAndBlurOptions(
             ValueOptions.Float(
                 range = 0F..1F,
                 step = 0.01F,
-                defaultValue = 4F,
+                defaultValue = 0.4F,
             ),
     ),
     GREEN_SCREEN_SMOOTHNESS(

@@ -14,11 +14,11 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ly.img.editor.core.ui.iconpack.Check
 import ly.img.editor.core.ui.iconpack.IconPack
+import ly.img.editor.core.ui.library.data.font.FontData
+import ly.img.editor.core.ui.utils.fontFamily
 import ly.img.editor.core.ui.utils.ifTrue
 
 @Composable
@@ -26,14 +26,15 @@ fun CheckedTextRow(
     isChecked: Boolean,
     text: String,
     icon: ImageVector? = null,
-    fontWeight: FontWeight? = null,
-    fontFamily: FontFamily? = null,
-    onClick: () -> Unit,
+    fontData: FontData? = null,
+    onClick: (() -> Unit)? = null,
 ) {
     Row(
         Modifier
             .ifTrue(isChecked) { background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)) }
-            .clickable { onClick() }
+            .ifTrue(onClick != null) {
+                clickable { onClick?.invoke() }
+            }
             .heightIn(min = 56.dp) // to ensure the UI doesn't jump around when the check is toggled
             .padding(vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -51,14 +52,9 @@ fun CheckedTextRow(
             Text(
                 text = text,
                 style =
-                    if (fontWeight == null && fontFamily == null) {
-                        MaterialTheme.typography.bodyLarge
-                    } else {
-                        MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = fontWeight,
-                            fontFamily = fontFamily,
-                        )
-                    },
+                    MaterialTheme.typography.bodyLarge.copy(
+                        fontFamily = fontData?.fontFamily,
+                    ),
                 modifier =
                     Modifier
                         .weight(1f)

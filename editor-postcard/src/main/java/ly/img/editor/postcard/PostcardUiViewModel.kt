@@ -19,11 +19,9 @@ import ly.img.editor.base.engine.zoomToScene
 import ly.img.editor.base.ui.EditorUiViewModel
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.event.EditorEventHandler
-import ly.img.editor.core.ui.engine.FONT_BASE_PATH
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.deselectAllBlocks
 import ly.img.editor.core.ui.engine.overrideAndRestore
-import ly.img.editor.core.ui.library.data.font.FontData
 import ly.img.editor.postcard.bottomsheet.message_color.MessageColorBottomSheetContent
 import ly.img.editor.postcard.bottomsheet.message_font.MessageFontBottomSheetContent
 import ly.img.editor.postcard.bottomsheet.message_font.createMessageFontUiState
@@ -41,7 +39,7 @@ import ly.img.editor.postcard.util.requirePinnedBlock
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
 import ly.img.engine.FillType
-import ly.img.engine.GlobalScope
+import ly.img.engine.Typeface
 
 class PostcardUiViewModel(
     baseUri: Uri,
@@ -82,7 +80,7 @@ class PostcardUiViewModel(
                     is PostcardEvent.OnRootBarItemClick -> onRootBarItemClick(event.itemType)
                     is PostcardEvent.OnChangeMessageSize -> onChangeMessageSize(event.messageSize)
                     is PostcardEvent.OnChangeMessageColor -> onChangeMessageColor(event.color)
-                    is PostcardEvent.OnChangeMessageFont -> onChangeMessageFont(event.fontData)
+                    is PostcardEvent.OnChangeFont -> onChangeMessageFont(event.fontUri, event.typeface)
                     is PostcardEvent.OnChangeTemplateColor -> onChangeTemplateColor(event.name, event.color)
                 }
             }
@@ -97,11 +95,6 @@ class PostcardUiViewModel(
         } catch (ex: IllegalStateException) {
             checkNotNull(engine.getPinnedBlock())
         }
-    }
-
-    override fun setSettings() {
-        super.setSettings()
-        engine.editor.setGlobalScope(Scope.EditorAdd, GlobalScope.DEFER)
     }
 
     private fun onChangeTemplateColor(
@@ -162,11 +155,7 @@ class PostcardUiViewModel(
 
                 is MessageFontBottomSheetContent ->
                     MessageFontBottomSheetContent(
-                        createMessageFontUiState(
-                            engine.requirePinnedBlock(),
-                            engine,
-                            checkNotNull(assetsRepo.fontFamilies.value),
-                        ),
+                        createMessageFontUiState(designBlock = engine.requirePinnedBlock(), engine = engine),
                     )
 
                 is TemplateColorsBottomSheetContent -> {
@@ -214,11 +203,7 @@ class PostcardUiViewModel(
 
                 RootBarItemType.Font ->
                     MessageFontBottomSheetContent(
-                        createMessageFontUiState(
-                            engine.requirePinnedBlock(),
-                            engine,
-                            checkNotNull(assetsRepo.fontFamilies.value),
-                        ),
+                        createMessageFontUiState(designBlock = engine.requirePinnedBlock(), engine = engine),
                     )
 
                 RootBarItemType.Size -> MessageSizeBottomSheetContent(MessageSize.get(engine, engine.requirePinnedBlock()))
@@ -263,12 +248,21 @@ class PostcardUiViewModel(
         }
     }
 
-    private fun onChangeMessageFont(fontData: FontData) {
-        engine.block.setString(
-            engine.requirePinnedBlock(),
-            "text/fontFileUri",
-            Uri.parse("$FONT_BASE_PATH/${fontData.fontPath}").toString(),
-        )
+    private fun onChangeMessageFont(
+        fontUri: Uri,
+        typeface: Typeface,
+    ) {
+        val block = engine.requirePinnedBlock()
+        engine.overrideAndRestore(
+            designBlock = block,
+            "text/character",
+        ) {
+            engine.block.setFont(
+                block = block,
+                fontFileUri = fontUri,
+                typeface = typeface,
+            )
+        }
         engine.editor.addUndoStep()
     }
 }
