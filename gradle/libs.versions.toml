@@ -1,13 +1,13 @@
 [versions]
-androidMinSdk = "23"
+androidMinSdk = "24"
 androidCompileSdk = "34"
 androidTargetSdk = "34"
 kotlinCompilerExtension = "1.5.3"
 camera = "1.3.0-rc01"
-engine = "1.25.0"
+engine = "1.26.0"
 buildConfig = "5.3.5"
 dropshots = "0.4.1"
-gradleAndroid = "8.1.2"
+gradleAndroid = "8.3.2"
 googleServices = "4.3.15"
 
 [libraries]

@@ -50,6 +50,13 @@ open class AssetSourceType(val sourceId: String) {
         }
 
         /**
+         * The default source type for typeface.
+         */
+        val Typeface by lazy {
+            AssetSourceType(sourceId = "ly.img.typeface")
+        }
+
+        /**
          * The default source type for image uploads.
          */
         val ImageUploads by lazy {

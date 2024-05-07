@@ -1,6 +1,5 @@
 package ly.img.editor.base.engine
 
-import ly.img.editor.core.ui.engine.Scope
 import ly.img.engine.BlockApi
 import ly.img.engine.BlurType
 import ly.img.engine.DesignBlock
@@ -35,11 +34,10 @@ fun BlockApi.setFillType(
         oldFill
     } else {
         val newFill = this.createFill(fillType)
-        this.setFill(designBlock, newFill)
         if (oldFill != null) {
-            this.setScopeEnabled(oldFill, Scope.LifecycleDestroy, true)
             this.destroy(oldFill)
         }
+        this.setFill(designBlock, newFill)
         newFill
     }
 }
@@ -65,7 +63,6 @@ fun BlockApi.setBlurType(
             val newBlur = this.createBlur(type)
             this.setBlur(designBlock, newBlur)
             if (oldBlur != null) {
-                this.setScopeEnabled(oldBlur, Scope.LifecycleDestroy, true)
                 this.destroy(oldBlur)
             }
             newBlur

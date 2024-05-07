@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ly.img.editor.base.engine.LayoutAxis
 import ly.img.editor.base.engine.resetHistory
-import ly.img.editor.base.engine.setRoleButPreserveGlobalScopes
 import ly.img.editor.base.engine.showAllPages
 import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.engine.zoomToPage
@@ -18,7 +17,6 @@ import ly.img.editor.base.ui.EditorUiViewModel
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.ui.engine.deselectAllBlocks
 import ly.img.engine.Engine
-import ly.img.engine.GlobalScope
 
 class DesignUiViewModel(
     baseUri: Uri,

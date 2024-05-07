@@ -25,6 +25,7 @@ import ly.img.editor.base.R
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.data.TextAssetSource
+import ly.img.editor.core.library.data.TypefaceProvider
 import ly.img.editor.core.ui.iconpack.Cloudalertoutline
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.WifiCancel
@@ -59,10 +60,12 @@ object EditorDefaults {
         if (engine.scene.get() == null) {
             engine.scene.load(sceneUri)
         }
-        engine.asset.addSource(TextAssetSource(engine))
         launch {
             val baseUri = Uri.parse("https://cdn.img.ly/assets/v3")
             engine.addDefaultAssetSources(baseUri = baseUri)
+            val defaultTypeface = TypefaceProvider().provideTypeface(engine, "Roboto")
+            requireNotNull(defaultTypeface)
+            engine.asset.addSource(TextAssetSource(engine, defaultTypeface))
         }
         launch {
             engine.addDemoAssetSources(

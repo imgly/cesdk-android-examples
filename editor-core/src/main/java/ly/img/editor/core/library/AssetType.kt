@@ -11,6 +11,7 @@ enum class AssetType {
     Shape,
     Sticker,
     Text,
+    Typeface,
     Filter,
     Effect,
     Blur,

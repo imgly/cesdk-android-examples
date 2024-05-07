@@ -3,6 +3,7 @@ package ly.img.editor.showcase
 import android.app.Application
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
+import buffers
 import colors
 import createSceneFromImageBlob
 import createSceneFromImageURL
@@ -127,6 +128,9 @@ class GuidesTest {
 
     @Test
     fun testEditVideo() = runGuide(::editVideo)
+
+    @Test
+    fun testBuffers() = runGuide(::buffers)
 
     private fun runGuide(block: (String, String) -> Job) =
         runBlocking {

@@ -54,6 +54,7 @@ import ly.img.editor.base.engine.showOutline
 import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.engine.zoomToPage
 import ly.img.editor.base.engine.zoomToSelectedText
+import ly.img.editor.base.migration.EditorMigrationHelper
 import ly.img.editor.base.ui.handler.appearanceEvents
 import ly.img.editor.base.ui.handler.blockEvents
 import ly.img.editor.base.ui.handler.blockFillEvents
@@ -93,8 +94,8 @@ abstract class EditorUiViewModel(
     protected val colorPalette: List<Color> = fillAndStrokeColors,
     private val scrollablePreview: Boolean = false,
 ) : ViewModel(), EditorEventHandler {
+    private val migrationHelper = EditorMigrationHelper()
     val engine = Environment.getEngine()
-    protected val assetsRepo = Environment.getAssetsRepo()
 
     private var firstLoad = true
     private var defaultInsets = Rect.Zero
@@ -162,7 +163,6 @@ abstract class EditorUiViewModel(
             textBlockEvents(
                 engine = ::engine,
                 block = ::getBlockForEvents,
-                fontFamilyMap = { checkNotNull(assetsRepo.fontFamilies.value) },
             )
             strokeEvents(
                 engine = ::engine,
@@ -278,7 +278,7 @@ abstract class EditorUiViewModel(
 
                 is FormatBottomSheetContent ->
                     FormatBottomSheetContent(
-                        createFormatUiState(designBlock, engine, checkNotNull(assetsRepo.fontFamilies.value)),
+                        createFormatUiState(designBlock, engine),
                     )
 
                 is CropBottomSheetContent -> {
@@ -353,8 +353,7 @@ abstract class EditorUiViewModel(
             setSettings()
             viewModelScope.launch {
                 runCatching {
-                    // Temporary invocation before fonts move to the asset source
-                    assetsRepo.loadFonts(basePath = baseUri.toString())
+                    migrationHelper.migrate()
                     onCreate(engine, this@EditorUiViewModel)
                     val scene = requireNotNull(engine.scene.get()) { "onCreate body must contain scene creation." }
                     engine.addOutline(scene, engine.getPage(pageIndex.value))
@@ -563,7 +562,7 @@ abstract class EditorUiViewModel(
 
                 OptionType.Format ->
                     FormatBottomSheetContent(
-                        createFormatUiState(designBlock, engine, checkNotNull(assetsRepo.fontFamilies.value)),
+                        createFormatUiState(designBlock, engine),
                     )
 
                 OptionType.ShapeOptions ->
@@ -619,7 +618,6 @@ abstract class EditorUiViewModel(
                 _isPreviewMode,
                 _isExporting,
                 _enableHistory,
-                assetsRepo.fontFamilies,
                 selectedBlock,
                 isKeyboardShowing,
             ).collect {

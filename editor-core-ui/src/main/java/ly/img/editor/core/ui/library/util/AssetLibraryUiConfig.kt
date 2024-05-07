@@ -48,7 +48,7 @@ internal object AssetLibraryUiConfig {
             AssetType.Image, AssetType.Video, AssetType.Gallery, AssetType.Filter,
             AssetType.Effect, AssetType.Blur,
             -> 3
-            AssetType.Audio, AssetType.Text -> 1
+            AssetType.Audio, AssetType.Text, AssetType.Typeface -> 1
             AssetType.Shape, AssetType.Sticker -> 4
         }
 

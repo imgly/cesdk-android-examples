@@ -3,59 +3,58 @@ package ly.img.editor.base.ui.handler
 import android.net.Uri
 import ly.img.editor.base.dock.options.format.HorizontalAlignment
 import ly.img.editor.base.dock.options.format.VerticalAlignment
-import ly.img.editor.base.ui.BlockEvent.*
+import ly.img.editor.base.ui.BlockEvent.OnBoldToggle
+import ly.img.editor.base.ui.BlockEvent.OnChangeFont
+import ly.img.editor.base.ui.BlockEvent.OnChangeFontSize
+import ly.img.editor.base.ui.BlockEvent.OnChangeHorizontalAlignment
+import ly.img.editor.base.ui.BlockEvent.OnChangeLetterSpacing
+import ly.img.editor.base.ui.BlockEvent.OnChangeLineHeight
+import ly.img.editor.base.ui.BlockEvent.OnChangeLineWidth
+import ly.img.editor.base.ui.BlockEvent.OnChangeSizeMode
+import ly.img.editor.base.ui.BlockEvent.OnChangeVerticalAlignment
+import ly.img.editor.base.ui.BlockEvent.OnItalicToggle
 import ly.img.editor.core.ui.EventsHandler
-import ly.img.editor.core.ui.engine.FONT_BASE_PATH
 import ly.img.editor.core.ui.inject
-import ly.img.editor.core.ui.library.data.font.FontData
-import ly.img.editor.core.ui.library.data.font.FontFamilyData
 import ly.img.editor.core.ui.register
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
 import ly.img.engine.SizeMode
+import ly.img.engine.Typeface
 
 /**
  * Register all events related to text block.
  * @param engine Lambda returning the engine instance
  * @param block Lambda returning the block instance
- * @param fontFamilyMap Lambda returning the font family map
  */
 @Suppress("NAME_SHADOWING")
 fun EventsHandler.textBlockEvents(
     engine: () -> Engine,
     block: () -> DesignBlock,
-    fontFamilyMap: () -> Map<String, FontFamilyData>,
 ) {
     // Inject the dependencies
     val engine by inject(engine)
     val block by inject(block)
-    val fontFamilyMap by inject(fontFamilyMap)
 
-    fun onChangeFont(font: FontData) {
-        engine.block.setString(
-            block,
-            "text/fontFileUri",
-            Uri.parse("$FONT_BASE_PATH/${font.fontPath}").toString(),
+    fun onChangeFont(
+        fontUri: Uri,
+        typeface: Typeface,
+    ) {
+        engine.block.setFont(
+            block = block,
+            fontFileUri = fontUri,
+            typeface = typeface,
         )
         engine.editor.addUndoStep()
     }
 
-    fun onChangeFontStyle(
-        fontFamily: String,
-        bold: Boolean? = null,
-        italicize: Boolean? = null,
-    ) {
-        val fontFamilyData = checkNotNull(fontFamilyMap[fontFamily])
-        val currentFontData =
-            requireNotNull(
-                fontFamilyData.getFontData(engine.block.getString(block, "text/fontFileUri")),
-            )
-        val font =
-            fontFamilyData.getFontData(
-                bold ?: currentFontData.isBold(),
-                italicize ?: currentFontData.isItalic(),
-            )
-        onChangeFont(font)
+    fun onBoldToggle() {
+        engine.block.toggleBoldFont(block = block)
+        engine.editor.addUndoStep()
+    }
+
+    fun onItalicToggle() {
+        engine.block.toggleItalicFont(block = block)
+        engine.editor.addUndoStep()
     }
 
     register<OnChangeLineWidth> {
@@ -68,16 +67,16 @@ fun EventsHandler.textBlockEvents(
         engine.block.setHeight(block, it.width)
     }
 
-    register<OnBold> {
-        onChangeFontStyle(it.fontFamily, bold = it.bold)
+    register<OnBoldToggle> {
+        onBoldToggle()
     }
 
-    register<OnItalicize> {
-        onChangeFontStyle(it.fontFamily, bold = it.italicize)
+    register<OnItalicToggle> {
+        onItalicToggle()
     }
 
     register<OnChangeFont> {
-        onChangeFont(it.font)
+        onChangeFont(it.fontUri, it.typeface)
     }
 
     register<OnChangeFontSize> {

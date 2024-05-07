@@ -13,8 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ly.img.editor.compose.foundation.combinedClickable
@@ -24,6 +22,7 @@ import ly.img.editor.core.ui.iconpack.Add
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.library.getMeta
 import ly.img.editor.core.ui.library.state.WrappedAsset
+import ly.img.editor.core.ui.utils.fontFamily
 
 @Composable
 internal fun TextAssetContent(
@@ -41,10 +40,9 @@ internal fun TextAssetContent(
         headlineContent = {
             Text(
                 text = wrappedAsset.asset.label ?: "",
-                fontFamily = wrappedAsset.fontFamily.fontFamily,
-                fontWeight = FontWeight(requireNotNull(wrappedAsset.asset.getMeta("fontWeight", "")).toInt()),
+                fontFamily = wrappedAsset.fontData?.fontFamily,
+                fontWeight = wrappedAsset.fontData?.weight,
                 fontSize = requireNotNull(wrappedAsset.asset.getMeta("fontSize", "")).toInt().sp,
-                fontStyle = FontStyle.Normal,
                 modifier = Modifier.padding(horizontal = 16.dp),
             )
         },

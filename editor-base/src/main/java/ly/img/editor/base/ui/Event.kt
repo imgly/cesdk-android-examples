@@ -1,5 +1,6 @@
 package ly.img.editor.base.ui
 
+import android.net.Uri
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import ly.img.editor.base.dock.OptionType
@@ -9,12 +10,12 @@ import ly.img.editor.base.engine.AdjustmentState
 import ly.img.editor.base.engine.EffectAndBlurOptions
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.ui.BaseEvent
-import ly.img.editor.core.ui.library.data.font.FontData
 import ly.img.engine.Asset
 import ly.img.engine.BlendMode
 import ly.img.engine.BlurType
 import ly.img.engine.DesignBlock
 import ly.img.engine.EffectType
+import ly.img.engine.Typeface
 
 /**
  * To communicate events from the UI to the ViewModel.
@@ -135,15 +136,15 @@ interface BlockEvent : Event {
 
     data class OnChangeSizeMode(val sizeMode: String) : BlockEvent
 
-    data class OnBold(val fontFamily: String, val bold: Boolean) : BlockEvent
+    data object OnBoldToggle : BlockEvent
 
-    data class OnItalicize(val fontFamily: String, val italicize: Boolean) : BlockEvent
+    data object OnItalicToggle : BlockEvent
 
     data class OnChangeHorizontalAlignment(val alignment: HorizontalAlignment) : BlockEvent
 
     data class OnChangeVerticalAlignment(val alignment: VerticalAlignment) : BlockEvent
 
-    data class OnChangeFont(val font: FontData) : BlockEvent
+    data class OnChangeFont(val fontUri: Uri, val typeface: Typeface) : BlockEvent
 
     data class OnChangeFontSize(val fontSize: Float) : BlockEvent
     // endregion

@@ -2,7 +2,7 @@ package ly.img.editor.core.ui.library.state
 
 import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.library.data.AssetSourceType
-import ly.img.editor.core.ui.library.data.font.FontFamilyData
+import ly.img.editor.core.ui.library.data.font.FontData
 import ly.img.engine.Asset
 
 sealed interface WrappedAsset {
@@ -20,6 +20,6 @@ sealed interface WrappedAsset {
         override val asset: Asset,
         override val assetSourceType: AssetSourceType,
         override val assetType: AssetType,
-        val fontFamily: FontFamilyData,
+        val fontData: FontData?,
     ) : WrappedAsset
 }

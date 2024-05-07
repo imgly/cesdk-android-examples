@@ -86,13 +86,11 @@ fun FormatOptionsSheet(
                             ) {
                                 Row {
                                     ToggleIconButton(
-                                        checked = uiState.isBold ?: false,
+                                        checked = uiState.isBold,
                                         onCheckedChange = {
-                                            onEvent(
-                                                BlockEvent.OnBold(uiState.fontFamily, it),
-                                            )
+                                            onEvent(BlockEvent.OnBoldToggle)
                                         },
-                                        enabled = uiState.isBold != null,
+                                        enabled = uiState.canToggleBold,
                                     ) {
                                         Icon(
                                             IconPack.Formatbold,
@@ -100,13 +98,11 @@ fun FormatOptionsSheet(
                                         )
                                     }
                                     ToggleIconButton(
-                                        checked = uiState.isItalic ?: false,
+                                        checked = uiState.isItalic,
                                         onCheckedChange = {
-                                            onEvent(
-                                                BlockEvent.OnItalicize(uiState.fontFamily, it),
-                                            )
+                                            onEvent(BlockEvent.OnItalicToggle)
                                         },
-                                        enabled = uiState.isItalic != null,
+                                        enabled = uiState.canToggleItalic,
                                     ) {
                                         Icon(
                                             IconPack.Formatitalic,
@@ -160,9 +156,12 @@ fun FormatOptionsSheet(
                         onClose = { onEvent(Event.OnHideSheet) },
                     )
                     FontListUi(
+                        libraryCategory = uiState.libraryCategory,
                         fontFamily = uiState.fontFamily,
-                        fontFamilies = uiState.fontFamilies,
-                        onSelectFont = { onEvent(BlockEvent.OnChangeFont(it)) },
+                        filter = emptyList(),
+                        onSelectFont = { fontUri, typeface ->
+                            onEvent(BlockEvent.OnChangeFont(fontUri, typeface))
+                        },
                     )
                 }
             }
