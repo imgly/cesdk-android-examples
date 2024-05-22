@@ -17,6 +17,7 @@ import ly.img.editor.base.ui.EditorUiViewModel
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.ui.engine.deselectAllBlocks
 import ly.img.engine.Engine
+import ly.img.engine.GlobalScope
 
 class DesignUiViewModel(
     baseUri: Uri,
@@ -48,12 +49,16 @@ class DesignUiViewModel(
         )
 
     override fun enterEditMode() {
+        engine.editor.setRole("Adopter")
+        engine.editor.setGlobalScope("editor/select", GlobalScope.DEFER)
         engine.showPage(pageIndex.value)
     }
 
     override fun preEnterPreviewMode() {
         super.preEnterPreviewMode()
         engine.deselectAllBlocks()
+        engine.editor.setRole("Creator")
+        engine.editor.setGlobalScope("editor/select", GlobalScope.DENY)
         showAllPages()
     }
 

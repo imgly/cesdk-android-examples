@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "ly.img.editor.showcase"
-        minSdk 24
+        minSdk 23
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -32,7 +32,7 @@ android {
 
 dependencies {
     // highlight-dependency
-    implementation "ly.img:engine:1.27.0"
+    implementation "ly.img:engine:1.26.1"
     // highlight-dependency
     implementation "androidx.appcompat:appcompat:1.6.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
