@@ -34,10 +34,10 @@ fun BlockApi.setFillType(
         oldFill
     } else {
         val newFill = this.createFill(fillType)
+        this.setFill(designBlock, newFill)
         if (oldFill != null) {
             this.destroy(oldFill)
         }
-        this.setFill(designBlock, newFill)
         newFill
     }
 }

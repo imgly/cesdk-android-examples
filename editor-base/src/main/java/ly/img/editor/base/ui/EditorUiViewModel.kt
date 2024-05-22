@@ -49,7 +49,6 @@ import ly.img.editor.base.engine.TRANSFORM_EDIT_MODE
 import ly.img.editor.base.engine.addOutline
 import ly.img.editor.base.engine.isPlaceholder
 import ly.img.editor.base.engine.resetHistory
-import ly.img.editor.base.engine.setRoleButPreserveGlobalScopes
 import ly.img.editor.base.engine.showOutline
 import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.engine.zoomToPage
@@ -78,7 +77,6 @@ import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.editor.core.ui.library.AppearanceLibraryCategory
 import ly.img.editor.core.ui.register
 import ly.img.engine.Engine
-import ly.img.engine.GlobalScope
 import ly.img.engine.UnstableEngineApi
 import kotlin.math.abs
 
@@ -350,7 +348,7 @@ abstract class EditorUiViewModel(
                 enableEditMode()
             }
         } else {
-            setSettings()
+            setSettingsForEditorUi(engine, baseUri)
             viewModelScope.launch {
                 runCatching {
                     migrationHelper.migrate()
@@ -748,8 +746,6 @@ abstract class EditorUiViewModel(
 
     private fun enableEditMode(): Job {
         _isPreviewMode.update { false }
-        engine.editor.setGlobalScope(Scope.EditorSelect, GlobalScope.DEFER)
-        engine.editor.setRoleButPreserveGlobalScopes("Adopter")
         enterEditMode()
         return zoom(zoomToPage = true)
     }
@@ -757,8 +753,6 @@ abstract class EditorUiViewModel(
     private fun enablePreviewMode() {
         _isPreviewMode.update { true }
         setBottomSheetContent { null }
-        engine.editor.setGlobalScope(Scope.EditorSelect, GlobalScope.DENY)
-        engine.editor.setRoleButPreserveGlobalScopes("Creator")
         enterPreviewMode()
         zoom(defaultInsets.copy(bottom = PAGE_MARGIN))
     }
@@ -810,10 +804,6 @@ abstract class EditorUiViewModel(
     abstract fun enterEditMode()
 
     open fun preEnterPreviewMode() {}
-
-    open fun setSettings() {
-        setSettingsForEditorUi(engine, baseUri)
-    }
 
     abstract fun enterPreviewMode()
 
