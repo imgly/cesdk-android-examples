@@ -24,7 +24,7 @@ fun saveSceneToArchive(
 
     // highlight-create-form-data
     withContext(Dispatchers.IO) {
-        val connection = URL("https://upload.com").openConnection() as HttpURLConnection
+        val connection = URL("https://example.com/upload/").openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.doOutput = true
         connection.outputStream.use { it.write(blob) }
