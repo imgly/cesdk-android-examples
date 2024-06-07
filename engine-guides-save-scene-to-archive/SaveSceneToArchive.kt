@@ -3,6 +3,7 @@ import kotlinx.coroutines.*
 import ly.img.engine.*
 import java.net.HttpURLConnection
 import java.net.URL
+import java.nio.channels.Channels
 
 fun saveSceneToArchive(
     license: String,
@@ -27,7 +28,7 @@ fun saveSceneToArchive(
         val connection = URL("https://example.com/upload/").openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.doOutput = true
-        connection.outputStream.use { it.write(blob) }
+        connection.outputStream.use { Channels.newChannel(it).write(blob) }
         connection.connect()
     }
     // highlight-create-form-data

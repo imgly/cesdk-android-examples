@@ -6,10 +6,13 @@ import ly.img.editor.base.dock.options.fillstroke.FillStrokeUiState
 import ly.img.editor.base.dock.options.format.FormatUiState
 import ly.img.editor.base.dock.options.layer.LayerUiState
 import ly.img.editor.base.dock.options.shapeoptions.ShapeOptionsUiState
+import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.ui.engine.BlockType
 import ly.img.engine.DesignBlock
 
 interface BottomSheetContent {
+    fun isInitialExpandHalf(): Boolean = false
+
     fun getType(): String {
         return javaClass.name
     }
@@ -17,10 +20,18 @@ interface BottomSheetContent {
 
 object LibraryBottomSheetContent : BottomSheetContent
 
+class LibraryCategoryBottomSheetContent(
+    val libraryCategory: LibraryCategory,
+) : BottomSheetContent {
+    override fun isInitialExpandHalf(): Boolean = libraryCategory.isHalfExpandedInitially
+}
+
 class ReplaceBottomSheetContent(
     val designBlock: DesignBlock,
     val blockType: BlockType,
-) : BottomSheetContent
+) : BottomSheetContent {
+    override fun isInitialExpandHalf(): Boolean = true
+}
 
 class LayerBottomSheetContent(val uiState: LayerUiState) : BottomSheetContent
 

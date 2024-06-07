@@ -1,5 +1,6 @@
 package ly.img.editor.base.ui
 
+import ly.img.editor.base.rootdock.RootDockItemData
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetState
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
 
@@ -14,4 +15,5 @@ data class EditorUiViewState(
     val isCanvasVisible: Boolean = false,
     val bottomSheetState: ModalBottomSheetState = ModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
     val pageCount: Int = 0,
+    val rootDockItems: List<RootDockItemData> = emptyList(),
 )

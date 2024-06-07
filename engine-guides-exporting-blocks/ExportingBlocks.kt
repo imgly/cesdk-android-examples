@@ -34,7 +34,7 @@ fun exportingBlocks(
     // Save the blob to file
     withContext(Dispatchers.IO) {
         File.createTempFile(UUID.randomUUID().toString(), ".png").apply {
-            outputStream().use { it.write(blob) }
+            outputStream().channel.write(blob)
         }
     }
 

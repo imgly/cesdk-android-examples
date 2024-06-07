@@ -35,6 +35,7 @@ import ly.img.engine.MimeType
 import ly.img.engine.addDefaultAssetSources
 import ly.img.engine.addDemoAssetSources
 import java.io.File
+import java.nio.ByteBuffer
 import java.util.UUID
 
 /**
@@ -80,22 +81,24 @@ object EditorDefaults {
     }
 
     /**
-     * A helper function that writes [byteArray] into a temporary file. This can be helpful in the [EngineConfiguration.onExport]
+     * A helper function that writes [byteBuffer] into a temporary file. This can be helpful in the [EngineConfiguration.onExport]
      * callback.
      *
-     * @param byteArray the data that should be written in the temporary file.
+     * @param byteBuffer the data that should be written in the temporary file.
      * @param mimeType the mime type of the file. Note that it is used to derive the extension of the newly created file.
-     * @return a temporary file with the content of [byteArray]
+     * @return a temporary file with the content of [byteBuffer]
      */
     suspend fun writeToTempFile(
-        byteArray: ByteArray,
+        byteBuffer: ByteBuffer,
         mimeType: MimeType = MimeType.PDF,
     ): File =
         withContext(Dispatchers.IO) {
             val extension = mimeType.key.split("/").last()
-            File.createTempFile(UUID.randomUUID().toString(), ".$extension").apply {
-                writeBytes(byteArray)
-            }
+            File
+                .createTempFile(UUID.randomUUID().toString(), ".$extension")
+                .apply {
+                    outputStream().channel.write(byteBuffer)
+                }
         }
 
     /**

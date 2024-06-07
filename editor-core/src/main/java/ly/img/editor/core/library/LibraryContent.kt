@@ -151,13 +151,13 @@ sealed interface LibraryContent {
                 sections =
                     listOf(
                         Section(
-                            titleRes = R.string.ly_img_editor_image_uploads,
-                            sourceTypes = listOf(AssetSourceType.ImageUploads),
+                            titleRes = R.string.ly_img_editor_images,
+                            sourceTypes = listOf(AssetSourceType.Images),
                             assetType = AssetType.Image,
                         ),
                         Section(
-                            titleRes = R.string.ly_img_editor_images,
-                            sourceTypes = listOf(AssetSourceType.Images),
+                            titleRes = R.string.ly_img_editor_gallery,
+                            sourceTypes = listOf(AssetSourceType.ImageUploads),
                             assetType = AssetType.Image,
                         ),
                     ),

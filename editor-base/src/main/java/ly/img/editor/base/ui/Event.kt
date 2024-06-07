@@ -8,6 +8,7 @@ import ly.img.editor.base.dock.options.format.HorizontalAlignment
 import ly.img.editor.base.dock.options.format.VerticalAlignment
 import ly.img.editor.base.engine.AdjustmentState
 import ly.img.editor.base.engine.EffectAndBlurOptions
+import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.ui.BaseEvent
 import ly.img.engine.Asset
@@ -38,6 +39,8 @@ interface Event : BaseEvent {
     data class OnOptionClick(val optionType: OptionType) : Event
 
     object OnAddLibraryClick : Event
+
+    data class OnAddLibraryCategoryClick(val libraryCategory: LibraryCategory) : Event
 
     object OnKeyboardClose : Event
 

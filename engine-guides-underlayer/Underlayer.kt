@@ -46,7 +46,7 @@ fun underlayer(
     val blob = engine.block.export(scene, mimeType = mimeType, options = options)
     withContext(Dispatchers.IO) {
         File.createTempFile("underlayer_example", ".pdf").apply {
-            outputStream().use { it.write(blob) }
+            outputStream().channel.write(blob)
         }
     }
     // highlight-export-pdf-underlayer
