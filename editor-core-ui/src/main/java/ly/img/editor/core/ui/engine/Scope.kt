@@ -2,6 +2,7 @@ package ly.img.editor.core.ui.engine
 
 object Scope {
     const val FillChange = "fill/change"
+    const val FillChangeType = "fill/changeType"
     const val StrokeChange = "stroke/change"
     const val ShapeChange = "shape/change"
 

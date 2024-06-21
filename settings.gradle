@@ -24,6 +24,7 @@ include ':editor-base'
 include ':editor-apparel'
 include ':editor-postcard'
 include ':editor-design'
+include ':editor-photo'
 include ':editor'
 
 // Internal use only

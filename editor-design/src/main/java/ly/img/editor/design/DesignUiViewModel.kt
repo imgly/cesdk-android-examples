@@ -17,9 +17,11 @@ import ly.img.editor.base.engine.zoomToPage
 import ly.img.editor.base.rootdock.RootDockItemActionType
 import ly.img.editor.base.rootdock.RootDockItemData
 import ly.img.editor.base.ui.EditorUiViewModel
+import ly.img.editor.base.ui.Event
 import ly.img.editor.core.R
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.AssetLibrary
+import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.ui.engine.deselectAllBlocks
 import ly.img.editor.core.ui.iconpack.Addcameraforegound
 import ly.img.editor.core.ui.iconpack.Addgalleryforeground
@@ -62,9 +64,12 @@ class DesignUiViewModel(
         )
 
     override fun getRootDockItems(assetLibrary: AssetLibrary): List<RootDockItemData> {
+        fun getType(libraryCategory: LibraryCategory): RootDockItemActionType {
+            return RootDockItemActionType.OnEvent(Event.OnAddLibraryCategoryClick(libraryCategory))
+        }
         return listOf(
             RootDockItemData(
-                type = RootDockItemActionType.OpenLibraryCategory(assetLibrary.elements(SceneMode.DESIGN)),
+                type = getType(assetLibrary.elements(SceneMode.DESIGN)),
                 labelStringRes = R.string.ly_img_editor_elements,
                 icon = VectorIcon(IconPack.Elements),
             ),
@@ -79,22 +84,22 @@ class DesignUiViewModel(
                 icon = VectorIcon(IconPack.Addcameraforegound),
             ),
             RootDockItemData(
-                type = RootDockItemActionType.OpenLibraryCategory(assetLibrary.images(SceneMode.DESIGN)),
+                type = getType(assetLibrary.images(SceneMode.DESIGN)),
                 labelStringRes = R.string.ly_img_editor_image,
                 icon = VectorIcon(IconPack.Addimageforeground),
             ),
             RootDockItemData(
-                type = RootDockItemActionType.OpenLibraryCategory(assetLibrary.text(SceneMode.DESIGN)),
+                type = getType(assetLibrary.text(SceneMode.DESIGN)),
                 labelStringRes = R.string.ly_img_editor_text,
                 icon = VectorIcon(IconPack.Addtext),
             ),
             RootDockItemData(
-                type = RootDockItemActionType.OpenLibraryCategory(assetLibrary.shapes(SceneMode.DESIGN)),
+                type = getType(assetLibrary.shapes(SceneMode.DESIGN)),
                 labelStringRes = R.string.ly_img_editor_shape,
                 icon = VectorIcon(IconPack.Addshape),
             ),
             RootDockItemData(
-                type = RootDockItemActionType.OpenLibraryCategory(assetLibrary.stickers(SceneMode.DESIGN)),
+                type = getType(assetLibrary.stickers(SceneMode.DESIGN)),
                 labelStringRes = R.string.ly_img_editor_sticker,
                 icon = VectorIcon(IconPack.Addsticker),
             ),

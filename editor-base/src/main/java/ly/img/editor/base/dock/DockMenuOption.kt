@@ -12,5 +12,6 @@ fun DockMenuOption(
         onClick = { onClick(data.optionType) },
         textRes = data.labelStringRes,
         icon = data.icon,
+        textColor = data.textColor,
     )
 }

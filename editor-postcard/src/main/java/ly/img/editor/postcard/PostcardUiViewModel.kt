@@ -16,9 +16,11 @@ import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.engine.toComposeColor
 import ly.img.editor.base.engine.toEngineColor
 import ly.img.editor.base.engine.zoomToScene
+import ly.img.editor.base.ui.Block
 import ly.img.editor.base.ui.EditorUiViewModel
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.event.EditorEventHandler
+import ly.img.editor.core.ui.engine.BlockType
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.deselectAllBlocks
 import ly.img.editor.core.ui.engine.overrideAndRestore
@@ -34,9 +36,7 @@ import ly.img.editor.postcard.rootbar.rootBarItems
 import ly.img.editor.postcard.util.ColorType
 import ly.img.editor.postcard.util.SelectionColors
 import ly.img.editor.postcard.util.getPageSelectionColors
-import ly.img.editor.postcard.util.getPinnedBlock
 import ly.img.editor.postcard.util.requirePinnedBlock
-import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.GlobalScope
@@ -90,12 +90,11 @@ class PostcardUiViewModel(
         }
     }
 
-    override fun getBlockForEvents(): DesignBlock {
-        return try {
-            super.getBlockForEvents()
-        } catch (ex: IllegalStateException) {
-            checkNotNull(engine.getPinnedBlock())
-        }
+    override fun getBlockForEvents(): Block {
+        return super.getBlockForEvents() ?: Block(
+            designBlock = engine.requirePinnedBlock(),
+            type = BlockType.Text,
+        )
     }
 
     override fun setSettings() {

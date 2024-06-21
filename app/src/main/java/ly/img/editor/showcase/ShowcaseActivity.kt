@@ -14,6 +14,7 @@ import ly.img.editor.DesignEditor
 import ly.img.editor.EditorConfiguration
 import ly.img.editor.EditorDefaults
 import ly.img.editor.EngineConfiguration
+import ly.img.editor.PhotoEditor
 import ly.img.editor.PostcardEditor
 import ly.img.editor.core.library.AssetLibrary
 import ly.img.editor.core.library.AssetType
@@ -127,6 +128,20 @@ class ShowcaseActivity : ComponentActivity() {
                             ) { navController.popBackStack() }
                         }
                     }
+                    composable(
+                        route = Screen.PhotoUi.routeScheme,
+                    ) {
+                        val image = requireNotNull(it.arguments?.getString("0"))
+                        PhotoEditor(
+                            engineConfiguration =
+                                EngineConfiguration.getForPhoto(
+                                    license = Secrets.license,
+                                    imageUri = Uri.parse(image),
+                                ),
+                        ) {
+                            navController.popBackStack()
+                        }
+                    }
                 }
             }
         }
@@ -141,6 +156,8 @@ sealed class Screen(val routeScheme: String) {
     }
 
     data object Showcases : Screen("showcases")
+
+    data object PhotoUi : Screen("photo-ui?image={0}")
 
     data object DesignUi : Screen("design-ui?scene={0}")
 
