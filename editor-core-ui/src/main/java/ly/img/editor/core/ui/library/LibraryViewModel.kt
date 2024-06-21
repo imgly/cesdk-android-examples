@@ -66,7 +66,7 @@ import ly.img.engine.SceneMode
 import java.util.Stack
 import java.util.UUID
 
-internal class LibraryViewModel : ViewModel() {
+class LibraryViewModel : ViewModel() {
     private val imageLoader = Environment.getImageLoader()
     private val engine = Environment.getEngine()
     private val typefaceProvider = TypefaceProvider()

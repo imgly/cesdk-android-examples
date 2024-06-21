@@ -30,6 +30,7 @@ import ly.img.editor.base.dock.FillStrokeBottomSheetContent
 import ly.img.editor.base.dock.FormatBottomSheetContent
 import ly.img.editor.base.dock.LayerBottomSheetContent
 import ly.img.editor.base.dock.LibraryBottomSheetContent
+import ly.img.editor.base.dock.LibraryCategoryBottomSheetContent
 import ly.img.editor.base.dock.OptionType
 import ly.img.editor.base.dock.OptionsBottomSheetContent
 import ly.img.editor.base.dock.ReplaceBottomSheetContent
@@ -55,6 +56,7 @@ import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.engine.zoomToPage
 import ly.img.editor.base.engine.zoomToSelectedText
 import ly.img.editor.base.migration.EditorMigrationHelper
+import ly.img.editor.base.rootdock.RootDockItemData
 import ly.img.editor.base.ui.handler.appearanceEvents
 import ly.img.editor.base.ui.handler.blockEvents
 import ly.img.editor.base.ui.handler.blockFillEvents
@@ -65,6 +67,8 @@ import ly.img.editor.base.ui.handler.textBlockEvents
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.event.EditorEventHandler
+import ly.img.editor.core.library.AssetLibrary
+import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.ui.Environment
 import ly.img.editor.core.ui.EventsHandler
 import ly.img.editor.core.ui.engine.BlockType
@@ -191,6 +195,7 @@ abstract class EditorUiViewModel(
         register<Event.OnBack> { onBack() }
         register<Event.OnCloseDock> { engine.deselectAllBlocks() }
         register<Event.OnAddLibraryClick> { openLibrarySheet() }
+        register<Event.OnAddLibraryCategoryClick> { onAddLibraryCategoryClick(it.libraryCategory) }
         register<Event.OnExpandSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Expanded)) }
         register<Event.OnHideSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden)) }
         register<Event.OnExportClick> { exportScene() }
@@ -296,6 +301,8 @@ abstract class EditorUiViewModel(
         }
     }
 
+    protected open fun getRootDockItems(assetLibrary: AssetLibrary): List<RootDockItemData> = emptyList()
+
     open fun setPage(index: Int) {
         if (index == pageIndex.value) return
         pageIndex.update { index }
@@ -350,12 +357,12 @@ abstract class EditorUiViewModel(
                 enableEditMode()
             }
         } else {
-            setSettings()
             viewModelScope.launch {
                 runCatching {
                     migrationHelper.migrate()
                     onCreate(engine, this@EditorUiViewModel)
                     val scene = requireNotNull(engine.scene.get()) { "onCreate body must contain scene creation." }
+                    setSettings()
                     engine.addOutline(scene, engine.getPage(pageIndex.value))
                     engine.showOutline(false)
                     engine.showPage(pageIndex.value)
@@ -378,6 +385,10 @@ abstract class EditorUiViewModel(
 
     private fun openLibrarySheet() {
         setBottomSheetContent { LibraryBottomSheetContent }
+    }
+
+    private fun onAddLibraryCategoryClick(libraryCategory: LibraryCategory) {
+        setBottomSheetContent { LibraryCategoryBottomSheetContent(libraryCategory) }
     }
 
     private fun onBottomSheetHeightChange(heightInDp: Float) {
@@ -632,6 +643,12 @@ abstract class EditorUiViewModel(
                         selectedBlock = selectedBlock.value,
                         isEditingText = isKeyboardShowing.value,
                         pageCount = pageCount,
+                        rootDockItems =
+                            if (_isSceneLoaded.value) {
+                                getRootDockItems(requireNotNull(Environment.assetLibrary))
+                            } else {
+                                emptyList()
+                            },
                     )
                 }
             }

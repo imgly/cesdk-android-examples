@@ -8,6 +8,7 @@ import ly.img.editor.base.engine.isDuplicateAllowed
 import ly.img.editor.base.engine.isGrouped
 import ly.img.editor.base.engine.isMoveAllowed
 import ly.img.engine.DesignBlock
+import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 
 data class CanvasActionMenuUiState(
@@ -30,6 +31,7 @@ internal fun createCanvasActionMenuUiState(
     engine: Engine,
 ): CanvasActionMenuUiState? {
     if (engine.isGrouped(designBlock)) return null
+    if (engine.block.getType(designBlock) == DesignBlockType.Page.key) return null
     val isMoveAllowed = engine.isMoveAllowed(designBlock)
     val isDuplicateAllowed = engine.isDuplicateAllowed(designBlock)
     val isDeleteAllowed = engine.isDeleteAllowed(designBlock)

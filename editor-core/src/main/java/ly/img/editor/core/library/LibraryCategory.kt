@@ -27,12 +27,14 @@ import ly.img.engine.SceneMode
  * @param tabTitleRes string resource of the category's title that is displayed at the very top of the UI of [content].
  * @param tabSelectedIcon the icon to display when the category is displayed as a tab element and the tab is selected.
  * @param tabSelectedIcon the icon to display when the category is displayed as a tab element and the tab is not selected.
+ * @param isHalfExpandedInitially whether bottom sheet should open half expanded or fully expanded first.
  * @param content the content of the category. Check the documentation of [LibraryContent] for more information.
  */
 data class LibraryCategory(
     @StringRes val tabTitleRes: Int,
     val tabSelectedIcon: ImageVector,
     val tabUnselectedIcon: ImageVector,
+    val isHalfExpandedInitially: Boolean = false,
     val content: LibraryContent,
 ) {
     companion object {
@@ -194,6 +196,7 @@ data class LibraryCategory(
                 tabTitleRes = R.string.ly_img_editor_text,
                 tabSelectedIcon = IconPack.Textfields,
                 tabUnselectedIcon = IconPack.Textfields,
+                isHalfExpandedInitially = true,
                 content = LibraryContent.Text,
             )
         }

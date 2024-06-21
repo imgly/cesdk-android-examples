@@ -10,6 +10,7 @@ import createSceneFromImageURL
 import createSceneFromScratch
 import createSceneFromVideoURL
 import customAssetSource
+import customLUTFilter
 import cutouts
 import editVideo
 import exportingBlocks
@@ -131,6 +132,9 @@ class GuidesTest {
 
     @Test
     fun testBuffers() = runGuide(::buffers)
+
+    @Test
+    fun testCustomLUTFilter() = runGuide(::customLUTFilter)
 
     private fun runGuide(block: (String, String) -> Job) =
         runBlocking {

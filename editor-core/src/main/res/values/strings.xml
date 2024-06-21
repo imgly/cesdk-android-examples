@@ -6,6 +6,7 @@
     <string name="ly_img_editor_shape">Shape</string>
     <string name="ly_img_editor_sticker">Sticker</string>
     <string name="ly_img_editor_image">Image</string>
+    <string name="ly_img_editor_overlay">Overlay</string>
     <string name="ly_img_editor_text">Text</string>
     <string name="ly_img_editor_group">Group</string>
     <string name="ly_img_editor_page">Page</string>
@@ -21,6 +22,7 @@
     <string name="ly_img_editor_blur">Blur</string>
     <string name="ly_img_editor_images">Images</string>
     <string name="ly_img_editor_gallery">Gallery</string>
+    <string name="ly_img_editor_camera">Camera</string>
 
     <string name="ly_img_editor_image_uploads">Image Uploads</string>
     <string name="ly_img_editor_audio_uploads">Audio Uploads</string>

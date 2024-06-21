@@ -50,6 +50,7 @@ import ly.img.editor.base.dock.FillStrokeBottomSheetContent
 import ly.img.editor.base.dock.FormatBottomSheetContent
 import ly.img.editor.base.dock.LayerBottomSheetContent
 import ly.img.editor.base.dock.LibraryBottomSheetContent
+import ly.img.editor.base.dock.LibraryCategoryBottomSheetContent
 import ly.img.editor.base.dock.OptionsBottomSheetContent
 import ly.img.editor.base.dock.ReplaceBottomSheetContent
 import ly.img.editor.base.dock.options.adjustment.AdjustmentOptionsSheet
@@ -72,6 +73,7 @@ import ly.img.editor.core.theme.surface1
 import ly.img.editor.core.theme.surface2
 import ly.img.editor.core.ui.AnyComposable
 import ly.img.editor.core.ui.library.AddLibrarySheet
+import ly.img.editor.core.ui.library.AddLibraryTabsSheet
 import ly.img.editor.core.ui.library.ReplaceLibrarySheet
 import ly.img.editor.core.ui.utils.activity
 import ly.img.editor.core.ui.utils.toPx
@@ -105,7 +107,7 @@ fun EditorUi(
         val sheetState = uiState.bottomSheetState
         if (bottomSheetContent == null && sheetState.isVisible) sheetState.snapTo(ModalBottomSheetValue.Hidden)
         bottomSheetContent ?: return@LaunchedEffect
-        if (bottomSheetContent is ReplaceBottomSheetContent) {
+        if (bottomSheetContent?.isInitialExpandHalf() == true) {
             sheetState.halfExpand()
         } else {
             sheetState.expand()
@@ -243,8 +245,24 @@ fun EditorUi(
                         Spacer(Modifier.height(8.dp))
                         when (content) {
                             LibraryBottomSheetContent ->
-                                AddLibrarySheet(
+                                AddLibraryTabsSheet(
                                     swipeableState = uiState.bottomSheetState.swipeableState,
+                                    onClose = {
+                                        viewModel.onEvent(Event.OnHideSheet)
+                                    },
+                                    onCloseAssetDetails = {
+                                        viewModel.onEvent(Event.OnHideScrimSheet)
+                                    },
+                                    onSearchFocus = {
+                                        viewModel.onEvent(Event.OnExpandSheet)
+                                    },
+                                    showAnyComposable = {
+                                        showScrimBottomSheet(it)
+                                    },
+                                )
+                            is LibraryCategoryBottomSheetContent ->
+                                AddLibrarySheet(
+                                    libraryCategory = content.libraryCategory,
                                     onClose = {
                                         viewModel.onEvent(Event.OnHideSheet)
                                     },
@@ -311,7 +329,7 @@ fun EditorUi(
                         onTouch = { viewModel.onEvent(Event.OnCanvasTouch) },
                         loadScene = {
                             val topInsets = 64f // 64 for toolbar
-                            val bottomInsets = 132f // 132 for dock
+                            val bottomInsets = 84f // 84 for dock
                             val sideInsets = 0f
                             val insets =
                                 Rect(
@@ -347,14 +365,12 @@ fun EditorUi(
                             onClose = { viewModel.onEvent(Event.OnKeyboardClose) },
                         )
                     }
-                    uiState.selectedBlock?.let {
-                        Dock(
-                            selectedBlock = it,
-                            onClose = { viewModel.onEvent(Event.OnCloseDock) },
-                            onClick = { viewModel.onEvent(Event.OnOptionClick(it)) },
-                            modifier = Modifier.align(Alignment.BottomStart),
-                        )
-                    }
+                    Dock(
+                        selectedBlock = uiState.selectedBlock,
+                        modifier = Modifier.align(Alignment.BottomStart),
+                        onClose = { viewModel.onEvent(Event.OnCloseDock) },
+                        onClick = { viewModel.onEvent(Event.OnOptionClick(it)) },
+                    )
                 }
             }
         }

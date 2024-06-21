@@ -8,7 +8,7 @@ import ly.img.editor.core.ui.BaseEvent
 import ly.img.editor.core.ui.library.state.WrappedAsset
 import ly.img.engine.DesignBlock
 
-internal sealed interface LibraryEvent : BaseEvent {
+sealed interface LibraryEvent : BaseEvent {
     data class OnEnterSearchMode(val enter: Boolean, val libraryCategory: LibraryCategory) : LibraryEvent
 
     data class OnSearchTextChange(val value: String, val libraryCategory: LibraryCategory, val debounce: Boolean = false) : LibraryEvent

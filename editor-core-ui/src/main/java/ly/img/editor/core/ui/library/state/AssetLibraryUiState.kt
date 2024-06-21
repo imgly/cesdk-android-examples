@@ -6,7 +6,7 @@ import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.ui.library.components.section.LibrarySectionItem
 
-internal data class AssetLibraryUiState(
+data class AssetLibraryUiState(
     val libraryCategory: LibraryCategory,
     @StringRes val titleRes: Int,
     val searchText: String = "",
@@ -17,7 +17,7 @@ internal data class AssetLibraryUiState(
     val assetsData: AssetsData = AssetsData(),
 )
 
-internal data class AssetsData(
+data class AssetsData(
     val page: Int = 0,
     val canPaginate: Boolean = false,
     val assets: List<WrappedAsset> = listOf(),
@@ -26,7 +26,7 @@ internal data class AssetsData(
     val assetsLoadState: AssetsLoadState = AssetsLoadState.Idle,
 )
 
-internal enum class CategoryLoadState {
+enum class CategoryLoadState {
     Idle,
     Loading,
     LoadingAssets,
@@ -34,7 +34,7 @@ internal enum class CategoryLoadState {
     Success,
 }
 
-internal enum class AssetsLoadState {
+enum class AssetsLoadState {
     Idle,
     Loading,
     Paginating,

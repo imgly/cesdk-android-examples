@@ -8,15 +8,29 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import ly.img.editor.base.components.VectorIcon
 import ly.img.editor.base.engine.LayoutAxis
 import ly.img.editor.base.engine.resetHistory
 import ly.img.editor.base.engine.showAllPages
 import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.engine.zoomToPage
+import ly.img.editor.base.rootdock.RootDockItemActionType
+import ly.img.editor.base.rootdock.RootDockItemData
 import ly.img.editor.base.ui.EditorUiViewModel
+import ly.img.editor.core.R
 import ly.img.editor.core.event.EditorEventHandler
+import ly.img.editor.core.library.AssetLibrary
 import ly.img.editor.core.ui.engine.deselectAllBlocks
+import ly.img.editor.core.ui.iconpack.Addcameraforegound
+import ly.img.editor.core.ui.iconpack.Addgalleryforeground
+import ly.img.editor.core.ui.iconpack.Addimageforeground
+import ly.img.editor.core.ui.iconpack.Addshape
+import ly.img.editor.core.ui.iconpack.Addsticker
+import ly.img.editor.core.ui.iconpack.Addtext
+import ly.img.editor.core.ui.iconpack.Elements
+import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.engine.Engine
+import ly.img.engine.SceneMode
 
 class DesignUiViewModel(
     baseUri: Uri,
@@ -46,6 +60,46 @@ class DesignUiViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = DesignUiViewState(_uiState.value),
         )
+
+    override fun getRootDockItems(assetLibrary: AssetLibrary): List<RootDockItemData> {
+        return listOf(
+            RootDockItemData(
+                type = RootDockItemActionType.OpenLibraryCategory(assetLibrary.elements(SceneMode.DESIGN)),
+                labelStringRes = R.string.ly_img_editor_elements,
+                icon = VectorIcon(IconPack.Elements),
+            ),
+            RootDockItemData(
+                type = RootDockItemActionType.OpenGallery,
+                labelStringRes = R.string.ly_img_editor_gallery,
+                icon = VectorIcon(IconPack.Addgalleryforeground),
+            ),
+            RootDockItemData(
+                type = RootDockItemActionType.OpenCamera,
+                labelStringRes = R.string.ly_img_editor_camera,
+                icon = VectorIcon(IconPack.Addcameraforegound),
+            ),
+            RootDockItemData(
+                type = RootDockItemActionType.OpenLibraryCategory(assetLibrary.images(SceneMode.DESIGN)),
+                labelStringRes = R.string.ly_img_editor_image,
+                icon = VectorIcon(IconPack.Addimageforeground),
+            ),
+            RootDockItemData(
+                type = RootDockItemActionType.OpenLibraryCategory(assetLibrary.text(SceneMode.DESIGN)),
+                labelStringRes = R.string.ly_img_editor_text,
+                icon = VectorIcon(IconPack.Addtext),
+            ),
+            RootDockItemData(
+                type = RootDockItemActionType.OpenLibraryCategory(assetLibrary.shapes(SceneMode.DESIGN)),
+                labelStringRes = R.string.ly_img_editor_shape,
+                icon = VectorIcon(IconPack.Addshape),
+            ),
+            RootDockItemData(
+                type = RootDockItemActionType.OpenLibraryCategory(assetLibrary.stickers(SceneMode.DESIGN)),
+                labelStringRes = R.string.ly_img_editor_sticker,
+                icon = VectorIcon(IconPack.Addsticker),
+            ),
+        )
+    }
 
     override fun enterEditMode() {
         engine.showPage(pageIndex.value)

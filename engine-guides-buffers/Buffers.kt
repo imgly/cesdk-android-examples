@@ -35,17 +35,13 @@ fun buffers(
     // highlight-EditorApi.setBufferData
     // Generate 10 seconds of stereo 48 kHz audio data
     val sampleCount = 10 * 48000
-    val byteBuffer = ByteBuffer.allocate(2 * 4 * sampleCount) // 2 channels, each 4 bytes
+    val byteBuffer = ByteBuffer.allocateDirect(2 * 4 * sampleCount) // 2 channels, each 4 bytes
     repeat(sampleCount) {
         val sample = sin((440 * it * 2 * PI) / 48000).toFloat()
         byteBuffer.putFloat(sample)
         byteBuffer.putFloat(sample)
     }
-    // Assign the audio data to the buffer
-    val data = ByteArray(byteBuffer.capacity())
-    byteBuffer.position(0)
-    byteBuffer.get(data)
-    engine.editor.setBufferData(uri = audioBuffer, offset = 0, data = data)
+    engine.editor.setBufferData(uri = audioBuffer, offset = 0, data = byteBuffer)
     // highlight-EditorApi.setBufferData
 
     // We can get subranges of the buffer data
@@ -58,7 +54,7 @@ fun buffers(
 
     // Reduce the buffer to half its length, leading to 5 seconds worth of audio
     // highlight-EditorApi.setBufferLength
-    engine.editor.setBufferLength(uri = audioBuffer, length = data.size / 2)
+    engine.editor.setBufferLength(uri = audioBuffer, length = byteBuffer.capacity() / 2)
 
     // Free data
     // highlight-EditorApi.destroyBuffer
