@@ -11,7 +11,7 @@ import ly.img.editor.core.ui.engine.getKindEnum
 import ly.img.editor.core.ui.engine.getPage
 import ly.img.editor.core.ui.engine.getScene
 import ly.img.editor.core.ui.engine.getSortedPages
-import ly.img.editor.core.ui.engine.getStack
+import ly.img.editor.core.ui.engine.getStackOrNull
 import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.engine.BlendMode
 import ly.img.engine.ContentFillMode
@@ -230,10 +230,11 @@ fun Engine.showPage(
 ) {
     deselectAllBlocks()
 
-    val stack = getStack()
-    block.setEnum(stack, "stack/axis", axis.name)
-    spacing?.let {
-        block.setFloat(stack, "stack/spacing", spacing)
+    getStackOrNull()?.let { stack ->
+        block.setEnum(stack, "stack/axis", axis.name)
+        spacing?.let {
+            block.setFloat(stack, "stack/spacing", spacing)
+        }
     }
 
     val pages = getSortedPages()

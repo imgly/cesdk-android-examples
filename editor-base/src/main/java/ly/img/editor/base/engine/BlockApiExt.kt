@@ -10,6 +10,18 @@ import ly.img.engine.RGBAColor
 
 const val NoneDesignBlock: DesignBlock = -1
 
+fun BlockApi.isFillStrokeSupported(designBlock: DesignBlock): Pair<Boolean, Boolean> {
+    val hasStroke = hasStroke(designBlock)
+    val fillType = getFillType(designBlock)
+    val hasSolidOrGradientFill = (
+        fillType == FillType.Color ||
+            fillType == FillType.LinearGradient ||
+            fillType == FillType.RadialGradient ||
+            fillType == FillType.ConicalGradient
+    )
+    return hasSolidOrGradientFill to hasStroke
+}
+
 fun BlockApi.getFillType(designBlock: DesignBlock): FillType? {
     return if (!this.hasFill(designBlock)) {
         null

@@ -20,11 +20,14 @@ fun Engine.getScene(): DesignBlock {
 }
 
 fun Engine.getSortedPages(): List<DesignBlock> {
-    return block.getChildren(getStack())
+    val stack = getStackOrNull()
+    return stack?.let {
+        block.getChildren(it)
+    } ?: scene.getPages()
 }
 
-fun Engine.getStack(): DesignBlock {
-    return block.findByType(DesignBlockType.Stack).first()
+fun Engine.getStackOrNull(): DesignBlock? {
+    return block.findByType(DesignBlockType.Stack).firstOrNull()
 }
 
 fun Engine.getCamera(): DesignBlock {

@@ -1,6 +1,7 @@
 package ly.img.editor
 
 import ly.img.editor.core.event.EditorEvent
+import ly.img.engine.MimeType
 import java.io.File
 
 /**
@@ -29,7 +30,7 @@ object HideErrorDialogEvent : EditorEvent
  * By default, the event is captured in [EditorConfiguration.onEvent] and a system level popup is displayed to share the [file]
  * that was exported.
  */
-class ShareFileEvent(val file: File) : EditorEvent
+class ShareFileEvent(val file: File, val mimeType: String = MimeType.PDF.key) : EditorEvent
 
 /**
  * An event that is invoked in the default implementations of [EngineConfiguration.onClose] for showing a confirmation dialog

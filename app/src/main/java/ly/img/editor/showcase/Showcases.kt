@@ -1,5 +1,8 @@
 package ly.img.editor.showcase
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,9 +39,24 @@ fun Showcases(navigateTo: (String) -> Unit) {
                     )
                     .fillMaxHeight(),
         ) {
+            val launcher =
+                rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { imageUri ->
+                    imageUri?.let {
+                        navigateTo(Screen.PhotoUi.getRoute(imageUri.toString()))
+                    }
+                }
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                item {
+                    ShowcaseItem(
+                        title = "Photo UI",
+                        subtitle = "Customize any image with a mobile photo editor.",
+                        onClick = {
+                            launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        },
+                    )
+                }
                 item {
                     ShowcaseItem(
                         title = "Default Design UI",

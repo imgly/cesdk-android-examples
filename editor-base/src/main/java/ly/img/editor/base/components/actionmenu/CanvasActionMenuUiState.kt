@@ -30,6 +30,10 @@ internal fun createCanvasActionMenuUiState(
     designBlock: DesignBlock,
     engine: Engine,
 ): CanvasActionMenuUiState? {
+    // This can happen if the block was just deleted
+    if (!engine.block.isValid(designBlock)) return null
+
+    // Don't show if the block is grouped
     if (engine.isGrouped(designBlock)) return null
     if (engine.block.getType(designBlock) == DesignBlockType.Page.key) return null
     val isMoveAllowed = engine.isMoveAllowed(designBlock)

@@ -1,4 +1,4 @@
-package ly.img.editor.design
+package ly.img.editor.photo
 
 import android.app.Activity
 import android.net.Uri
@@ -49,7 +49,7 @@ import ly.img.engine.AssetDefinition
 import ly.img.engine.Engine
 
 @Composable
-fun DesignUi(
+fun PhotoUi(
     initialExternalState: Parcelable,
     license: String,
     userId: String? = null,
@@ -75,7 +75,7 @@ fun DesignUi(
 
     val viewModel =
         viewModel {
-            DesignUiViewModel(
+            PhotoUiViewModel(
                 baseUri = baseUri,
                 onCreate = onCreate,
                 onExport = onExport,
@@ -103,63 +103,64 @@ fun DesignUi(
         license = license,
         userId = userId,
         renderTarget = renderTarget,
-        uiState = uiState.editorUiViewState,
+        uiState = uiState,
         overlay = overlay,
         onEvent = onEvent,
         close = close,
         topBar = {
-            DesignUiToolbar(
+            PhotoUiToolbar(
                 navigationIcon = navigationIcon,
                 onEvent = viewModel::onEvent,
-                isLoading = uiState.editorUiViewState.isLoading,
-                isInPreviewMode = uiState.editorUiViewState.isInPreviewMode,
-                isUndoEnabled = uiState.editorUiViewState.isUndoEnabled,
-                isRedoEnabled = uiState.editorUiViewState.isRedoEnabled,
+                isInPreviewMode = uiState.isInPreviewMode,
+                isUndoEnabled = uiState.isUndoEnabled,
+                isRedoEnabled = uiState.isRedoEnabled,
             )
         },
         canvasOverlay = {
-            Surface(
-                Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomStart)
-                    .height(84.dp),
-                color = MaterialTheme.colorScheme.surface1.copy(alpha = 0.95f),
-            ) {
-                Row(
-                    modifier =
-                        Modifier
-                            .padding(top = 8.dp, bottom = 12.dp)
-                            .horizontalScroll(rememberScrollState()),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start,
+            if (!uiState.isInPreviewMode) {
+                Surface(
+                    Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomStart)
+                        .height(84.dp),
+                    color = MaterialTheme.colorScheme.surface1.copy(alpha = 0.95f),
                 ) {
-                    var uri by rememberSaveable { mutableStateOf<Uri?>(null) }
-                    val rootBarItems = uiState.editorUiViewState.rootDockItems
-                    val galleryLauncher = rememberGalleryLauncherForActivityResult(libraryViewModel::onEvent)
-                    val cameraLauncher =
-                        rememberCameraLauncherForActivityResult(
-                            captureVideo = false,
-                            onCapture = {
-                                libraryViewModel.onEvent(
-                                    LibraryEvent.OnAddUri(
-                                        assetSource = AssetSourceType.ImageUploads,
-                                        uri = checkNotNull(uri),
-                                    ),
-                                )
-                            },
-                        )
-                    rootBarItems.forEach {
-                        RootDockItem(data = it) {
-                            when (val actionType = it.type) {
-                                RootDockItemActionType.OpenGallery -> {
-                                    galleryLauncher.launch(GalleryMimeType.Image)
-                                }
-                                RootDockItemActionType.OpenCamera -> {
-                                    uri = prepareUriForCameraLauncher(activity)
-                                    cameraLauncher.launch(uri)
-                                }
-                                is RootDockItemActionType.OnEvent -> {
-                                    viewModel.onEvent(actionType.event)
+                    Row(
+                        modifier =
+                            Modifier
+                                .padding(top = 8.dp, bottom = 12.dp)
+                                .horizontalScroll(rememberScrollState()),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start,
+                    ) {
+                        var uri by rememberSaveable { mutableStateOf<Uri?>(null) }
+                        val rootBarItems = uiState.rootDockItems
+                        val galleryLauncher = rememberGalleryLauncherForActivityResult(libraryViewModel::onEvent)
+                        val cameraLauncher =
+                            rememberCameraLauncherForActivityResult(
+                                captureVideo = false,
+                                onCapture = {
+                                    libraryViewModel.onEvent(
+                                        LibraryEvent.OnAddUri(
+                                            assetSource = AssetSourceType.ImageUploads,
+                                            uri = checkNotNull(uri),
+                                        ),
+                                    )
+                                },
+                            )
+                        rootBarItems.forEach {
+                            RootDockItem(data = it) {
+                                when (val actionType = it.type) {
+                                    RootDockItemActionType.OpenGallery -> {
+                                        galleryLauncher.launch(GalleryMimeType.Image)
+                                    }
+                                    RootDockItemActionType.OpenCamera -> {
+                                        uri = prepareUriForCameraLauncher(activity)
+                                        cameraLauncher.launch(uri)
+                                    }
+                                    is RootDockItemActionType.OnEvent -> {
+                                        viewModel.onEvent(actionType.event)
+                                    }
                                 }
                             }
                         }

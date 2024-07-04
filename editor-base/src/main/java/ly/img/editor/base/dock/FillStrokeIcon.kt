@@ -9,8 +9,13 @@ import androidx.compose.ui.unit.dp
 import ly.img.editor.base.components.ColorButton
 import ly.img.editor.base.components.FillButton
 import ly.img.editor.base.engine.Fill
+import ly.img.editor.base.engine.getFillInfo
+import ly.img.editor.base.engine.getStrokeColor
+import ly.img.editor.base.engine.isFillStrokeSupported
 import ly.img.editor.core.ui.tab_item.TabIcon
 import ly.img.editor.core.ui.tab_item.TabIconComposable
+import ly.img.engine.DesignBlock
+import ly.img.engine.Engine
 
 object FillStrokeIconComposable : TabIconComposable<FillStrokeIcon>() {
     @Composable
@@ -29,12 +34,7 @@ object FillStrokeIconComposable : TabIconComposable<FillStrokeIcon>() {
         } else if (icon.hasFill) {
             FillButton(fill = icon.fill, buttonSize = 24.dp, selectionStrokeWidth = 0.dp)
         } else if (icon.hasStroke) {
-            ColorButton(
-                color = icon.strokeColor,
-                buttonSize = 24.dp,
-                selectionStrokeWidth = 0.dp,
-                punchHole = true,
-            )
+            ColorButton(color = icon.strokeColor, buttonSize = 24.dp, selectionStrokeWidth = 0.dp, punchHole = true)
         } else {
             throw IllegalStateException("FillStrokeIcon has neither stroke nor fill.")
         }
@@ -46,4 +46,19 @@ class FillStrokeIcon(
     val fill: Fill?,
     val hasStroke: Boolean,
     val strokeColor: Color?,
-) : TabIcon
+) : TabIcon {
+    companion object {
+        fun create(
+            engine: Engine,
+            designBlock: DesignBlock,
+        ): FillStrokeIcon {
+            val (isFillSupported, isStrokeSupported) = engine.block.isFillStrokeSupported(designBlock)
+            return FillStrokeIcon(
+                fill = engine.block.getFillInfo(designBlock)?.takeIf { engine.block.isFillEnabled(designBlock) },
+                hasFill = isFillSupported,
+                hasStroke = isStrokeSupported,
+                strokeColor = engine.getStrokeColor(designBlock)?.takeIf { engine.block.isStrokeEnabled(designBlock) },
+            )
+        }
+    }
+}

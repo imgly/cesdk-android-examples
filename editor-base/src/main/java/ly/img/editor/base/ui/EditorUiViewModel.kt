@@ -10,6 +10,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
@@ -48,6 +49,8 @@ import ly.img.editor.base.engine.TOUCH_ACTION_SCALE
 import ly.img.editor.base.engine.TOUCH_ACTION_ZOOM
 import ly.img.editor.base.engine.TRANSFORM_EDIT_MODE
 import ly.img.editor.base.engine.addOutline
+import ly.img.editor.base.engine.delete
+import ly.img.editor.base.engine.duplicate
 import ly.img.editor.base.engine.isPlaceholder
 import ly.img.editor.base.engine.resetHistory
 import ly.img.editor.base.engine.setRoleButPreserveGlobalScopes
@@ -81,12 +84,11 @@ import ly.img.editor.core.ui.engine.getScene
 import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.editor.core.ui.library.AppearanceLibraryCategory
 import ly.img.editor.core.ui.register
+import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
 import ly.img.engine.GlobalScope
 import ly.img.engine.UnstableEngineApi
 import kotlin.math.abs
-
-internal const val PAGE_MARGIN = 16f
 
 @OptIn(FlowPreview::class)
 abstract class EditorUiViewModel(
@@ -102,7 +104,12 @@ abstract class EditorUiViewModel(
     val engine = Environment.getEngine()
 
     private var firstLoad = true
-    private var defaultInsets = Rect.Zero
+    private var uiInsets = Rect.Zero
+    private val defaultInsets: Rect
+        get() {
+            return uiInsets.translate(horizontalPageInset, verticalPageInset)
+        }
+
     private var canvasHeight = 0f
 
     private var isStraighteningOrRotating = false
@@ -135,8 +142,8 @@ abstract class EditorUiViewModel(
     private val _canvasActionMenuUiState = MutableStateFlow<CanvasActionMenuUiState?>(null)
     val canvasActionMenuUiState = _canvasActionMenuUiState.asStateFlow()
 
-    private val _historyChangeTrigger = Channel<Unit>()
-    protected val historyChangeTrigger = _historyChangeTrigger.receiveAsFlow()
+    private val _historyChangeTrigger = MutableSharedFlow<Unit>()
+    protected val historyChangeTrigger = _historyChangeTrigger
 
     init {
         with(viewModelScope) {
@@ -158,31 +165,31 @@ abstract class EditorUiViewModel(
         EventsHandler {
             cropEvents(
                 engine = ::engine,
-                block = ::getBlockForEvents,
+                block = ::requireDesignBlockForEvents,
             )
             blockEvents(
                 engine = ::engine,
-                block = ::getBlockForEvents,
+                block = ::requireDesignBlockForEvents,
             )
             textBlockEvents(
                 engine = ::engine,
-                block = ::getBlockForEvents,
+                block = ::requireDesignBlockForEvents,
             )
             strokeEvents(
                 engine = ::engine,
-                block = ::getBlockForEvents,
+                block = ::requireDesignBlockForEvents,
             )
             blockFillEvents(
                 engine = ::engine,
-                block = ::getBlockForEvents,
+                block = ::requireDesignBlockForEvents,
             )
             shapeOptionEvents(
                 engine = ::engine,
-                block = ::getBlockForEvents,
+                block = ::requireDesignBlockForEvents,
             )
             appearanceEvents(
                 engine = ::engine,
-                block = ::getBlockForEvents,
+                block = ::requireDesignBlockForEvents,
             )
             editorEvents()
         }
@@ -239,7 +246,17 @@ abstract class EditorUiViewModel(
         sendSingleEvent(SingleEvent.Exit)
     }
 
-    protected open fun getBlockForEvents() = checkNotNull(selectedBlock.value).designBlock
+    protected open fun getBlockForEvents(): Block? = selectedBlock.value
+
+    private fun requireDesignBlockForEvents(): DesignBlock = checkNotNull(getBlockForEvents()?.designBlock)
+
+    protected open fun getSelectedBlock(): DesignBlock? {
+        return engine.block.findAllSelected().firstOrNull()
+    }
+
+    protected open fun setSelectedBlock(block: Block?) {
+        selectedBlock.update { block }
+    }
 
     protected open fun onCanvasMove(move: Boolean) {
         setCanvasActionMenuState(show = !move)
@@ -248,7 +265,8 @@ abstract class EditorUiViewModel(
     protected open fun hasUnsavedChanges(): Boolean = _uiState.value.isUndoEnabled
 
     protected open fun updateBottomSheetUiState() {
-        val block = selectedBlock.value ?: return
+        _bottomSheetContent.value ?: return
+        val block = getBlockForEvents() ?: return
         val designBlock = block.designBlock
         // In the case when a block is deleted, the block is unselected after receiving the delete event
         if (!engine.block.isValid(designBlock)) return
@@ -332,7 +350,10 @@ abstract class EditorUiViewModel(
     private fun onSheetDismiss() {
         setOptionType(null)
         if (engine.isEngineRunning().not()) return
-        if (engine.editor.getEditMode() == CROP_EDIT_MODE) engine.editor.setEditMode(TRANSFORM_EDIT_MODE)
+        if (engine.editor.getEditMode() == CROP_EDIT_MODE) {
+            engine.editor.setEditMode(TRANSFORM_EDIT_MODE)
+            zoom(bottomInset = 0F)
+        }
     }
 
     private fun onZoomFinish() {
@@ -340,12 +361,16 @@ abstract class EditorUiViewModel(
         updateZoomState()
     }
 
+    protected open val horizontalPageInset: Float = DEFAULT_PAGE_INSET
+
+    protected open val verticalPageInset: Float = DEFAULT_PAGE_INSET
+
     private fun loadScene(
         height: Float,
         insets: Rect,
         inPortraitMode: Boolean,
     ) {
-        defaultInsets = insets.translate(PAGE_MARGIN, PAGE_MARGIN)
+        uiInsets = insets
         canvasHeight = height
         this.inPortraitMode = inPortraitMode
         val isConfigChange = !firstLoad
@@ -393,12 +418,15 @@ abstract class EditorUiViewModel(
 
     private fun onBottomSheetHeightChange(heightInDp: Float) {
         // we don't want to change zoom level for Library
-        if (_isPreviewMode.value || !_isSceneLoaded.value || bottomSheetContent.value is LibraryBottomSheetContent) return
+        if (_isPreviewMode.value || !_isSceneLoaded.value) return
+        val bottomSheetContent = bottomSheetContent.value
+        if (bottomSheetContent is LibraryBottomSheetContent || bottomSheetContent is LibraryCategoryBottomSheetContent) return
         zoom(heightInDp)
     }
 
     private fun onKeyboardClose() {
         engine.editor.setEditMode(TRANSFORM_EDIT_MODE)
+        zoom(bottomInset = 0F)
     }
 
     private fun onKeyboardHeightChange(heightInDp: Float) {
@@ -406,16 +434,15 @@ abstract class EditorUiViewModel(
     }
 
     private fun zoom(bottomInset: Float) {
-        val realBottomInset = bottomInset + PAGE_MARGIN
+        val realBottomInset = bottomInset + verticalPageInset
         if (realBottomInset <= defaultInsets.bottom && currentInsets.bottom == defaultInsets.bottom) return
-        zoom(currentInsets.copy(bottom = realBottomInset.coerceAtLeast(defaultInsets.bottom)))
+        zoom(defaultInsets.copy(bottom = realBottomInset.coerceAtLeast(defaultInsets.bottom)))
     }
 
     private var zoomJob: Job? = null
     private var fitToPageZoomLevel = 0f
 
     @OptIn(UnstableEngineApi::class)
-    // todo bug: some sheets do not zoom content correctly for Design Editor, i.e. Effects.Recolor
     private fun zoom(
         insets: Rect = defaultInsets,
         zoomToPage: Boolean = false,
@@ -429,10 +456,11 @@ abstract class EditorUiViewModel(
                 if (scrollablePreview) {
                     val pages = engine.scene.getPages()
                     val firstPage = listOf(pages.first())
+                    val defaultInsets = this@EditorUiViewModel.defaultInsets
                     engine.scene.enableCameraZoomClamping(
                         firstPage,
-                        minZoomLimit = 1.0f,
-                        maxZoomLimit = 1.0f,
+                        minZoomLimit = 1.0F,
+                        maxZoomLimit = 1.0F,
                         paddingLeft = defaultInsets.left,
                         paddingTop = defaultInsets.top,
                         paddingRight = defaultInsets.right,
@@ -440,14 +468,14 @@ abstract class EditorUiViewModel(
                     )
                     engine.scene.enableCameraPositionClamping(
                         pages,
-                        paddingLeft = defaultInsets.left - PAGE_MARGIN,
-                        paddingTop = defaultInsets.top - PAGE_MARGIN,
-                        paddingRight = defaultInsets.right - PAGE_MARGIN,
-                        paddingBottom = defaultInsets.bottom - PAGE_MARGIN,
-                        scaledPaddingLeft = PAGE_MARGIN,
-                        scaledPaddingTop = PAGE_MARGIN,
-                        scaledPaddingRight = PAGE_MARGIN,
-                        scaledPaddingBottom = PAGE_MARGIN,
+                        paddingLeft = defaultInsets.left - horizontalPageInset,
+                        paddingTop = defaultInsets.top - verticalPageInset,
+                        paddingRight = defaultInsets.right - horizontalPageInset,
+                        paddingBottom = defaultInsets.bottom - verticalPageInset,
+                        scaledPaddingLeft = horizontalPageInset,
+                        scaledPaddingTop = verticalPageInset,
+                        scaledPaddingRight = horizontalPageInset,
+                        scaledPaddingBottom = verticalPageInset,
                     )
                 } else {
                     val scene = engine.getScene()
@@ -472,30 +500,31 @@ abstract class EditorUiViewModel(
                         }
                     }
 
+                engine.scene.enableCameraPositionClamping(
+                    blocks = blocks,
+                    paddingLeft = currentInsets.left - horizontalPageInset,
+                    paddingTop = currentInsets.top - verticalPageInset,
+                    paddingRight = currentInsets.right - horizontalPageInset,
+                    paddingBottom = currentInsets.bottom - verticalPageInset,
+                    scaledPaddingLeft = horizontalPageInset,
+                    scaledPaddingTop = verticalPageInset,
+                    scaledPaddingRight = horizontalPageInset,
+                    scaledPaddingBottom = verticalPageInset,
+                )
+
                 if (shouldZoomToPage) {
-                    engine.zoomToPage(pageIndex.value, currentInsets)
-                    fitToPageZoomLevel = engine.scene.getZoomLevel()
                     engine.scene.enableCameraZoomClamping(
-                        blocks,
-                        minZoomLimit = 1.0f,
-                        maxZoomLimit = 5.0f,
+                        blocks = blocks,
+                        minZoomLimit = 1.0F,
+                        maxZoomLimit = 5.0F,
                         paddingLeft = currentInsets.left,
                         paddingTop = currentInsets.top,
                         paddingRight = currentInsets.right,
                         paddingBottom = currentInsets.bottom,
                     )
+                    engine.zoomToPage(pageIndex.value, currentInsets)
+                    fitToPageZoomLevel = engine.scene.getZoomLevel()
                 }
-                engine.scene.enableCameraPositionClamping(
-                    blocks,
-                    paddingLeft = currentInsets.left - PAGE_MARGIN,
-                    paddingTop = currentInsets.top - PAGE_MARGIN,
-                    paddingRight = currentInsets.right - PAGE_MARGIN,
-                    paddingBottom = currentInsets.bottom - PAGE_MARGIN,
-                    scaledPaddingLeft = PAGE_MARGIN,
-                    scaledPaddingTop = PAGE_MARGIN,
-                    scaledPaddingRight = PAGE_MARGIN,
-                    scaledPaddingBottom = PAGE_MARGIN,
-                )
 
                 val selectedDesignBlock = selectedBlock?.designBlock
 
@@ -560,7 +589,7 @@ abstract class EditorUiViewModel(
             setBottomSheetContent { null }
             return
         }
-        val block = checkNotNull(selectedBlock.value)
+        val block = getBlockForEvents() ?: return
         val designBlock = block.designBlock
         setBottomSheetContent {
             when (optionType) {
@@ -597,6 +626,8 @@ abstract class EditorUiViewModel(
                 }
 
                 OptionType.Crop -> {
+                    engine.block.setScopeEnabled(designBlock, Scope.EditorSelect, enabled = true)
+                    engine.block.setSelected(designBlock, selected = true)
                     engine.editor.setEditMode(CROP_EDIT_MODE)
                     null
                 }
@@ -617,6 +648,14 @@ abstract class EditorUiViewModel(
                     EffectSheetContent(
                         EffectUiState.create(block, engine, AppearanceLibraryCategory.Blur),
                     )
+                OptionType.Delete -> {
+                    engine.delete(designBlock)
+                    null
+                }
+                OptionType.Duplicate -> {
+                    engine.duplicate(designBlock)
+                    null
+                }
             }
         }
     }
@@ -677,10 +716,13 @@ abstract class EditorUiViewModel(
         }
     }
 
+    protected open fun onEditModeChanged(editMode: String) = Unit
+
     private fun observeEditorStateChange() {
         var flag = false
         viewModelScope.launch {
             engine.editor.onStateChanged().map { engine.editor.getEditMode() }.distinctUntilChanged().collect { editMode ->
+                onEditModeChanged(editMode)
                 when (editMode) {
                     TEXT_EDIT_MODE -> setBottomSheetContent { null }
                     CROP_EDIT_MODE -> {
@@ -699,7 +741,11 @@ abstract class EditorUiViewModel(
                         }
                     }
                 }
-                isKeyboardShowing.update { editMode == TEXT_EDIT_MODE }
+                val showKeyboard = editMode == TEXT_EDIT_MODE
+                if (isKeyboardShowing.value && showKeyboard.not()) {
+                    zoom(bottomInset = 0F)
+                }
+                isKeyboardShowing.update { showKeyboard }
             }
         }
     }
@@ -708,17 +754,13 @@ abstract class EditorUiViewModel(
         viewModelScope.launch {
             // filter is added, because page dock becomes visible while postcard UI is still loading
             merge(engine.block.onSelectionChanged(), _updateBlock).filter { _isSceneLoaded.value }.collect {
-                val block = engine.block.findAllSelected().firstOrNull()?.let { createBlock(it, engine) }
-                val oldBlock = selectedBlock.value?.designBlock
+                val block = getSelectedBlock()?.let { createBlock(it, engine) }
+                val oldBlock = getBlockForEvents()?.designBlock
                 if (oldBlock != null && block == null) {
                     zoom(clampOnly = true)
                 }
-                var isBlockDifferent = false
-                selectedBlock.update {
-                    isBlockDifferent = it?.designBlock != block?.designBlock
-                    block
-                }
-                if (isBlockDifferent) {
+                if (oldBlock != block?.designBlock) {
+                    setSelectedBlock(block)
                     setOptionType(
                         if (block?.type == BlockType.Image &&
                             engine.isPlaceholder(
@@ -738,9 +780,10 @@ abstract class EditorUiViewModel(
     private fun observeHistory() {
         viewModelScope.launch {
             engine.editor.onHistoryUpdated().collect {
-                _historyChangeTrigger.trySend(Unit)
+                _historyChangeTrigger.emit(Unit)
                 updateVisiblePageState()
                 updateBottomSheetUiState()
+                setCanvasActionMenuState()
             }
         }
     }
@@ -777,7 +820,7 @@ abstract class EditorUiViewModel(
         engine.editor.setGlobalScope(Scope.EditorSelect, GlobalScope.DENY)
         engine.editor.setRoleButPreserveGlobalScopes("Creator")
         enterPreviewMode()
-        zoom(defaultInsets.copy(bottom = PAGE_MARGIN))
+        zoom(defaultInsets.copy(bottom = verticalPageInset))
     }
 
     private fun togglePreviewMode(previewMode: Boolean) {
@@ -837,4 +880,8 @@ abstract class EditorUiViewModel(
     abstract suspend fun onPreExport()
 
     abstract suspend fun onPostExport()
+
+    private companion object {
+        const val DEFAULT_PAGE_INSET = 16F
+    }
 }

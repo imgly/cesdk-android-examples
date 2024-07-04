@@ -3,6 +3,7 @@ package ly.img.editor
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.util.SizeF
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -29,6 +30,7 @@ import ly.img.editor.core.library.data.TypefaceProvider
 import ly.img.editor.core.ui.iconpack.Cloudalertoutline
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.WifiCancel
+import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.EngineException
 import ly.img.engine.MimeType
@@ -56,10 +58,49 @@ object EditorDefaults {
         engine: Engine,
         sceneUri: Uri,
         eventHandler: EditorEventHandler,
+    ) = onCreateCommon(engine, eventHandler) {
+        engine.scene.load(sceneUri)
+    }
+
+    /**
+     * A helper implementation of [EngineConfiguration.onCreate]. The implementation does the following:
+     * 1. Checks for an existing scene. If one does not exist, it creates a scene from the [imageUri] using [ly.img.engine.SceneApi.createFromImage] API.
+     * 2. Adds [ly.img.editor.core.library.data.TextAssetSource], default and demo asset sources. Check [Engine.addDefaultAssetSources]
+     * and [Engine.addDemoAssetSources] documentation for more details.
+     *
+     * @param engine the engine that is used in the editor.
+     * @param imageUri the uri of the image that is used to create a scene with single page and image fill.
+     * @param size the size that should be used to load the image. If null, original size of the image will be used.
+     * @param eventHandler the object that can send [EditorEvent]s and close the editor.
+     */
+    suspend fun onCreateFromImage(
+        engine: Engine,
+        imageUri: Uri,
+        eventHandler: EditorEventHandler,
+        size: SizeF? = null,
+    ) = onCreateCommon(engine, eventHandler) {
+        engine.scene.createFromImage(imageUri)
+        val graphicBlocks = engine.block.findByType(DesignBlockType.Graphic)
+        require(graphicBlocks.size == 1) { "No image found." }
+        val graphicBlock = graphicBlocks[0]
+        val pages = engine.scene.getPages()
+        require(pages.size == 1) { "No image found." }
+        val page = pages[0]
+        engine.block.setFill(page, engine.block.getFill(graphicBlock))
+        engine.block.destroy(graphicBlock)
+        size?.let {
+            engine.block.setWidth(page, size.width)
+            engine.block.setHeight(page, size.height)
+        }
+    }
+
+    private suspend fun onCreateCommon(
+        engine: Engine,
+        eventHandler: EditorEventHandler,
+        createScene: suspend () -> Unit,
     ) = coroutineScope {
-        // In case of process recovery, engine automatically recovers the scene that is why we need to check
         if (engine.scene.get() == null) {
-            engine.scene.load(sceneUri)
+            createScene()
         }
         launch {
             val baseUri = Uri.parse("https://cdn.img.ly/assets/v3")
@@ -173,7 +214,7 @@ object EditorDefaults {
                 shareFile(
                     activity = activity,
                     file = event.file,
-                    mimeType = "application/pdf",
+                    mimeType = event.mimeType,
                 )
                 state
             }

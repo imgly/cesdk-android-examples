@@ -1,6 +1,7 @@
 package ly.img.editor
 
 import android.net.Uri
+import android.util.SizeF
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.data.UploadAssetSourceType
@@ -75,7 +76,7 @@ class EngineConfiguration(
                 }
             val tempFile = writeToTempFile(blob)
             eventHandler.send(HideLoading)
-            eventHandler.send(ShareFileEvent(tempFile))
+            eventHandler.send(ShareFileEvent(tempFile, MimeType.PDF.key))
         }
     },
     val onUpload: suspend AssetDefinition.(
@@ -152,6 +153,58 @@ class EngineConfiguration(
             renderTarget = renderTarget,
             onCreate = { engine, eventHandler ->
                 EditorDefaults.onCreate(engine, sceneUri, eventHandler)
+            },
+        )
+
+        /**
+         * Helper function for creating an [EngineConfiguration] object when launching [PhotoEditor]. This function simplifies
+         * the initialization process, offering a default configuration ideal for a wide range of applications. The essential requirement
+         * is the [license] and the [imageUri], with options to specify a [userId] and [baseUri] for further customization.
+         *
+         * @param license the license required to activate the [ly.img.engine.Engine].
+         * @param imageUri the uri of the image that is used to create a scene using [ly.img.engine.SceneApi.createFromImage] API.
+         * @param imageSize the size that should be used to load the image. If null, original size of the image will be used.
+         * @param userId an optional identifier for the application's user, enhancing the accuracy of monthly active users (MAU) calculations.
+         * This is particularly beneficial for tracking users across multiple devices when they sign in, ensuring they are counted uniquely.
+         * @param baseUri the foundational uri for constructing absolute paths from relative ones. For example, setting it to
+         * the Android assets directory allows loading resources directly from there: file:///android_asset/.
+         * This base uri enables the loading of specific scenes or assets using their relative paths.
+         * [EditorDefaults.onCreate] to facilitate scene and asset loading at initialization.
+         * @param renderTarget the target which should be used by the [ly.img.engine.Engine] to render.
+         * Default value is [EngineRenderTarget.SURFACE_VIEW].
+         */
+        fun getForPhoto(
+            license: String,
+            imageUri: Uri,
+            imageSize: SizeF? = null,
+            userId: String? = null,
+            baseUri: Uri = defaultBaseUri,
+            renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
+        ) = EngineConfiguration(
+            license = license,
+            userId = userId,
+            baseUri = baseUri,
+            renderTarget = renderTarget,
+            onCreate = { engine, eventHandler ->
+                EditorDefaults.onCreateFromImage(engine, imageUri, eventHandler, imageSize)
+            },
+            onExport = { engine, eventHandler ->
+                EditorDefaults.run {
+                    eventHandler.send(ShowLoading)
+                    val blob =
+                        engine.block.export(
+                            block = requireNotNull(engine.scene.get()),
+                            mimeType = MimeType.PNG,
+                        )
+                    val tempFile = writeToTempFile(blob, mimeType = MimeType.PNG)
+                    eventHandler.send(HideLoading)
+                    eventHandler.send(
+                        ShareFileEvent(
+                            file = tempFile,
+                            mimeType = MimeType.PNG.key,
+                        ),
+                    )
+                }
             },
         )
 
