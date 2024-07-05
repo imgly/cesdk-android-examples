@@ -33,10 +33,10 @@ fun usingFills(
     engine.block.appendChild(parent = page, child = block)
     // highlight-setup
 
-    // highlight-hasFill
-    engine.block.hasFill(scene) // Returns false
-    engine.block.hasFill(block) // Returns true
-    // highlight-hasFill
+    // highlight-supportsFill
+    engine.block.supportsFill(scene) // Returns false
+    engine.block.supportsFill(block) // Returns true
+    // highlight-supportsFill
 
     // highlight-getFill
     val colorFill = engine.block.getFill(block)

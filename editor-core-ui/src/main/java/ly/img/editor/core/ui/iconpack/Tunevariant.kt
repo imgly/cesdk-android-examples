@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
 import androidx.compose.ui.graphics.SolidColor
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.Tunevariant: ImageVector
@@ -70,9 +72,12 @@ val IconPack.Tunevariant: ImageVector
                     curveTo(18.0f, 8.1f, 17.1f, 9.0f, 16.0f, 9.0f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _tunevariant!!
     }
 
 private var _tunevariant: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.Tunevariant.IconPreview()

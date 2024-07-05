@@ -145,8 +145,7 @@ val IconPack.Addtext: ImageVector
                     horizontalLineTo(18.5f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _addtext!!
     }
 

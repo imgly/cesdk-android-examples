@@ -12,17 +12,22 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.media3.exoplayer.ExoPlayer
 import ly.img.editor.core.R
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.iconpack.Folder
@@ -119,6 +124,20 @@ internal fun AssetGrid(
             val assetType = uiState.assetsData.assetType
             val assetSource = uiState.assetsData.assetSourceType
             if (assetType != null && assetSource != null) {
+                val activatedPreviewItemId = remember { mutableStateOf<String?>(null) }
+                val context = LocalContext.current
+                val exoPlayerInstance by
+                    rememberSaveable {
+                        lazy {
+                            ExoPlayer.Builder(context.applicationContext).build()
+                        }
+                    }
+
+                DisposableEffect(exoPlayerInstance) {
+                    onDispose {
+                        exoPlayerInstance.release()
+                    }
+                }
                 LazyVerticalGrid(
                     state = lazyGridState,
                     verticalArrangement = AssetLibraryUiConfig.assetGridVerticalArrangement(assetType),
@@ -145,6 +164,8 @@ internal fun AssetGrid(
                             wrappedAsset = asset,
                             assetType = assetType,
                             onAssetClick = onAssetClick,
+                            activatedPreviewItem = activatedPreviewItemId,
+                            exoPlayer = { exoPlayerInstance },
                             onAssetLongClick = {
                                 onLibraryEvent(LibraryEvent.OnAssetLongClick(it))
                             },
