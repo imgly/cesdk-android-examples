@@ -65,8 +65,8 @@ private fun Engine.getSelectionColors(
         return
     }
 
-    val hasFill = block.hasFill(designBlock)
-    val hasStroke = block.hasStroke(designBlock)
+    val hasFill = block.supportsFill(designBlock)
+    val hasStroke = block.supportsStroke(designBlock)
 
     fun addColor(
         colorType: ColorType,

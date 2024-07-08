@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.EvenOdd
 import androidx.compose.ui.graphics.SolidColor
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.Joinbevel: ImageVector
@@ -65,9 +67,12 @@ val IconPack.Joinbevel: ImageVector
                     verticalLineTo(3.0f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _joinbevel!!
     }
 
 private var _joinbevel: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.Joinbevel.IconPreview()

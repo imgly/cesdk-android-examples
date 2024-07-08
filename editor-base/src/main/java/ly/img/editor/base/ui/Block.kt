@@ -71,7 +71,7 @@ internal fun createBlock(
     val kind = if (isGraphicBlock) engine.block.getKindEnum(designBlock) else null
     val fillType = engine.block.getFillType(designBlock)
     val shapeType =
-        if (engine.block.hasShape(designBlock)) {
+        if (engine.block.supportsShape(designBlock)) {
             ShapeType.get(engine.block.getType(engine.block.getShape(designBlock)))
         } else {
             null
@@ -177,7 +177,7 @@ internal fun createBlock(
                         Filter addIf isAllowedByScope(Scope.AppearanceFilter)
                         Effect addIf isAllowedByScope(Scope.AppearanceEffect)
                         Blur addIf isAllowedByScope(Scope.AppearanceBlur)
-                        Crop addIf (engine.block.hasCrop(designBlock) && isAllowedByScope(Scope.LayerCrop))
+                        Crop addIf (engine.block.supportsCrop(designBlock) && isAllowedByScope(Scope.LayerCrop))
                         Duplicate addIf engine.isDuplicateAllowed(designBlock)
                         Layer addIf hasLayerOption
                         FillStroke addIf isAllowedByScope(Scope.StrokeChange)

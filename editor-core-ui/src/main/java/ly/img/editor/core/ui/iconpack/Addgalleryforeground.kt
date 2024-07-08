@@ -129,8 +129,7 @@ val IconPack.Addgalleryforeground: ImageVector
                     arcToRelative(1.5f, 1.5f, 0.0f, true, true, 3.0f, 0.0f)
                     arcToRelative(1.5f, 1.5f, 0.0f, true, true, -3.0f, 0.0f)
                 }
-            }
-                .build()
+            }.build()
         return _addgalleryforeground!!
     }
 

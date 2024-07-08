@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
 import androidx.compose.ui.graphics.SolidColor
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.WifiCancel: ImageVector
@@ -77,9 +79,12 @@ val IconPack.WifiCancel: ImageVector
                     curveTo(21.3502f, 19.58f, 21.5002f, 19.06f, 21.5002f, 18.5f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _wificancel!!
     }
 
 private var _wificancel: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.WifiCancel.IconPreview()

@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
 import androidx.compose.ui.graphics.SolidColor
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.Erroroutline: ImageVector
@@ -78,9 +80,12 @@ val IconPack.Erroroutline: ImageVector
                     curveTo(7.875f, 19.225f, 9.7667f, 20.0f, 12.0f, 20.0f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _erroroutline!!
     }
 
 private var _erroroutline: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.Erroroutline.IconPreview()

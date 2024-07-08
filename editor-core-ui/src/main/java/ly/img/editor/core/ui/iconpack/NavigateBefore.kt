@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
 import androidx.compose.ui.graphics.SolidColor
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.NavigateBefore: ImageVector
@@ -42,9 +44,12 @@ val IconPack.NavigateBefore: ImageVector
                     lineTo(15.7049f, 7.41f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return `_navigate-before`!!
     }
 
 private var `_navigate-before`: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.NavigateBefore

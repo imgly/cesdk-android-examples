@@ -106,8 +106,7 @@ val IconPack.Elements: ImageVector
                     horizontalLineTo(17.5f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _elements!!
     }
 
