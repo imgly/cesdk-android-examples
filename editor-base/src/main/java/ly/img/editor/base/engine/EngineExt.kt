@@ -70,7 +70,7 @@ fun Engine.resetHistory() {
 }
 
 fun Engine.isPlaceholder(designBlock: DesignBlock): Boolean {
-    if (!block.hasPlaceholderControls(designBlock)) return false
+    if (!block.supportsPlaceholderControls(designBlock)) return false
     val isPlaceholderEnabled = block.isPlaceholderEnabled(designBlock)
     val showsPlaceholderButton = block.isPlaceholderControlsButtonEnabled(designBlock)
     val showsPlaceholderOverlay = block.isPlaceholderControlsOverlayEnabled(designBlock)
@@ -165,12 +165,12 @@ fun Engine.isGrouped(designBlock: DesignBlock): Boolean {
 }
 
 fun Engine.getFillColor(designBlock: DesignBlock): Color? {
-    if (!block.hasFill(designBlock)) return null
+    if (!block.supportsFill(designBlock)) return null
     return (block.getColor(designBlock, "fill/solid/color") as RGBAColor).toComposeColor()
 }
 
 fun Engine.getStrokeColor(designBlock: DesignBlock): Color? {
-    if (!block.hasStroke(designBlock)) return null
+    if (!block.supportsStroke(designBlock)) return null
     return (block.getColor(designBlock, "stroke/color") as RGBAColor).toComposeColor()
 }
 

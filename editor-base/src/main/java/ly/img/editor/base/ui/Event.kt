@@ -16,6 +16,7 @@ import ly.img.engine.BlendMode
 import ly.img.engine.BlurType
 import ly.img.engine.DesignBlock
 import ly.img.engine.EffectType
+import ly.img.engine.TextCase
 import ly.img.engine.Typeface
 
 /**
@@ -135,15 +136,21 @@ interface BlockEvent : Event {
     // region Text Format Events
     data class OnChangeLetterSpacing(val spacing: Float) : BlockEvent
 
+    data class OnChangeParagraphSpacing(val spacing: Float) : BlockEvent
+
     data class OnChangeLineHeight(val height: Float) : BlockEvent
 
     data class OnChangeSizeMode(val sizeMode: String) : BlockEvent
+
+    data class OnChangeClipping(val enabled: Boolean) : BlockEvent
 
     data object OnBoldToggle : BlockEvent
 
     data object OnItalicToggle : BlockEvent
 
     data class OnChangeHorizontalAlignment(val alignment: HorizontalAlignment) : BlockEvent
+
+    data class OnChangeLetterCasing(val casing: TextCase) : BlockEvent
 
     data class OnChangeVerticalAlignment(val alignment: VerticalAlignment) : BlockEvent
 

@@ -88,8 +88,7 @@ val IconPack.Addimageforeground: ImageVector
                     curveTo(7.732f, 9.857f, 8.086f, 10.0027f, 8.5f, 10.0f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _addimageforeground!!
     }
 

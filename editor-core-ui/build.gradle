@@ -22,4 +22,9 @@ dependencies {
     implementation libs.coil.compose
 
     implementation libs.shimmer
+
+    debugImplementation libs.compose.tooling
+    implementation libs.compose.preview
+    
+    implementation(libs.media3.exoplayer)
 }

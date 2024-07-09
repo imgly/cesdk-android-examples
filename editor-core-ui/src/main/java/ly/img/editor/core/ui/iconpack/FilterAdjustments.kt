@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
 import androidx.compose.ui.graphics.SolidColor
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.Filteradjustments: ImageVector
@@ -69,9 +71,12 @@ val IconPack.Filteradjustments: ImageVector
                     curveTo(23.9993f, 10.8f, 22.7993f, 12.0f, 21.3327f, 12.0f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _filterAdjustments!!
     }
 
 private var _filterAdjustments: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.Filteradjustments.IconPreview()

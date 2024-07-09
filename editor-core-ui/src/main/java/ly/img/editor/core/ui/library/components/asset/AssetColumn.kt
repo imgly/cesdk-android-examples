@@ -5,8 +5,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.media3.exoplayer.ExoPlayer
 import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.ui.library.state.WrappedAsset
 
@@ -17,6 +23,21 @@ internal fun AssetColumn(
     onAssetLongClick: (WrappedAsset) -> Unit,
     onAssetClick: (WrappedAsset) -> Unit,
 ) {
+    val activatedPreviewItemId = remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    val exoPlayerInstance by
+        rememberSaveable {
+            lazy {
+                ExoPlayer.Builder(context.applicationContext).build()
+            }
+        }
+
+    DisposableEffect(exoPlayerInstance) {
+        onDispose {
+            exoPlayerInstance.release()
+        }
+    }
+
     Column(Modifier.animateContentSize()) {
         if (wrappedAssets.isEmpty()) {
             EmptyAssetsContent(assetType)
@@ -28,6 +49,8 @@ internal fun AssetColumn(
                             wrappedAsset = wrappedAsset,
                             onAssetClick = onAssetClick,
                             onAssetLongClick = onAssetLongClick,
+                            activatedPreviewItem = activatedPreviewItemId,
+                            exoPlayer = { exoPlayerInstance },
                         )
                     } else if (assetType == AssetType.Text) {
                         TextAssetContent(

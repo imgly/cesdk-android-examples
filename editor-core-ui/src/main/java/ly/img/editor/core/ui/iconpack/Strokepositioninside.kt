@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.EvenOdd
 import androidx.compose.ui.graphics.SolidColor
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.Strokepositioninside: ImageVector
@@ -73,9 +75,12 @@ val IconPack.Strokepositioninside: ImageVector
                     verticalLineTo(8.0f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _strokepositioninside!!
     }
 
 private var _strokepositioninside: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.Strokepositioninside.IconPreview()

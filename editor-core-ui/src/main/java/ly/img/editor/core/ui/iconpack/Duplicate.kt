@@ -141,8 +141,7 @@ val IconPack.Duplicate: ImageVector
                     verticalLineTo(14.0f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _duplicate!!
     }
 

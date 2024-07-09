@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.EvenOdd
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
@@ -9,6 +10,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.Sizemcircled: ImageVector
@@ -74,9 +76,12 @@ val IconPack.Sizemcircled: ImageVector
                     curveTo(1.0f, 18.0751f, 5.9249f, 23.0f, 12.0f, 23.0f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _sizemcircled!!
     }
 
 private var _sizemcircled: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.Sizemcircled.IconPreview()
