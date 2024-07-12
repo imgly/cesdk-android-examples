@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.EvenOdd
 import androidx.compose.ui.graphics.SolidColor
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.Joinround: ImageVector
@@ -63,9 +65,12 @@ val IconPack.Joinround: ImageVector
                     curveTo(12.701f, 16.0f, 8.0f, 11.299f, 8.0f, 5.5f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _joinround!!
     }
 
 private var _joinround: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.Joinround.IconPreview()

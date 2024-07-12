@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
 import androidx.compose.ui.graphics.SolidColor
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.PagePrevArrow: ImageVector
@@ -57,9 +59,12 @@ val IconPack.PagePrevArrow: ImageVector
                     curveTo(12.2168f, 15.0117f, 12.2266f, 15.4805f, 11.9238f, 15.7832f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _pagePrevArrow!!
     }
 
 private var _pagePrevArrow: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.PagePrevArrow.IconPreview()

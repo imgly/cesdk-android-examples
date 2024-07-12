@@ -9,24 +9,23 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-val IconPack.Close: ImageVector
+public val IconPack.Nonecasing: ImageVector
     get() {
-        if (_close != null) {
-            return _close!!
+        if (_nonecasing != null) {
+            return _nonecasing!!
         }
-        _close =
+        _nonecasing =
             Builder(
-                name = "Close",
+                name = "Nonecasing",
                 defaultWidth = 24.0.dp,
-                defaultHeight = 24.0.dp,
+                defaultHeight = 25.0.dp,
                 viewportWidth = 24.0f,
-                viewportHeight = 24.0f,
+                viewportHeight = 25.0f,
             ).apply {
                 path(
-                    fill = SolidColor(Color(0xFF1C1B1F)),
+                    fill = SolidColor(Color(0xFFffffff)),
                     stroke = null,
                     strokeLineWidth = 0.0f,
                     strokeLineCap = Butt,
@@ -34,27 +33,17 @@ val IconPack.Close: ImageVector
                     strokeLineMiter = 4.0f,
                     pathFillType = NonZero,
                 ) {
-                    moveTo(19.0f, 6.41f)
-                    lineTo(17.59f, 5.0f)
-                    lineTo(12.0f, 10.59f)
-                    lineTo(6.41f, 5.0f)
-                    lineTo(5.0f, 6.41f)
-                    lineTo(10.59f, 12.0f)
-                    lineTo(5.0f, 17.59f)
-                    lineTo(6.41f, 19.0f)
-                    lineTo(12.0f, 13.41f)
-                    lineTo(17.59f, 19.0f)
-                    lineTo(19.0f, 17.59f)
-                    lineTo(13.41f, 12.0f)
-                    lineTo(19.0f, 6.41f)
+                    moveTo(7.0f, 11.5f)
+                    horizontalLineToRelative(10.0f)
+                    verticalLineToRelative(2.0f)
+                    horizontalLineToRelative(-10.0f)
                     close()
                 }
             }.build()
-        return _close!!
+        return _nonecasing!!
     }
 
-private var _close: ImageVector? = null
+private var _nonecasing: ImageVector? = null
 
-@Preview
 @Composable
-private fun Preview() = IconPack.Close.IconPreview()
+private fun Preview() = IconPack.Nonecasing.IconPreview()

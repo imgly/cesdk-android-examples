@@ -1,6 +1,9 @@
 package ly.img.editor.core.ui.library.components.grid
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.media3.exoplayer.ExoPlayer
 import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.ui.library.components.asset.AssetImage
 import ly.img.editor.core.ui.library.components.asset.AudioAssetContent
@@ -13,6 +16,8 @@ internal fun AssetGridItemContent(
     assetType: AssetType,
     onAssetClick: (WrappedAsset) -> Unit,
     onAssetLongClick: (WrappedAsset) -> Unit,
+    activatedPreviewItem: MutableState<String?> = mutableStateOf(""),
+    exoPlayer: () -> ExoPlayer?,
 ) {
     when (assetType) {
         AssetType.Audio -> {
@@ -20,6 +25,8 @@ internal fun AssetGridItemContent(
                 wrappedAsset = wrappedAsset,
                 onAssetClick = onAssetClick,
                 onAssetLongClick = onAssetLongClick,
+                activatedPreviewItem = activatedPreviewItem,
+                exoPlayer = exoPlayer,
             )
         }
         AssetType.Text -> {

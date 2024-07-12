@@ -14,6 +14,7 @@ class FontDataMapper {
             typeface = typeface,
             uri = displayFont.uri,
             weight = androidx.compose.ui.text.font.FontWeight(displayFont.weight.value),
+            style = displayFont.style,
         )
     }
 
@@ -30,6 +31,7 @@ class FontDataMapper {
             typeface = typeface,
             uri = displayFont.uri,
             weight = androidx.compose.ui.text.font.FontWeight(displayFont.weight.value),
+            style = displayFont.style,
         )
     }
 

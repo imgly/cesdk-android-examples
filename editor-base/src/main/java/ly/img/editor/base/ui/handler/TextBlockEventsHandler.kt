@@ -2,14 +2,18 @@ package ly.img.editor.base.ui.handler
 
 import android.net.Uri
 import ly.img.editor.base.dock.options.format.HorizontalAlignment
+import ly.img.editor.base.dock.options.format.SizeModeUi
 import ly.img.editor.base.dock.options.format.VerticalAlignment
 import ly.img.editor.base.ui.BlockEvent.OnBoldToggle
+import ly.img.editor.base.ui.BlockEvent.OnChangeClipping
 import ly.img.editor.base.ui.BlockEvent.OnChangeFont
 import ly.img.editor.base.ui.BlockEvent.OnChangeFontSize
 import ly.img.editor.base.ui.BlockEvent.OnChangeHorizontalAlignment
+import ly.img.editor.base.ui.BlockEvent.OnChangeLetterCasing
 import ly.img.editor.base.ui.BlockEvent.OnChangeLetterSpacing
 import ly.img.editor.base.ui.BlockEvent.OnChangeLineHeight
 import ly.img.editor.base.ui.BlockEvent.OnChangeLineWidth
+import ly.img.editor.base.ui.BlockEvent.OnChangeParagraphSpacing
 import ly.img.editor.base.ui.BlockEvent.OnChangeSizeMode
 import ly.img.editor.base.ui.BlockEvent.OnChangeVerticalAlignment
 import ly.img.editor.base.ui.BlockEvent.OnItalicToggle
@@ -101,29 +105,53 @@ fun EventsHandler.textBlockEvents(
         engine.block.setFloat(block, "text/letterSpacing", it.spacing)
     }
 
+    register<OnChangeParagraphSpacing> {
+        engine.block.setFloat(block, "text/paragraphSpacing", it.spacing)
+    }
+
     register<OnChangeLineHeight> {
         engine.block.setFloat(block, "text/lineHeight", it.height)
     }
 
     register<OnChangeSizeMode> {
-        val changedSizeMode = SizeMode.valueOf(it.sizeMode)
-        if (engine.block.getHeightMode(block) != changedSizeMode) {
+        val changedSizeMode = SizeModeUi.valueOf(it.sizeMode)
+
+        val (newHeightMode, newWidthMode) =
             when (changedSizeMode) {
-                SizeMode.ABSOLUTE -> {
-                    val width = engine.block.getFrameWidth(block)
-                    val height = engine.block.getFrameHeight(block)
-                    engine.block.setWidth(block, width)
-                    engine.block.setHeight(block, height)
-                }
-
-                SizeMode.AUTO -> {
-                    val width = engine.block.getFrameWidth(block)
-                    engine.block.setWidth(block, width)
-                }
-
-                SizeMode.PERCENT -> throw UnsupportedOperationException()
+                SizeModeUi.ABSOLUTE ->
+                    Pair(SizeMode.ABSOLUTE, SizeMode.ABSOLUTE)
+                SizeModeUi.AUTO_HEIGHT ->
+                    Pair(SizeMode.AUTO, SizeMode.ABSOLUTE)
+                SizeModeUi.AUTO_SIZE ->
+                    Pair(SizeMode.AUTO, SizeMode.AUTO)
+                SizeModeUi.UNKNOWN -> throw IllegalStateException("Unknown size mode")
             }
-            engine.block.setHeightMode(block, changedSizeMode)
+
+        if (
+            newWidthMode != engine.block.getWidthMode(block) ||
+            newHeightMode != engine.block.getHeightMode(block)
+        ) {
+            if (newWidthMode == SizeMode.ABSOLUTE) {
+                engine.block.setWidth(block, engine.block.getFrameWidth(block))
+            }
+            if (newHeightMode == SizeMode.ABSOLUTE) {
+                engine.block.setHeight(block, engine.block.getFrameHeight(block))
+            }
+
+            engine.block.setHeightMode(block, newHeightMode)
+            engine.block.setWidthMode(block, newWidthMode)
+            engine.editor.addUndoStep()
+        }
+    }
+
+    register<OnChangeClipping> {
+        engine.block.setBoolean(block, "text/clipLinesOutsideOfFrame", it.enabled)
+        engine.editor.addUndoStep()
+    }
+
+    register<OnChangeLetterCasing> {
+        if (engine.block.getTextCases(block).firstOrNull() != it.casing) {
+            engine.block.setTextCase(block, it.casing)
             engine.editor.addUndoStep()
         }
     }

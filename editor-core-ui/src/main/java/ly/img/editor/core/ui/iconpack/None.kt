@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
 import androidx.compose.ui.graphics.SolidColor
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.None: ImageVector
@@ -51,9 +53,12 @@ val IconPack.None: ImageVector
                     curveTo(32.4327f, 46.667f, 36.3993f, 45.267f, 39.4327f, 42.7003f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _none!!
     }
 
 private var _none: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.None.IconPreview()
