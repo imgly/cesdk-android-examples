@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
 import androidx.compose.ui.graphics.SolidColor
@@ -8,6 +9,7 @@ import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.Undo: ImageVector
@@ -54,9 +56,12 @@ val IconPack.Undo: ImageVector
                     curveTo(17.1043f, 18.475f, 15.7167f, 19.0f, 14.1f, 19.0f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _undo!!
     }
 
 private var _undo: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.Undo.IconPreview()

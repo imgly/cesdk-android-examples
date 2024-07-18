@@ -6,8 +6,10 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import ly.img.editor.core.ui.utils.ifTrue
 
 @Composable
 fun HalfHeightContainer(
@@ -15,7 +17,7 @@ fun HalfHeightContainer(
     content: @Composable BoxScope.() -> Unit,
 ) {
     BoxWithConstraints {
-        Box(Modifier.heightIn(max = maxHeight / 2, min = minHeight)) {
+        Box(Modifier.ifTrue(!LocalInspectionMode.current) { heightIn(max = maxHeight / 2, min = minHeight) }) {
             content()
         }
     }

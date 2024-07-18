@@ -56,10 +56,11 @@ class TextAssetSource(
         val totalPages = ceil(filteredAssets.size.toDouble() / query.perPage).toInt()
         return FindAssetsResult(
             assets =
-                filteredAssets.subList(
-                    query.page * query.perPage,
-                    filteredAssets.size,
-                ).take(query.perPage),
+                filteredAssets
+                    .subList(
+                        query.page * query.perPage,
+                        filteredAssets.size,
+                    ).take(query.perPage),
             currentPage = query.page,
             nextPage = if (query.page == totalPages) -1 else query.page + 1,
             total = filteredAssets.size,
@@ -69,10 +70,12 @@ class TextAssetSource(
     override suspend fun applyAsset(asset: Asset): DesignBlock? {
         val textBlock = engine.asset.defaultApplyAsset(asset) ?: return null
         val fontSize = requireNotNull(asset.meta?.get("fontSize")).toFloat() * (50.0f / 24.0f)
-        engine.block.setString(textBlock, "text/text", "Text")
+        engine.block.setString(textBlock, "text/text", asset.label ?: "Text")
         engine.block.setFloat(textBlock, "text/fontSize", fontSize)
         engine.block.setEnum(textBlock, "text/horizontalAlignment", "Center")
         engine.block.setHeightMode(textBlock, SizeMode.AUTO)
+        engine.block.setWidthMode(textBlock, SizeMode.ABSOLUTE)
+        engine.block.setBoolean(textBlock, "text/clipLinesOutsideOfFrame", false)
         return textBlock
     }
 

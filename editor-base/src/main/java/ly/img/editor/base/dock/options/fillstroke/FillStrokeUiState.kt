@@ -47,7 +47,7 @@ data class FillStrokeUiState(
                     fillType == FillType.RadialGradient ||
                     fillType == FillType.ConicalGradient
             )
-            val hasStroke = engine.block.hasStroke(designBlock)
+            val hasStroke = engine.block.supportsStroke(designBlock)
             val palette = colorPalette.take(6)
             return FillStrokeUiState(
                 titleRes = getFillStrokeTitleRes(hasSolidOrGradientFill, hasStroke),

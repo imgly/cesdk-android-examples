@@ -140,8 +140,7 @@ val IconPack.Addsticker: ImageVector
                     horizontalLineTo(18.5f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _addsticker!!
     }
 

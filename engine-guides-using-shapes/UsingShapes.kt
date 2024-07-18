@@ -1,5 +1,10 @@
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
+import ly.img.engine.FillType
+import ly.img.engine.ShapeType
 
 fun usingShapes(
     license: String,
@@ -34,11 +39,11 @@ fun usingShapes(
 
     // highlight-setup
 
-    // highlight-hasShape
-    engine.block.hasShape(graphic) // Returns true
+    // highlight-supportsShape
+    engine.block.supportsShape(graphic) // Returns true
     val text = engine.block.create(DesignBlockType.Text)
-    engine.block.hasShape(text) // Returns false
-    // highlight-hasShape
+    engine.block.supportsShape(text) // Returns false
+    // highlight-supportsShape
 
     // highlight-createShape
     val rectShape = engine.block.createShape(ShapeType.Rect)

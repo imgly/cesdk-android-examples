@@ -41,10 +41,10 @@ fun usingEffects(
     engine.block.setFill(block, fill = fill)
     // highlight-setup
 
-    // highlight-hasEffects
-    engine.block.hasEffects(scene) // Returns false
-    engine.block.hasEffects(block) // Returns true
-    // highlight-hasEffects
+    // highlight-supportsEffects
+    engine.block.supportsEffects(scene) // Returns false
+    engine.block.supportsEffects(block) // Returns true
+    // highlight-supportsEffects
 
     // highlight-createEffect
     val pixelize = engine.block.createEffect(type = EffectType.Pixelize)

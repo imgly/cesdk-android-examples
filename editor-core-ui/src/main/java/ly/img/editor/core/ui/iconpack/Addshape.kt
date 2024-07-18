@@ -109,8 +109,7 @@ val IconPack.Addshape: ImageVector
                     horizontalLineTo(17.5f)
                     close()
                 }
-            }
-                .build()
+            }.build()
         return _addshape!!
     }
 

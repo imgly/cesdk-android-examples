@@ -27,13 +27,14 @@ import ly.img.editor.core.ui.Environment
 import ly.img.editor.core.ui.EventsHandler
 import ly.img.editor.core.ui.engine.BlockKind
 import ly.img.editor.core.ui.engine.ROLE_ADOPTER
+import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.dpToCanvasUnit
 import ly.img.editor.core.ui.engine.getCamera
 import ly.img.editor.core.ui.engine.getKindEnum
 import ly.img.editor.core.ui.engine.getPage
+import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.editor.core.ui.library.components.section.LibrarySectionItem
 import ly.img.editor.core.ui.library.data.font.FontDataMapper
-import ly.img.editor.core.ui.library.engine.replaceSticker
 import ly.img.editor.core.ui.library.state.AssetLibraryUiState
 import ly.img.editor.core.ui.library.state.AssetsData
 import ly.img.editor.core.ui.library.state.AssetsLoadState
@@ -56,6 +57,7 @@ import ly.img.editor.core.ui.library.util.LibraryUiEvent
 import ly.img.editor.core.ui.register
 import ly.img.engine.Asset
 import ly.img.engine.AssetDefinition
+import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
 import ly.img.engine.FillType
@@ -253,17 +255,13 @@ class LibraryViewModel : ViewModel() {
         designBlock: DesignBlock,
     ) {
         viewModelScope.launch {
-            // Replace is currently not supported for stickers by the AssetSource API
+            engine.asset.applyAssetSourceAsset(assetSourceType.sourceId, asset, designBlock)
             if (assetType == AssetType.Sticker) {
-                engine.replaceSticker(designBlock, asset.getUri())
-            } else {
-                engine.asset.applyAssetSourceAsset(assetSourceType.sourceId, asset, designBlock)
-                if (engine.block.getKindEnum(
-                        designBlock,
-                    ) == BlockKind.Image && engine.editor.getRole() == ROLE_ADOPTER
-                ) {
-                    engine.block.setPlaceholderEnabled(designBlock, false)
+                engine.overrideAndRestore(designBlock, Scope.LayerCrop) {
+                    engine.block.setContentFillMode(designBlock, ContentFillMode.CONTAIN)
                 }
+            } else if (engine.block.getKindEnum(designBlock) == BlockKind.Image && engine.editor.getRole() == ROLE_ADOPTER) {
+                engine.block.setPlaceholderEnabled(designBlock, false)
             }
             engine.editor.addUndoStep()
         }

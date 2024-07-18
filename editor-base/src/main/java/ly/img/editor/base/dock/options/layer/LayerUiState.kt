@@ -26,14 +26,14 @@ internal fun createLayerUiState(
 ): LayerUiState {
     return LayerUiState(
         opacity =
-            if (engine.block.isAllowedByScope(designBlock, Scope.LayerOpacity) && engine.block.hasOpacity(designBlock)) {
+            if (engine.block.isAllowedByScope(designBlock, Scope.LayerOpacity) && engine.block.supportsOpacity(designBlock)) {
                 engine.block.getOpacity(designBlock)
             } else {
                 null
             },
         blendMode =
             if (engine.block.isAllowedByScope(designBlock, Scope.LayerBlendMode) &&
-                engine.block.hasBlendMode(designBlock)
+                engine.block.supportsBlendMode(designBlock)
             ) {
                 getBlendModeStringResource(engine.block.getBlendMode(designBlock))
             } else {

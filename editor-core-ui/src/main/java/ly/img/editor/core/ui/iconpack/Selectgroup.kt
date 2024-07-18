@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.iconpack
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
 import androidx.compose.ui.graphics.SolidColor
@@ -9,6 +10,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.group
 import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 val IconPack.Selectgroup: ImageVector
@@ -190,9 +192,12 @@ val IconPack.Selectgroup: ImageVector
                         close()
                     }
                 }
-            }
-                .build()
+            }.build()
         return _selectgroup!!
     }
 
 private var _selectgroup: ImageVector? = null
+
+@Preview
+@Composable
+private fun Preview() = IconPack.Selectgroup.IconPreview()

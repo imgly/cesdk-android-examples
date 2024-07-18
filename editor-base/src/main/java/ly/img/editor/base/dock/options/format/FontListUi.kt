@@ -1,6 +1,5 @@
 package ly.img.editor.base.dock.options.format
 
-import android.net.Uri
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -18,14 +17,15 @@ import ly.img.editor.core.ui.inspectorSheetPadding
 import ly.img.editor.core.ui.library.SelectableAssetListProvider
 import ly.img.editor.core.ui.library.data.font.FontData
 import ly.img.editor.core.ui.library.data.font.FontDataMapper
-import ly.img.engine.Typeface
+import ly.img.engine.FontStyle
+import ly.img.engine.FontWeight
 
 @Composable
 fun FontListUi(
     libraryCategory: LibraryCategory,
     fontFamily: String,
     filter: List<String>,
-    onSelectFont: (Uri, Typeface) -> Unit,
+    onSelectFont: (FontData) -> Unit,
 ) {
     var listData by remember {
         mutableStateOf<List<FontData>>(emptyList())
@@ -34,24 +34,42 @@ fun FontListUi(
     SelectableAssetListProvider(libraryCategory, filter, fontDataMapper::map) {
         listData = it
     }
-    if (listData.isNotEmpty()) {
+    FontListUi(fontList = listData, selectedFontFamily = fontFamily, onSelectFont = onSelectFont)
+}
+
+@Composable
+fun FontListUi(
+    fontList: List<FontData>,
+    selectedFontFamily: String,
+    selectedWeight: FontWeight? = null,
+    selectedStyle: FontStyle? = null,
+    labelMap: @Composable (FontData) -> String = { it.typeface.name },
+    onSelectFont: (FontData) -> Unit,
+) {
+    if (fontList.isNotEmpty()) {
         Card(
             colors = UiDefaults.cardColors,
             modifier = Modifier.inspectorSheetPadding(),
         ) {
             val selectedIndex =
-                remember(fontFamily) { listData.indexOfFirst { fontFamily == it.typeface.name } }
+                remember(selectedFontFamily) { fontList.indexOfFirst { selectedFontFamily == it.typeface.name } }
             val initialFirstVisibleItemIndex = if (selectedIndex == -1) 0 else selectedIndex
             val lazyListState = rememberLazyListState(initialFirstVisibleItemIndex = initialFirstVisibleItemIndex)
             LazyColumn(state = lazyListState) {
-                items(listData) {
+                items(fontList) {
                     CheckedTextRow(
-                        isChecked = fontFamily == it.typeface.name,
-                        text = it.typeface.name,
+                        isChecked =
+                            selectedFontFamily == it.typeface.name &&
+                                (selectedWeight == null || it.weight.weight == selectedWeight.value) &&
+                                (selectedStyle == null || it.style == selectedStyle),
+                        text = labelMap(it),
                         fontData = it,
                         onClick = {
-                            if (it.typeface.name != fontFamily) {
-                                onSelectFont(it.uri, it.typeface)
+                            if (it.typeface.name != selectedFontFamily ||
+                                (selectedWeight != null && it.weight.weight != selectedWeight.value) ||
+                                (selectedStyle != null && it.style != selectedStyle)
+                            ) {
+                                onSelectFont(it)
                             }
                         },
                     )

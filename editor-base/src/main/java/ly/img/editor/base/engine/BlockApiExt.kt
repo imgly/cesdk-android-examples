@@ -23,7 +23,7 @@ fun BlockApi.isFillStrokeSupported(designBlock: DesignBlock): Pair<Boolean, Bool
 }
 
 fun BlockApi.getFillType(designBlock: DesignBlock): FillType? {
-    return if (!this.hasFill(designBlock)) {
+    return if (!this.supportsFill(designBlock)) {
         null
     } else {
         FillType.get(this.getType(this.getFill(designBlock)))
@@ -35,7 +35,7 @@ fun BlockApi.setFillType(
     fillType: FillType,
 ): DesignBlock {
     val oldFill =
-        if (this.hasFill(designBlock)) {
+        if (this.supportsFill(designBlock)) {
             this.getType(block = designBlock)
             this.getFill(designBlock).takeIf { it != NoneDesignBlock }
         } else {
@@ -59,7 +59,7 @@ fun BlockApi.setBlurType(
     type: BlurType?,
 ): DesignBlock? {
     val oldBlur =
-        if (this.hasBlur(designBlock)) {
+        if (this.supportsBlur(designBlock)) {
             this.getBlur(designBlock).takeIf { it != NoneDesignBlock }
         } else {
             null
@@ -136,7 +136,7 @@ fun BlockApi.setConicalGradientFill(
 }
 
 fun BlockApi.getFillInfo(designBlock: DesignBlock): Fill? {
-    return if (!this.hasFill(designBlock)) {
+    return if (!this.supportsFill(designBlock)) {
         null
     } else {
         when (this.getFillType(designBlock)) {
