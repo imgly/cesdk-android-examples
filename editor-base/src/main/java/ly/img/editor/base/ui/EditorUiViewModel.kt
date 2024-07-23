@@ -1,11 +1,13 @@
 package ly.img.editor.base.ui
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -16,11 +18,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ly.img.editor.base.components.actionmenu.CanvasActionMenuUiState
 import ly.img.editor.base.components.actionmenu.createCanvasActionMenuUiState
 import ly.img.editor.base.components.color_picker.fillAndStrokeColors
@@ -53,6 +57,7 @@ import ly.img.editor.base.engine.delete
 import ly.img.editor.base.engine.duplicate
 import ly.img.editor.base.engine.isPlaceholder
 import ly.img.editor.base.engine.resetHistory
+import ly.img.editor.base.engine.setFillType
 import ly.img.editor.base.engine.setRoleButPreserveGlobalScopes
 import ly.img.editor.base.engine.showOutline
 import ly.img.editor.base.engine.showPage
@@ -85,7 +90,9 @@ import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.editor.core.ui.library.AppearanceLibraryCategory
 import ly.img.editor.core.ui.register
 import ly.img.engine.DesignBlock
+import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
+import ly.img.engine.FillType
 import ly.img.engine.GlobalScope
 import ly.img.engine.UnstableEngineApi
 import kotlin.math.abs
@@ -136,6 +143,8 @@ abstract class EditorUiViewModel(
     private val externalEventChannel = Channel<EditorEvent>()
     val externalEvent = externalEventChannel.receiveAsFlow()
 
+    private var bottomSheetHeight: Float = 0F
+    private var closingSheetContent: BottomSheetContent? = null
     private val _bottomSheetContent = MutableStateFlow<BottomSheetContent?>(null)
     val bottomSheetContent = _bottomSheetContent.asStateFlow()
 
@@ -144,6 +153,9 @@ abstract class EditorUiViewModel(
 
     private val _historyChangeTrigger = MutableSharedFlow<Unit>()
     protected val historyChangeTrigger = _historyChangeTrigger
+
+    private val thumbnailGenerationJobs: MutableMap<DesignBlock, Job?> = mutableMapOf()
+    private var pagesSessionId = 0
 
     init {
         with(viewModelScope) {
@@ -195,8 +207,6 @@ abstract class EditorUiViewModel(
         }
 
     private fun EventsHandler.editorEvents() {
-        register<Event.OnNextPage> { setPage(pageIndex.value + 1) }
-        register<Event.OnPreviousPage> { setPage(pageIndex.value - 1) }
         register<Event.OnError> { onError(it.throwable) }
         register<Event.OnBackPress> { onBackPress() }
         register<Event.OnBack> { onBack() }
@@ -217,6 +227,13 @@ abstract class EditorUiViewModel(
         register<Event.EnableHistory> { event -> _enableHistory.update { event.enable } }
         register<Event.OnBottomSheetHeightChange> { onBottomSheetHeightChange(it.heightInDp) }
         register<Event.OnKeyboardHeightChange> { onKeyboardHeightChange(it.heightInDp) }
+        register<Event.OnPage> { setPage(it.page) }
+        register<Event.OnNextPage> { setPage(pageIndex.value + 1) }
+        register<Event.OnPreviousPage> { setPage(pageIndex.value - 1) }
+        register<Event.OnAddPage> { onAddPage(it.index) }
+        register<Event.OnTogglePagesMode> { onTogglePagesMode() }
+        register<Event.OnPagesModePageSelectionChange> { onPagesSelectionChange(it.page) }
+        register<Event.OnPagesModePageBind> { onPagesModePageBind(it.page, it.pageHeight) }
     }
 
     private fun updateVisiblePageState() {
@@ -224,7 +241,7 @@ abstract class EditorUiViewModel(
         val page = engine.scene.getCurrentPage()
         val currentVisible = pages.indexOfFirst { page == it }
         if (pageIndex.value != currentVisible) {
-            pageIndex.value = currentVisible
+            setPage(index = currentVisible)
         }
     }
 
@@ -321,11 +338,20 @@ abstract class EditorUiViewModel(
 
     protected open fun getRootDockItems(assetLibrary: AssetLibrary): List<RootDockItemData> = emptyList()
 
-    open fun setPage(index: Int) {
+    protected open fun showPage(index: Int) {
+        engine.showPage(index)
+    }
+
+    protected open fun setPage(index: Int) {
         if (index == pageIndex.value) return
         pageIndex.update { index }
-        engine.showPage(index)
+        showPage(index)
         setBottomSheetContent { null }
+    }
+
+    protected fun setPageIndex(index: Int) {
+        if (index == pageIndex.value) return
+        pageIndex.update { index }
     }
 
     protected open fun handleBackPress(): Boolean {
@@ -337,13 +363,21 @@ abstract class EditorUiViewModel(
         } else if (selectedBlock.value != null) {
             engine.deselectAllBlocks()
             true
+        } else if (_uiState.value.pagesState != null) {
+            onTogglePagesMode()
+            true
         } else {
             false
         }
     }
 
     protected fun setBottomSheetContent(function: (BottomSheetContent?) -> BottomSheetContent?) {
-        _bottomSheetContent.update(function)
+        val newValue = function(_bottomSheetContent.value)
+        if (newValue == null && _bottomSheetContent.value != null && bottomSheetHeight > 0F) {
+            // Means it is closing
+            closingSheetContent = _bottomSheetContent.value
+        }
+        _bottomSheetContent.value = newValue
         setCanvasActionMenuState(show = bottomSheetContent.value == null)
     }
 
@@ -385,12 +419,13 @@ abstract class EditorUiViewModel(
             viewModelScope.launch {
                 runCatching {
                     migrationHelper.migrate()
+                    onPreCreate()
                     onCreate(engine, this@EditorUiViewModel)
                     val scene = requireNotNull(engine.scene.get()) { "onCreate body must contain scene creation." }
                     setSettings()
                     engine.addOutline(scene, engine.getPage(pageIndex.value))
                     engine.showOutline(false)
-                    engine.showPage(pageIndex.value)
+                    showPage(pageIndex.value)
                     enableEditMode().join()
                     engine.resetHistory()
                 }.onSuccess {
@@ -419,8 +454,14 @@ abstract class EditorUiViewModel(
     private fun onBottomSheetHeightChange(heightInDp: Float) {
         // we don't want to change zoom level for Library
         if (_isPreviewMode.value || !_isSceneLoaded.value) return
+        bottomSheetHeight = heightInDp
+        val closingSheetContent = this.closingSheetContent
+        if (heightInDp == 0F && closingSheetContent != null) {
+            this.closingSheetContent = null
+        }
         val bottomSheetContent = bottomSheetContent.value
         if (bottomSheetContent is LibraryBottomSheetContent || bottomSheetContent is LibraryCategoryBottomSheetContent) return
+        if (closingSheetContent is LibraryBottomSheetContent || closingSheetContent is LibraryCategoryBottomSheetContent) return
         zoom(heightInDp)
     }
 
@@ -433,6 +474,98 @@ abstract class EditorUiViewModel(
         zoom(heightInDp)
     }
 
+    protected open fun onPreCreate() {
+    }
+
+    private fun onAddPage(index: Int) {
+        val currentPage = engine.scene.getCurrentPage() ?: return
+        val parent = engine.block.getParent(currentPage) ?: return
+        val newPage = engine.block.create(DesignBlockType.Page)
+        engine.block.setWidth(newPage, engine.block.getWidth(currentPage))
+        engine.block.setHeight(newPage, engine.block.getHeight(currentPage))
+        engine.block.setFillType(newPage, FillType.Color)
+        engine.block.insertChild(parent, newPage, index)
+        engine.editor.addUndoStep()
+    }
+
+    private fun onTogglePagesMode() {
+        if (_uiState.value.pagesState != null) {
+            // Cancel all thumb generation jobs
+            _uiState.update {
+                it.copy(pagesState = null)
+            }
+            onStopGenerateAllPageThumbnails()
+            setCanvasActionMenuState(show = true)
+        } else {
+            engine.deselectAllBlocks()
+            setCanvasActionMenuState(show = false)
+            updateEditorPagesState()
+        }
+    }
+
+    private fun updateEditorPagesState() {
+        _uiState.update {
+            val pagesState =
+                it.pagesState
+                    ?.copy(engine, markThumbnails = true)
+                    ?: createEditorPagesState(pagesSessionId++, engine, pageIndex.value)
+            setPage(pagesState.selectedPageIndex)
+            it.copy(pagesState = pagesState)
+        }
+    }
+
+    private fun onPagesSelectionChange(page: EditorPagesState.Page) {
+        _uiState.update {
+            if (page == it.pagesState?.selectedPage) {
+                it
+            } else {
+                it.copy(pagesState = it.pagesState?.copy(engine, selectedPage = page, markThumbnails = false))
+            }
+        }
+    }
+
+    private fun onPagesModePageBind(
+        page: EditorPagesState.Page,
+        pageHeight: Int,
+    ) {
+        if (page.mark.not()) return
+        if (pageHeight <= 0) return
+        thumbnailGenerationJobs[page.block] =
+            viewModelScope.launch {
+                val result =
+                    runCatching {
+                        engine.block.generateVideoThumbnailSequence(
+                            block = page.block,
+                            thumbnailHeight = pageHeight,
+                            timeBegin = 0.0,
+                            timeEnd = 0.1,
+                            numberOfFrames = 1,
+                        ).firstOrNull()
+                    }.getOrNull() ?: return@launch
+                val bitmap =
+                    withContext(Dispatchers.Default) {
+                        Bitmap.createBitmap(result.width, result.height, Bitmap.Config.ARGB_8888).also {
+                            it.copyPixelsFromBuffer(result.imageData)
+                        }
+                    }
+                val newPage =
+                    page.copy(mark = false).also {
+                        it.thumbnail = bitmap
+                    }
+                _uiState.update {
+                    it.copy(pagesState = it.pagesState?.copy(updatedPage = newPage))
+                }
+            }
+    }
+
+    private fun onStopGenerateAllPageThumbnails() {
+        val iterator = thumbnailGenerationJobs.iterator()
+        while (iterator.hasNext()) {
+            iterator.next().value?.cancel()
+            iterator.remove()
+        }
+    }
+
     private fun zoom(bottomInset: Float) {
         val realBottomInset = bottomInset + verticalPageInset
         if (realBottomInset <= defaultInsets.bottom && currentInsets.bottom == defaultInsets.bottom) return
@@ -443,7 +576,7 @@ abstract class EditorUiViewModel(
     private var fitToPageZoomLevel = 0f
 
     @OptIn(UnstableEngineApi::class)
-    private fun zoom(
+    protected fun zoom(
         insets: Rect = defaultInsets,
         zoomToPage: Boolean = false,
         clampOnly: Boolean = false,
@@ -784,6 +917,9 @@ abstract class EditorUiViewModel(
                 updateVisiblePageState()
                 updateBottomSheetUiState()
                 setCanvasActionMenuState()
+                if (_uiState.value.pagesState != null) {
+                    updateEditorPagesState()
+                }
             }
         }
     }

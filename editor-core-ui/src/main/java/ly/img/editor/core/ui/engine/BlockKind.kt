@@ -9,10 +9,10 @@ enum class BlockKind(val key: String) {
     Shape("shape"),
 }
 
-fun BlockApi.getKindEnum(designBlock: DesignBlock): BlockKind {
+fun BlockApi.getKindEnum(designBlock: DesignBlock): BlockKind? {
     val kind = this.getKind(designBlock)
     for (blockKind in BlockKind.values()) {
         if (blockKind.key == kind) return blockKind
     }
-    throw UnsupportedOperationException("$kind is not supported yet")
+    return null
 }

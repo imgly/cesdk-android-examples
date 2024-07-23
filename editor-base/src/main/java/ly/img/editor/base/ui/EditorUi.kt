@@ -5,10 +5,12 @@ import android.app.Activity
 import android.content.res.Configuration
 import android.os.Parcelable
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -89,8 +91,9 @@ fun EditorUi(
     onEvent: (Activity, Parcelable, EditorEvent) -> Parcelable,
     overlay: @Composable ((Parcelable, EditorEventHandler) -> Unit),
     topBar: @Composable () -> Unit,
-    canvasOverlay: @Composable BoxScope.() -> Unit,
+    canvasOverlay: @Composable BoxScope.(PaddingValues) -> Unit,
     bottomSheetLayout: @Composable ColumnScope.(BottomSheetContent) -> Unit = {},
+    pagesOverlay: @Composable BoxScope.(PaddingValues) -> Unit = {},
     viewModel: EditorUiViewModel,
     close: () -> Unit,
 ) {
@@ -123,10 +126,10 @@ fun EditorUi(
             val window = (view.context as Activity).window
             window.navigationBarColor =
                 if (bottomSheetContent == null) {
-                    if (uiState.selectedBlock == null) {
-                        canvasColor
-                    } else {
-                        surfaceColor
+                    when {
+                        uiState.pagesState != null -> libraryColor
+                        uiState.selectedBlock != null -> surfaceColor
+                        else -> canvasColor
                     }
                 } else if (bottomSheetContent is LibraryBottomSheetContent) {
                     libraryColor
@@ -207,7 +210,9 @@ fun EditorUi(
             externalState.value = onEvent(activity, externalState.value, it)
         }
     }
-
+    var contentPadding by remember {
+        mutableStateOf<PaddingValues?>(null)
+    }
     ModalBottomSheetLayout(
         sheetState = scrimBottomSheetState,
         dismissContentDescription = stringResource(id = R.string.ly_img_editor_close),
@@ -312,6 +317,7 @@ fun EditorUi(
             Scaffold(
                 topBar = topBar,
             ) {
+                contentPadding = it
                 BoxWithConstraints {
                     val orientation = LocalConfiguration.current.orientation
                     EngineCanvasView(
@@ -347,7 +353,7 @@ fun EditorUi(
                             )
                         },
                     )
-                    canvasOverlay()
+                    canvasOverlay(it)
                     canvasActionMenuUiState?.let {
                         CanvasActionMenu(
                             uiState = it,
@@ -372,6 +378,11 @@ fun EditorUi(
                         onClick = { viewModel.onEvent(Event.OnOptionClick(it)) },
                     )
                 }
+            }
+        }
+        contentPadding?.let {
+            Box {
+                pagesOverlay(it)
             }
         }
         overlay(externalState.value, viewModel)
