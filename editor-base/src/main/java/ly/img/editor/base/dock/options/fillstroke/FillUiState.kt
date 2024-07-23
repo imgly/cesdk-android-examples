@@ -31,7 +31,7 @@ internal fun createFillUiState(
         colorPalette = colorPalette,
         isFillEnabled = isEnabled,
         supportFillTypes = supportFillTypes,
-        fillState = checkNotNull(engine.block.getFillInfo(designBlock)),
+        fillState = checkNotNull(engine.getFillInfo(designBlock)),
         fillTypeRes = getFillTypeRes(fillType.takeIf { isEnabled }),
     )
 }

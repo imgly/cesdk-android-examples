@@ -2,7 +2,7 @@ package ly.img.editor.core.ui.iconpack
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathFillType.Companion.NonZero
+import androidx.compose.ui.graphics.PathFillType.Companion.EvenOdd
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap.Companion.Butt
 import androidx.compose.ui.graphics.StrokeJoin.Companion.Miter
@@ -32,37 +32,41 @@ val IconPack.Delete: ImageVector
                     strokeLineCap = Butt,
                     strokeLineJoin = Miter,
                     strokeLineMiter = 4.0f,
-                    pathFillType = NonZero,
+                    pathFillType = EvenOdd,
                 ) {
-                    moveTo(7.0f, 21.0f)
-                    curveTo(6.45f, 21.0f, 5.9793f, 20.8043f, 5.588f, 20.413f)
-                    curveTo(5.196f, 20.021f, 5.0f, 19.55f, 5.0f, 19.0f)
+                    moveTo(15.0f, 3.0f)
+                    verticalLineTo(4.0f)
+                    horizontalLineTo(20.0f)
+                    verticalLineTo(6.0f)
+                    horizontalLineTo(19.0f)
+                    verticalLineTo(19.0f)
+                    curveTo(19.0f, 20.1f, 18.1f, 21.0f, 17.0f, 21.0f)
+                    horizontalLineTo(7.0f)
+                    curveTo(5.9f, 21.0f, 5.0f, 20.1f, 5.0f, 19.0f)
                     verticalLineTo(6.0f)
                     horizontalLineTo(4.0f)
                     verticalLineTo(4.0f)
                     horizontalLineTo(9.0f)
                     verticalLineTo(3.0f)
                     horizontalLineTo(15.0f)
-                    verticalLineTo(4.0f)
-                    horizontalLineTo(20.0f)
+                    close()
+                    moveTo(7.0f, 19.0f)
+                    horizontalLineTo(17.0f)
                     verticalLineTo(6.0f)
-                    horizontalLineTo(19.0f)
-                    verticalLineTo(19.0f)
-                    curveTo(19.0f, 19.55f, 18.8043f, 20.021f, 18.413f, 20.413f)
-                    curveTo(18.021f, 20.8043f, 17.55f, 21.0f, 17.0f, 21.0f)
                     horizontalLineTo(7.0f)
+                    verticalLineTo(19.0f)
                     close()
-                    moveTo(9.0f, 17.0f)
+                    moveTo(9.0f, 8.0f)
                     horizontalLineTo(11.0f)
-                    verticalLineTo(8.0f)
-                    horizontalLineTo(9.0f)
                     verticalLineTo(17.0f)
-                    close()
-                    moveTo(13.0f, 17.0f)
-                    horizontalLineTo(15.0f)
+                    horizontalLineTo(9.0f)
                     verticalLineTo(8.0f)
+                    close()
+                    moveTo(15.0f, 8.0f)
                     horizontalLineTo(13.0f)
                     verticalLineTo(17.0f)
+                    horizontalLineTo(15.0f)
+                    verticalLineTo(8.0f)
                     close()
                 }
             }.build()

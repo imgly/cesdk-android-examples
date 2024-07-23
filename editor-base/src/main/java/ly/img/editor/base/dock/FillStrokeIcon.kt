@@ -54,7 +54,7 @@ class FillStrokeIcon(
         ): FillStrokeIcon {
             val (isFillSupported, isStrokeSupported) = engine.block.isFillStrokeSupported(designBlock)
             return FillStrokeIcon(
-                fill = engine.block.getFillInfo(designBlock)?.takeIf { engine.block.isFillEnabled(designBlock) },
+                fill = engine.getFillInfo(designBlock)?.takeIf { engine.block.isFillEnabled(designBlock) },
                 hasFill = isFillSupported,
                 hasStroke = isStrokeSupported,
                 strokeColor = engine.getStrokeColor(designBlock)?.takeIf { engine.block.isStrokeEnabled(designBlock) },

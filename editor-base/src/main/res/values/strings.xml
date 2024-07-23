@@ -32,6 +32,9 @@
     <string name="ly_img_editor_options">Options</string>
     <string name="ly_img_editor_fill_and_stroke"><![CDATA[Fill & Stroke]]></string>
     <string name="ly_img_editor_fill">Fill</string>
+    <string name="ly_img_editor_move_up">Move Up</string>
+    <string name="ly_img_editor_move_down">Move Down</string>
+    <string name="ly_img_editor_add_page">Add Page</string>
 
     <string name="ly_img_editor_fill_type_solid">Solid</string>
     <string name="ly_img_editor_fill_type_gradient_linear">Gradient</string>
