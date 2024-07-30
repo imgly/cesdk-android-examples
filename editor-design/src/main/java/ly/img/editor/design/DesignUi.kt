@@ -6,6 +6,7 @@ import android.os.Parcelable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.base.rootdock.RootDockItem
 import ly.img.editor.base.rootdock.RootDockItemActionType
+import ly.img.editor.base.ui.EditorPagesDock
+import ly.img.editor.base.ui.EditorPagesUi
 import ly.img.editor.base.ui.EditorUi
 import ly.img.editor.base.ui.EditorUiTabIconMappings
 import ly.img.editor.core.engine.EngineRenderTarget
@@ -103,7 +106,7 @@ fun DesignUi(
         license = license,
         userId = userId,
         renderTarget = renderTarget,
-        uiState = uiState.editorUiViewState,
+        uiState = uiState,
         overlay = overlay,
         onEvent = onEvent,
         close = close,
@@ -111,10 +114,10 @@ fun DesignUi(
             DesignUiToolbar(
                 navigationIcon = navigationIcon,
                 onEvent = viewModel::onEvent,
-                isLoading = uiState.editorUiViewState.isLoading,
-                isInPreviewMode = uiState.editorUiViewState.isInPreviewMode,
-                isUndoEnabled = uiState.editorUiViewState.isUndoEnabled,
-                isRedoEnabled = uiState.editorUiViewState.isRedoEnabled,
+                pageCount = uiState.pageCount,
+                isPagesScreenActive = uiState.pagesState != null,
+                isUndoEnabled = uiState.isUndoEnabled,
+                isRedoEnabled = uiState.isRedoEnabled,
             )
         },
         canvasOverlay = {
@@ -134,7 +137,7 @@ fun DesignUi(
                     horizontalArrangement = Arrangement.Start,
                 ) {
                     var uri by rememberSaveable { mutableStateOf<Uri?>(null) }
-                    val rootBarItems = uiState.editorUiViewState.rootDockItems
+                    val rootBarItems = uiState.rootDockItems
                     val galleryLauncher = rememberGalleryLauncherForActivityResult(libraryViewModel::onEvent)
                     val cameraLauncher =
                         rememberCameraLauncherForActivityResult(
@@ -166,6 +169,24 @@ fun DesignUi(
                     }
                 }
             }
+        },
+        pagesOverlay = {
+            EditorPagesUi(
+                modifier =
+                    Modifier
+                        .padding(top = it.calculateTopPadding(), bottom = 84.dp)
+                        .fillMaxSize(),
+                state = uiState.pagesState,
+                onEvent = viewModel::onEvent,
+            )
+            EditorPagesDock(
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .height(84.dp),
+                state = uiState.pagesState,
+                onEvent = viewModel::onEvent,
+            )
         },
         viewModel = viewModel,
     )

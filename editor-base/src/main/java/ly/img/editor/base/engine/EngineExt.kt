@@ -18,6 +18,7 @@ import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
+import ly.img.engine.FillType
 import ly.img.engine.PositionMode
 import ly.img.engine.RGBAColor
 import ly.img.engine.ShapeType
@@ -166,28 +167,83 @@ fun Engine.isGrouped(designBlock: DesignBlock): Boolean {
 
 fun Engine.getFillColor(designBlock: DesignBlock): Color? {
     if (!block.supportsFill(designBlock)) return null
-    return (block.getColor(designBlock, "fill/solid/color") as RGBAColor).toComposeColor()
+    return block.getColor(designBlock, "fill/solid/color")
+        .toRGBColor(this)
+        .toComposeColor()
 }
 
 fun Engine.getStrokeColor(designBlock: DesignBlock): Color? {
     if (!block.supportsStroke(designBlock)) return null
-    return (block.getColor(designBlock, "stroke/color") as RGBAColor).toComposeColor()
+    return block.getColor(designBlock, "stroke/color")
+        .toRGBColor(this)
+        .toComposeColor()
+}
+
+fun Engine.getFillInfo(designBlock: DesignBlock): Fill? {
+    return if (!block.supportsFill(designBlock)) {
+        null
+    } else {
+        when (block.getFillType(designBlock)) {
+            FillType.Color -> {
+                val rgbaColor =
+                    if (DesignBlockType.getOrNull(block.getType(designBlock)) == DesignBlockType.Text) {
+                        block.getTextColors(designBlock).first().toRGBColor(this)
+                    } else {
+                        block.getColor(designBlock, "fill/solid/color") as RGBAColor
+                    }
+                SolidFill(rgbaColor.toComposeColor())
+            }
+
+            FillType.LinearGradient -> {
+                val fill = block.getFill(designBlock)
+                LinearGradientFill(
+                    startPointX = block.getFloat(fill, "fill/gradient/linear/startPointX"),
+                    startPointY = block.getFloat(fill, "fill/gradient/linear/startPointY"),
+                    endPointX = block.getFloat(fill, "fill/gradient/linear/endPointX"),
+                    endPointY = block.getFloat(fill, "fill/gradient/linear/endPointY"),
+                    colorStops = block.getGradientColorStops(fill, "fill/gradient/colors"),
+                )
+            }
+
+            FillType.RadialGradient -> {
+                val fill = block.getFill(designBlock)
+                RadialGradientFill(
+                    centerX = block.getFloat(fill, "fill/gradient/radial/centerPointX"),
+                    centerY = block.getFloat(fill, "fill/gradient/radial/centerPointY"),
+                    radius = block.getFloat(fill, "fill/gradient/radial/radius"),
+                    colorStops = block.getGradientColorStops(fill, "fill/gradient/colors"),
+                )
+            }
+
+            FillType.ConicalGradient -> {
+                val fill = block.getFill(designBlock)
+                ConicalGradientFill(
+                    centerX = block.getFloat(fill, "fill/gradient/conical/centerPointX"),
+                    centerY = block.getFloat(fill, "fill/gradient/conical/centerPointY"),
+                    colorStops = block.getGradientColorStops(fill, "fill/gradient/colors"),
+                )
+            }
+
+            // Image fill and Video fill are not supported yet
+            else -> null
+        }
+    }
 }
 
 fun Engine.canResetCrop(designBlock: DesignBlock) = block.getContentFillMode(designBlock) == ContentFillMode.CROP
 
-suspend fun Engine.zoomToPage(
+fun Engine.zoomToPage(
     pageIndex: Int,
     insets: Rect,
 ) {
     zoomToBlock(getPage(pageIndex), insets)
 }
 
-suspend fun Engine.zoomToScene(insets: Rect) {
+fun Engine.zoomToScene(insets: Rect) {
     zoomToBlock(getScene(), insets)
 }
 
-suspend fun Engine.zoomToBackdrop(insets: Rect) {
+fun Engine.zoomToBackdrop(insets: Rect) {
     zoomToBlock(getBackdropImage(), insets)
 }
 
@@ -246,16 +302,17 @@ fun Engine.showPage(
     }
 }
 
-private suspend fun Engine.zoomToBlock(
+private fun Engine.zoomToBlock(
     designBlock: DesignBlock,
     insets: Rect,
 ) {
-    scene.zoomToBlock(
+    scene.immediateZoomToBlock(
         block = designBlock,
         paddingLeft = insets.left,
         paddingTop = insets.top,
         paddingRight = insets.right,
         paddingBottom = insets.bottom,
+        forceUpdate = true,
     )
 }
 
