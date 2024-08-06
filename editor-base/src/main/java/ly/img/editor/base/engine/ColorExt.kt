@@ -1,6 +1,8 @@
 package ly.img.editor.base.engine
 
 import ly.img.engine.Color
+import ly.img.engine.ColorSpace
+import ly.img.engine.Engine
 import ly.img.engine.RGBAColor
 import kotlin.math.roundToInt
 import android.graphics.Color as AndroidColor
@@ -13,6 +15,10 @@ fun RGBAColor.toComposeColor(): ComposeColor {
         blue = this.b,
         alpha = this.a,
     )
+}
+
+fun Color.toRGBColor(engine: Engine): RGBAColor {
+    return this as? RGBAColor ?: engine.editor.convertColorToColorSpace(this, ColorSpace.SRGB) as RGBAColor
 }
 
 fun ComposeColor.toEngineColor(): RGBAColor {

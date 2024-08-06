@@ -6,7 +6,6 @@ import ly.img.engine.DesignBlock
 import ly.img.engine.EffectType
 import ly.img.engine.FillType
 import ly.img.engine.GradientColorStop
-import ly.img.engine.RGBAColor
 
 const val NoneDesignBlock: DesignBlock = -1
 
@@ -132,52 +131,6 @@ fun BlockApi.setConicalGradientFill(
     this.setFloat(fill, "fill/gradient/conical/centerPointY", value = centerPointY)
     if (colorStops != null) {
         this.setGradientColorStops(fill, property = "fill/gradient/colors", colorStops = colorStops)
-    }
-}
-
-fun BlockApi.getFillInfo(designBlock: DesignBlock): Fill? {
-    return if (!this.supportsFill(designBlock)) {
-        null
-    } else {
-        when (this.getFillType(designBlock)) {
-            FillType.Color -> {
-                val rgbaColor = this.getColor(designBlock, "fill/solid/color") as RGBAColor
-                SolidFill(rgbaColor.toComposeColor())
-            }
-
-            FillType.LinearGradient -> {
-                val fill = this.getFill(designBlock)
-                LinearGradientFill(
-                    startPointX = this.getFloat(fill, "fill/gradient/linear/startPointX"),
-                    startPointY = this.getFloat(fill, "fill/gradient/linear/startPointY"),
-                    endPointX = this.getFloat(fill, "fill/gradient/linear/endPointX"),
-                    endPointY = this.getFloat(fill, "fill/gradient/linear/endPointY"),
-                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors"),
-                )
-            }
-
-            FillType.RadialGradient -> {
-                val fill = this.getFill(designBlock)
-                RadialGradientFill(
-                    centerX = this.getFloat(fill, "fill/gradient/radial/centerPointX"),
-                    centerY = this.getFloat(fill, "fill/gradient/radial/centerPointY"),
-                    radius = this.getFloat(fill, "fill/gradient/radial/radius"),
-                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors"),
-                )
-            }
-
-            FillType.ConicalGradient -> {
-                val fill = this.getFill(designBlock)
-                ConicalGradientFill(
-                    centerX = this.getFloat(fill, "fill/gradient/conical/centerPointX"),
-                    centerY = this.getFloat(fill, "fill/gradient/conical/centerPointY"),
-                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors"),
-                )
-            }
-
-            // Image fill and Video fill are not supported yet
-            else -> null
-        }
     }
 }
 

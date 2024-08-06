@@ -65,9 +65,19 @@ interface Event : BaseEvent {
 
     data class OnBottomSheetHeightChange(val heightInDp: Float) : Event
 
+    data class OnPage(val page: Int) : Event
+
     data object OnNextPage : Event
 
     data object OnPreviousPage : Event
+
+    data class OnAddPage(val index: Int) : Event
+
+    data object OnTogglePagesMode : Event
+
+    data class OnPagesModePageSelectionChange(val page: EditorPagesState.Page) : Event
+
+    data class OnPagesModePageBind(val page: EditorPagesState.Page, val pageHeight: Int) : Event
 }
 
 interface BlockEvent : Event {
@@ -76,11 +86,19 @@ interface BlockEvent : Event {
     // region Layer Events
     object OnForward : BlockEvent
 
+    data class OnForwardNonSelected(val block: DesignBlock) : BlockEvent
+
     object OnBackward : BlockEvent
+
+    data class OnBackwardNonSelected(val block: DesignBlock) : BlockEvent
 
     object OnDuplicate : BlockEvent
 
+    data class OnDuplicateNonSelected(val block: DesignBlock) : BlockEvent
+
     object OnDelete : BlockEvent
+
+    data class OnDeleteNonSelected(val block: DesignBlock) : BlockEvent
 
     object ToFront : BlockEvent
 

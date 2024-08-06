@@ -36,18 +36,21 @@ class TextAssetSource(
                 label = "Title",
                 fontWeight = FontWeight.BOLD,
                 fontSize = 32,
+                fontScale = 4F,
             ),
             createAsset(
                 id = "headline",
                 label = "Headline",
                 fontWeight = FontWeight.MEDIUM,
                 fontSize = 18,
+                fontScale = 2.8F,
             ),
             createAsset(
                 id = "body",
                 label = "Body",
                 fontWeight = FontWeight.NORMAL,
                 fontSize = 14,
+                fontScale = 2F,
             ),
         )
 
@@ -69,9 +72,7 @@ class TextAssetSource(
 
     override suspend fun applyAsset(asset: Asset): DesignBlock? {
         val textBlock = engine.asset.defaultApplyAsset(asset) ?: return null
-        val fontSize = requireNotNull(asset.meta?.get("fontSize")).toFloat() * (50.0f / 24.0f)
         engine.block.setString(textBlock, "text/text", asset.label ?: "Text")
-        engine.block.setFloat(textBlock, "text/fontSize", fontSize)
         engine.block.setEnum(textBlock, "text/horizontalAlignment", "Center")
         engine.block.setHeightMode(textBlock, SizeMode.AUTO)
         engine.block.setWidthMode(textBlock, SizeMode.ABSOLUTE)
@@ -86,6 +87,7 @@ class TextAssetSource(
         label: String,
         fontWeight: FontWeight,
         fontSize: Int,
+        fontScale: Float,
     ): Asset {
         val fontUri =
             typeface
@@ -107,6 +109,7 @@ class TextAssetSource(
                     "fontFamily" to typeface.name,
                     "fontWeight" to fontWeight.value.toString(),
                     "fontSize" to fontSize.toString(),
+                    "fontScale" to fontScale.toString(),
                     "blockType" to DesignBlockType.Text.key,
                 ),
             payload = AssetPayload(typeface = typeface),
