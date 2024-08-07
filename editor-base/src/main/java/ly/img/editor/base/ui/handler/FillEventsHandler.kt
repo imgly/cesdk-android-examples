@@ -8,11 +8,19 @@ import ly.img.editor.base.engine.setFillType
 import ly.img.editor.base.engine.setLinearGradientFill
 import ly.img.editor.base.engine.setRadialGradientFill
 import ly.img.editor.base.engine.toEngineColor
-import ly.img.editor.base.ui.BlockEvent.*
+import ly.img.editor.base.ui.BlockEvent.OnChangeConicalGradientParams
+import ly.img.editor.base.ui.BlockEvent.OnChangeFillColor
+import ly.img.editor.base.ui.BlockEvent.OnChangeFillStyle
+import ly.img.editor.base.ui.BlockEvent.OnChangeGradientFillColors
+import ly.img.editor.base.ui.BlockEvent.OnChangeLinearGradientParams
+import ly.img.editor.base.ui.BlockEvent.OnChangeRadialGradientParams
+import ly.img.editor.base.ui.BlockEvent.OnDisableFill
+import ly.img.editor.base.ui.BlockEvent.OnEnableFill
 import ly.img.editor.core.ui.EventsHandler
 import ly.img.editor.core.ui.inject
 import ly.img.editor.core.ui.register
 import ly.img.engine.DesignBlock
+import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.GradientColorStop
@@ -125,7 +133,11 @@ fun EventsHandler.blockFillEvents(
     register<OnChangeFillColor> {
         engine.block.setFillEnabled(block, true)
         engine.block.setFillType(block, FillType.Color)
-        engine.block.setFillSolidColor(block, it.color.toEngineColor())
+        if (DesignBlockType.getOrNull(engine.block.getType(block)) == DesignBlockType.Text) {
+            engine.block.setTextColor(block, it.color.toEngineColor())
+        } else {
+            engine.block.setFillSolidColor(block, it.color.toEngineColor())
+        }
     }
 
     register<OnChangeGradientFillColors> {

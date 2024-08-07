@@ -21,6 +21,8 @@ internal fun setSettingsForEditorUi(
         setSettingString("basePath", baseUri.toString())
         setRole(ROLE_ADOPTER)
         setSettingEnum("camera/clamping/overshootMode", "Center")
+        val color = engine.editor.getSettingColor("highlightColor")
+        engine.editor.setSettingColor("placeholderHighlightColor", color)
     }
     arrayOf(
         Scope.TextCharacter,

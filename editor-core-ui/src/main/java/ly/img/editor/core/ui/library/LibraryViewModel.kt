@@ -204,7 +204,8 @@ class LibraryViewModel : ViewModel() {
             val cameraHeight = engine.block.getFloat(camera, "camera/resolution/height") / pixelRatio
 
             val screenRect = RectF(0f, 0f, cameraWidth, cameraHeight)
-            val pageRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(engine.getPage(0)))
+            val page = engine.scene.getCurrentPage() ?: engine.getPage(0)
+            val pageRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(page))
             val pageWidth = pageRect.width()
 
             // find visible page rect
