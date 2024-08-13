@@ -44,6 +44,14 @@ fun ShapeOptionsSheet(
                             valueRange = 3f..12f,
                             steps = 8,
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        PropertySlider(
+                            title = stringResource(R.string.ly_img_editor_round_corners),
+                            value = uiState.cornerRadius,
+                            onValueChange = { onEvent(BlockEvent.OnChangePolygonCornerRadius(it)) },
+                            onValueChangeFinished = { onEvent(BlockEvent.OnChangeFinish) },
+                            valueRange = 0f..1f,
+                        )
                     }
 
                     is LineShapeOptionsUiState -> {
@@ -72,6 +80,25 @@ fun ShapeOptionsSheet(
                             onValueChange = { onEvent(BlockEvent.OnChangeStarInnerDiameter(it)) },
                             onValueChangeFinished = { onEvent(BlockEvent.OnChangeFinish) },
                             valueRange = 0.1f..1f,
+                        )
+                    }
+
+                    is RectShapeUiState -> {
+                        PropertySlider(
+                            title = stringResource(R.string.ly_img_editor_round_corners),
+                            value = uiState.cornerRadiusTopLeft,
+                            onValueChange = {
+                                onEvent(
+                                    BlockEvent.OnChangeRectCornerRadius(
+                                        it,
+                                        it,
+                                        it,
+                                        it,
+                                    ),
+                                )
+                            },
+                            onValueChangeFinished = { onEvent(BlockEvent.OnChangeFinish) },
+                            valueRange = 0f..1f,
                         )
                     }
                 }
