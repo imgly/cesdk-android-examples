@@ -15,12 +15,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -417,9 +419,13 @@ abstract class EditorUiViewModel(
             }
         } else {
             viewModelScope.launch {
+                engine.scene.onActiveChanged()
+                    .onEach { onSceneLoaded() }
+                    .collect()
+            }
+            viewModelScope.launch {
                 runCatching {
                     migrationHelper.migrate()
-                    onPreCreate()
                     onCreate(engine, this@EditorUiViewModel)
                     val scene = requireNotNull(engine.scene.get()) { "onCreate body must contain scene creation." }
                     setSettings()
@@ -474,7 +480,8 @@ abstract class EditorUiViewModel(
         zoom(heightInDp)
     }
 
-    protected open fun onPreCreate() {
+    protected open fun onSceneLoaded() {
+        engine.deselectAllBlocks()
     }
 
     private fun onAddPage(index: Int) {
