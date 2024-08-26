@@ -97,12 +97,13 @@ class DesignUiViewModel(
         engine.deselectAllBlocks()
     }
 
-    override fun onPreCreate() {
-        viewModelScope.launch {
-            engine.scene.onActiveChanged()
-                .onEach { onSceneLoaded() }
-                .collect()
+    override fun onSceneLoaded() {
+        super.onSceneLoaded()
+        engine.scene.get() ?: return
+        engine.getStackOrNull()?.let {
+            engine.block.setEnum(it, "stack/axis", LayoutAxis.Horizontal.name)
         }
+        engine.editor.setSettingBoolean(keypath = "features/pageCarouselEnabled", value = true)
         viewModelScope.launch {
             engine.editor.onCarouselPageChanged()
                 .onEach {
@@ -112,14 +113,6 @@ class DesignUiViewModel(
                 }
                 .collect()
         }
-    }
-
-    private fun onSceneLoaded() {
-        engine.scene.get() ?: return
-        engine.getStackOrNull()?.let {
-            engine.block.setEnum(it, "stack/axis", LayoutAxis.Horizontal.name)
-        }
-        engine.editor.setSettingBoolean(keypath = "features/pageCarouselEnabled", value = true)
     }
 
     override fun showPage(index: Int) {

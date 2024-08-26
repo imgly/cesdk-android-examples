@@ -12,6 +12,8 @@ import androidx.compose.ui.unit.dp
 import ly.img.editor.base.components.ColorButton
 import ly.img.editor.base.components.color_picker.ColorPickerButton
 import ly.img.editor.base.components.color_picker.fillAndStrokeColors
+import ly.img.editor.core.theme.EditorTheme
+import ly.img.editor.core.ui.utils.ThemePreview
 
 @Composable
 fun ColorOptions(
@@ -30,21 +32,80 @@ fun ColorOptions(
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         if (allowDisableColor) {
             ColorButton(
                 color = null,
+                modifier = Modifier.weight(1f),
                 selected = !enabled,
                 onClick = onNoColorSelected,
                 punchHole = punchHole,
             )
         }
         colors.forEach { color ->
-            ColorButton(color = color, selected = color == selectedColor && enabled, punchHole = punchHole, onClick = {
-                onColorSelected(color)
-            })
+            ColorButton(
+                color = color,
+                modifier = Modifier.weight(1f),
+                selected = color == selectedColor && enabled,
+                punchHole = punchHole,
+                onClick = {
+                    onColorSelected(color)
+                },
+            )
         }
-        ColorPickerButton(color = selectedColor, onClick = openColorPicker, punchHole = punchHole)
+        ColorPickerButton(
+            color = selectedColor,
+            modifier = Modifier.weight(1f),
+            onClick = openColorPicker,
+            punchHole = punchHole,
+        )
+    }
+}
+
+@ThemePreview
+@Composable
+private fun ColorOptionsPreview() {
+    EditorTheme {
+        ColorOptions(
+            enabled = true,
+            selectedColor = fillAndStrokeColors.random(),
+            onNoColorSelected = { },
+            onColorSelected = {},
+            openColorPicker = { },
+            colors = fillAndStrokeColors,
+        )
+    }
+}
+
+@ThemePreview
+@Composable
+private fun ColorOptionsWithoutDisableColorPreview() {
+    EditorTheme {
+        ColorOptions(
+            enabled = true,
+            selectedColor = fillAndStrokeColors.random(),
+            onNoColorSelected = { },
+            onColorSelected = {},
+            openColorPicker = { },
+            allowDisableColor = false,
+            colors = fillAndStrokeColors,
+        )
+    }
+}
+
+@ThemePreview
+@Composable
+private fun ColorOptionsWithPunchHolePreview() {
+    EditorTheme {
+        ColorOptions(
+            enabled = true,
+            selectedColor = fillAndStrokeColors.random(),
+            onNoColorSelected = { },
+            onColorSelected = {},
+            openColorPicker = { },
+            punchHole = true,
+            colors = fillAndStrokeColors,
+        )
     }
 }

@@ -45,7 +45,7 @@ import ly.img.editor.core.ui.iconpack.Keyboard
 import ly.img.editor.core.ui.iconpack.Layersoutline
 import ly.img.editor.core.ui.iconpack.Replace
 import ly.img.editor.core.ui.iconpack.Selectgroup
-import ly.img.editor.core.ui.iconpack.Tunevariant
+import ly.img.editor.core.ui.iconpack.ShapeIcon
 import ly.img.editor.core.ui.iconpack.Typeface
 import ly.img.editor.core.ui.tab_item.TabIcon
 import ly.img.engine.DesignBlock
@@ -60,7 +60,7 @@ data class Block(
     val options: List<OptionItemData> = emptyList(),
 )
 
-private val shapesWithOptions = arrayOf(ShapeType.Star, ShapeType.Polygon, ShapeType.Line)
+private val shapesWithOptions = arrayOf(ShapeType.Star, ShapeType.Polygon, ShapeType.Line, ShapeType.Rect)
 
 internal fun createBlock(
     designBlock: DesignBlock,
@@ -115,7 +115,7 @@ internal fun createBlock(
 
                 SelectGroup -> addOption(R.string.ly_img_editor_select_group, VectorIcon(IconPack.Selectgroup))
                 Adjustments -> addOption(R.string.ly_img_editor_adjustment, VectorIcon(IconPack.Adjustments))
-                ShapeOptions -> addOption(R.string.ly_img_editor_options, VectorIcon(IconPack.Tunevariant))
+                ShapeOptions -> addOption(R.string.ly_img_editor_options, VectorIcon(IconPack.ShapeIcon))
                 Duplicate -> addOption(R.string.ly_img_editor_duplicate, VectorIcon(IconPack.Duplicate))
                 Delete ->
                     addOption(
@@ -128,13 +128,14 @@ internal fun createBlock(
     }
 
     val hasLayerOption =
-        type != DesignBlockType.Page && (
-            isAllowedByScope(Scope.LayerBlendMode) ||
-                isAllowedByScope(Scope.LayerOpacity) ||
-                engine.isMoveAllowed(designBlock) ||
-                engine.isDeleteAllowed(designBlock) ||
-                engine.isDuplicateAllowed(designBlock)
-        )
+        type != DesignBlockType.Page &&
+            (
+                isAllowedByScope(Scope.LayerBlendMode) ||
+                    isAllowedByScope(Scope.LayerOpacity) ||
+                    engine.isMoveAllowed(designBlock) ||
+                    engine.isDeleteAllowed(designBlock) ||
+                    engine.isDuplicateAllowed(designBlock)
+            )
 
     when (type) {
         DesignBlockType.Text -> {

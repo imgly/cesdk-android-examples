@@ -6,6 +6,7 @@ import ly.img.engine.DesignBlock
 import ly.img.engine.EffectType
 import ly.img.engine.FillType
 import ly.img.engine.GradientColorStop
+import kotlin.math.min
 
 const val NoneDesignBlock: DesignBlock = -1
 
@@ -21,13 +22,12 @@ fun BlockApi.isFillStrokeSupported(designBlock: DesignBlock): Pair<Boolean, Bool
     return hasSolidOrGradientFill to hasStroke
 }
 
-fun BlockApi.getFillType(designBlock: DesignBlock): FillType? {
-    return if (!this.supportsFill(designBlock)) {
+fun BlockApi.getFillType(designBlock: DesignBlock): FillType? =
+    if (!this.supportsFill(designBlock)) {
         null
     } else {
         FillType.get(this.getType(this.getFill(designBlock)))
     }
-}
 
 fun BlockApi.setFillType(
     designBlock: DesignBlock,
@@ -160,4 +160,10 @@ fun BlockApi.removeEffectByType(
     if (filterId != -1) {
         this.removeEffect(block, filterId)
     }
+}
+
+fun BlockApi.getSmallerSide(block: DesignBlock): Float {
+    val height = getHeight(block)
+    val width = getWidth(block)
+    return min(width, height)
 }
