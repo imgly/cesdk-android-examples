@@ -1,0 +1,793 @@
+{
+  "version": "1.0.0",
+  "id": "ly.img.image.showcase",
+  "assets": [
+    {
+      "id": "5ec9a2f3-ac60-4f10-aceb-251ec1a691db",
+      "meta": {
+        "height": 1333,
+        "width": 2000,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F5ec9a2f3-ac60-4f10-aceb-251ec1a691db-thumbnail?alt=media&token=8d7aa438-cd54-47e6-8c17-1208a5c4e777",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F5ec9a2f3-ac60-4f10-aceb-251ec1a691db?alt=media&token=0c044c36-0b05-4634-a1c7-02773a137ec1"
+      },
+      "label": {
+        "en": "Break in the Woods",
+        "de": "Pause im Grünen"
+      },
+      "tags": {
+        "en": [
+          "men",
+          "green",
+          "Photo",
+          "forrest",
+          "woods",
+          "rock",
+          "national park",
+          "fog",
+          "holiday"
+        ],
+        "de": [
+          "Männer",
+          "grün",
+          "Foto",
+          "Wald",
+          "Stein",
+          "Nationalpark",
+          "Nebel",
+          "Urlaub"
+        ]
+      }
+    },
+    {
+      "id": "46f68ae6-7a6c-4c87-a94f-377a6c0e6bca",
+      "meta": {
+        "height": 2731,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F46f68ae6-7a6c-4c87-a94f-377a6c0e6bca-thumbnail?alt=media&token=7098bed4-a70c-465e-b1de-610cdb6fb139",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F46f68ae6-7a6c-4c87-a94f-377a6c0e6bca?alt=media&token=6ac677db-5a39-4749-bc3c-eab6f7bd9291"
+      },
+      "label": {
+        "en": "Sunset Surf",
+        "de": "Sonnenuntergang"
+      },
+      "tags": {
+        "en": [
+          "Sea",
+          "orange",
+          "clouds",
+          "waves",
+          "sunset",
+          "holiday",
+          "board",
+          "people",
+          "happy",
+          "sport",
+          "ripping"
+        ],
+        "de": [
+          "Meer",
+          "orange",
+          "Wolken",
+          "Wellen",
+          "Sonnenuntergang",
+          "Urlaub",
+          "Surfbrett",
+          "Menschen",
+          "glücklich",
+          "Sport",
+          "ripping"
+        ]
+      }
+    },
+    {
+      "id": "2e1817db-1cc8-4710-9104-749fcfceade6",
+      "meta": {
+        "height": 2000,
+        "width": 3008,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F2e1817db-1cc8-4710-9104-749fcfceade6-thumbnail?alt=media&token=aa0f708a-64b7-4c24-9de8-f6c2f354f49f",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F2e1817db-1cc8-4710-9104-749fcfceade6?alt=media&token=570cd97f-88eb-4343-97b1-53a431ebdc84"
+      },
+      "label": {
+        "en": "Hip Hop Street",
+        "de": "Hip Hop Straße"
+      },
+      "tags": {
+        "en": [
+          "Dance",
+          "City",
+          "Guy",
+          "Urban",
+          "Yellow",
+          "grey",
+          "lantern",
+          "cars",
+          "concrete",
+          "happy",
+          "moving",
+          "Jeans"
+        ],
+        "de": [
+          "Tanzen",
+          "Stadt",
+          "Typ",
+          "urban",
+          "gelb",
+          "grau",
+          "Laterne",
+          "Autos",
+          "Beton",
+          "glücklich",
+          "Bewegung",
+          "Jeans"
+        ]
+      }
+    },
+    {
+      "id": "3c37aa27-3e16-4146-af2d-11f062513a34",
+      "meta": {
+        "height": 3072,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F3c37aa27-3e16-4146-af2d-11f062513a34-thumbnail?alt=media&token=153e6d2f-dbfd-4ead-bb29-3f9a9e49c148",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F3c37aa27-3e16-4146-af2d-11f062513a34?alt=media&token=f87ebad8-4f58-47fb-865d-3a8d756f2841"
+      },
+      "label": {
+        "en": "Palm Trees",
+        "de": "Palmen"
+      },
+      "tags": {
+        "en": [
+          "Beach",
+          "Sun",
+          "Palm tree",
+          "Outlook",
+          "holiday",
+          "rescue",
+          "sand",
+          "blue sky"
+        ],
+        "de": [
+          "Strand",
+          "Sonne",
+          "Palme",
+          "Ausguck",
+          "Urlaub",
+          "Rettung",
+          "Sand",
+          "blauer Himmel"
+        ]
+      }
+    },
+    {
+      "id": "f2f7691f-9eb7-46a5-a188-b863847c11e5",
+      "meta": {
+        "height": 2726,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Ff2f7691f-9eb7-46a5-a188-b863847c11e5-thumbnail?alt=media&token=bd1f11ee-f346-4fd8-9972-7c43d9dc83f3",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Ff2f7691f-9eb7-46a5-a188-b863847c11e5?alt=media&token=ddd009e8-8a0c-41bf-bad8-7d97ea0a8873"
+      },
+      "label": {
+        "en": "Freedom",
+        "de": "Freiheit"
+      },
+      "tags": {
+        "en": [
+          "woman",
+          "happy",
+          "smile",
+          "laughing",
+          "woods",
+          "stream",
+          "creek",
+          "river",
+          "forrest",
+          "bridge",
+          "log",
+          "gren"
+        ],
+        "de": [
+          "Frau,",
+          "glücklich",
+          "Lächeln",
+          "Lachen",
+          "Wälder",
+          "Strom",
+          "Bach",
+          "Fluss",
+          "Wald",
+          "Brücke",
+          "Holz",
+          "grün"
+        ]
+      }
+    },
+    {
+      "id": "b5be8b2d-ca90-4d0b-846f-651ec91cdc52",
+      "meta": {
+        "height": 4096,
+        "width": 2731,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fb5be8b2d-ca90-4d0b-846f-651ec91cdc52-thumbnail?alt=media&token=e3d56919-9865-400d-b3f9-42ac2f8fb03b",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fb5be8b2d-ca90-4d0b-846f-651ec91cdc52?alt=media&token=36b614ed-609c-4454-9b23-197eae0193d8"
+      },
+      "label": {
+        "en": "Evening Sun",
+        "de": "Abendsonne"
+      },
+      "tags": {
+        "en": [
+          "girl",
+          "happy",
+          "beige",
+          "asian",
+          "thinking",
+          "bag",
+          "building",
+          "chain"
+        ],
+        "de": [
+          "Mädchen",
+          "glücklich",
+          "beige",
+          "asiatisch",
+          "denken",
+          "Tasche",
+          "Gebäude",
+          "Halskette"
+        ]
+      }
+    },
+    {
+      "id": "5cd48ed2-b02b-4f0c-ad82-4152e8e8e0ff",
+      "meta": {
+        "height": 2731,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F5cd48ed2-b02b-4f0c-ad82-4152e8e8e0ff-thumbnail?alt=media&token=bf2c3ffb-a8fa-47e9-9fe7-2bceecb0ecc7",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F5cd48ed2-b02b-4f0c-ad82-4152e8e8e0ff?alt=media&token=e729736b-cda1-4564-b716-09c8899d848c"
+      },
+      "label": {
+        "en": "City Lights",
+        "de": "Stadtlichter"
+      },
+      "tags": {
+        "en": [
+          "dark",
+          "street",
+          "traffic lights",
+          "hazy",
+          "black",
+          "red",
+          "Umbrella"
+        ],
+        "de": [
+          "dunkel",
+          "Straße",
+          "Ampeln",
+          "benebelt",
+          "schwarz",
+          "rot",
+          "Regenschirm"
+        ]
+      }
+    },
+    {
+      "id": "e7778034-4cd6-409e-97ef-cfaaba63f6c4",
+      "meta": {
+        "height": 2760,
+        "width": 3680,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fe7778034-4cd6-409e-97ef-cfaaba63f6c4-thumbnail?alt=media&token=24830602-fdf4-4987-af3a-75f7f51da0b2",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fe7778034-4cd6-409e-97ef-cfaaba63f6c4?alt=media&token=aa341ec9-2ac7-41c8-9fbb-25e483262805"
+      },
+      "label": {
+        "en": "Snorkelling",
+        "de": "Schnorcheln"
+      },
+      "tags": {
+        "en": [
+          "man",
+          "guy",
+          "blue",
+          "Sea",
+          "sun",
+          "diving"
+        ],
+        "de": [
+          "Mann",
+          "Typ",
+          "blau",
+          "Meer",
+          "Sonne",
+          "Tauchen"
+        ]
+      }
+    },
+    {
+      "id": "9e5f633f-7d14-47f2-a7d2-b9735a8d0427",
+      "meta": {
+        "height": 2731,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F9e5f633f-7d14-47f2-a7d2-b9735a8d0427-thumbnail?alt=media&token=b6d832bc-b9ef-4856-ad55-851fa5d6a01e",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F9e5f633f-7d14-47f2-a7d2-b9735a8d0427?alt=media&token=408969e2-9368-4b34-b648-185fc922fb09"
+      },
+      "label": {
+        "en": "Mountain Panorama",
+        "de": "Berg Panorama"
+      },
+      "tags": {
+        "en": [
+          "mountains",
+          "mountain",
+          "morning",
+          "light colors",
+          "Sunrise",
+          "Lake",
+          "Beauty",
+          "beautiful",
+          "clouds",
+          "sky"
+        ],
+        "de": [
+          "Berge",
+          "Berg",
+          "Morgen",
+          "leichte Farben",
+          "Sonnenaufgang",
+          "See",
+          "Schönheit",
+          "schön",
+          "Wolken",
+          "Himmer"
+        ]
+      }
+    },
+    {
+      "id": "57967732-72e7-4ae9-9905-492055bcb02a",
+      "meta": {
+        "height": 2592,
+        "width": 3872,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F57967732-72e7-4ae9-9905-492055bcb02a-thumbnail?alt=media&token=135f5afb-295b-4d9c-b6c7-5ea9efe22a71",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F57967732-72e7-4ae9-9905-492055bcb02a?alt=media&token=78f72467-66f6-4a85-83c5-454b1921969f"
+      },
+      "label": {
+        "en": "Burning Beach",
+        "de": "Brennender Strand"
+      },
+      "tags": {
+        "en": [
+          "ocean",
+          "blue",
+          "rock",
+          "dark",
+          "black",
+          "beach",
+          "orange",
+          "holiday"
+        ],
+        "de": [
+          "Meer",
+          "blau",
+          "Stein",
+          "dunkel",
+          "schwarz",
+          "Strand",
+          "orange",
+          "Urlaub"
+        ]
+      }
+    },
+    {
+      "id": "8bbcdc72-1632-4881-a97f-75b7a53badfb",
+      "meta": {
+        "height": 2731,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F8bbcdc72-1632-4881-a97f-75b7a53badfb-thumbnail?alt=media&token=08e7abb4-285a-45fb-9b4f-07e05685435c",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F8bbcdc72-1632-4881-a97f-75b7a53badfb?alt=media&token=d75db9e1-0aff-411a-ae13-0f77ab619cf4"
+      },
+      "label": {
+        "en": "Outdoor Oven",
+        "de": "Outdoor Ofen"
+      },
+      "tags": {
+        "en": [
+          "wood",
+          "camping",
+          "forrest",
+          "brown",
+          "rock",
+          "cooking",
+          "food",
+          "happy",
+          "wilderness",
+          "pot",
+          "fire",
+          "green"
+        ],
+        "de": [
+          "Holz",
+          "zelten",
+          "Wald",
+          "braun",
+          "Stein",
+          "Kochen",
+          "Essen",
+          "glücklich",
+          "Wildnis",
+          "Topf",
+          "Feuer",
+          "grün"
+        ]
+      }
+    },
+    {
+      "id": "6e8ab4c5-3406-4923-8636-e3549278cb5f",
+      "meta": {
+        "height": 2720,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F6e8ab4c5-3406-4923-8636-e3549278cb5f-thumbnail?alt=media&token=0d523f1b-54ee-41c4-8765-9ef175a93572",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F6e8ab4c5-3406-4923-8636-e3549278cb5f?alt=media&token=efe1be55-015f-40c7-b20a-e3bd304486f6"
+      },
+      "label": {
+        "en": "Sweet Dog",
+        "de": "Goldiger Hund"
+      },
+      "tags": {
+        "en": [
+          "dog",
+          "tongue",
+          "licking",
+          "hungry",
+          "brown",
+          "close",
+          "animal",
+          "green"
+        ],
+        "de": [
+          "Hund",
+          "Zunge",
+          "lecken",
+          "hungrig",
+          "braun",
+          "nah",
+          "Tier",
+          "grün"
+        ]
+      }
+    },
+    {
+      "id": "dabcabcc-69f9-4ab1-b80b-2222acbb3ae0",
+      "meta": {
+        "height": 2712,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fdabcabcc-69f9-4ab1-b80b-2222acbb3ae0-thumbnail?alt=media&token=087f0027-e6ce-43f5-abd2-9ea2bb572b5c",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fdabcabcc-69f9-4ab1-b80b-2222acbb3ae0?alt=media&token=f663de9b-4ffd-4063-94eb-83f31c143782"
+      },
+      "label": {
+        "en": "Van Life",
+        "de": "Leben im Bus"
+      },
+      "tags": {
+        "en": [
+          "bus",
+          "holiday",
+          "beach",
+          "palm trees",
+          "blue",
+          "sun",
+          "brazil",
+          "spain",
+          "car",
+          "chilling",
+          "good life"
+        ],
+        "de": [
+          "Van",
+          "Urlaub",
+          "Strand",
+          "Palmen",
+          "blau",
+          "Sonne",
+          "Brasilien",
+          "Spanien",
+          "Auto",
+          "chillen",
+          "gutes Leben"
+        ]
+      }
+    },
+    {
+      "id": "f5612dda-aa54-4fc3-8011-71c6053dd11b",
+      "meta": {
+        "height": 2592,
+        "width": 3872,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Ff5612dda-aa54-4fc3-8011-71c6053dd11b-thumbnail?alt=media&token=8c649550-c027-4ce1-bbea-fedbaa6a4808",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Ff5612dda-aa54-4fc3-8011-71c6053dd11b?alt=media&token=ab3605b4-45de-434f-863f-3f24fddf6358"
+      },
+      "label": {
+        "en": "Orange Island",
+        "de": "Orangene Insel"
+      },
+      "tags": {
+        "en": [
+          "sundown",
+          "man",
+          "guy",
+          "ocean",
+          "holiday",
+          "boat",
+          "island",
+          "bird",
+          "fire",
+          "rowing",
+          "clouds"
+        ],
+        "de": [
+          "Sonnenuntergang",
+          "Mann",
+          "Typ",
+          "Meer",
+          "Urlaub",
+          "Boot",
+          "Insel",
+          "Vogel",
+          "Feuer",
+          "Rudern",
+          "Wolken"
+        ]
+      }
+    },
+    {
+      "id": "cfc6a228-87ac-4499-944b-ee7b785caf0c",
+      "meta": {
+        "height": 2731,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fcfc6a228-87ac-4499-944b-ee7b785caf0c-thumbnail?alt=media&token=673bb4ae-56d7-481f-8f24-102383b39170",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fcfc6a228-87ac-4499-944b-ee7b785caf0c?alt=media&token=0b719cd3-de83-4b0f-8301-9fc6fe4fa80a"
+      },
+      "label": {
+        "en": "Canal in the Eveneing",
+        "de": "Abends am Kanal"
+      },
+      "tags": {
+        "en": [
+          "purple",
+          "water",
+          "Urban",
+          "houses",
+          "city",
+          "people",
+          "people",
+          "evening",
+          "night"
+        ],
+        "de": [
+          "lila",
+          "Wasser",
+          "urban",
+          "Häuser",
+          "Stadt",
+          "Menschen",
+          "Leute",
+          "Abends",
+          "Nacht"
+        ]
+      }
+    },
+    {
+      "id": "c343b480-f83f-4a60-bde2-f125a3e55534",
+      "meta": {
+        "height": 2730,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fc343b480-f83f-4a60-bde2-f125a3e55534-thumbnail?alt=media&token=7516324b-236f-42fe-a247-ab0006922278",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fc343b480-f83f-4a60-bde2-f125a3e55534?alt=media&token=436d9360-7709-49fe-be17-b1174db17457"
+      },
+      "label": {
+        "en": "Walkway",
+        "de": "Fußgängerbrücke"
+      },
+      "tags": {
+        "en": [
+          "architecture",
+          "brown",
+          "building",
+          "simple",
+          "plain",
+          "aesthetic",
+          "sky",
+          "minimal"
+        ],
+        "de": [
+          "Architektur",
+          "braun",
+          "Gebäude",
+          "simpel",
+          "einfach",
+          "ästhetisch",
+          "Himmel",
+          "minimalistisch"
+        ]
+      }
+    },
+    {
+      "id": "b691da46-0f05-4220-8abb-78edf4ff6879",
+      "meta": {
+        "height": 2735,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fb691da46-0f05-4220-8abb-78edf4ff6879-thumbnail?alt=media&token=7dd517cd-33b1-4b21-910e-6f14f27d1409",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fb691da46-0f05-4220-8abb-78edf4ff6879?alt=media&token=68321863-81ab-40a9-9306-b607f6f06973"
+      },
+      "label": {
+        "en": "San Francisco",
+        "de": "San Francisco"
+      },
+      "tags": {
+        "en": [
+          "women",
+          "girls",
+          "Golden Gate Bridge",
+          "peace",
+          "tranquility",
+          "happy",
+          "sky",
+          "red",
+          "freedom",
+          "sea",
+          "ocean",
+          "light"
+        ],
+        "de": [
+          "Frauen",
+          "Mädels",
+          "Golden Gate Brücke",
+          "Peace",
+          "Frieden",
+          "glücklich",
+          "Himmel",
+          "rot",
+          "Freiheit",
+          "Urlaub",
+          "Meer",
+          "hell"
+        ]
+      }
+    },
+    {
+      "id": "db9fd67f-ddfa-446c-8bdb-fb9f1632fb1b",
+      "meta": {
+        "height": 2992,
+        "width": 3992,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fdb9fd67f-ddfa-446c-8bdb-fb9f1632fb1b-thumbnail?alt=media&token=e008daf4-8b95-4cac-8770-7768e2905590",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fdb9fd67f-ddfa-446c-8bdb-fb9f1632fb1b?alt=media&token=de1437f1-00d2-45d5-a346-2d051905e8ac"
+      },
+      "label": {
+        "en": "Guy at the beach",
+        "de": "Mann am Strand"
+      },
+      "tags": {
+        "en": [
+          "minimal",
+          "guy",
+          "man",
+          "coconut",
+          "eating",
+          "ocean",
+          "beach",
+          "sand",
+          "beige",
+          "yellow"
+        ],
+        "de": [
+          "minimalistisch",
+          "Typ",
+          "Mann",
+          "Kokosnuss",
+          "Essen",
+          "Meer",
+          "Strand",
+          "Sand",
+          "beige",
+          "gelb"
+        ]
+      }
+    },
+    {
+      "id": "c9f48272-93fe-44c4-b8bd-b044186e6ccb",
+      "meta": {
+        "height": 2731,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fc9f48272-93fe-44c4-b8bd-b044186e6ccb-thumbnail?alt=media&token=01b1e1c0-dd42-452e-9083-53f858833881",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2Fc9f48272-93fe-44c4-b8bd-b044186e6ccb?alt=media&token=829e889e-1109-474b-b2f4-7699bf7dd87e"
+      },
+      "label": {
+        "en": "Cat",
+        "de": "Katze"
+      },
+      "tags": {
+        "en": [
+          "fur",
+          "fluffy",
+          "animal",
+          "cute",
+          "winter",
+          "window",
+          "snow",
+          "cold",
+          "tree",
+          "light"
+        ],
+        "de": [
+          "fell",
+          "fluffig",
+          "Tier",
+          "süß",
+          "Winter",
+          "Fenster",
+          "Schnee",
+          "kalt",
+          "Baum",
+          "hell"
+        ]
+      }
+    },
+    {
+      "id": "1b346e50-9d20-42fe-a5b4-715fa6ae0325",
+      "meta": {
+        "height": 2731,
+        "width": 4096,
+        "blockType": "//ly.img.ubq/image",
+        "thumbUri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F1b346e50-9d20-42fe-a5b4-715fa6ae0325-thumbnail?alt=media&token=ea61603f-df5d-42f8-b559-29231d1e2976",
+        "uri": "https://firebasestorage.googleapis.com/v0/b/cesdk-ab4f3.appspot.com/o/dashboard%2Fuploads%2Fdesign%2FsoTVf9OVUOJ2xYYy1E3N%2F1b346e50-9d20-42fe-a5b4-715fa6ae0325?alt=media&token=dd7e931b-f013-4913-97d4-2165ef958108"
+      },
+      "label": {
+        "en": "Waterfall",
+        "de": "Wasserfall"
+      },
+      "tags": {
+        "en": [
+          "green",
+          "Photo",
+          "woods",
+          "forrest",
+          "rock",
+          "national park",
+          "fog",
+          "holiday",
+          "tree",
+          "log",
+          "bench",
+          "seat"
+        ],
+        "de": [
+          "grün",
+          "Foto",
+          "Wälder",
+          "Wald",
+          "Stein",
+          "Nationalpark",
+          "Nebel",
+          "Urlaub",
+          "Baum",
+          "Baumstamm",
+          "Sitzbank",
+          "Bank"
+        ]
+      }
+    }
+  ]
+}

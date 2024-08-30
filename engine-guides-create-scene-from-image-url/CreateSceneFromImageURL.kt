@@ -2,30 +2,25 @@ import android.net.Uri
 import kotlinx.coroutines.*
 import ly.img.engine.*
 
-fun createSceneFromImageURL(
-    license: String,
-    userId: String,
-) = CoroutineScope(
-    Dispatchers.Main,
-).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
+fun createSceneFromImageURL() = CoroutineScope(Dispatchers.Main).launch {
+    val engine = Engine(id = "ly.img.engine.example")
+    engine.start()
     engine.bindOffscreen(width = 100, height = 100)
 
-    // highlight-createFromImage
+    // highlight-initialImageURL
     val imageRemoteUri = Uri.parse("https://img.ly/static/ubq_samples/sample_4.jpg")
     val scene = engine.scene.createFromImage(imageRemoteUri)
-    // highlight-createFromImage
+    // highlight-initialImageURL
 
-    // highlight-findByType
-    // Find the automatically added graphic block in the scene that contains the image fill.
-    val block = engine.block.findByType(DesignBlockType.Graphic).first()
-    // highlight-findByType
+    // highlight-find-image
+    // Find the automatically added image element in the scene.
+    val image = engine.block.findByType(DesignBlockType.IMAGE).first()
+    // highlight-find-image
 
-    // highlight-setOpacity
+    // highlight-set-opacity
     // Change its opacity.
-    engine.block.setOpacity(block, value = 0.5F)
-    // highlight-setOpacity
+    engine.block.setOpacity(image, value = 0.5F)
+    // highlight-set-opacity
 
     engine.stop()
 }
