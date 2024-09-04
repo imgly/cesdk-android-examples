@@ -23,12 +23,15 @@ import ly.img.editor.postcard.PostcardUi
  * 1. activity.finish() if the editor is launched in a standalone activity.
  * 2. fragmentManager.popBackStack() if the editor is launched in a fragment.
  * 3. navController.popBackStack() if the editor is launched as a new composable destination in NavHost.
+ * If the optional parameter [Throwable] is not null, it means that the editor is closed due to an error.
+ * The value is propagated from [ly.img.editor.core.event.EditorEventHandler.sendCloseEditorEvent]. Unless custom types are sent
+ * to this function, the throwable is always going to be either an [EditorException] or [ly.img.engine.EngineException].
  */
 @Composable
 fun PostcardEditor(
     engineConfiguration: EngineConfiguration,
     editorConfiguration: EditorConfiguration<*> = EditorConfiguration.getDefault(),
-    onClose: () -> Unit,
+    onClose: (Throwable?) -> Unit,
 ) {
     EditorTheme(
         useDarkTheme = editorConfiguration.uiMode.useDarkTheme,

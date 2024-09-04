@@ -95,7 +95,7 @@ fun EditorUi(
     bottomSheetLayout: @Composable ColumnScope.(BottomSheetContent) -> Unit = {},
     pagesOverlay: @Composable BoxScope.(PaddingValues) -> Unit = {},
     viewModel: EditorUiViewModel,
-    close: () -> Unit,
+    close: (Throwable?) -> Unit,
 ) {
     val externalState = rememberSaveable { mutableStateOf(initialExternalState) }
     val uiScope = rememberCoroutineScope()
@@ -179,7 +179,7 @@ fun EditorUi(
         viewModel.uiEvent.collect {
             when (it) {
                 is SingleEvent.Exit -> {
-                    close()
+                    close(it.throwable)
                 }
 
                 is SingleEvent.ChangeSheetState -> {

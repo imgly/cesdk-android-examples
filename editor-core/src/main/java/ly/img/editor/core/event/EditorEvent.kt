@@ -17,6 +17,8 @@ interface EditorEventHandler {
     /**
      * A special function for closing the editor. This force closes the editor without entering the
      * [ly.img.editor.EngineConfiguration.onClose] callback.
+     *
+     * @param throwable an optional parameter in case the editor is closed due to an error.
      */
-    fun sendCloseEditorEvent()
+    fun sendCloseEditorEvent(throwable: Throwable? = null)
 }

@@ -22,7 +22,7 @@ internal val EditorTypography =
             TextStyle(
                 fontFamily = Roboto,
                 fontWeight = FontWeight.Medium,
-                letterSpacing = 0.5.sp,
+                letterSpacing = 0.25.sp,
                 lineHeight = 16.sp,
                 fontSize = 12.sp,
             ),
@@ -30,7 +30,7 @@ internal val EditorTypography =
             TextStyle(
                 fontFamily = Roboto,
                 fontWeight = FontWeight.Medium,
-                letterSpacing = 0.5.sp,
+                letterSpacing = 0.35.sp,
                 lineHeight = 16.sp,
                 fontSize = 11.sp,
             ),
@@ -38,7 +38,7 @@ internal val EditorTypography =
             TextStyle(
                 fontFamily = Roboto,
                 fontWeight = FontWeight.W400,
-                letterSpacing = 0.5.sp,
+                letterSpacing = 0.sp,
                 lineHeight = 24.sp,
                 fontSize = 16.sp,
             ),
@@ -46,7 +46,7 @@ internal val EditorTypography =
             TextStyle(
                 fontFamily = Roboto,
                 fontWeight = FontWeight.W400,
-                letterSpacing = 0.25.sp,
+                letterSpacing = 0.sp,
                 lineHeight = 20.sp,
                 fontSize = 14.sp,
             ),
@@ -54,7 +54,7 @@ internal val EditorTypography =
             TextStyle(
                 fontFamily = Roboto,
                 fontWeight = FontWeight.W400,
-                letterSpacing = 0.4.sp,
+                letterSpacing = 0.sp,
                 lineHeight = 16.sp,
                 fontSize = 12.sp,
             ),

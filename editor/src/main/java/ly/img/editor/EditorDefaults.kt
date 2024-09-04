@@ -286,7 +286,7 @@ object EditorDefaults {
                 TextButton(
                     onClick = {
                         eventHandler.send(HideErrorDialogEvent)
-                        eventHandler.sendCloseEditorEvent()
+                        eventHandler.sendCloseEditorEvent(EditorException(EditorException.Code.NO_INTERNET))
                     },
                 ) {
                     Text(stringResource(R.string.ly_img_editor_dismiss))
@@ -319,7 +319,7 @@ object EditorDefaults {
                 TextButton(
                     onClick = {
                         eventHandler.send(HideErrorDialogEvent)
-                        eventHandler.sendCloseEditorEvent()
+                        eventHandler.sendCloseEditorEvent(engineException)
                     },
                 ) {
                     Text(stringResource(R.string.ly_img_editor_dismiss))

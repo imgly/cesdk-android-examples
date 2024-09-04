@@ -261,8 +261,8 @@ abstract class EditorUiViewModel(
         }
     }
 
-    override fun sendCloseEditorEvent() {
-        sendSingleEvent(SingleEvent.Exit)
+    override fun sendCloseEditorEvent(throwable: Throwable?) {
+        sendSingleEvent(SingleEvent.Exit(throwable))
     }
 
     protected open fun getBlockForEvents(): Block? = selectedBlock.value

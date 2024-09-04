@@ -66,7 +66,7 @@ fun PostcardUi(
     onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
     onEvent: (Activity, Parcelable, EditorEvent) -> Parcelable,
     overlay: @Composable ((Parcelable, EditorEventHandler) -> Unit),
-    close: () -> Unit,
+    close: (Throwable?) -> Unit,
 ) {
     val activity = requireNotNull(LocalContext.current.activity)
     remember {
