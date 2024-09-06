@@ -126,7 +126,6 @@ class PhotoUiViewModel(
         engine.editor.setSettingBoolean(keypath = "page/allowCropInteraction", value = true)
         engine.editor.setSettingBoolean(keypath = "page/allowMoveInteraction", value = false)
         engine.editor.setSettingBoolean(keypath = "page/allowResizeInteraction", value = false)
-        engine.editor.setSettingBoolean(keypath = "page/restrictResizeInteractionToFixedAspectRatio", value = false)
         engine.editor.setSettingBoolean(keypath = "page/allowRotateInteraction", value = false)
     }
 
