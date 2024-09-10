@@ -17,9 +17,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import ly.img.editor.version.details.VersionDetails
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,15 +48,6 @@ fun Showcases(navigateTo: (String) -> Unit) {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (ShowcasesBuildConfig.BUILD_NAME.isNotEmpty()) {
-                    item {
-                        VersionDetails(
-                            versionInfo = ShowcasesBuildConfig.BUILD_NAME,
-                            branchName = ShowcasesBuildConfig.BRANCH_NAME,
-                            versionCode = ShowcasesBuildConfig.VERSION_CODE,
-                        )
-                    }
-                }
                 item {
                     ShowcaseItem(
                         title = "Photo UI",
@@ -108,6 +100,21 @@ fun Showcases(navigateTo: (String) -> Unit) {
                         onClick = {
                             navigateTo(Screen.PostcardUi.getRoute("bonjour_paris"))
                         },
+                    )
+                }
+            }
+            if (ShowcasesBuildConfig.BUILD_NAME.isNotEmpty()) {
+                Card(
+                    modifier =
+                        Modifier
+                            .padding(bottom = 16.dp)
+                            .align(Alignment.BottomCenter),
+                ) {
+                    Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = ShowcasesBuildConfig.BUILD_NAME,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleSmall,
                     )
                 }
             }

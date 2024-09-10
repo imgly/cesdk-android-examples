@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import ly.img.editor.base.engine.LayoutAxis
 import ly.img.editor.base.engine.resetHistory
 import ly.img.editor.base.engine.setFillType
@@ -132,9 +133,11 @@ class PostcardUiViewModel(
     }
 
     override fun enterPreviewMode() {
-        engine.deselectAllBlocks()
-        showAllPages()
-        engine.zoomToScene(currentInsets)
+        viewModelScope.launch {
+            engine.deselectAllBlocks()
+            showAllPages()
+            engine.zoomToScene(currentInsets)
+        }
     }
 
     override suspend fun onPreExport() = Unit

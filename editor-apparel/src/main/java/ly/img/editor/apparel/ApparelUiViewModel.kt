@@ -2,7 +2,9 @@ package ly.img.editor.apparel
 
 import android.net.Uri
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import ly.img.editor.base.engine.showOutline
 import ly.img.editor.base.engine.zoomToBackdrop
 import ly.img.editor.base.ui.EditorUiViewModel
@@ -35,9 +37,11 @@ class ApparelUiViewModel(
     }
 
     override fun enterPreviewMode() {
-        engine.zoomToBackdrop(currentInsets)
-        engine.deselectAllBlocks()
-        pageSetup()
+        viewModelScope.launch {
+            engine.zoomToBackdrop(currentInsets)
+            engine.deselectAllBlocks()
+            pageSetup()
+        }
     }
 
     override fun onCanvasMove(move: Boolean) {

@@ -12,13 +12,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         // highlight-maven-dependency
-        maven {
-            name "IMG.LY Artifactory"
-            url "https://artifactory.img.ly/artifactory/maven"
-            mavenContent {
-                includeGroup("ly.img")
-            }
-        }
+        maven { url "https://artifactory.img.ly/artifactory/maven" }
         // highlight-maven-dependency
     }
 }
