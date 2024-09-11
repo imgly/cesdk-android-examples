@@ -47,7 +47,7 @@ fun ApparelUi(
     onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
     onEvent: (Activity, Parcelable, EditorEvent) -> Parcelable,
     overlay: @Composable ((Parcelable, EditorEventHandler) -> Unit),
-    close: (Throwable?) -> Unit,
+    close: () -> Unit,
 ) {
     val activity = requireNotNull(LocalContext.current.activity)
     remember {

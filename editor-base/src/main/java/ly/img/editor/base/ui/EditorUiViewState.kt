@@ -16,5 +16,4 @@ data class EditorUiViewState(
     val bottomSheetState: ModalBottomSheetState = ModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
     val pageCount: Int = 0,
     val rootDockItems: List<RootDockItemData> = emptyList(),
-    val pagesState: EditorPagesState? = null,
 )

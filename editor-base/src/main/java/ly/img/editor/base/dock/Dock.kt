@@ -40,8 +40,8 @@ import ly.img.editor.core.R
 import ly.img.editor.core.ui.iconpack.Close
 import ly.img.editor.core.ui.iconpack.IconPack
 
-val enterEasing = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
-val exitEasing = CubicBezierEasing(0.3f, 0f, 0.8f, 0.15f)
+private val enterEasing = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
+private val exitEasing = CubicBezierEasing(0.3f, 0f, 0.8f, 0.15f)
 
 @Composable
 fun Dock(

@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -27,7 +26,6 @@ fun TabItem(
     onClick: () -> Unit,
     @StringRes textRes: Int,
     icon: TabIcon,
-    enabled: Boolean = true,
     textColor: ColorSchemeKeyToken? = null,
     tabIconMappings: TabIconMappings = Environment.tabIconMappings,
 ) {
@@ -36,11 +34,8 @@ fun TabItem(
             ButtonDefaults.textButtonColors(
                 containerColor = Color.Transparent,
                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                disabledContainerColor = Color.Transparent,
-                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5F),
             ),
         onClick = onClick,
-        enabled = enabled,
         modifier =
             Modifier
                 .widthIn(min = 64.dp)

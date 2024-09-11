@@ -11,27 +11,12 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            name "IMG.LY Artifactory"
-            url "https://artifactory.img.ly/artifactory/maven"
-            mavenContent {
-                includeGroup("ly.img")
-            }
-        }
-    }
-    versionCatalogs {
-        libs {
-            from(files("gradle/editor-libs.versions.toml"))
-        }
+        maven { url "https://artifactory.img.ly/artifactory/maven" }
     }
 }
 
 rootProject.name = "CE.SDK Showcases"
 include ':app'
-if (file("editor-version-details").exists()) {
-    include ':editor-version-details'
-}
-include ':editor-version-details-dummy'
 include ':editor-experimental'
 include ':editor-core'
 include ':editor-core-ui'

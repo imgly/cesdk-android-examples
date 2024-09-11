@@ -76,7 +76,7 @@ private fun Engine.getSelectionColors(
             when (colorType) {
                 ColorType.Fill ->
                     if ((block.isFillEnabled(designBlock) || includeDisabled)) {
-                        when (val fillInfo = getFillInfo(designBlock)) {
+                        when (val fillInfo = block.getFillInfo(designBlock)) {
                             is SolidFill, is GradientFill -> fillInfo.fillColor.toEngineColor()
                             else -> null
                         }
@@ -107,7 +107,7 @@ private fun Engine.getSelectionColors(
         ) {
             val propertyColor =
                 when (colorType) {
-                    ColorType.Fill -> getFillInfo(designBlock)?.fillColor?.toEngineColor()
+                    ColorType.Fill -> block.getFillInfo(designBlock)?.fillColor?.toEngineColor()
                     ColorType.Stroke -> block.getStrokeColor(designBlock)
                 }
             if (setDisabled && propertyColor != color) {

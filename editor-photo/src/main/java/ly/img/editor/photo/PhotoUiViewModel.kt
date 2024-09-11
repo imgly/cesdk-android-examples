@@ -190,9 +190,11 @@ class PhotoUiViewModel(
         engine.overrideAndRestore(page, Scope.LayerClipping) {
             engine.block.setClipped(page, clipped = true)
         }
-        engine.deselectAllBlocks()
-        engine.editor.setEditMode(TRANSFORM_EDIT_MODE)
-        engine.zoomToPage(pageIndex.value, currentInsets)
+        viewModelScope.launch {
+            engine.deselectAllBlocks()
+            engine.editor.setEditMode(TRANSFORM_EDIT_MODE)
+            engine.zoomToPage(pageIndex.value, currentInsets)
+        }
     }
 
     override fun onEditModeChanged(editMode: String) {

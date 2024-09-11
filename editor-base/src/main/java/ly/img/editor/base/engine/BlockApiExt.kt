@@ -6,7 +6,7 @@ import ly.img.engine.DesignBlock
 import ly.img.engine.EffectType
 import ly.img.engine.FillType
 import ly.img.engine.GradientColorStop
-import kotlin.math.min
+import ly.img.engine.RGBAColor
 
 const val NoneDesignBlock: DesignBlock = -1
 
@@ -22,12 +22,13 @@ fun BlockApi.isFillStrokeSupported(designBlock: DesignBlock): Pair<Boolean, Bool
     return hasSolidOrGradientFill to hasStroke
 }
 
-fun BlockApi.getFillType(designBlock: DesignBlock): FillType? =
-    if (!this.supportsFill(designBlock)) {
+fun BlockApi.getFillType(designBlock: DesignBlock): FillType? {
+    return if (!this.supportsFill(designBlock)) {
         null
     } else {
         FillType.get(this.getType(this.getFill(designBlock)))
     }
+}
 
 fun BlockApi.setFillType(
     designBlock: DesignBlock,
@@ -134,6 +135,52 @@ fun BlockApi.setConicalGradientFill(
     }
 }
 
+fun BlockApi.getFillInfo(designBlock: DesignBlock): Fill? {
+    return if (!this.supportsFill(designBlock)) {
+        null
+    } else {
+        when (this.getFillType(designBlock)) {
+            FillType.Color -> {
+                val rgbaColor = this.getColor(designBlock, "fill/solid/color") as RGBAColor
+                SolidFill(rgbaColor.toComposeColor())
+            }
+
+            FillType.LinearGradient -> {
+                val fill = this.getFill(designBlock)
+                LinearGradientFill(
+                    startPointX = this.getFloat(fill, "fill/gradient/linear/startPointX"),
+                    startPointY = this.getFloat(fill, "fill/gradient/linear/startPointY"),
+                    endPointX = this.getFloat(fill, "fill/gradient/linear/endPointX"),
+                    endPointY = this.getFloat(fill, "fill/gradient/linear/endPointY"),
+                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors"),
+                )
+            }
+
+            FillType.RadialGradient -> {
+                val fill = this.getFill(designBlock)
+                RadialGradientFill(
+                    centerX = this.getFloat(fill, "fill/gradient/radial/centerPointX"),
+                    centerY = this.getFloat(fill, "fill/gradient/radial/centerPointY"),
+                    radius = this.getFloat(fill, "fill/gradient/radial/radius"),
+                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors"),
+                )
+            }
+
+            FillType.ConicalGradient -> {
+                val fill = this.getFill(designBlock)
+                ConicalGradientFill(
+                    centerX = this.getFloat(fill, "fill/gradient/conical/centerPointX"),
+                    centerY = this.getFloat(fill, "fill/gradient/conical/centerPointY"),
+                    colorStops = this.getGradientColorStops(fill, "fill/gradient/colors"),
+                )
+            }
+
+            // Image fill and Video fill are not supported yet
+            else -> null
+        }
+    }
+}
+
 fun BlockApi.findEffect(
     block: DesignBlock,
     type: EffectType,
@@ -160,10 +207,4 @@ fun BlockApi.removeEffectByType(
     if (filterId != -1) {
         this.removeEffect(block, filterId)
     }
-}
-
-fun BlockApi.getSmallerSide(block: DesignBlock): Float {
-    val height = getHeight(block)
-    val width = getWidth(block)
-    return min(width, height)
 }

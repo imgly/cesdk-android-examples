@@ -1,10 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'com.google.gms.google-services'
     id 'com.dropbox.dropshots'
     id 'com.github.gmazzo.buildconfig'
-    id 'com.google.firebase.appdistribution'
 }
 
 String getLocalProperty(String property) {
@@ -15,6 +13,14 @@ String getLocalProperty(String property) {
     return properties.getProperty(property)
 }
 
+buildConfig {
+    className "ShowcasesBuildConfig"
+    packageName "ly.img.editor.showcase"
+    buildConfigField String, "BUILD_NAME", System.getenv("CESDK_AND_BUILD_NAME") ?: ""
+    buildConfigField String, "LICENSE", System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""
+    buildConfigField String, "UNSPLASH_HOST", System.env.CESDK_AND_UNSPLASH_HOST ?: getLocalProperty("unsplash_host") ?: ""
+}
+
 android {
     namespace "ly.img.editor.showcase"
     compileSdk libs.versions.androidCompileSdk.get().toInteger()
@@ -22,17 +28,10 @@ android {
     defaultConfig {
         applicationId "ly.img.editor.showcase"
         testApplicationId "ly.img.editor.showcase.test"
-        def isCIBuild = System.getenv("UBQ_USE_LOCAL_ENGINE")?.toBoolean() ?: false
-        def versionCodeValue = isCIBuild
-                ? System.currentTimeMillis().toString().take(9).toInteger()
-                : 1
-        def versionNameValue = isCIBuild
-                ? new File(rootDir.parentFile.parentFile, ".ubq-version").text.trim()
-                : libs.versions.engine.get()
         minSdk libs.versions.androidMinSdk.get().toInteger()
         targetSdk libs.versions.androidTargetSdk.get().toInteger()
-        versionCode versionCodeValue
-        versionName versionNameValue
+        versionCode 1
+        versionName libs.versions.engine.get()
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         ndk {
             abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
@@ -61,11 +60,6 @@ android {
 
     buildTypes {
         release {
-            firebaseAppDistribution {
-                artifactType="APK"
-                releaseNotes=System.getenv("CESDK_AND_BRANCH_NAME")
-                groups="internal"
-            }
             def shrinkAndMinifyEnabled = System.getenv("CESDK_SHRINK_AND_MINIFY_ENABLED") == null
                     || System.getenv("CESDK_SHRINK_AND_MINIFY_ENABLED") == "true"
             signingConfig signingConfigs.release
@@ -108,21 +102,10 @@ tasks.register('validateDropshotsRecordIsDisabled') {
     }
 }
 
-buildConfig {
-    className "ShowcasesBuildConfig"
-    packageName "ly.img.editor.showcase"
-    buildConfigField String, "BUILD_NAME", System.getenv("CESDK_AND_BUILD_NAME") ?: ""
-    buildConfigField String, "BRANCH_NAME", System.getenv("CESDK_AND_BRANCH_NAME") ?: ""
-    buildConfigField String, "LICENSE", System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""
-    buildConfigField String, "UNSPLASH_HOST", System.env.CESDK_AND_UNSPLASH_HOST ?: getLocalProperty("unsplash_host") ?: ""
-    buildConfigField int, "VERSION_CODE", android.defaultConfig.versionCode ?: 0
-}
-
 dependencies {
     implementation project(':editor')
     implementation findProject(":ubq-android-engine") ?: libs.cesdk.engine
     implementation findProject(":ubq-android-camera") ?: libs.cesdk.engine.camera
-    implementation findProject(":editor-version-details") ?: project(":editor-version-details-dummy")
 
     implementation libs.camera.core
     implementation libs.camera.camera2
