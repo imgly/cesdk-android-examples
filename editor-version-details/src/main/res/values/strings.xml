@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ly_img_editor_version_details_sign_in">Sign in to Firebase App Distribution</string>
+    <string name="ly_img_editor_version_details_update">Update</string>
+    <string name="ly_img_editor_version_details_cancel">Cancel</string>
+    <string name="ly_img_editor_version_details_dismiss">Dismiss</string>
+    <string name="ly_img_editor_version_details_up_to_date">You are on the freshest build of the current branch.</string>
+    <string name="ly_img_editor_version_details_pending_dialog_title">Please wait, download in progress</string>
+    <string name="ly_img_editor_version_details_error_dialog_title">Version update failed</string>
+    <string name="ly_img_editor_version_details_error_dialog_description">Something went wrong. Please try later.</string>
+</resources>
