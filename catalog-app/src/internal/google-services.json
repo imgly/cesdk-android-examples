@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "959528580019",
+    "firebase_url": "https://cesdk-staging.firebaseio.com",
+    "project_id": "cesdk-staging",
+    "storage_bucket": "cesdk-staging.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:959528580019:android:a6a8d53a05a773fd6a91c6",
+        "android_client_info": {
+          "package_name": "ly.img.cesdk.catalog"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "959528580019-93ns0v029b0osp7j144phhbpmvbu37c6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDClXHrYvf_JDA-OtgegC8o2VuXGVKZyOg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "959528580019-93ns0v029b0osp7j144phhbpmvbu37c6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "959528580019-9a4l4468n41m79f1dlu4bu75lgkk4rkm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ly.img.ubq.appstore-app.internal"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:959528580019:android:165f76d48e7fd0bd6a91c6",
+        "android_client_info": {
+          "package_name": "ly.img.editor.showcase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "959528580019-93ns0v029b0osp7j144phhbpmvbu37c6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDClXHrYvf_JDA-OtgegC8o2VuXGVKZyOg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "959528580019-93ns0v029b0osp7j144phhbpmvbu37c6.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "959528580019-9a4l4468n41m79f1dlu4bu75lgkk4rkm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ly.img.ubq.appstore-app.internal"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

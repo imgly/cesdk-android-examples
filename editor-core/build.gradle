@@ -5,7 +5,7 @@ android {
 }
 
 dependencies {
-    api findProject(":ubq-android-engine") ?: libs.cesdk.engine
+    api libs.cesdk.engine
 
     implementation platform(libs.compose.bom)
     implementation libs.compose.material3

@@ -16,6 +16,29 @@ object ShowLoading : EditorEvent
 object HideLoading : EditorEvent
 
 /**
+ * An event that is invoked in the default implementation of [EngineConfiguration.onExport] for a video scene
+ * for showing the progress of the export.
+ */
+class ShowVideoExportProgressEvent(val progress: Float) : EditorEvent
+
+/**
+ * An event that is invoked in the default implementation of [EngineConfiguration.onExport] for a video scene
+ * for showing an error during export.
+ */
+object ShowVideoExportErrorEvent : EditorEvent
+
+/**
+ * An event that is invoked in the default implementation of [EngineConfiguration.onExport] for a video scene
+ * for showing that the export was successful. The [file] is the exported file and the [mimeType] is the mime type of the file.
+ */
+class ShowVideoExportSuccessEvent(val file: File, val mimeType: String) : EditorEvent
+
+/**
+ * An event that is invoked for canceling the export of a video scene.
+ */
+object DismissVideoExportEvent : EditorEvent
+
+/**
  * An event that is invoked in the default implementations of [EngineConfiguration.onError] for showing an error dialog.
  */
 class ShowErrorDialogEvent(val error: Throwable) : EditorEvent
@@ -28,7 +51,7 @@ object HideErrorDialogEvent : EditorEvent
 /**
  * An event that is invoked in the default implementation of [EngineConfiguration.onExport] after the export is done.
  * By default, the event is captured in [EditorConfiguration.onEvent] and a system level popup is displayed to share the [file]
- * that was exported.
+ * that was exported. The [mimeType] is the mime type of the file being shared.
  */
 class ShareFileEvent(val file: File, val mimeType: String = MimeType.PDF.key) : EditorEvent
 

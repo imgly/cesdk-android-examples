@@ -225,6 +225,24 @@ data class LibraryCategory(
             )
         }
 
+        val Overlays by lazy {
+            LibraryCategory(
+                tabTitleRes = R.string.ly_img_editor_overlays,
+                tabSelectedIcon = IconPack.Playbox,
+                tabUnselectedIcon = IconPack.Playboxoutline,
+                content = LibraryContent.Overlays,
+            )
+        }
+
+        val Clips by lazy {
+            LibraryCategory(
+                tabTitleRes = R.string.ly_img_editor_clips,
+                tabSelectedIcon = IconPack.Playbox,
+                tabUnselectedIcon = IconPack.Playboxoutline,
+                content = LibraryContent.Clips,
+            )
+        }
+
         /**
          * All the source types of the library content.
          */

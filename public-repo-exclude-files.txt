@@ -1,0 +1,4 @@
+editor-version-details
+app/google-services.json
+public-repo-exclude-files.txt
+catalog-app

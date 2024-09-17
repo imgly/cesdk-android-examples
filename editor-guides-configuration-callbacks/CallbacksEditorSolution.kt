@@ -70,7 +70,7 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                             }
                         val tempFile = writeToTempFile(blob)
                         eventHandler.send(HideLoading)
-                        eventHandler.send(ShareFileEvent(tempFile))
+                        eventHandler.send(ShareFileEvent(tempFile, MimeType.PDF.key))
                     }
                 },
                 // highlight-configuration-onExport

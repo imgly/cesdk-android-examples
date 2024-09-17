@@ -132,7 +132,12 @@ class PhotoUiViewModel(
 
     override fun getRootDockItems(assetLibrary: AssetLibrary): List<RootDockItemData> {
         fun getType(libraryCategory: LibraryCategory): RootDockItemActionType {
-            return RootDockItemActionType.OnEvent(Event.OnAddLibraryCategoryClick(libraryCategory))
+            return RootDockItemActionType.OnEvent(
+                Event.OnAddLibraryCategoryClick(
+                    libraryCategory = libraryCategory,
+                    addToBackgroundTrack = false,
+                ),
+            )
         }
         return listOf(
             RootDockItemData(

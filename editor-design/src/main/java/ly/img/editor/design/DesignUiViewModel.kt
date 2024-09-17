@@ -19,7 +19,6 @@ import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.AssetLibrary
 import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.ui.engine.deselectAllBlocks
-import ly.img.editor.core.ui.engine.getSortedPages
 import ly.img.editor.core.ui.engine.getStackOrNull
 import ly.img.editor.core.ui.iconpack.Addcameraforegound
 import ly.img.editor.core.ui.iconpack.Addgalleryforeground
@@ -52,7 +51,12 @@ class DesignUiViewModel(
 
     override fun getRootDockItems(assetLibrary: AssetLibrary): List<RootDockItemData> {
         fun getType(libraryCategory: LibraryCategory): RootDockItemActionType {
-            return RootDockItemActionType.OnEvent(Event.OnAddLibraryCategoryClick(libraryCategory))
+            return RootDockItemActionType.OnEvent(
+                Event.OnAddLibraryCategoryClick(
+                    libraryCategory = libraryCategory,
+                    addToBackgroundTrack = false,
+                ),
+            )
         }
         return listOf(
             RootDockItemData(
@@ -107,7 +111,7 @@ class DesignUiViewModel(
         viewModelScope.launch {
             engine.editor.onCarouselPageChanged()
                 .onEach {
-                    engine.getSortedPages()
+                    engine.scene.getPages()
                         .indexOf(it)
                         .let(::setPageIndex)
                 }

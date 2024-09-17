@@ -1,0 +1,80 @@
+{
+  "project_info": {
+    "project_number": "646708558334",
+    "firebase_url": "https://cesdk-ab4f3-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "cesdk-ab4f3",
+    "storage_bucket": "cesdk-ab4f3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:646708558334:android:8ce8e5d483c8e47383e8af",
+        "android_client_info": {
+          "package_name": "ly.img.cesdk.catalog"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "646708558334-5bhcu1em6p490qqsamm2f81k3umvb6ce.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ly.img.cesdk.catalog",
+            "certificate_hash": "6e4f174c66c811320f9ac522ab32dc706d162156"
+          }
+        },
+        {
+          "client_id": "646708558334-duldrlh8rebq2r3kjfe4pla3qifbjtmd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ly.img.cesdk.catalog",
+            "certificate_hash": "8efb7746e3cd92eb488b933915b02c0ff8d8d804"
+          }
+        },
+        {
+          "client_id": "646708558334-j2vf4oh11js8460q9cjp6700pkueljhg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ly.img.cesdk.catalog",
+            "certificate_hash": "6a77e3f008e69d71d35dc10ccf00afb6b9c6ddde"
+          }
+        },
+        {
+          "client_id": "646708558334-uivfefjfdkj8ne7i8eadhlkjdqku1bhg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ly.img.cesdk.catalog",
+            "certificate_hash": "0757b3b7dcdb066ec4d8ceff7273033e58b8d7b2"
+          }
+        },
+        {
+          "client_id": "646708558334-av4jgj3n0hg10fub9cmj9jj24t3fdjm9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCc3kBGW0AB6u2VTbtna1RzcBEp_aEJbVU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "646708558334-av4jgj3n0hg10fub9cmj9jj24t3fdjm9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "646708558334-8fiqa3vte5l2f622cclmr9mdmmv3crhe.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ly.img.ubq.CESDK-Catalogue",
+                "app_store_id": "1672991141"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

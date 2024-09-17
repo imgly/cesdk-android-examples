@@ -27,7 +27,6 @@ import ly.img.engine.Engine
  * Register all events related to appearance, like adding/removing filters, fx effects, blur effects etc.
  * @param engine Lambda returning the engine instance
  * @param block Lambda returning the block instance
- * @param fontFamilyMap Lambda returning the font family map
  */
 @Suppress("NAME_SHADOWING")
 fun EventsHandler.appearanceEvents(
