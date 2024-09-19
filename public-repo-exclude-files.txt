@@ -1,0 +1,8 @@
+build_github
+scripts
+editor-version-details
+showcases-app/google-services.json
+public-repo-exclude-files.txt
+catalog-app
+.guides
+.packages

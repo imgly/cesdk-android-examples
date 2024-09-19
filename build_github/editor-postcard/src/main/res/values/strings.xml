@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ly_img_editor_write">Write</string>
+    <string name="ly_img_editor_design">Design</string>
+
+    <string name="ly_img_editor_size">Size</string>
+    <string name="ly_img_editor_message">Message</string>
+    <string name="ly_img_editor_message_color">Message Color</string>
+    <string name="ly_img_editor_color">Color</string>
+    <string name="ly_img_editor_colors">Colors</string>
+    <string name="ly_img_editor_template_colors">Template Colors</string>
+    <string name="ly_img_editor_template_color">%s Color</string>
+</resources>

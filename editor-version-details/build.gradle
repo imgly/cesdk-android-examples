@@ -1,0 +1,42 @@
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+
+android {
+    namespace 'ly.img.editor.version.details'
+    compileSdk libs.versions.androidCompileSdk.get().toInteger()
+
+    defaultConfig {
+        minSdk libs.versions.androidMinSdk.get().toInteger()
+        targetSdk libs.versions.androidTargetSdk.get().toInteger()
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.kotlinCompilerExtension.get()
+    }
+}
+
+dependencies {
+    implementation platform(libs.compose.bom)
+    implementation libs.compose.material3
+    implementation libs.compose.viewmodel
+    implementation libs.compose.preview
+    debugImplementation libs.compose.tooling
+
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.installations
+    implementation libs.firebase.app.distribution
+}
