@@ -13,6 +13,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
@@ -94,14 +95,17 @@ private val DarkColorScheme =
 
 val ColorScheme.surface1: Color
     @Composable
+    @ReadOnlyComposable
     get() = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)
 
 val ColorScheme.surface2: Color
     @Composable
+    @ReadOnlyComposable
     get() = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp)
 
 val ColorScheme.surface3: Color
     @Composable
+    @ReadOnlyComposable
     get() = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
 
 /**
@@ -151,6 +155,7 @@ fun EditorTheme(
                     ),
             ),
         LocalShimmer provides shimmer,
+        LocalExtendedColorScheme provides if (useDarkTheme) darkExtendedColorScheme() else lightExtendedColorScheme(),
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

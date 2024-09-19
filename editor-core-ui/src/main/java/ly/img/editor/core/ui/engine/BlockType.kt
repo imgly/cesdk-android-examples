@@ -12,4 +12,6 @@ enum class BlockType(
     Shape(R.string.ly_img_editor_shape),
     Group(R.string.ly_img_editor_group),
     Page(R.string.ly_img_editor_page),
+    Video(R.string.ly_img_editor_video),
+    Audio(R.string.ly_img_editor_audio),
 }

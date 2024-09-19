@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.IntOffset
 inline fun Modifier.ifTrue(
     predicate: Boolean,
     builder: Modifier.() -> Modifier,
-) = then(if (predicate) this.builder() else Modifier)
+) = if (predicate) this.builder() else this
 
 fun Modifier.animateItemPlacement(
     animationSpec: FiniteAnimationSpec<IntOffset> =

@@ -18,7 +18,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -52,7 +51,12 @@ internal fun AssetGrid(
 
     val shouldStartPaginate by remember(uiState.assetsData.canPaginate) {
         derivedStateOf {
-            uiState.assetsData.canPaginate && (lazyGridState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -9) >=
+            uiState.assetsData.canPaginate &&
+                (
+                    lazyGridState.layoutInfo.visibleItemsInfo
+                        .lastOrNull()
+                        ?.index ?: -9
+                ) >=
                 lazyGridState.layoutInfo.totalItemsCount - 6
         }
     }
@@ -127,7 +131,7 @@ internal fun AssetGrid(
                 val activatedPreviewItemId = remember { mutableStateOf<String?>(null) }
                 val context = LocalContext.current
                 val exoPlayerInstance by
-                    rememberSaveable {
+                    remember {
                         lazy {
                             ExoPlayer.Builder(context.applicationContext).build()
                         }

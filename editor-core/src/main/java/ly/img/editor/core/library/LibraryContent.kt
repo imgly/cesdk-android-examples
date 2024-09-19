@@ -2,6 +2,7 @@ package ly.img.editor.core.library
 
 import androidx.annotation.StringRes
 import ly.img.editor.core.R
+import ly.img.editor.core.library.LibraryCategory.Companion.sourceTypes
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.data.UploadAssetSourceType
 
@@ -105,13 +106,13 @@ sealed interface LibraryContent {
                 sections =
                     listOf(
                         Section(
-                            titleRes = R.string.ly_img_editor_video_uploads,
-                            sourceTypes = listOf(AssetSourceType.VideoUploads),
+                            titleRes = R.string.ly_img_editor_videos,
+                            sourceTypes = listOf(AssetSourceType.Videos),
                             assetType = AssetType.Video,
                         ),
                         Section(
-                            titleRes = R.string.ly_img_editor_videos,
-                            sourceTypes = listOf(AssetSourceType.Videos),
+                            titleRes = R.string.ly_img_editor_video_uploads,
+                            sourceTypes = listOf(AssetSourceType.VideoUploads),
                             assetType = AssetType.Video,
                         ),
                     ),
@@ -127,14 +128,14 @@ sealed interface LibraryContent {
                 sections =
                     listOf(
                         Section(
-                            titleRes = R.string.ly_img_editor_audio_uploads,
-                            sourceTypes = listOf(AssetSourceType.AudioUploads),
+                            titleRes = R.string.ly_img_editor_audio,
+                            sourceTypes = listOf(AssetSourceType.Audio),
                             count = 3,
                             assetType = AssetType.Audio,
                         ),
                         Section(
-                            titleRes = R.string.ly_img_editor_audio,
-                            sourceTypes = listOf(AssetSourceType.Audio),
+                            titleRes = R.string.ly_img_editor_audio_uploads,
+                            sourceTypes = listOf(AssetSourceType.AudioUploads),
                             count = 3,
                             assetType = AssetType.Audio,
                         ),
@@ -240,6 +241,59 @@ sealed interface LibraryContent {
                         ),
                     ),
             )
+        }
+
+        /**
+         * The default content for displaying overlay assets.
+         */
+        val Overlays by lazy {
+            Sections(
+                titleRes = R.string.ly_img_editor_overlays,
+                sections =
+                    listOf(
+                        Section(
+                            titleRes = R.string.ly_img_editor_videos,
+                            sourceTypes = Video.sourceTypes,
+                            assetType = AssetType.Video,
+                            expandContent = Video,
+                        ),
+                        Section(
+                            titleRes = R.string.ly_img_editor_images,
+                            sourceTypes = Images.sourceTypes,
+                            assetType = AssetType.Image,
+                            expandContent = Images,
+                        ),
+                        Section(
+                            titleRes = R.string.ly_img_editor_gallery,
+                            sourceTypes = listOf(AssetSourceType.ImageUploads, AssetSourceType.VideoUploads),
+                            assetType = AssetType.Gallery,
+                            expandContent =
+                                Sections(
+                                    titleRes = R.string.ly_img_editor_gallery,
+                                    sections =
+                                        listOf(
+                                            Section(
+                                                titleRes = R.string.ly_img_editor_image_uploads,
+                                                sourceTypes = listOf(AssetSourceType.ImageUploads),
+                                                assetType = AssetType.Image,
+                                            ),
+                                            Section(
+                                                titleRes = R.string.ly_img_editor_video_uploads,
+                                                sourceTypes = listOf(AssetSourceType.VideoUploads),
+                                                assetType = AssetType.Video,
+                                            ),
+                                        ),
+                                ),
+                        ),
+                    ),
+            )
+        }
+
+        /**
+         * The default content for displaying clip assets.
+         */
+        val Clips by lazy {
+            Overlays.copy(titleRes = R.string.ly_img_editor_clips)
         }
     }
 }

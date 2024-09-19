@@ -1,0 +1,146 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'com.google.gms.google-services'
+    id 'com.dropbox.dropshots'
+    id 'com.github.gmazzo.buildconfig'
+    id 'com.google.firebase.appdistribution'
+}
+
+String getLocalProperty(String property) {
+    def propertiesFile = new File(rootDir, "local.properties")
+    if (!propertiesFile.exists()) return null
+    def properties = new Properties()
+    properties.load(propertiesFile.newDataInputStream())
+    return properties.getProperty(property)
+}
+
+android {
+    namespace "ly.img.editor.showcase"
+    compileSdk libs.versions.androidCompileSdk.get().toInteger()
+
+    defaultConfig {
+        applicationId "ly.img.editor.showcase"
+        testApplicationId "ly.img.editor.showcase.test"
+        def isCIBuild = System.getenv("UBQ_USE_LOCAL_ENGINE")?.toBoolean() ?: false
+        def versionCodeValue = isCIBuild
+                ? System.currentTimeMillis().toString().take(9).toInteger()
+                : 1
+        def versionNameValue = isCIBuild
+                ? new File(rootDir.parentFile.parentFile, ".ubq-version").text.trim()
+                : libs.versions.engine.get()
+        minSdk libs.versions.androidMinSdk.get().toInteger()
+        targetSdk libs.versions.androidTargetSdk.get().toInteger()
+        versionCode versionCodeValue
+        versionName versionNameValue
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
+        ndk {
+            abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
+        }
+        resourceConfigurations += ['en']
+    }
+
+    sourceSets {
+        main {
+            file("$projectDir/..").listFiles().each {
+                if (it.directory && (it.name.startsWith("engine-guides-") || it.name.startsWith("editor-guides-"))) {
+                    java.srcDirs += it
+                }
+            }
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile rootProject.file("android-release.keystore")
+            storePassword System.getenv("CESDK_AND_KEYSTORE_PWD")
+            keyAlias "cesdk-dev"
+            keyPassword System.getenv("CESDK_AND_KEYSTORE_PWD")
+        }
+    }
+
+    buildTypes {
+        release {
+            firebaseAppDistribution {
+                artifactType="APK"
+                releaseNotes=System.getenv("CESDK_AND_BRANCH_NAME")
+                groups="internal"
+            }
+            def shrinkAndMinifyEnabled = System.getenv("CESDK_SHRINK_AND_MINIFY_ENABLED") == null
+                    || System.getenv("CESDK_SHRINK_AND_MINIFY_ENABLED") == "true"
+            signingConfig signingConfigs.release
+            minifyEnabled shrinkAndMinifyEnabled
+            shrinkResources shrinkAndMinifyEnabled
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        compose true
+        buildConfig false
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.kotlinCompilerExtension.get()
+    }
+}
+
+tasks.register('validateDropshotsRecordIsDisabled') {
+    doLast {
+        def propertiesFile = new File(rootDir, "gradle.properties")
+        if (!propertiesFile.exists()) {
+            throw GradleException("Internal error. Please report to the android engine members!")
+        }
+        def properties = new Properties()
+        properties.load(propertiesFile.newDataInputStream())
+        if (properties.containsKey("dropshots.record")) {
+            throw GradleException("dropshots.record should be commented out in apps/cesdk_android_examples/gradle.properties file!")
+        }
+    }
+}
+
+buildConfig {
+    className "ShowcasesBuildConfig"
+    packageName "ly.img.editor.showcase"
+    buildConfigField String, "BUILD_NAME", System.getenv("CESDK_AND_BUILD_NAME") ?: ""
+    buildConfigField String, "BRANCH_NAME", System.getenv("CESDK_AND_BRANCH_NAME") ?: ""
+    buildConfigField String, "LICENSE", System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""
+    buildConfigField String, "UNSPLASH_HOST", System.env.CESDK_AND_UNSPLASH_HOST ?: getLocalProperty("unsplash_host") ?: ""
+    buildConfigField String, "REMOTE_ASSET_SOURCE_HOST", System.env.CESDK_AND_REMOTE_ASSET_SOURCE_HOST ?: getLocalProperty("remote_asset_source_host") ?: ""
+    buildConfigField int, "VERSION_CODE", android.defaultConfig.versionCode ?: 0
+}
+
+dependencies {
+    implementation project(':editor')
+    implementation libs.cesdk.engine
+    implementation libs.cesdk.engine.camera
+    implementation findProject(":editor-version-details") ?: project(":editor-version-details-dummy")
+
+    implementation libs.camera.core
+    implementation libs.camera.camera2
+    implementation libs.camera.view
+    implementation libs.camera.lifecycle
+    implementation libs.camera.video
+
+    def composeBom = platform(libs.compose.bom)
+    implementation composeBom
+    implementation libs.compose.material3
+    implementation libs.compose.navigation
+    implementation(libs.material) {
+        because "MaterialComponents DayNight theme"
+    }
+
+    androidTestImplementation composeBom
+    androidTestImplementation libs.test.androidx.runner
+    androidTestImplementation libs.compose.test.junit4
+    debugImplementation libs.compose.test.manifest
+}

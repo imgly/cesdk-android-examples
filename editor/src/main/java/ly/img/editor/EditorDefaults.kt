@@ -4,32 +4,64 @@ import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.util.SizeF
+import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ly.img.editor.base.R
+import ly.img.editor.compose.foundation.gestures.detectTapGestures
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.data.TextAssetSource
 import ly.img.editor.core.library.data.TypefaceProvider
+import ly.img.editor.core.theme.LocalExtendedColorScheme
+import ly.img.editor.core.ui.iconpack.Checkcircleoutline
 import ly.img.editor.core.ui.iconpack.Cloudalertoutline
+import ly.img.editor.core.ui.iconpack.Erroroutline
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.WifiCancel
+import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.EngineException
@@ -47,39 +79,48 @@ object EditorDefaults {
     /**
      * A helper implementation of [EngineConfiguration.onCreate]. The implementation does the following:
      * 1. Checks for an existing scene. If one does not exist, it loads the [sceneUri] into the scene
-     * 2. Adds [ly.img.editor.core.library.data.TextAssetSource], default and demo asset sources. Check [Engine.addDefaultAssetSources]
+     * 2. Executes the provided [block] to allow custom modifications to the scene after loading
+     * 3. Adds [ly.img.editor.core.library.data.TextAssetSource], default and demo asset sources. Check [Engine.addDefaultAssetSources]
      * and [Engine.addDemoAssetSources] documentation for more details.
      *
      * @param engine the engine that is used in the editor.
      * @param sceneUri the Uri that is used to load the scene file into the scene.
      * @param eventHandler the object that can send [EditorEvent]s and close the editor.
+     * @param block a suspend function that allows custom modifications to the scene after it has been loaded.
+     * It receives the scene [DesignBlock] and [CoroutineScope] as parameters.
      */
     suspend fun onCreate(
         engine: Engine,
         sceneUri: Uri,
         eventHandler: EditorEventHandler,
-    ) = onCreateCommon(engine, eventHandler) {
-        engine.scene.load(sceneUri)
+        block: suspend (DesignBlock, CoroutineScope) -> Unit = { _, _ -> },
+    ) = onCreateCommon(engine, eventHandler) { scope ->
+        val scene = engine.scene.load(sceneUri)
+        block(scene, scope)
     }
 
     /**
      * A helper implementation of [EngineConfiguration.onCreate]. The implementation does the following:
      * 1. Checks for an existing scene. If one does not exist, it creates a scene from the [imageUri] using [ly.img.engine.SceneApi.createFromImage] API.
-     * 2. Adds [ly.img.editor.core.library.data.TextAssetSource], default and demo asset sources. Check [Engine.addDefaultAssetSources]
+     * 2. Executes the provided [block] to allow custom modifications to the scene after loading
+     * 3. Adds [ly.img.editor.core.library.data.TextAssetSource], default and demo asset sources. Check [Engine.addDefaultAssetSources]
      * and [Engine.addDemoAssetSources] documentation for more details.
      *
      * @param engine the engine that is used in the editor.
      * @param imageUri the uri of the image that is used to create a scene with single page and image fill.
      * @param size the size that should be used to load the image. If null, original size of the image will be used.
      * @param eventHandler the object that can send [EditorEvent]s and close the editor.
+     * @param block a suspend function that allows custom modifications to the scene after it has been loaded.
+     * It receives the scene [DesignBlock] and [CoroutineScope] as parameters.
      */
     suspend fun onCreateFromImage(
         engine: Engine,
         imageUri: Uri,
         eventHandler: EditorEventHandler,
         size: SizeF? = null,
-    ) = onCreateCommon(engine, eventHandler) {
-        engine.scene.createFromImage(imageUri)
+        block: suspend (DesignBlock, CoroutineScope) -> Unit = { _, _ -> },
+    ) = onCreateCommon(engine, eventHandler) { scope ->
+        val scene = engine.scene.createFromImage(imageUri)
         val graphicBlocks = engine.block.findByType(DesignBlockType.Graphic)
         require(graphicBlocks.size == 1) { "No image found." }
         val graphicBlock = graphicBlocks[0]
@@ -92,15 +133,16 @@ object EditorDefaults {
             engine.block.setWidth(page, size.width)
             engine.block.setHeight(page, size.height)
         }
+        block(scene, scope)
     }
 
     private suspend fun onCreateCommon(
         engine: Engine,
         eventHandler: EditorEventHandler,
-        createScene: suspend () -> Unit,
+        createScene: suspend (CoroutineScope) -> Unit,
     ) = coroutineScope {
         if (engine.scene.get() == null) {
-            createScene()
+            createScene(this)
         }
         launch {
             val baseUri = Uri.parse("https://cdn.img.ly/assets/v3")
@@ -198,26 +240,48 @@ object EditorDefaults {
             is ShowLoading -> {
                 state.copy(showLoading = true)
             }
+
             is HideLoading -> {
                 state.copy(showLoading = false)
             }
+
             is ShowErrorDialogEvent -> {
                 state.copy(error = event.error)
             }
+
             is ShowCloseConfirmationDialogEvent -> {
                 state.copy(showCloseConfirmationDialog = true)
             }
+
             is DismissCloseConfirmationDialogEvent -> {
                 state.copy(showCloseConfirmationDialog = false)
             }
+
             is ShareFileEvent -> {
                 shareFile(
                     activity = activity,
                     file = event.file,
                     mimeType = event.mimeType,
                 )
-                state
+                state.copy(videoExportStatus = VideoExportStatus.Idle)
             }
+
+            is ShowVideoExportProgressEvent -> {
+                state.copy(videoExportStatus = VideoExportStatus.Loading(event.progress))
+            }
+
+            is ShowVideoExportErrorEvent -> {
+                state.copy(videoExportStatus = VideoExportStatus.Error)
+            }
+
+            is ShowVideoExportSuccessEvent -> {
+                state.copy(videoExportStatus = VideoExportStatus.Success(event.file, event.mimeType))
+            }
+
+            is DismissVideoExportEvent -> {
+                state.copy(videoExportStatus = VideoExportStatus.Idle)
+            }
+
             else -> state
         }
     }
@@ -248,6 +312,10 @@ object EditorDefaults {
         if (state.showCloseConfirmationDialog) {
             CloseConfirmationDialog(eventHandler = eventHandler)
         }
+        val exportStatus = state.videoExportStatus
+        if (exportStatus != VideoExportStatus.Idle) {
+            VideoExportStatusOverlay(status = exportStatus, eventHandler = eventHandler)
+        }
     }
 
     /**
@@ -277,7 +345,7 @@ object EditorDefaults {
                 Icon(IconPack.WifiCancel, contentDescription = null)
             },
             title = {
-                Text(text = stringResource(R.string.ly_img_editor_error_dialog_title))
+                Text(text = stringResource(R.string.ly_img_editor_error_internet_title))
             },
             text = {
                 Text(text = stringResource(R.string.ly_img_editor_error_internet_text))
@@ -365,5 +433,214 @@ object EditorDefaults {
                 }
             },
         )
+    }
+
+    /**
+     * A helper composable function for displaying the video export status.
+     *
+     * @param eventHandler the object that can send [EditorEvent]s.
+     */
+    @Composable
+    fun VideoExportStatusOverlay(
+        status: VideoExportStatus,
+        eventHandler: EditorEventHandler,
+    ) {
+        val window = (LocalView.current.context as Activity).window
+        val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
+        DisposableEffect(Unit) {
+            val originalColor = window.navigationBarColor
+            window.navigationBarColor = surfaceColor
+            onDispose {
+                window.navigationBarColor = originalColor
+            }
+        }
+
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.32f))
+                    .pointerInput(Unit) {
+                        detectTapGestures {
+                            // do nothing
+                        }
+                    },
+        ) {
+            Surface(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomStart),
+                shape =
+                    RoundedCornerShape(
+                        topStart = 28.0.dp,
+                        topEnd = 28.0.dp,
+                        bottomEnd = 0.0.dp,
+                        bottomStart = 0.0.dp,
+                    ),
+                shadowElevation = 16.dp,
+            ) {
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(all = 16.dp),
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        when (status) {
+                            is VideoExportStatus.Loading -> {
+                                var showCancelDialog by remember { mutableStateOf(false) }
+                                VideoStatusOverlayContent(
+                                    headlineText = R.string.ly_img_editor_export_progress_headline,
+                                    labelText = R.string.ly_img_editor_export_progress_label,
+                                    buttonText = R.string.ly_img_editor_cancel,
+                                    buttonColor = MaterialTheme.colorScheme.error,
+                                    onClick = {
+                                        showCancelDialog = true
+                                    },
+                                    mainContent = {
+                                        Box {
+                                            ExportProgressIndicator(
+                                                progress = status.progress,
+                                            )
+                                            Text(
+                                                text = "${(status.progress * 100).toInt()}%",
+                                                style = MaterialTheme.typography.labelLarge,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                                modifier = Modifier.align(Alignment.Center),
+                                            )
+                                        }
+                                    },
+                                )
+
+                                if (showCancelDialog) {
+                                    AlertDialog(
+                                        onDismissRequest = { showCancelDialog = false },
+                                        icon = {
+                                            Icon(
+                                                IconPack.Erroroutline,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.error,
+                                            )
+                                        },
+                                        title = {
+                                            Text(text = stringResource(R.string.ly_img_editor_export_cancel_dialog_title))
+                                        },
+                                        text = {
+                                            Text(text = stringResource(R.string.ly_img_editor_export_cancel_dialog_text))
+                                        },
+                                        confirmButton = {
+                                            TextButton(
+                                                onClick = {
+                                                    showCancelDialog = false
+                                                    eventHandler.sendCancelExportEvent()
+                                                },
+                                                colors =
+                                                    ButtonDefaults.textButtonColors(
+                                                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                                                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                                                    ),
+                                            ) {
+                                                Text(stringResource(R.string.ly_img_editor_export_cancel_dialog_confirm_text))
+                                            }
+                                        },
+                                        dismissButton = {
+                                            TextButton(
+                                                onClick = {
+                                                    showCancelDialog = false
+                                                },
+                                            ) {
+                                                Text(stringResource(R.string.ly_img_editor_export_cancel_dialog_dismiss_text))
+                                            }
+                                        },
+                                    )
+                                }
+                            }
+
+                            VideoExportStatus.Error -> {
+                                VideoStatusOverlayContent(
+                                    headlineText = R.string.ly_img_editor_export_error_headline,
+                                    labelText = R.string.ly_img_editor_export_error_label,
+                                    buttonText = ly.img.editor.core.R.string.ly_img_editor_close,
+                                    onClick = {
+                                        eventHandler.send(DismissVideoExportEvent)
+                                    },
+                                    mainContent = {
+                                        Icon(
+                                            IconPack.Erroroutline,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(144.dp),
+                                            tint = MaterialTheme.colorScheme.error,
+                                        )
+                                    },
+                                )
+                            }
+
+                            is VideoExportStatus.Success -> {
+                                VideoStatusOverlayContent(
+                                    headlineText = R.string.ly_img_editor_export_success_headline,
+                                    labelText = R.string.ly_img_editor_export_success_label,
+                                    buttonText = ly.img.editor.core.R.string.ly_img_editor_close,
+                                    onClick = {
+                                        eventHandler.send(ShareFileEvent(status.file, status.mimeType))
+                                    },
+                                    mainContent = {
+                                        Icon(
+                                            IconPack.Checkcircleoutline,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(144.dp),
+                                            tint = LocalExtendedColorScheme.current.green.color,
+                                        )
+                                    },
+                                )
+                            }
+
+                            VideoExportStatus.Idle -> {
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun VideoStatusOverlayContent(
+        @StringRes headlineText: Int,
+        @StringRes labelText: Int,
+        @StringRes buttonText: Int,
+        buttonColor: Color = MaterialTheme.colorScheme.primary,
+        onClick: () -> Unit,
+        mainContent: @Composable () -> Unit,
+    ) {
+        Spacer(modifier = Modifier.height(24.dp))
+        mainContent()
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = stringResource(headlineText),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = stringResource(labelText),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        TextButton(
+            onClick = onClick,
+            colors =
+                ButtonDefaults.textButtonColors(
+                    contentColor = buttonColor,
+                ),
+        ) {
+            Text(stringResource(buttonText))
+        }
     }
 }

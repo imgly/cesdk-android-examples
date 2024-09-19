@@ -18,12 +18,13 @@ import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.core.ui.iconpack.Bringforward
-import ly.img.editor.core.ui.iconpack.Controlpointduplicate
 import ly.img.editor.core.ui.iconpack.Delete
+import ly.img.editor.core.ui.iconpack.Duplicate
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.NavigateBefore
 import ly.img.editor.core.ui.iconpack.NavigateNext
 import ly.img.editor.core.ui.iconpack.Sendbackward
+import ly.img.editor.core.ui.utils.roundToPx
 import ly.img.editor.core.ui.utils.toPx
 import kotlin.math.cos
 import kotlin.math.roundToInt
@@ -40,10 +41,11 @@ fun CanvasActionMenu(
     if (!uiState.show) return
 
     val rotation = uiState.selectedBlockRotation
-    val gizmoLength = 48.dp.toPx()
-    val topPadding = 24.dp
+    val gizmoLength = if (uiState.isGizmoPresent) 48.dp.toPx() else 0f
+    val topPadding = 24.dp.roundToPx()
+    val sideMargin = 16.dp.roundToPx()
     val cos = cos(rotation)
-    val dy = cos * gizmoLength
+    val dy = (cos * gizmoLength).roundToInt()
 
     Surface(
         shape = MaterialTheme.shapes.extraLarge,
@@ -53,12 +55,41 @@ fun CanvasActionMenu(
             Modifier
                 .layout { measurable, constraints ->
                     val placeable = measurable.measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        val x = uiState.selectedBlockRect.centerX().dp.roundToPx() - placeable.width / 2
-                        val y =
-                            (uiState.selectedBlockRect.centerY() - uiState.selectedBlockRect.height() / 2).dp.roundToPx() -
-                                placeable.height - topPadding.roundToPx() + if (dy < 0) dy.roundToInt() else 0
-                        placeable.place(x, y)
+                    val width = placeable.width
+                    val height = placeable.height
+                    layout(width, height) {
+                        // In certain scenarios (eg. changing theme while the Canvas Action Menu is visible),
+                        // it was observed that minWidth = maxWidth = 0. Not sure why this happens, for now, we just return here.
+                        if (constraints.isZero) return@layout
+
+                        val x = uiState.selectedBlockRect.centerX().dp.roundToPx() - width / 2
+                        val minX = constraints.minWidth + sideMargin
+                        val maxX = constraints.maxWidth - width - sideMargin
+                        val constrainedX = x.coerceIn(minX, maxX)
+
+                        // Preference order -
+                        // 1. Top
+                        // 2. Bottom
+                        // 3. Below top handle
+                        fun calculateConstrainedY(): Int {
+                            val blockCenterY = uiState.selectedBlockRect.centerY()
+                            val blockHeight = uiState.selectedBlockRect.height()
+                            val minY = constraints.minHeight + uiState.currentInsets.top.dp.roundToPx()
+                            val topY =
+                                (blockCenterY - blockHeight / 2).dp.roundToPx() - height - topPadding + if (dy < 0) dy else 0
+                            if (topY > minY) {
+                                return topY
+                            }
+                            val bottomY = (blockCenterY + blockHeight / 2).dp.roundToPx() + topPadding + if (dy > 0) dy else 0
+                            val bottomCutOff = constraints.maxHeight - uiState.currentInsets.bottom.dp.roundToPx()
+                            if (bottomY + height + sideMargin <= bottomCutOff) {
+                                return bottomY
+                            }
+                            return (blockCenterY - blockHeight / 2).dp.roundToPx() + sideMargin + if (dy < 0) dy else 0
+                        }
+
+                        val constrainedY = calculateConstrainedY()
+                        placeable.place(constrainedX, constrainedY)
                     }
                 },
     ) {
@@ -69,7 +100,7 @@ fun CanvasActionMenu(
                 if (uiState.isDuplicateAllowed) {
                     IconButton(onClick = { onEvent(BlockEvent.OnDuplicate) }) {
                         Icon(
-                            IconPack.Controlpointduplicate,
+                            IconPack.Duplicate,
                             contentDescription = stringResource(R.string.ly_img_editor_duplicate),
                         )
                     }

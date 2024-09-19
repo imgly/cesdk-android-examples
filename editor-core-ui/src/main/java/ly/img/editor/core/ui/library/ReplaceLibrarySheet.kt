@@ -21,8 +21,10 @@ fun ReplaceLibrarySheet(
         when (type) {
             BlockType.Sticker -> viewModel.replaceStickerCategory
             BlockType.Image -> viewModel.replaceImageCategory
+            BlockType.Audio -> viewModel.replaceAudioCategory
+            BlockType.Video -> viewModel.replaceVideoCategory
             else -> throw IllegalArgumentException(
-                "Replace is supported only for images and stickers.",
+                "Replace is not supported for ${type.name}.",
             )
         }
     LibraryCategorySheet(

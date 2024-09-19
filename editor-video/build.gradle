@@ -1,0 +1,9 @@
+apply from: "$projectDir/../release/editor-library.gradle"
+
+android {
+    namespace 'ly.img.editor.video'
+}
+
+dependencies {
+    api project(':editor-base')
+}
