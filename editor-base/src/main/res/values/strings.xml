@@ -3,12 +3,26 @@
     <string name="ly_img_editor_editing_text">Edit Text</string>
 
     <string name="ly_img_editor_engine_error_dialog_title">Engine error</string>
-    <string name="ly_img_editor_error_dialog_title">No internet connection</string>
+    <string name="ly_img_editor_error_internet_title">No internet connection</string>
     <string name="ly_img_editor_error_internet_text">An internet connection is needed to download design assets.</string>
 
     <string name="ly_img_editor_dismiss">Dismiss</string>
     <string name="ly_img_editor_exit">Exit</string>
     <string name="ly_img_editor_cancel">Cancel</string>
+
+    <string name="ly_img_editor_export_success_headline">Export Complete</string>
+    <string name="ly_img_editor_export_success_label">All done. You can close this dialog.</string>
+
+    <string name="ly_img_editor_export_progress_headline">Exporting Video</string>
+    <string name="ly_img_editor_export_progress_label">Just a few seconds…</string>
+
+    <string name="ly_img_editor_export_error_headline">Something went wrong</string>
+    <string name="ly_img_editor_export_error_label">We were not able to prepare your export.\nPlease, try again later.</string>
+
+    <string name="ly_img_editor_export_cancel_dialog_title">Are you sure you want to cancel exporting?</string>
+    <string name="ly_img_editor_export_cancel_dialog_text">This will cancel your current progress and return you to the editor.</string>
+    <string name="ly_img_editor_export_cancel_dialog_confirm_text">Cancel export</string>
+    <string name="ly_img_editor_export_cancel_dialog_dismiss_text">Resume</string>
 
     <string name="ly_img_editor_undo">Undo</string>
     <string name="ly_img_editor_redo">Redo</string>
@@ -19,8 +33,6 @@
     <string name="ly_img_editor_unsaved_changes_dialog_text">Any changes will be permanently lost.</string>
 
     <string name="ly_img_editor_library">Library</string>
-
-    <string name="ly_img_editor_example_images">Examples</string>
 
     <string name="ly_img_editor_replace_sticker">Replace Sticker</string>
     <string name="ly_img_editor_replace">Replace</string>
@@ -35,6 +47,16 @@
     <string name="ly_img_editor_move_up">Move Up</string>
     <string name="ly_img_editor_move_down">Move Down</string>
     <string name="ly_img_editor_add_page">Add Page</string>
+    <string name="ly_img_editor_volume">Volume</string>
+    <string name="ly_img_editor_split">Split</string>
+    <string name="ly_img_editor_reorder">Reorder</string>
+
+    <string name="ly_img_editor_reorder_label">Press and hold to reorder</string>
+
+    <string name="ly_img_editor_play">Play</string>
+    <string name="ly_img_editor_pause">Pause</string>
+    <string name="ly_img_editor_loop">Loop</string>
+    <string name="ly_img_editor_timeline">Timeline</string>
 
     <string name="ly_img_editor_fill_type_solid">Solid</string>
     <string name="ly_img_editor_fill_type_gradient_linear">Gradient</string>
@@ -55,6 +77,9 @@
     <string name="ly_img_editor_to_back">Send to Back</string>
     <string name="ly_img_editor_forward">Bring Forward</string>
     <string name="ly_img_editor_backward">Send Backward</string>
+
+    <string name="ly_img_editor_attach_background">As Clip</string>
+    <string name="ly_img_editor_detach_background">As Overlay</string>
 
     <string name="ly_img_editor_blendmode">Blendmode</string>
     <string name="ly_img_editor_blendmode_pass_through">Pass Through</string>
@@ -164,6 +189,12 @@
     <string name="ly_img_editor_reset">Reset</string>
     <string name="ly_img_editor_rotate">Rotate 90°</string>
     <string name="ly_img_editor_flip">Flip</string>
+
+    <string name="ly_img_editor_add_audio">Add Audio</string>
+    <string name="ly_img_editor_add_clip">Add Clip</string>
+
+    <string name="ly_img_editor_error_split_short_duration">Can\'t split because one of the clips would become too short.</string>
+    <string name="ly_img_editor_error_split_out_of_range">Please move the selected clip under the playhead.</string>
 
     <string name="ly_img_editor_filter_intensity">Intensity</string>
 

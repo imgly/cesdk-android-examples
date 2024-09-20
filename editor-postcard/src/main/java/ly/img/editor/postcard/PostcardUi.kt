@@ -18,7 +18,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,7 +25,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ly.img.editor.base.components.color_picker.LibraryButton
+import ly.img.editor.base.components.LibraryButton
 import ly.img.editor.base.ui.EditorUi
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
@@ -96,7 +95,6 @@ fun PostcardUi(
         mutableStateOf(Unit)
     }
 
-    val uiScope = rememberCoroutineScope()
     val uiState by viewModel.uiState.collectAsState()
 
     EditorUi(
@@ -118,7 +116,7 @@ fun PostcardUi(
             )
         },
         canvasOverlay = {
-            if (!uiState.editorUiViewState.isInPreviewMode && uiState.editorUiViewState.selectedBlock == null) {
+            if (!uiState.editorUiViewState.isInPreviewMode) {
                 Surface(
                     Modifier
                         .fillMaxWidth()
@@ -130,8 +128,6 @@ fun PostcardUi(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             LibraryButton(
                                 modifier = Modifier.padding(top = 12.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
-                                uiScope = uiScope,
-                                bottomSheetState = uiState.editorUiViewState.bottomSheetState,
                                 onEvent = viewModel::onEvent,
                             )
 

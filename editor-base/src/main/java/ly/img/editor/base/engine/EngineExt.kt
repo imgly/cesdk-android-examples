@@ -10,7 +10,6 @@ import ly.img.editor.core.ui.engine.getCamera
 import ly.img.editor.core.ui.engine.getKindEnum
 import ly.img.editor.core.ui.engine.getPage
 import ly.img.editor.core.ui.engine.getScene
-import ly.img.editor.core.ui.engine.getSortedPages
 import ly.img.editor.core.ui.engine.getStackOrNull
 import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.engine.BlendMode
@@ -24,7 +23,6 @@ import ly.img.engine.RGBAColor
 import ly.img.engine.ShapeType
 import ly.img.engine.SizeMode
 import ly.img.engine.StrokeStyle
-import ly.img.engine.UnstableEngineApi
 
 fun Engine.setClearColor(color: Color) {
     editor.setSettingColor("clearColor", color.toEngineColor())
@@ -82,34 +80,62 @@ fun Engine.isPlaceholder(designBlock: DesignBlock): Boolean {
 fun Engine.canBringForward(designBlock: DesignBlock): Boolean {
     val parent = block.getParent(designBlock)
     parent ?: return false
-    val children = block.getChildren(parent)
+    val children = getReorderableChildren(parent, designBlock)
     return children.last() != designBlock
 }
 
 fun Engine.canSendBackward(designBlock: DesignBlock): Boolean {
     val parent = block.getParent(designBlock)
     parent ?: return false
-    val children = block.getChildren(parent)
+    val children = getReorderableChildren(parent, designBlock)
     return children.first() != designBlock
+}
+
+/**
+ * Get all reorderable children for a given parent and contained child.
+ * This method filters out children that are not reorderable with the given child.
+ */
+private fun Engine.getReorderableChildren(
+    parent: DesignBlock,
+    child: DesignBlock,
+): List<DesignBlock> {
+    val childIsAlwaysOnTop = block.isAlwaysOnTop(child)
+    val childIsAlwaysOnBottom = block.isAlwaysOnBottom(child)
+    val childType = block.getType(child)
+
+    val children = block.getChildren(parent)
+
+    return children.filter { childToCompare ->
+        val matchingIsAlwaysOnTop = childIsAlwaysOnTop == block.isAlwaysOnTop(childToCompare)
+        val matchingIsAlwaysOnBottom = childIsAlwaysOnBottom == block.isAlwaysOnBottom(childToCompare)
+        val matchingType =
+            when (childType) {
+                DesignBlockType.Audio.key -> block.getType(childToCompare) == DesignBlockType.Audio.key
+                else -> block.getType(childToCompare) != DesignBlockType.Audio.key
+            }
+        matchingIsAlwaysOnTop && matchingIsAlwaysOnBottom && matchingType
+    }
 }
 
 fun Engine.duplicate(designBlock: DesignBlock) {
     val duplicateBlock = block.duplicate(designBlock)
-    val positionModeX = block.getPositionXMode(designBlock)
-    val positionModeY = block.getPositionYMode(designBlock)
-    overrideAndRestore(designBlock, Scope.LayerMove) {
-        block.setPositionXMode(it, PositionMode.ABSOLUTE)
-        val x = block.getPositionX(it)
-        block.setPositionYMode(it, PositionMode.ABSOLUTE)
-        val y = block.getPositionY(it)
-        block.setPositionXMode(duplicateBlock, PositionMode.ABSOLUTE)
-        block.setPositionX(duplicateBlock, x + 5)
-        block.setPositionYMode(duplicateBlock, PositionMode.ABSOLUTE)
-        block.setPositionY(duplicateBlock, y - 5)
+    if (!block.isTransformLocked(designBlock)) {
+        val positionModeX = block.getPositionXMode(designBlock)
+        val positionModeY = block.getPositionYMode(designBlock)
+        overrideAndRestore(designBlock, Scope.LayerMove) {
+            block.setPositionXMode(it, PositionMode.ABSOLUTE)
+            val x = block.getPositionX(it)
+            block.setPositionYMode(it, PositionMode.ABSOLUTE)
+            val y = block.getPositionY(it)
+            block.setPositionXMode(duplicateBlock, PositionMode.ABSOLUTE)
+            block.setPositionX(duplicateBlock, x + 5)
+            block.setPositionYMode(duplicateBlock, PositionMode.ABSOLUTE)
+            block.setPositionY(duplicateBlock, y - 5)
 
-        // Restore values
-        block.setPositionXMode(it, positionModeX)
-        block.setPositionYMode(it, positionModeY)
+            // Restore values
+            block.setPositionXMode(it, positionModeX)
+            block.setPositionYMode(it, positionModeY)
+        }
     }
     block.setSelected(designBlock, false)
     block.setSelected(duplicateBlock, true)
@@ -121,17 +147,16 @@ fun Engine.delete(designBlock: DesignBlock) {
     editor.addUndoStep()
 }
 
-fun Engine.isMoveAllowed(designBlock: DesignBlock): Boolean {
-    return block.isAllowedByScope(designBlock, Scope.EditorAdd) && !isGrouped(designBlock)
-}
+fun Engine.isMoveAllowed(designBlock: DesignBlock): Boolean =
+    block.isAllowedByScope(designBlock, Scope.EditorAdd) &&
+        !isGrouped(designBlock) &&
+        !block.isParentBackgroundTrack(designBlock)
 
-fun Engine.isDuplicateAllowed(designBlock: DesignBlock): Boolean {
-    return block.isAllowedByScope(designBlock, Scope.LifecycleDuplicate) && !isGrouped(designBlock)
-}
+fun Engine.isDuplicateAllowed(designBlock: DesignBlock): Boolean =
+    block.isAllowedByScope(designBlock, Scope.LifecycleDuplicate) && !isGrouped(designBlock)
 
-fun Engine.isDeleteAllowed(designBlock: DesignBlock): Boolean {
-    return block.isAllowedByScope(designBlock, Scope.LifecycleDestroy) && !isGrouped(designBlock)
-}
+fun Engine.isDeleteAllowed(designBlock: DesignBlock): Boolean =
+    block.isAllowedByScope(designBlock, Scope.LifecycleDestroy) && !isGrouped(designBlock)
 
 fun Engine.isGrouped(designBlock: DesignBlock): Boolean {
     val parent = block.getParent(designBlock) ?: return false
@@ -220,7 +245,6 @@ fun Engine.zoomToBackdrop(insets: Rect) {
     zoomToBlock(getBackdropImage(), insets)
 }
 
-@OptIn(UnstableEngineApi::class)
 fun Engine.zoomToSelectedText(
     insets: Rect,
     canvasHeight: Float,
@@ -231,7 +255,7 @@ fun Engine.zoomToSelectedText(
     val overlapTop = 50
     val overlapBottom = 50
 
-    val textBlock = block.findAllSelected().singleOrNull() ?: return
+    block.findAllSelected().singleOrNull() ?: return
     val pixelRatio = block.getFloat(getCamera(), "camera/pixelRatio")
     val cursorPosY = editor.getTextCursorPositionInScreenSpaceY() / pixelRatio
     // The first cursorPosY is 0 if no cursor has been layout yet. Then we ignore zoom commands.
@@ -267,7 +291,7 @@ fun Engine.showPage(
         }
     }
 
-    val pages = getSortedPages()
+    val pages = scene.getPages()
     val allPages = index == null
     pages.forEachIndexed { idx, page ->
         overrideAndRestore(page, Scope.LayerVisibility) {

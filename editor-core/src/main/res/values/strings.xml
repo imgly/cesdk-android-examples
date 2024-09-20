@@ -10,6 +10,7 @@
     <string name="ly_img_editor_text">Text</string>
     <string name="ly_img_editor_group">Group</string>
     <string name="ly_img_editor_page">Page</string>
+    <string name="ly_img_editor_video">Video</string>
 
     <string name="ly_img_editor_elements">Elements</string>
     <string name="ly_img_editor_videos">Videos</string>
@@ -24,9 +25,17 @@
     <string name="ly_img_editor_gallery">Gallery</string>
     <string name="ly_img_editor_camera">Camera</string>
 
+    <string name="ly_img_editor_overlays">Overlays</string>
+    <string name="ly_img_editor_clips">Clips</string>
+
     <string name="ly_img_editor_image_uploads">Image Uploads</string>
     <string name="ly_img_editor_audio_uploads">Audio Uploads</string>
     <string name="ly_img_editor_video_uploads">Video Uploads</string>
+
+    <string name="ly_img_editor_choose_video">Choose Video</string>
+    <string name="ly_img_editor_take_video">Take Video</string>
+    <string name="ly_img_editor_choose_photo">Choose Photo</string>
+    <string name="ly_img_editor_take_photo">Take Photo</string>
 
     <string name="ly_img_editor_shapes_basic">Basic</string>
     <string name="ly_img_editor_shapes_abstract">Abstract</string>

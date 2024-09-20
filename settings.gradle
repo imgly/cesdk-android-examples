@@ -19,15 +19,11 @@ dependencyResolutionManagement {
             }
         }
     }
-    versionCatalogs {
-        libs {
-            from(files("gradle/editor-libs.versions.toml"))
-        }
-    }
 }
 
-rootProject.name = "CE.SDK Showcases"
-include ':app'
+rootProject.name = "CE.SDK Android Examples"
+include ':showcases-app'
+include ':catalog-app'
 if (file("editor-version-details").exists()) {
     include ':editor-version-details'
 }
@@ -40,9 +36,11 @@ include ':editor-apparel'
 include ':editor-postcard'
 include ':editor-design'
 include ':editor-photo'
+include ':editor-video'
 include ':editor'
 
 // Internal use only
+def ubqRootPath = "../../"
 def useLocalEngine = {
     def propertiesFile = new File(rootDir, "local.properties")
     if (!propertiesFile.exists()) return false
@@ -52,9 +50,12 @@ def useLocalEngine = {
 }
 
 if (System.getenv("UBQ_USE_LOCAL_ENGINE") == "true" || useLocalEngine()) {
-    include ':ubq-android-engine'
-    project(':ubq-android-engine').projectDir = new File('../../bindings/android')
-    include ':ubq-android-camera'
-    project(':ubq-android-camera').projectDir = new File('../cesdk_android_camera')
+    includeBuild("$ubqRootPath/bindings/android") {
+        name "engine"
+        dependencySubstitution {
+            substitute module('ly.img:engine') using project(':engine')
+            substitute module('ly.img:engine-camera') using project(':engine-camera')
+        }
+    }
 }
 // Internal use only

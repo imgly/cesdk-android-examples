@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -26,7 +25,7 @@ internal fun AssetColumn(
     val activatedPreviewItemId = remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val exoPlayerInstance by
-        rememberSaveable {
+        remember {
             lazy {
                 ExoPlayer.Builder(context.applicationContext).build()
             }

@@ -6,8 +6,10 @@ fun Asset.getThumbnailUri(): String = getMeta("thumbUri", getUri())
 
 fun Asset.getUri(): String = getMeta("uri", "")
 
-internal fun Asset.getDuration(): String {
-    val duration = getMeta("duration", "").toFloatOrNull()?.toInt() ?: return ""
+internal fun Asset.getDuration(): Double? = getMeta("duration")?.toDoubleOrNull()
+
+internal fun Asset.getFormattedDuration(): String {
+    val duration = getDuration()?.toInt() ?: return ""
     val minutes = duration / 60
     val seconds = duration % 60
     return String.format("%d:%02d", minutes, seconds)

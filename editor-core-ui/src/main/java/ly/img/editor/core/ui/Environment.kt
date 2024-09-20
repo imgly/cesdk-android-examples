@@ -9,6 +9,7 @@ import coil.request.ImageRequest
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.AssetLibrary
 import ly.img.editor.core.library.data.UploadAssetSourceType
+import ly.img.editor.core.ui.library.data.MediaMetadataExtractor
 import ly.img.editor.core.ui.tab_item.TabIconMappings
 import ly.img.engine.AssetDefinition
 import ly.img.engine.Engine
@@ -36,13 +37,18 @@ object Environment {
 
     fun getEditorCacheDir() = File(context.cacheDir, "ly.img.editor")
 
+    fun getMediaMetadataExtractor() = MediaMetadataExtractor(context)
+
     fun newImageRequest(uri: Uri) = ImageRequest.Builder(context).data(uri).build()
 
     private var engine: Engine? = null
 
     fun getEngine(): Engine {
         return engine ?: Engine.getInstance(id = "ly.img.editor").also {
-            it.idlingEnabled = true
+            // FIXME: Idling has been disabled till all video issues are resolved
+            // Known issues with idlingEnabled -
+            // 1. Canvas turns black when going to background and coming back again
+            // it.idlingEnabled = true
             engine = it
         }
     }

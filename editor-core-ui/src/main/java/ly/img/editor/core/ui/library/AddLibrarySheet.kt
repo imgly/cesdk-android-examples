@@ -9,6 +9,7 @@ import ly.img.editor.core.ui.library.util.LibraryEvent
 @Composable
 fun AddLibrarySheet(
     libraryCategory: LibraryCategory,
+    addToBackgroundTrack: Boolean?,
     onClose: () -> Unit,
     onCloseAssetDetails: () -> Unit,
     onSearchFocus: () -> Unit,
@@ -19,11 +20,22 @@ fun AddLibrarySheet(
     LibraryCategorySheet(
         libraryCategory = libraryCategory,
         onAssetClick = { wrappedAsset ->
-            viewModel.onEvent(LibraryEvent.OnAddAsset(wrappedAsset))
+            viewModel.onEvent(
+                LibraryEvent.OnAddAsset(
+                    wrappedAsset = wrappedAsset,
+                    addToBackgroundTrack = addToBackgroundTrack,
+                ),
+            )
             onClose()
         },
         onUriPick = { assetSource, uri ->
-            viewModel.onEvent(LibraryEvent.OnAddUri(assetSource, uri))
+            viewModel.onEvent(
+                LibraryEvent.OnAddUri(
+                    assetSource = assetSource,
+                    uri = uri,
+                    addToBackgroundTrack = addToBackgroundTrack,
+                ),
+            )
             onClose()
         },
         onClose = onClose,
