@@ -1,0 +1,30 @@
+apply from: "$projectDir/../release/editor-library.gradle"
+
+android {
+    namespace 'ly.img.editor.core.ui'
+}
+
+dependencies {
+    api project(":editor-experimental")
+    api project(":editor-core")
+    api findProject(":ubq-android-engine") ?: libs.cesdk.engine
+
+    implementation platform(libs.compose.bom)
+    api libs.compose.material3
+
+    api(libs.compose.activity) {
+        because "BackHandler"
+    }
+    api libs.compose.viewmodel
+
+    api libs.kotlin.coroutines
+
+    implementation libs.coil.compose
+
+    implementation libs.shimmer
+
+    debugImplementation libs.compose.tooling
+    implementation libs.compose.preview
+    
+    implementation(libs.media3.exoplayer)
+}

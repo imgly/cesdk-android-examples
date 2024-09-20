@@ -1,0 +1,60 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name "IMG.LY Artifactory"
+            url "https://artifactory.img.ly/artifactory/maven"
+            mavenContent {
+                includeGroup("ly.img")
+            }
+        }
+    }
+    versionCatalogs {
+        libs {
+            from(files("gradle/editor-libs.versions.toml"))
+        }
+    }
+}
+
+rootProject.name = "CE.SDK Showcases"
+include ':app'
+if (file("editor-version-details").exists()) {
+    include ':editor-version-details'
+}
+include ':editor-version-details-dummy'
+include ':editor-experimental'
+include ':editor-core'
+include ':editor-core-ui'
+include ':editor-base'
+include ':editor-apparel'
+include ':editor-postcard'
+include ':editor-design'
+include ':editor-photo'
+include ':editor'
+
+// Internal use only
+def useLocalEngine = {
+    def propertiesFile = new File(rootDir, "local.properties")
+    if (!propertiesFile.exists()) return false
+    def properties = new Properties()
+    properties.load(propertiesFile.newDataInputStream())
+    properties.containsKey("useLocalEngine") && properties.getProperty("useLocalEngine").toBoolean()
+}
+
+if (System.getenv("UBQ_USE_LOCAL_ENGINE") == "true" || useLocalEngine()) {
+    include ':ubq-android-engine'
+    project(':ubq-android-engine').projectDir = new File('../../bindings/android')
+    include ':ubq-android-camera'
+    project(':ubq-android-camera').projectDir = new File('../cesdk_android_camera')
+}
+// Internal use only

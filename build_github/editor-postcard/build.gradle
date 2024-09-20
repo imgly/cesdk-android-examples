@@ -1,0 +1,9 @@
+apply from: "$projectDir/../release/editor-library.gradle"
+
+android {
+    namespace 'ly.img.editor.postcard'
+}
+
+dependencies {
+    api project(':editor-base')
+}

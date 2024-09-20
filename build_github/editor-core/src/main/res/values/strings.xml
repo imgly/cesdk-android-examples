@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ly_img_editor_close">Close</string>
+    <string name="ly_img_editor_back">Back</string>
+
+    <string name="ly_img_editor_shape">Shape</string>
+    <string name="ly_img_editor_sticker">Sticker</string>
+    <string name="ly_img_editor_image">Image</string>
+    <string name="ly_img_editor_overlay">Overlay</string>
+    <string name="ly_img_editor_text">Text</string>
+    <string name="ly_img_editor_group">Group</string>
+    <string name="ly_img_editor_page">Page</string>
+
+    <string name="ly_img_editor_elements">Elements</string>
+    <string name="ly_img_editor_videos">Videos</string>
+    <string name="ly_img_editor_audio">Audio</string>
+    <string name="ly_img_editor_shapes">Shapes</string>
+    <string name="ly_img_editor_typeface">Typeface</string>
+    <string name="ly_img_editor_stickers">Stickers</string>
+    <string name="ly_img_editor_filters">Filter</string>
+    <string name="ly_img_editor_effects">Effects</string>
+    <string name="ly_img_editor_blur">Blur</string>
+    <string name="ly_img_editor_images">Images</string>
+    <string name="ly_img_editor_gallery">Gallery</string>
+    <string name="ly_img_editor_camera">Camera</string>
+
+    <string name="ly_img_editor_image_uploads">Image Uploads</string>
+    <string name="ly_img_editor_audio_uploads">Audio Uploads</string>
+    <string name="ly_img_editor_video_uploads">Video Uploads</string>
+
+    <string name="ly_img_editor_shapes_basic">Basic</string>
+    <string name="ly_img_editor_shapes_abstract">Abstract</string>
+
+    <string name="ly_img_editor_stickers_doodle">Doodle</string>
+    <string name="ly_img_editor_stickers_emoji">Emoji</string>
+    <string name="ly_img_editor_stickers_emoticons">Emoticons</string>
+    <string name="ly_img_editor_stickers_hands">Hands</string>
+
+    <string name="ly_img_editor_credits_title">Details</string>
+    <string name="ly_img_editor_credits_artist_on_source">By %s on %s</string>
+    <string name="ly_img_editor_credits_artist">By %s</string>
+    <string name="ly_img_editor_credits_on_source">On %s</string>
+
+    <string name="ly_img_editor_add">Add</string>
+    <string name="ly_img_editor_remove">None</string>
+    <string name="ly_img_editor_more_count">More</string>
+    <string name="ly_img_editor_see_all">See All</string>
+    <string name="ly_img_editor_no_elements">No Elements</string>
+    <string name="ly_img_editor_error_text">Cannot connect to service</string>
+    <string name="ly_img_editor_retry">Retry</string>
+
+    <string name="ly_img_editor_search">Search</string>
+    <string name="ly_img_editor_search_placeholder">Search %s…</string>
+    <string name="ly_img_editor_search_clear">Clear</string>
+</resources>

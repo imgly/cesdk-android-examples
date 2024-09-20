@@ -1,0 +1,96 @@
+apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'maven-publish'
+apply plugin: 'com.github.gmazzo.buildconfig'
+
+android {
+    compileSdk libs.versions.androidCompileSdk.get().toInteger()
+
+    defaultConfig {
+        minSdk libs.versions.androidMinSdk.get().toInteger()
+        targetSdk libs.versions.androidTargetSdk.get().toInteger()
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        compose true
+        buildConfig false
+        resValues true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.kotlinCompilerExtension.get()
+    }
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                def artifactoryUrl = "https://artifactory.img.ly/artifactory/maven"
+                def libGroupId = "ly.img"
+                def libArtifactId = project.name
+                def libVersion = libs.versions.engine.get()
+
+                groupId libGroupId
+                artifactId libArtifactId
+                version libVersion
+
+                // Artifacts
+                from components.release
+                artifact(file("$projectDir/../release/LICENSE.md")) {
+                    classifier "LICENSE"
+                    extension "md"
+                }
+                artifact(file("$projectDir/../release/ThirdPartyLicenses.md")) {
+                    classifier "ThirdPartyLicenses"
+                    extension "md"
+                }
+
+                pom {
+                    name = "IMGLYEditor"
+                    description = "IMGLYEditor is a fully customizable design editor, enabling template-based workflows & automations with just a few lines of code."
+                    url = "https://img.ly/"
+                    licenses {
+                        license {
+                            name = "LICENSE"
+                            url = "$artifactoryUrl/${libGroupId.replace('.', "/")}/$artifactId/$libVersion/$artifactId-$libVersion-LICENSE.md"
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = "imgly"
+                            name = "IMG.LY GmbH"
+                            email = "contact@img.ly"
+                        }
+                    }
+                }
+
+                repositories {
+                    maven {
+                        credentials {
+                            username="${System.getenv("UBQ_ANDROID_ARTIFACTORY_USERNAME")}"
+                            password="${System.getenv("UBQ_ANDROID_ARTIFACTORY_PASSWORD")}"
+                        }
+                        url = artifactoryUrl
+                    }
+                }
+            }
+        }
+    }
+}
