@@ -32,6 +32,7 @@ fun prepareUriForCameraLauncher(context: Context): Uri {
 
 @Composable
 fun rememberGalleryLauncherForActivityResult(
+    addToBackgroundTrack: Boolean? = null,
     onEvent: (LibraryEvent) -> Unit,
 ): ManagedActivityResultLauncher<Array<String>, Uri?> {
     val context = LocalContext.current
@@ -44,6 +45,7 @@ fun rememberGalleryLauncherForActivityResult(
                 LibraryEvent.OnAddUri(
                     assetSource = if (isVideo) AssetSourceType.VideoUploads else AssetSourceType.ImageUploads,
                     uri = uri,
+                    addToBackgroundTrack = addToBackgroundTrack,
                 ),
             )
         }

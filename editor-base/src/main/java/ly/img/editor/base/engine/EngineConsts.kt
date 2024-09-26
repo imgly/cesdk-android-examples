@@ -9,4 +9,9 @@ const val TRIM_EDIT_MODE = "Trim"
 
 const val TOUCH_ACTION_ZOOM = "Zoom"
 const val TOUCH_ACTION_SCALE = "Scale"
+const val TOUCH_ACTION_ROTATE = "Rotate"
 const val TOUCH_ACTION_NONE = "None"
+
+const val DOUBLE_CLICK_SELECTION_MODE_DIRECT = "Direct"
+
+const val CAMERA_OVERSHOOT_MODE_CENTER = "Center"

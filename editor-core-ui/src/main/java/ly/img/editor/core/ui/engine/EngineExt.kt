@@ -3,6 +3,16 @@ package ly.img.editor.core.ui.engine
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
+import ly.img.engine.SceneMode
+
+val Engine.isSceneModeVideo: Boolean
+    get() =
+        try {
+            scene.getMode() == SceneMode.VIDEO
+        } catch (ex: IllegalArgumentException) {
+            // In case we don't have any active scene
+            false
+        }
 
 fun Engine.deselectAllBlocks() {
     block.findAllSelected().forEach {
@@ -11,19 +21,15 @@ fun Engine.deselectAllBlocks() {
 }
 
 fun Engine.getPage(index: Int): DesignBlock {
-    val pages = getSortedPages()
-    return pages[index]
+    return scene.getPages()[index]
+}
+
+fun Engine.getCurrentPage(): DesignBlock {
+    return scene.getCurrentPage() ?: getPage(0)
 }
 
 fun Engine.getScene(): DesignBlock {
     return block.findByType(DesignBlockType.Scene).first()
-}
-
-fun Engine.getSortedPages(): List<DesignBlock> {
-    val stack = getStackOrNull()
-    return stack?.let {
-        block.getChildren(it)
-    } ?: scene.getPages()
 }
 
 fun Engine.getStackOrNull(): DesignBlock? {

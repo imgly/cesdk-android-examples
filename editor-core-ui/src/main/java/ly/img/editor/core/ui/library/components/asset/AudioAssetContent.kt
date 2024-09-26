@@ -57,7 +57,7 @@ import ly.img.editor.compose.foundation.combinedClickable
 import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.ui.library.components.LibraryImageCard
-import ly.img.editor.core.ui.library.getDuration
+import ly.img.editor.core.ui.library.getFormattedDuration
 import ly.img.editor.core.ui.library.getMeta
 import ly.img.editor.core.ui.library.getThumbnailUri
 import ly.img.editor.core.ui.library.getUri
@@ -234,12 +234,12 @@ internal fun AudioAssetContent(
                             append(" / ")
                         }
                         withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.75f))) {
-                            append(wrappedAsset.asset.getDuration())
+                            append(wrappedAsset.asset.getFormattedDuration())
                         }
                     }
                 Text(annotatedString)
             } else {
-                Text(wrappedAsset.asset.getDuration())
+                Text(wrappedAsset.asset.getFormattedDuration())
             }
         },
         modifier =

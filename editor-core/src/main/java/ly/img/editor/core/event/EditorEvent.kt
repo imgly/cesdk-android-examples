@@ -21,4 +21,9 @@ interface EditorEventHandler {
      * @param throwable an optional parameter in case the editor is closed due to an error.
      */
     fun sendCloseEditorEvent(throwable: Throwable? = null)
+
+    /**
+     * A special function for canceling the export job if it is running.
+     */
+    fun sendCancelExportEvent()
 }
