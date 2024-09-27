@@ -7,7 +7,7 @@ android {
 dependencies {
     api project(":editor-experimental")
     api project(":editor-core")
-    api findProject(":ubq-android-engine") ?: libs.cesdk.engine
+    api libs.cesdk.engine
 
     implementation platform(libs.compose.bom)
     api libs.compose.material3
@@ -19,12 +19,12 @@ dependencies {
 
     api libs.kotlin.coroutines
 
-    implementation libs.coil.compose
+    api libs.coil.compose
 
-    implementation libs.shimmer
+    api libs.shimmer
 
     debugImplementation libs.compose.tooling
     implementation libs.compose.preview
-    
+
     implementation(libs.media3.exoplayer)
 }

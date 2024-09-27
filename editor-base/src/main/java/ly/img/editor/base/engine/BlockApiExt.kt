@@ -1,5 +1,6 @@
 package ly.img.editor.base.engine
 
+import ly.img.editor.core.ui.library.engine.isBackgroundTrack
 import ly.img.engine.BlockApi
 import ly.img.engine.BlurType
 import ly.img.engine.DesignBlock
@@ -11,7 +12,7 @@ import kotlin.math.min
 const val NoneDesignBlock: DesignBlock = -1
 
 fun BlockApi.isFillStrokeSupported(designBlock: DesignBlock): Pair<Boolean, Boolean> {
-    val hasStroke = hasStroke(designBlock)
+    val supportsStroke = supportsStroke(designBlock)
     val fillType = getFillType(designBlock)
     val hasSolidOrGradientFill = (
         fillType == FillType.Color ||
@@ -19,7 +20,7 @@ fun BlockApi.isFillStrokeSupported(designBlock: DesignBlock): Pair<Boolean, Bool
             fillType == FillType.RadialGradient ||
             fillType == FillType.ConicalGradient
     )
-    return hasSolidOrGradientFill to hasStroke
+    return hasSolidOrGradientFill to supportsStroke
 }
 
 fun BlockApi.getFillType(designBlock: DesignBlock): FillType? =
@@ -160,6 +161,17 @@ fun BlockApi.removeEffectByType(
     if (filterId != -1) {
         this.removeEffect(block, filterId)
     }
+}
+
+fun BlockApi.isParentBackgroundTrack(designBlock: DesignBlock): Boolean {
+    val parent = getParent(designBlock)
+    return parent != null && isBackgroundTrack(parent)
+}
+
+fun BlockApi.getAspectRatio(designBlock: DesignBlock): Float {
+    val width = getFrameWidth(designBlock)
+    val height = getFrameHeight(designBlock)
+    return width / height
 }
 
 fun BlockApi.getSmallerSide(block: DesignBlock): Float {

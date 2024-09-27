@@ -135,7 +135,7 @@ fun PhotoUi(
                     ) {
                         var uri by rememberSaveable { mutableStateOf<Uri?>(null) }
                         val rootBarItems = uiState.rootDockItems
-                        val galleryLauncher = rememberGalleryLauncherForActivityResult(libraryViewModel::onEvent)
+                        val galleryLauncher = rememberGalleryLauncherForActivityResult(onEvent = libraryViewModel::onEvent)
                         val cameraLauncher =
                             rememberCameraLauncherForActivityResult(
                                 captureVideo = false,

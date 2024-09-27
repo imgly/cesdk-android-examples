@@ -103,7 +103,9 @@ class UnsplashAssetSource(
 
     // highlight-unsplash-query
     override suspend fun findAssets(query: FindAssetsQuery): FindAssetsResult {
-        return if (query.query.isNullOrEmpty()) query.getPopularList() else query.getSearchList()
+        return withContext(Dispatchers.IO) {
+            if (query.query.isNullOrEmpty()) query.getPopularList() else query.getSearchList()
+        }
     }
 
     private suspend fun FindAssetsQuery.getPopularList(): FindAssetsResult {

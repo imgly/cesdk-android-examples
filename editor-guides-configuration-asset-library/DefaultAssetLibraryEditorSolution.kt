@@ -30,8 +30,9 @@ fun DefaultAssetLibraryEditorSolution(navController: NavHostController) {
                         engine = engine,
                         sceneUri = EngineConfiguration.defaultDesignSceneUri,
                         eventHandler = eventHandler,
-                    )
-                    engine.asset.addSource(unsplashAssetSource)
+                    ) { _, _ ->
+                        engine.asset.addSource(unsplashAssetSource)
+                    }
                 },
             )
         }

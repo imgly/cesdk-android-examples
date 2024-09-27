@@ -1,6 +1,5 @@
 package ly.img.editor.base.dock
 
-import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -39,9 +38,7 @@ import ly.img.editor.compose.animation_core.tween
 import ly.img.editor.core.R
 import ly.img.editor.core.ui.iconpack.Close
 import ly.img.editor.core.ui.iconpack.IconPack
-
-val enterEasing = CubicBezierEasing(0.05f, 0.7f, 0.1f, 1f)
-val exitEasing = CubicBezierEasing(0.3f, 0f, 0.8f, 0.15f)
+import ly.img.editor.core.ui.utils.Easing
 
 @Composable
 fun Dock(
@@ -65,8 +62,8 @@ fun Dock(
     AnimatedVisibility(
         visible = selectedBlock != null,
         modifier = modifier,
-        enter = slideInVertically(animationSpec = tween(400, easing = enterEasing), initialOffsetY = { it }),
-        exit = slideOutVertically(animationSpec = tween(150, easing = exitEasing), targetOffsetY = { it }),
+        enter = slideInVertically(animationSpec = tween(400, easing = Easing.EmphasizedDecelerate), initialOffsetY = { it }),
+        exit = slideOutVertically(animationSpec = tween(150, easing = Easing.EmphasizedAccelerate), targetOffsetY = { it }),
     ) {
         Surface {
             Box(
@@ -96,7 +93,7 @@ fun Dock(
                                 .animateEnterExit(
                                     enter =
                                         slideInHorizontally(
-                                            animationSpec = tween(400, easing = enterEasing),
+                                            animationSpec = tween(400, easing = Easing.EmphasizedDecelerate),
                                             initialOffsetX = { it / 3 },
                                         ),
                                     exit = ExitTransition.None,
