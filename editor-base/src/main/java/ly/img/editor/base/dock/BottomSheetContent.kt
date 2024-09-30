@@ -22,6 +22,7 @@ object LibraryBottomSheetContent : BottomSheetContent
 
 class LibraryCategoryBottomSheetContent(
     val libraryCategory: LibraryCategory,
+    val addToBackgroundTrack: Boolean?,
 ) : BottomSheetContent {
     override fun isInitialExpandHalf(): Boolean = libraryCategory.isHalfExpandedInitially
 }

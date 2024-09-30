@@ -21,12 +21,15 @@ data class FillStrokeUiState(
             hasSolidOrGradientFill && hasStroke -> {
                 R.string.ly_img_editor_fill_and_stroke
             }
+
             hasSolidOrGradientFill -> {
                 R.string.ly_img_editor_fill
             }
+
             hasStroke -> {
                 R.string.ly_img_editor_stroke
             }
+
             else -> {
                 throw IllegalArgumentException(
                     "getFillStrokeTitleRes() should not be called when hasFill and hasStroke both are false.",

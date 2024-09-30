@@ -5,7 +5,7 @@ import androidx.compose.ui.composed
 import com.valentinilk.shimmer.shimmer
 import ly.img.editor.core.theme.LocalShimmer
 
-internal fun Modifier.shimmerWithLocalShimmer() =
+fun Modifier.shimmerWithLocalShimmer() =
     composed {
         shimmer(LocalShimmer.current)
     }

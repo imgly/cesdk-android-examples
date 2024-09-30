@@ -15,6 +15,7 @@ dependencies {
     implementation project(":editor-postcard")
     implementation project(':editor-design')
     implementation project(':editor-photo')
+    implementation project(":editor-video")
     implementation project(":editor-base")
     api project(":editor-core")
 }

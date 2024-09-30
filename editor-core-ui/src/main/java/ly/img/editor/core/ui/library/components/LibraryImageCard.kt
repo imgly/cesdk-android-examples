@@ -34,6 +34,9 @@ import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.library.util.shimmerWithLocalShimmer
 import ly.img.editor.core.ui.utils.ifTrue
 
+private const val HEADER_USER_AGENT_KEY = "User-Agent"
+private const val HEADER_USER_AGENT_VALUE = "IMG.LY SDK"
+
 @Composable
 internal fun LibraryImageCard(
     modifier: Modifier = Modifier,
@@ -63,6 +66,7 @@ internal fun LibraryImageCard(
                 model =
                     ImageRequest.Builder(LocalContext.current)
                         .data(uri)
+                        .addHeader(HEADER_USER_AGENT_KEY, HEADER_USER_AGENT_VALUE)
                         .build(),
                 onLoading = {
                     state = ImageState.Loading

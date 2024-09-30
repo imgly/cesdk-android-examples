@@ -2,9 +2,12 @@ package ly.img.editor
 
 import android.net.Uri
 import android.util.SizeF
+import kotlinx.coroutines.CancellationException
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.data.UploadAssetSourceType
+import ly.img.editor.core.ui.engine.getCurrentPage
+import ly.img.editor.core.ui.engine.isSceneModeVideo
 import ly.img.engine.AssetDefinition
 import ly.img.engine.Engine
 import ly.img.engine.MimeType
@@ -63,20 +66,50 @@ class EngineConfiguration(
     val onCreate: suspend (Engine, EditorEventHandler) -> Unit,
     val onExport: suspend (Engine, EditorEventHandler) -> Unit = { engine, eventHandler ->
         EditorDefaults.run {
-            eventHandler.send(ShowLoading)
-            val blob =
-                engine.block.export(
-                    block = requireNotNull(engine.scene.get()),
-                    mimeType = MimeType.PDF,
-                ) {
-                    scene.getPages().forEach {
-                        block.setScopeEnabled(it, key = "layer/visibility", enabled = true)
-                        block.setVisible(it, visible = true)
+            val mimeType: MimeType
+            if (engine.isSceneModeVideo) {
+                mimeType = MimeType.MP4
+                val page = engine.getCurrentPage()
+                eventHandler.send(ShowVideoExportProgressEvent(0f))
+                runCatching {
+                    val buffer =
+                        engine.block.exportVideo(
+                            block = page,
+                            timeOffset = 0.0,
+                            duration = engine.block.getDuration(page),
+                            mimeType = mimeType,
+                            progressCallback = { progress ->
+                                eventHandler.send(
+                                    ShowVideoExportProgressEvent(progress.encodedFrames.toFloat() / progress.totalFrames),
+                                )
+                            },
+                        )
+                    writeToTempFile(buffer, mimeType)
+                }.onSuccess { file ->
+                    eventHandler.send(ShowVideoExportSuccessEvent(file, mimeType.key))
+                }.onFailure {
+                    if (it is CancellationException) {
+                        eventHandler.send(DismissVideoExportEvent)
+                    } else {
+                        eventHandler.send(ShowVideoExportErrorEvent)
                     }
                 }
-            val tempFile = writeToTempFile(blob)
-            eventHandler.send(HideLoading)
-            eventHandler.send(ShareFileEvent(tempFile, MimeType.PDF.key))
+            } else {
+                eventHandler.send(ShowLoading)
+                mimeType = MimeType.PDF
+                val buffer =
+                    engine.block.export(
+                        block = requireNotNull(engine.scene.get()),
+                        mimeType = mimeType,
+                    ) {
+                        scene.getPages().forEach {
+                            block.setScopeEnabled(it, key = "layer/visibility", enabled = true)
+                            block.setVisible(it, visible = true)
+                        }
+                    }
+                eventHandler.send(HideLoading)
+                eventHandler.send(ShareFileEvent(writeToTempFile(buffer, mimeType), mimeType.key))
+            }
         }
     },
     val onUpload: suspend AssetDefinition.(
@@ -122,6 +155,13 @@ class EngineConfiguration(
          */
         val defaultPostcardSceneUri: Uri by lazy {
             Uri.parse("file:///android_asset/scenes/postcard.scene")
+        }
+
+        /**
+         * The default sceneUri value used in [EngineConfiguration.getForVideo].
+         */
+        val defaultVideoSceneUri: Uri by lazy {
+            Uri.parse("file:///android_asset/scenes/video.scene")
         }
 
         /**
@@ -265,6 +305,37 @@ class EngineConfiguration(
             userId: String? = null,
             baseUri: Uri = defaultBaseUri,
             sceneUri: Uri = defaultPostcardSceneUri,
+            renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
+        ) = EngineConfiguration(
+            license = license,
+            userId = userId,
+            baseUri = baseUri,
+            renderTarget = renderTarget,
+            onCreate = { engine, eventHandler ->
+                EditorDefaults.onCreate(engine, sceneUri, eventHandler)
+            },
+        )
+
+        /**
+         * Helper function for creating an [EngineConfiguration] object when launching [VideoEditor]. It is helpful to use this
+         * function if you want to launch the editor in default configuration. The only thing that you need to provide is the [license].
+         *
+         * @param license the license to activate the [ly.img.engine.Engine] with.
+         * @param userId an optional unique ID tied to your application's user. This helps us accurately calculate monthly active users (MAU).
+         * This is particularly beneficial for tracking users across multiple devices when they sign in, ensuring they are counted uniquely.
+         * @param baseUri the foundational uri for constructing absolute paths from relative ones. For example, setting it to
+         * the Android assets directory allows loading resources directly from there: file:///android_asset/.
+         * This base uri enables the loading of specific scenes or assets using their relative paths.
+         * @param sceneUri the specific scene uri to load content within the [VideoEditor]. This uri is passed to
+         * [EditorDefaults.onCreate] to facilitate scene and asset loading at initialization.
+         * @param renderTarget the target which should be used by the [ly.img.engine.Engine] to render.
+         * Default value is [EngineRenderTarget.SURFACE_VIEW].
+         */
+        fun getForVideo(
+            license: String,
+            userId: String? = null,
+            baseUri: Uri = defaultBaseUri,
+            sceneUri: Uri = defaultVideoSceneUri,
             renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
         ) = EngineConfiguration(
             license = license,

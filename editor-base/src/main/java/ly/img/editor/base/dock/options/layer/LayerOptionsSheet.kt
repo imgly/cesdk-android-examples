@@ -41,8 +41,8 @@ import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
 import ly.img.editor.core.ui.iconpack.Bringforward
 import ly.img.editor.core.ui.iconpack.Bringtofront
-import ly.img.editor.core.ui.iconpack.Controlpointduplicate
 import ly.img.editor.core.ui.iconpack.Delete
+import ly.img.editor.core.ui.iconpack.Duplicate
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Sendbackward
 import ly.img.editor.core.ui.iconpack.Sendtoback
@@ -173,7 +173,7 @@ fun LayerOptionsSheet(
                             if (isDuplicateAllowed) {
                                 ActionRow(
                                     text = stringResource(R.string.ly_img_editor_duplicate),
-                                    icon = IconPack.Controlpointduplicate,
+                                    icon = IconPack.Duplicate,
                                     onClick = { onEvent(BlockEvent.OnDuplicate) },
                                 )
                             }

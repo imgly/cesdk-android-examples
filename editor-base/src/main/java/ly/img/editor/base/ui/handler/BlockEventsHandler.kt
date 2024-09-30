@@ -34,19 +34,19 @@ fun EventsHandler.blockEvents(
     val engine by inject(engine)
     val block by inject(block)
 
+    fun onBackward(designBlock: DesignBlock) {
+        engine.block.sendBackward(designBlock)
+        engine.editor.addUndoStep()
+    }
+
+    fun onForward(designBlock: DesignBlock) {
+        engine.block.bringForward(designBlock)
+        engine.editor.addUndoStep()
+    }
+
     register<OnDelete> { engine.delete(block) }
 
     register<OnDeleteNonSelected> { engine.delete(it.block) }
-
-    register<OnBackward> {
-        engine.block.sendBackward(block)
-        engine.editor.addUndoStep()
-    }
-
-    register<OnBackwardNonSelected> {
-        engine.block.sendBackward(it.block)
-        engine.editor.addUndoStep()
-    }
 
     register<OnDuplicate> { engine.duplicate(block) }
 
@@ -55,14 +55,20 @@ fun EventsHandler.blockEvents(
         engine.editor.addUndoStep()
     }
 
+    register<OnBackward> {
+        onBackward(block)
+    }
+
+    register<OnBackwardNonSelected> {
+        onBackward(it.block)
+    }
+
     register<OnForward> {
-        engine.block.bringForward(block)
-        engine.editor.addUndoStep()
+        onForward(block)
     }
 
     register<OnForwardNonSelected> {
-        engine.block.bringForward(it.block)
-        engine.editor.addUndoStep()
+        onForward(it.block)
     }
 
     register<ToBack> {

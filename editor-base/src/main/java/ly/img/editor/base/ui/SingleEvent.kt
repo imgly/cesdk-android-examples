@@ -1,5 +1,6 @@
 package ly.img.editor.base.ui
 
+import androidx.annotation.StringRes
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
 
 /**
@@ -11,4 +12,8 @@ sealed interface SingleEvent {
     data class ChangeSheetState(val state: ModalBottomSheetValue, val animate: Boolean = true) : SingleEvent
 
     data object HideScrimSheet : SingleEvent
+
+    data class Error(
+        @StringRes val text: Int,
+    ) : SingleEvent
 }

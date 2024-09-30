@@ -11,7 +11,7 @@ sealed class LibrarySectionItem(val id: String) {
         val stackIndex: Int,
         val sectionIndex: Int,
         @StringRes val titleRes: Int,
-        val uploadAssetSource: UploadAssetSourceType?,
+        val uploadAssetSourceType: UploadAssetSourceType?,
         val count: Int? = null,
         val expandContent: LibraryContent?,
     ) : LibrarySectionItem("Header $stackIndex $sectionIndex")

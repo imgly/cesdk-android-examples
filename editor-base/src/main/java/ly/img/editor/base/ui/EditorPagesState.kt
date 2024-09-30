@@ -7,7 +7,6 @@ import ly.img.editor.base.components.VectorIcon
 import ly.img.editor.base.engine.isDeleteAllowed
 import ly.img.editor.base.engine.isDuplicateAllowed
 import ly.img.editor.core.ui.ColorSchemeKeyToken
-import ly.img.editor.core.ui.engine.getSortedPages
 import ly.img.editor.core.ui.iconpack.Addpage
 import ly.img.editor.core.ui.iconpack.Delete
 import ly.img.editor.core.ui.iconpack.Duplicate
@@ -50,7 +49,7 @@ fun createEditorPagesState(
     selectedPageIndex: Int,
 ): EditorPagesState {
     val pages =
-        engine.getSortedPages().map { pageBlock ->
+        engine.scene.getPages().map { pageBlock ->
             EditorPagesState.Page(
                 block = pageBlock,
                 mark = true,
@@ -65,7 +64,7 @@ fun EditorPagesState.copy(
     selectedPage: EditorPagesState.Page? = null,
 ): EditorPagesState {
     val newPages =
-        engine.getSortedPages().map { pageBlock ->
+        engine.scene.getPages().map { pageBlock ->
             val existingPage = this.pages.firstOrNull { oldPage -> oldPage.block == pageBlock }
             EditorPagesState.Page(
                 block = pageBlock,
