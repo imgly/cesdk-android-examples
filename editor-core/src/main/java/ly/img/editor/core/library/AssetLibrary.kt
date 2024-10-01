@@ -23,6 +23,8 @@ data class AssetLibrary(
     val text: (SceneMode) -> LibraryCategory = { LibraryCategory.Text },
     val shapes: (SceneMode) -> LibraryCategory = { LibraryCategory.Shapes },
     val stickers: (SceneMode) -> LibraryCategory = { LibraryCategory.Stickers },
+    val overlays: LibraryCategory = LibraryCategory.Overlays,
+    val clips: LibraryCategory = LibraryCategory.Clips,
 ) {
     /**
      * Predefined tabs that can be displayed in the asset library.
@@ -60,6 +62,8 @@ data class AssetLibrary(
             text: LibraryCategory = LibraryCategory.Text,
             shapes: LibraryCategory = LibraryCategory.Shapes,
             stickers: LibraryCategory = LibraryCategory.Stickers,
+            overlays: LibraryCategory = LibraryCategory.Overlays,
+            clips: LibraryCategory = LibraryCategory.Clips,
         ): AssetLibrary {
             fun getElements(sceneMode: SceneMode): LibraryCategory =
                 LibraryCategory.getElements(
@@ -92,6 +96,8 @@ data class AssetLibrary(
                 text = { text },
                 shapes = { shapes },
                 stickers = { stickers },
+                overlays = overlays,
+                clips = clips,
             )
         }
     }

@@ -5,3 +5,4 @@ local.properties
 .idea/*
 !.idea/codeStyles
 build
+android-release.keystore

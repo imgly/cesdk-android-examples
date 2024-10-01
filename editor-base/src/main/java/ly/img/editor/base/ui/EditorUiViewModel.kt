@@ -48,7 +48,10 @@ import ly.img.editor.base.dock.options.effect.EffectUiState
 import ly.img.editor.base.dock.options.fillstroke.FillStrokeUiState
 import ly.img.editor.base.dock.options.format.createFormatUiState
 import ly.img.editor.base.dock.options.layer.createLayerUiState
+import ly.img.editor.base.dock.options.reorder.ReorderBottomSheetContent
 import ly.img.editor.base.dock.options.shapeoptions.createShapeOptionsUiState
+import ly.img.editor.base.dock.options.volume.VolumeBottomSheetContent
+import ly.img.editor.base.dock.options.volume.VolumeUiState
 import ly.img.editor.base.engine.CROP_EDIT_MODE
 import ly.img.editor.base.engine.TEXT_EDIT_MODE
 import ly.img.editor.base.engine.TOUCH_ACTION_SCALE
@@ -67,6 +70,7 @@ import ly.img.editor.base.engine.zoomToPage
 import ly.img.editor.base.engine.zoomToSelectedText
 import ly.img.editor.base.migration.EditorMigrationHelper
 import ly.img.editor.base.rootdock.RootDockItemData
+import ly.img.editor.base.timeline.state.TimelineState
 import ly.img.editor.base.ui.handler.appearanceEvents
 import ly.img.editor.base.ui.handler.blockEvents
 import ly.img.editor.base.ui.handler.blockFillEvents
@@ -74,6 +78,8 @@ import ly.img.editor.base.ui.handler.cropEvents
 import ly.img.editor.base.ui.handler.shapeOptionEvents
 import ly.img.editor.base.ui.handler.strokeEvents
 import ly.img.editor.base.ui.handler.textBlockEvents
+import ly.img.editor.base.ui.handler.timelineEvents
+import ly.img.editor.base.ui.handler.volumeEvents
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.event.EditorEventHandler
@@ -88,6 +94,7 @@ import ly.img.editor.core.ui.engine.dpToCanvasUnit
 import ly.img.editor.core.ui.engine.getCamera
 import ly.img.editor.core.ui.engine.getPage
 import ly.img.editor.core.ui.engine.getScene
+import ly.img.editor.core.ui.engine.isSceneModeVideo
 import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.editor.core.ui.library.AppearanceLibraryCategory
 import ly.img.editor.core.ui.register
@@ -108,9 +115,11 @@ abstract class EditorUiViewModel(
     private val onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
     protected val colorPalette: List<Color> = fillAndStrokeColors,
     private val scrollablePreview: Boolean = false,
-) : ViewModel(), EditorEventHandler {
+) : ViewModel(),
+    EditorEventHandler {
     private val migrationHelper = EditorMigrationHelper()
     val engine = Environment.getEngine()
+    protected var timelineState: TimelineState? = null
 
     private var firstLoad = true
     private var uiInsets = Rect.Zero
@@ -125,9 +134,9 @@ abstract class EditorUiViewModel(
 
     private val _isPreviewMode = MutableStateFlow(false)
     private val _isExporting = MutableStateFlow(false)
-    private val _updateBlock = MutableStateFlow(false)
     private val _enableHistory = MutableStateFlow(true)
 
+    protected val _updateBlock = MutableStateFlow(false)
     protected val selectedBlock = MutableStateFlow<Block?>(null)
     protected val isKeyboardShowing = MutableStateFlow(false)
     protected val pageIndex = MutableStateFlow(0)
@@ -205,6 +214,19 @@ abstract class EditorUiViewModel(
                 engine = ::engine,
                 block = ::requireDesignBlockForEvents,
             )
+            volumeEvents(
+                engine = ::engine,
+                block = ::requireDesignBlockForEvents,
+            )
+            timelineEvents(
+                engine = ::engine,
+                timelineState = {
+                    requireNotNull(timelineState)
+                },
+                showError = {
+                    sendSingleEvent(SingleEvent.Error(it))
+                },
+            )
             editorEvents()
         }
 
@@ -214,7 +236,7 @@ abstract class EditorUiViewModel(
         register<Event.OnBack> { onBack() }
         register<Event.OnCloseDock> { engine.deselectAllBlocks() }
         register<Event.OnAddLibraryClick> { openLibrarySheet() }
-        register<Event.OnAddLibraryCategoryClick> { onAddLibraryCategoryClick(it.libraryCategory) }
+        register<Event.OnAddLibraryCategoryClick> { onAddLibraryCategoryClick(it.libraryCategory, it.addToBackgroundTrack) }
         register<Event.OnExpandSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Expanded)) }
         register<Event.OnHideSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden)) }
         register<Event.OnExportClick> { exportScene() }
@@ -222,13 +244,21 @@ abstract class EditorUiViewModel(
         register<Event.OnUndoClick> { engine.editor.undo() }
         register<Event.OnTogglePreviewMode> { togglePreviewMode(it.isChecked) }
         register<Event.OnOptionClick> { setOptionType(it.optionType) }
+        register<Event.OnReorder> { onReorder() }
         register<Event.OnCanvasMove> { onCanvasMove(it.move) }
         register<Event.OnCanvasTouch> { updateZoomState() }
+        register<Event.OnResetZoom> {
+            if (_isSceneLoaded.value) {
+                zoom(zoomToPage = true)
+            }
+        }
         register<Event.OnKeyboardClose> { onKeyboardClose() }
         register<Event.OnLoadScene> { loadScene(it.height, it.insets, it.inPortraitMode) }
+        register<Event.OnUpdateBottomInset> { onUpdateBottomInset(it.bottomInset, it.zoom, it.isExpanding) }
         register<Event.EnableHistory> { event -> _enableHistory.update { event.enable } }
-        register<Event.OnBottomSheetHeightChange> { onBottomSheetHeightChange(it.heightInDp) }
+        register<Event.OnBottomSheetHeightChange> { onBottomSheetHeightChange(it.heightInDp, it.showTimeline) }
         register<Event.OnKeyboardHeightChange> { onKeyboardHeightChange(it.heightInDp) }
+        register<Event.OnPause> { if (engine.isSceneModeVideo) timelineState?.playerState?.pause() }
         register<Event.OnPage> { setPage(it.page) }
         register<Event.OnNextPage> { setPage(pageIndex.value + 1) }
         register<Event.OnPreviousPage> { setPage(pageIndex.value - 1) }
@@ -269,12 +299,14 @@ abstract class EditorUiViewModel(
 
     private fun requireDesignBlockForEvents(): DesignBlock = checkNotNull(getBlockForEvents()?.designBlock)
 
-    protected open fun getSelectedBlock(): DesignBlock? {
-        return engine.block.findAllSelected().firstOrNull()
-    }
+    protected open fun getSelectedBlock(): DesignBlock? = engine.block.findAllSelected().firstOrNull()
 
     protected open fun setSelectedBlock(block: Block?) {
         selectedBlock.update { block }
+    }
+
+    override fun sendCancelExportEvent() {
+        exportJob?.cancel()
     }
 
     protected open fun onCanvasMove(move: Boolean) {
@@ -331,6 +363,12 @@ abstract class EditorUiViewModel(
                     )
                 }
 
+                is VolumeBottomSheetContent -> {
+                    VolumeBottomSheetContent(
+                        VolumeUiState.create(designBlock, engine),
+                    )
+                }
+
                 else -> {
                     it
                 }
@@ -356,8 +394,8 @@ abstract class EditorUiViewModel(
         pageIndex.update { index }
     }
 
-    protected open fun handleBackPress(): Boolean {
-        return if ((_uiState.value.bottomSheetState.swipeableState.offset ?: Float.MAX_VALUE)
+    protected open fun handleBackPress(): Boolean =
+        if ((_uiState.value.bottomSheetState.swipeableState.offset ?: Float.MAX_VALUE)
             < _uiState.value.bottomSheetState.swipeableState.maxOffset
         ) {
             sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden))
@@ -371,15 +409,23 @@ abstract class EditorUiViewModel(
         } else {
             false
         }
-    }
+
+    private var lastKnownBottomInsetBeforeSheetOp = 0f
 
     protected fun setBottomSheetContent(function: (BottomSheetContent?) -> BottomSheetContent?) {
-        val newValue = function(_bottomSheetContent.value)
-        if (newValue == null && _bottomSheetContent.value != null && bottomSheetHeight > 0F) {
+        val currentInsetsBottom = currentInsets.bottom
+        val oldBottomSheetContent = bottomSheetContent.value
+        val newValue = function(oldBottomSheetContent)
+        if (newValue == null && oldBottomSheetContent != null && bottomSheetHeight > 0F) {
             // Means it is closing
             closingSheetContent = _bottomSheetContent.value
         }
         _bottomSheetContent.value = newValue
+        if (newValue == null) {
+            lastKnownBottomInsetBeforeSheetOp = 0f
+        } else if (oldBottomSheetContent == null) {
+            lastKnownBottomInsetBeforeSheetOp = currentInsetsBottom
+        }
         setCanvasActionMenuState(show = bottomSheetContent.value == null)
     }
 
@@ -412,6 +458,7 @@ abstract class EditorUiViewModel(
         val isConfigChange = !firstLoad
         firstLoad = false
         if (isConfigChange) {
+            lastKnownBottomInset = 0f
             if (_isPreviewMode.value) {
                 enablePreviewMode()
             } else {
@@ -419,7 +466,8 @@ abstract class EditorUiViewModel(
             }
         } else {
             viewModelScope.launch {
-                engine.scene.onActiveChanged()
+                engine.scene
+                    .onActiveChanged()
                     .onEach { onSceneLoaded() }
                     .collect()
             }
@@ -429,6 +477,9 @@ abstract class EditorUiViewModel(
                     onCreate(engine, this@EditorUiViewModel)
                     val scene = requireNotNull(engine.scene.get()) { "onCreate body must contain scene creation." }
                     setSettings()
+                    if (engine.isSceneModeVideo) {
+                        timelineState = TimelineState(engine, viewModelScope)
+                    }
                     engine.addOutline(scene, engine.getPage(pageIndex.value))
                     engine.showOutline(false)
                     showPage(pageIndex.value)
@@ -450,14 +501,21 @@ abstract class EditorUiViewModel(
     }
 
     private fun openLibrarySheet() {
+        timelineState?.playerState?.pause()
         setBottomSheetContent { LibraryBottomSheetContent }
     }
 
-    private fun onAddLibraryCategoryClick(libraryCategory: LibraryCategory) {
-        setBottomSheetContent { LibraryCategoryBottomSheetContent(libraryCategory) }
+    private fun onAddLibraryCategoryClick(
+        libraryCategory: LibraryCategory,
+        addToBackgroundTrack: Boolean?,
+    ) {
+        setBottomSheetContent { LibraryCategoryBottomSheetContent(libraryCategory, addToBackgroundTrack) }
     }
 
-    private fun onBottomSheetHeightChange(heightInDp: Float) {
+    private fun onBottomSheetHeightChange(
+        heightInDp: Float,
+        showTimeline: Boolean,
+    ) {
         // we don't want to change zoom level for Library
         if (_isPreviewMode.value || !_isSceneLoaded.value) return
         bottomSheetHeight = heightInDp
@@ -468,7 +526,7 @@ abstract class EditorUiViewModel(
         val bottomSheetContent = bottomSheetContent.value
         if (bottomSheetContent is LibraryBottomSheetContent || bottomSheetContent is LibraryCategoryBottomSheetContent) return
         if (closingSheetContent is LibraryBottomSheetContent || closingSheetContent is LibraryCategoryBottomSheetContent) return
-        zoom(heightInDp)
+        zoom(heightInDp, showTimeline)
     }
 
     private fun onKeyboardClose() {
@@ -541,13 +599,14 @@ abstract class EditorUiViewModel(
             viewModelScope.launch {
                 val result =
                     runCatching {
-                        engine.block.generateVideoThumbnailSequence(
-                            block = page.block,
-                            thumbnailHeight = pageHeight,
-                            timeBegin = 0.0,
-                            timeEnd = 0.1,
-                            numberOfFrames = 1,
-                        ).firstOrNull()
+                        engine.block
+                            .generateVideoThumbnailSequence(
+                                block = page.block,
+                                thumbnailHeight = pageHeight,
+                                timeBegin = 0.0,
+                                timeEnd = 0.1,
+                                numberOfFrames = 1,
+                            ).firstOrNull()
                     }.getOrNull() ?: return@launch
                 val bitmap =
                     withContext(Dispatchers.Default) {
@@ -573,10 +632,38 @@ abstract class EditorUiViewModel(
         }
     }
 
-    private fun zoom(bottomInset: Float) {
+    private fun zoom(
+        bottomInset: Float,
+        showTimeline: Boolean = false,
+    ) {
         val realBottomInset = bottomInset + verticalPageInset
         if (realBottomInset <= defaultInsets.bottom && currentInsets.bottom == defaultInsets.bottom) return
-        zoom(defaultInsets.copy(bottom = realBottomInset.coerceAtLeast(defaultInsets.bottom)))
+        val coercedBottomValue = if (showTimeline) lastKnownBottomInsetBeforeSheetOp else defaultInsets.bottom
+        zoom(defaultInsets.copy(bottom = realBottomInset.coerceAtLeast(coercedBottomValue)))
+    }
+
+    // FIXME: Saving the last known bottom inset is needed because currently there are excessive re-composition
+    // An ideal fix would be to get rid of the unnecessary recompositions so this function isn't called unnecessarily
+    private var lastKnownBottomInset = 0f
+
+    private fun onUpdateBottomInset(
+        bottomInset: Float,
+        zoom: Boolean,
+        isExpanding: Boolean,
+    ) {
+        if (bottomInset != lastKnownBottomInset) {
+            lastKnownBottomInset = bottomInset
+            val realBottomInset = bottomInset + verticalPageInset
+            uiInsets =
+                if (isExpanding) {
+                    uiInsets.copy(bottom = realBottomInset.coerceAtLeast(lastKnownBottomInsetBeforeSheetOp))
+                } else {
+                    uiInsets.copy(bottom = realBottomInset)
+                }
+            if (zoom) {
+                zoom(zoomToPage = true)
+            }
+        }
     }
 
     private var zoomJob: Job? = null
@@ -589,139 +676,163 @@ abstract class EditorUiViewModel(
         clampOnly: Boolean = false,
     ): Job {
         zoomJob?.cancel()
-        return viewModelScope.launch {
-            currentInsets = insets
-            if (_uiState.value.isInPreviewMode) {
-                preEnterPreviewMode()
-                if (scrollablePreview) {
-                    val pages = engine.scene.getPages()
-                    val firstPage = listOf(pages.first())
-                    val defaultInsets = this@EditorUiViewModel.defaultInsets
-                    engine.scene.enableCameraZoomClamping(
-                        firstPage,
-                        minZoomLimit = 1.0F,
-                        maxZoomLimit = 1.0F,
-                        paddingLeft = defaultInsets.left,
-                        paddingTop = defaultInsets.top,
-                        paddingRight = defaultInsets.right,
-                        paddingBottom = defaultInsets.bottom,
-                    )
+        currentInsets = insets
+        return viewModelScope
+            .launch {
+                if (_uiState.value.isInPreviewMode) {
+                    preEnterPreviewMode()
+                    if (scrollablePreview) {
+                        val pages = engine.scene.getPages()
+                        val firstPage = listOf(pages.first())
+                        val defaultInsets = this@EditorUiViewModel.defaultInsets
+                        engine.scene.enableCameraZoomClamping(
+                            firstPage,
+                            minZoomLimit = 1.0F,
+                            maxZoomLimit = 1.0F,
+                            paddingLeft = defaultInsets.left,
+                            paddingTop = defaultInsets.top,
+                            paddingRight = defaultInsets.right,
+                            paddingBottom = defaultInsets.bottom,
+                        )
+                        engine.scene.enableCameraPositionClamping(
+                            pages,
+                            paddingLeft = defaultInsets.left - horizontalPageInset,
+                            paddingTop = defaultInsets.top - verticalPageInset,
+                            paddingRight = defaultInsets.right - horizontalPageInset,
+                            paddingBottom = defaultInsets.bottom - verticalPageInset,
+                            scaledPaddingLeft = horizontalPageInset,
+                            scaledPaddingTop = verticalPageInset,
+                            scaledPaddingRight = horizontalPageInset,
+                            scaledPaddingBottom = verticalPageInset,
+                        )
+                    } else {
+                        val scene = engine.getScene()
+                        if (engine.scene.isCameraPositionClampingEnabled(scene)) {
+                            engine.scene.disableCameraPositionClamping()
+                        }
+                        if (engine.scene.isCameraZoomClampingEnabled(scene)) {
+                            engine.scene.disableCameraZoomClamping()
+                        }
+                    }
+                    enterPreviewMode()
+                } else {
+                    val page = engine.getPage(pageIndex.value)
+                    val selectedBlock = selectedBlock.value
+                    val shouldZoomToPage =
+                        engine.isSceneModeVideo ||
+                            (!clampOnly && (zoomToPage || selectedBlock == null)) ||
+                            engine.scene.getZoomLevel() == fitToPageZoomLevel
+                    val blocks =
+                        buildList {
+                            add(page)
+                            if (engine.editor.getEditMode() == TEXT_EDIT_MODE && selectedBlock?.type == BlockType.Text) {
+                                add(selectedBlock.designBlock)
+                            }
+                        }
+
                     engine.scene.enableCameraPositionClamping(
-                        pages,
-                        paddingLeft = defaultInsets.left - horizontalPageInset,
-                        paddingTop = defaultInsets.top - verticalPageInset,
-                        paddingRight = defaultInsets.right - horizontalPageInset,
-                        paddingBottom = defaultInsets.bottom - verticalPageInset,
+                        blocks = blocks,
+                        paddingLeft = currentInsets.left - horizontalPageInset,
+                        paddingTop = currentInsets.top - verticalPageInset,
+                        paddingRight = currentInsets.right - horizontalPageInset,
+                        paddingBottom = currentInsets.bottom - verticalPageInset,
                         scaledPaddingLeft = horizontalPageInset,
                         scaledPaddingTop = verticalPageInset,
                         scaledPaddingRight = horizontalPageInset,
                         scaledPaddingBottom = verticalPageInset,
                     )
-                } else {
-                    val scene = engine.getScene()
-                    if (engine.scene.isCameraPositionClampingEnabled(scene)) {
-                        engine.scene.disableCameraPositionClamping()
+
+                    if (shouldZoomToPage) {
+                        engine.scene.enableCameraZoomClamping(
+                            blocks = blocks,
+                            minZoomLimit = 1.0F,
+                            maxZoomLimit = 5.0F,
+                            paddingLeft = currentInsets.left,
+                            paddingTop = currentInsets.top,
+                            paddingRight = currentInsets.right,
+                            paddingBottom = currentInsets.bottom,
+                        )
+                        engine.zoomToPage(pageIndex.value, currentInsets)
+                        fitToPageZoomLevel = engine.scene.getZoomLevel()
                     }
-                    if (engine.scene.isCameraZoomClampingEnabled(scene)) {
-                        engine.scene.disableCameraZoomClamping()
-                    }
-                }
-                enterPreviewMode()
-            } else {
-                val page = engine.getPage(pageIndex.value)
-                val selectedBlock = selectedBlock.value
-                val shouldZoomToPage =
-                    (!clampOnly && (zoomToPage || selectedBlock == null)) || engine.scene.getZoomLevel() == fitToPageZoomLevel
-                val blocks =
-                    buildList {
-                        add(page)
-                        if (selectedBlock?.type == BlockType.Text) {
-                            add(selectedBlock.designBlock)
+
+                    val selectedDesignBlock = selectedBlock?.designBlock
+
+                    if (selectedDesignBlock != null && !shouldZoomToPage && engine.editor.getEditMode() != TEXT_EDIT_MODE) {
+                        // The delay acts as a debouncing mechanism.
+                        delay(8)
+
+                        val boundingBoxRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(selectedDesignBlock))
+                        val bottomSheetTop = canvasHeight - currentInsets.bottom
+                        val camera = engine.getCamera()
+                        val oldCameraPosX = engine.block.getPositionX(camera)
+                        val oldCameraPosY = engine.block.getPositionY(camera)
+                        var newCameraPosX = oldCameraPosX
+                        var newCameraPosY = oldCameraPosY
+                        val canvasWidthDp =
+                            engine.block.getFloat(camera, "camera/resolution/width") /
+                                engine.block.getFloat(camera, "camera/pixelRatio")
+                        val selectedBlockCenterX = boundingBoxRect.centerX()
+
+                        if (selectedBlockCenterX > canvasWidthDp) {
+                            newCameraPosX = oldCameraPosX +
+                                engine.dpToCanvasUnit(
+                                    (canvasWidthDp / 2 - boundingBoxRect.width() / 2) + (boundingBoxRect.right - canvasWidthDp),
+                                )
+                        } else if (selectedBlockCenterX < 0) {
+                            newCameraPosX = oldCameraPosX -
+                                engine.dpToCanvasUnit(
+                                    (canvasWidthDp / 2 - boundingBoxRect.width() / 2) - boundingBoxRect.left,
+                                )
+                        }
+
+                        // bottom sheet is covering more than 50% of selected block
+                        if (bottomSheetTop < boundingBoxRect.centerY()) {
+                            newCameraPosY = oldCameraPosY + engine.dpToCanvasUnit(48 + boundingBoxRect.bottom - bottomSheetTop)
+                        } else if (boundingBoxRect.centerY() < 64) {
+                            newCameraPosY = oldCameraPosY - engine.dpToCanvasUnit(48 + bottomSheetTop - boundingBoxRect.bottom)
+                        }
+
+                        if (newCameraPosX != oldCameraPosX || newCameraPosY != oldCameraPosY) {
+                            engine.overrideAndRestore(camera, Scope.LayerMove) {
+                                engine.block.setPositionX(it, newCameraPosX)
+                                engine.block.setPositionY(it, newCameraPosY)
+                            }
                         }
                     }
-
-                engine.scene.enableCameraPositionClamping(
-                    blocks = blocks,
-                    paddingLeft = currentInsets.left - horizontalPageInset,
-                    paddingTop = currentInsets.top - verticalPageInset,
-                    paddingRight = currentInsets.right - horizontalPageInset,
-                    paddingBottom = currentInsets.bottom - verticalPageInset,
-                    scaledPaddingLeft = horizontalPageInset,
-                    scaledPaddingTop = verticalPageInset,
-                    scaledPaddingRight = horizontalPageInset,
-                    scaledPaddingBottom = verticalPageInset,
-                )
-
-                if (shouldZoomToPage) {
-                    engine.scene.enableCameraZoomClamping(
-                        blocks = blocks,
-                        minZoomLimit = 1.0F,
-                        maxZoomLimit = 5.0F,
-                        paddingLeft = currentInsets.left,
-                        paddingTop = currentInsets.top,
-                        paddingRight = currentInsets.right,
-                        paddingBottom = currentInsets.bottom,
-                    )
-                    engine.zoomToPage(pageIndex.value, currentInsets)
-                    fitToPageZoomLevel = engine.scene.getZoomLevel()
-                }
-
-                val selectedDesignBlock = selectedBlock?.designBlock
-
-                if (selectedDesignBlock != null && !shouldZoomToPage && engine.editor.getEditMode() != TEXT_EDIT_MODE) {
-                    // The delay acts as a debouncing mechanism.
-                    delay(8)
-
-                    val boundingBoxRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(selectedDesignBlock))
-                    val bottomSheetTop = canvasHeight - currentInsets.bottom
-                    val camera = engine.getCamera()
-                    val oldCameraPosX = engine.block.getPositionX(camera)
-                    val oldCameraPosY = engine.block.getPositionY(camera)
-                    var newCameraPosX = oldCameraPosX
-                    var newCameraPosY = oldCameraPosY
-                    val canvasWidthDp =
-                        engine.block.getFloat(camera, "camera/resolution/width") /
-                            engine.block.getFloat(camera, "camera/pixelRatio")
-                    val selectedBlockCenterX = boundingBoxRect.centerX()
-
-                    if (selectedBlockCenterX > canvasWidthDp) {
-                        newCameraPosX = oldCameraPosX +
-                            engine.dpToCanvasUnit(
-                                (canvasWidthDp / 2 - boundingBoxRect.width() / 2) + (boundingBoxRect.right - canvasWidthDp),
-                            )
-                    } else if (selectedBlockCenterX < 0) {
-                        newCameraPosX = oldCameraPosX -
-                            engine.dpToCanvasUnit(
-                                (canvasWidthDp / 2 - boundingBoxRect.width() / 2) - boundingBoxRect.left,
-                            )
-                    }
-
-                    // bottom sheet is covering more than 50% of selected block
-                    if (bottomSheetTop < boundingBoxRect.centerY()) {
-                        newCameraPosY = oldCameraPosY + engine.dpToCanvasUnit(48 + boundingBoxRect.bottom - bottomSheetTop)
-                    } else if (boundingBoxRect.centerY() < 64) {
-                        newCameraPosY = oldCameraPosY - engine.dpToCanvasUnit(48 + bottomSheetTop - boundingBoxRect.bottom)
-                    }
-
-                    if (newCameraPosX != oldCameraPosX || newCameraPosY != oldCameraPosY) {
-                        engine.overrideAndRestore(camera, Scope.LayerMove) {
-                            engine.block.setPositionX(it, newCameraPosX)
-                            engine.block.setPositionY(it, newCameraPosY)
-                        }
+                    if (engine.editor.getEditMode() == TEXT_EDIT_MODE) {
+                        zoomToText()
                     }
                 }
-                if (engine.editor.getEditMode() == TEXT_EDIT_MODE) {
-                    zoomToText()
-                }
+                onZoomFinish()
+            }.also {
+                zoomJob = it
             }
-            onZoomFinish()
-        }.also {
-            zoomJob = it
-        }
     }
 
     private fun zoomToText(insets: Rect = currentInsets) {
         engine.zoomToSelectedText(insets, canvasHeight)
+    }
+
+    // This will never get initialised for non video scenes.
+    private val clampPlayheadExclusionSet by lazy {
+        setOf(
+            OptionType.EnterGroup,
+            OptionType.Split,
+            OptionType.Reorder,
+            OptionType.Delete,
+            OptionType.AttachBackground,
+            OptionType.DetachBackground,
+        )
+    }
+
+    private fun onReorder() {
+        timelineState?.playerState?.pause()
+        setBottomSheetContent {
+            ReorderBottomSheetContent(
+                checkNotNull(timelineState),
+            )
+        }
     }
 
     private fun setOptionType(optionType: OptionType?) {
@@ -729,6 +840,12 @@ abstract class EditorUiViewModel(
             setBottomSheetContent { null }
             return
         }
+        timelineState?.playerState?.pause()
+
+        if (engine.isSceneModeVideo && optionType !in clampPlayheadExclusionSet) {
+            timelineState?.clampPlayheadPositionToSelectedClip()
+        }
+
         val block = getBlockForEvents() ?: return
         val designBlock = block.designBlock
         setBottomSheetContent {
@@ -772,28 +889,56 @@ abstract class EditorUiViewModel(
                     null
                 }
 
+                OptionType.Reorder -> {
+                    ReorderBottomSheetContent(
+                        checkNotNull(timelineState),
+                    )
+                }
+
                 OptionType.Adjustments ->
                     AdjustmentSheetContent(
                         AdjustmentUiState.create(block, engine),
                     )
+
                 OptionType.Filter ->
                     EffectSheetContent(
                         EffectUiState.create(block, engine, AppearanceLibraryCategory.Filters),
                     )
+
                 OptionType.Effect ->
                     EffectSheetContent(
                         EffectUiState.create(block, engine, AppearanceLibraryCategory.FxEffects),
                     )
+
                 OptionType.Blur ->
                     EffectSheetContent(
                         EffectUiState.create(block, engine, AppearanceLibraryCategory.Blur),
                     )
+
+                OptionType.Volume ->
+                    VolumeBottomSheetContent(
+                        VolumeUiState.create(designBlock, engine),
+                    )
+
+                OptionType.Split -> {
+                    eventHandler.handleEvent(BlockEvent.OnSplit)
+                    null
+                }
+
                 OptionType.Delete -> {
                     engine.delete(designBlock)
                     null
                 }
+
                 OptionType.Duplicate -> {
                     engine.duplicate(designBlock)
+                    null
+                }
+
+                OptionType.AttachBackground, OptionType.DetachBackground -> {
+                    eventHandler.handleEvent(BlockEvent.OnToggleBackgroundTrackAttach)
+                    // We need to update the option items of the selected block to change from attach BG to detach BG or vice-versa
+                    _updateBlock.update { !it }
                     null
                 }
             }
@@ -821,6 +966,7 @@ abstract class EditorUiViewModel(
                         isRedoEnabled = _isSceneLoaded.value && _enableHistory.value && engine.editor.canRedo(),
                         selectedBlock = selectedBlock.value,
                         isEditingText = isKeyboardShowing.value,
+                        timelineState = timelineState,
                         pageCount = pageCount,
                         rootDockItems =
                             if (_isSceneLoaded.value) {
@@ -844,8 +990,27 @@ abstract class EditorUiViewModel(
     private var cursorPos = 0f
 
     private fun observeEvents() {
+        var visibleAtCurrentPlaybackTimeFlag: Boolean? = null
         viewModelScope.launch {
             engine.event.subscribe().collect {
+                timelineState?.refresh(it)
+
+                // update canvas action menu if visibility of block has changed
+                selectedBlock.value?.designBlock?.let {
+                    if (engine.block.isValid(it)) {
+                        val visibleAtCurrentPlaybackTime = engine.block.isVisibleAtCurrentPlaybackTime(it)
+                        if (visibleAtCurrentPlaybackTime != visibleAtCurrentPlaybackTimeFlag) {
+                            visibleAtCurrentPlaybackTimeFlag = visibleAtCurrentPlaybackTime
+                            setCanvasActionMenuState(show = visibleAtCurrentPlaybackTime)
+                        }
+                    } else {
+                        visibleAtCurrentPlaybackTimeFlag = null
+                    }
+                } ?: {
+                    visibleAtCurrentPlaybackTimeFlag = null
+                }
+
+                // text handling
                 if (engine.editor.getEditMode() != TEXT_EDIT_MODE) return@collect
                 val textCursorPositionInScreenSpaceY = engine.editor.getTextCursorPositionInScreenSpaceY()
                 if (textCursorPositionInScreenSpaceY != cursorPos) {
@@ -873,8 +1038,17 @@ abstract class EditorUiViewModel(
                     }
 
                     else -> {
-                        setBottomSheetContent { null }
-                        engine.editor.setSettingEnum("touch/pinchAction", TOUCH_ACTION_ZOOM)
+                        // Close crop bottom sheet if coming back from crop mode
+                        if (bottomSheetContent.value is CropBottomSheetContent) {
+                            setBottomSheetContent { null }
+                        }
+
+                        // restore pinchAction, for video scenes, it is already set to scale
+                        if (!engine.isSceneModeVideo) {
+                            engine.editor.setSettingEnum("touch/pinchAction", TOUCH_ACTION_ZOOM)
+                        }
+
+                        setCanvasActionMenuState(show = timelineState?.playerState?.isPlaying?.not() ?: true)
                         if (!flag) {
                             flag = true
                             zoom(zoomToPage = true)
@@ -902,17 +1076,13 @@ abstract class EditorUiViewModel(
                 // Even if the block is the same, this will update the fill/stroke color in the dock option
                 setSelectedBlock(block)
                 if (oldBlock != block?.designBlock) {
-                    setOptionType(
-                        if (block?.type == BlockType.Image &&
-                            engine.isPlaceholder(
-                                block.designBlock,
-                            )
-                        ) {
-                            OptionType.Replace
-                        } else {
-                            null
-                        },
-                    )
+                    if (block != null && engine.isPlaceholder(block.designBlock)) {
+                        setOptionType(OptionType.Replace)
+                    } else if (block == null || bottomSheetContent.value != null) {
+                        setOptionType(null)
+                    } else {
+                        setCanvasActionMenuState()
+                    }
                 }
             }
         }
@@ -922,6 +1092,7 @@ abstract class EditorUiViewModel(
         viewModelScope.launch {
             engine.editor.onHistoryUpdated().collect {
                 _historyChangeTrigger.emit(Unit)
+                timelineState?.onHistoryUpdated()
                 updateVisiblePageState()
                 updateBottomSheetUiState()
                 setCanvasActionMenuState()
@@ -975,11 +1146,18 @@ abstract class EditorUiViewModel(
         }
     }
 
+    private var exportJob: Job? = null
+
     private fun exportScene() {
         if (_isExporting.compareAndSet(expect = false, update = true)) {
+            timelineState?.playerState?.pause()
             viewModelScope.launch {
                 onPreExport()
-                onExport(engine, this@EditorUiViewModel)
+                exportJob =
+                    launch {
+                        onExport(engine, this@EditorUiViewModel)
+                    }
+                exportJob?.join()
                 onPostExport()
                 _isExporting.update { false }
             }
@@ -995,7 +1173,11 @@ abstract class EditorUiViewModel(
             } else if (!isVisible) {
                 it?.copy(show = false)
             } else {
-                createCanvasActionMenuUiState(block, engine)
+                createCanvasActionMenuUiState(
+                    designBlock = block,
+                    currentInsets = currentInsets,
+                    engine = engine,
+                )
             }
         }
     }

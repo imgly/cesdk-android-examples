@@ -12,15 +12,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,11 +36,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -62,8 +66,14 @@ import ly.img.editor.base.dock.options.effect.EffectSelectionSheet
 import ly.img.editor.base.dock.options.fillstroke.FillStrokeOptionsSheet
 import ly.img.editor.base.dock.options.format.FormatOptionsSheet
 import ly.img.editor.base.dock.options.layer.LayerOptionsSheet
+import ly.img.editor.base.dock.options.reorder.ReorderBottomSheetContent
+import ly.img.editor.base.dock.options.reorder.ReorderSheet
 import ly.img.editor.base.dock.options.shapeoptions.ShapeOptionsSheet
+import ly.img.editor.base.dock.options.volume.VolumeBottomSheetContent
+import ly.img.editor.base.dock.options.volume.VolumeSheet
 import ly.img.editor.base.engine.EngineCanvasView
+import ly.img.editor.base.timeline.view.TimelineView
+import ly.img.editor.base.ui.lifecycle.LifecycleEventEffect
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetLayout
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
 import ly.img.editor.compose.bottomsheet.rememberModalBottomSheetState
@@ -101,6 +111,9 @@ fun EditorUi(
     val uiScope = rememberCoroutineScope()
     val bottomSheetContent by viewModel.bottomSheetContent.collectAsState()
     val canvasActionMenuUiState by viewModel.canvasActionMenuUiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    var timelineExpanded by remember { mutableStateOf(true) }
+    var hideTimeline: Boolean by remember { mutableStateOf(false) }
 
     BackHandler(true) {
         viewModel.onEvent(Event.OnBackPress)
@@ -109,34 +122,54 @@ fun EditorUi(
     LaunchedEffect(bottomSheetContent?.getType()) {
         val sheetState = uiState.bottomSheetState
         if (bottomSheetContent == null && sheetState.isVisible) sheetState.snapTo(ModalBottomSheetValue.Hidden)
-        bottomSheetContent ?: return@LaunchedEffect
-        if (bottomSheetContent?.isInitialExpandHalf() == true) {
-            sheetState.halfExpand()
-        } else {
-            sheetState.expand()
+        if (bottomSheetContent != null &&
+            bottomSheetContent !is ReplaceBottomSheetContent &&
+            bottomSheetContent !is LibraryBottomSheetContent &&
+            bottomSheetContent !is LibraryCategoryBottomSheetContent &&
+            timelineExpanded
+        ) {
+            hideTimeline = true
+            timelineExpanded = false
+        } else if (bottomSheetContent == null && hideTimeline) {
+            hideTimeline = false
+            timelineExpanded = true
         }
+        val sheetContent = bottomSheetContent
+        if (sheetContent != null) {
+            if (sheetContent.isInitialExpandHalf()) {
+                sheetState.halfExpand()
+            } else {
+                sheetState.expand()
+            }
+        }
+    }
+
+    LifecycleEventEffect(event = Lifecycle.Event.ON_PAUSE) {
+        viewModel.onEvent(Event.OnPause)
     }
 
     val view = LocalView.current
     val surfaceColor = colorScheme.surface.toArgb()
     val canvasColor = colorScheme.surface1.toArgb()
     val libraryColor = colorScheme.surface2.toArgb()
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.navigationBarColor =
-                if (bottomSheetContent == null) {
+    LaunchedEffect(bottomSheetContent, uiState.selectedBlock, uiState.pagesState) {
+        val window = (view.context as Activity).window
+        window.navigationBarColor =
+            when (bottomSheetContent) {
+                null -> {
                     when {
                         uiState.pagesState != null -> libraryColor
                         uiState.selectedBlock != null -> surfaceColor
                         else -> canvasColor
                     }
-                } else if (bottomSheetContent is LibraryBottomSheetContent) {
+                }
+                is LibraryBottomSheetContent -> {
                     libraryColor
-                } else {
+                }
+                else -> {
                     surfaceColor
                 }
-        }
+            }
     }
 
     val oneDpInPx = 1.dp.toPx()
@@ -146,7 +179,7 @@ fun EditorUi(
             if (offset == null) return@collectLatest
             val bottomSheetHeight = (swipeableState.maxOffset - offset).coerceAtMost(0.7f * swipeableState.maxOffset)
             val bottomSheetHeightInDp = (bottomSheetHeight / oneDpInPx)
-            viewModel.onEvent(Event.OnBottomSheetHeightChange(bottomSheetHeightInDp))
+            viewModel.onEvent(Event.OnBottomSheetHeightChange(bottomSheetHeightInDp, showTimeline = timelineExpanded))
         }
     }
 
@@ -175,6 +208,11 @@ fun EditorUi(
         }
     }
 
+    val activity =
+        requireNotNull(LocalContext.current.activity) {
+            "Unable to find the activity. This is an internal error. Please report this issue."
+        }
+
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect {
             when (it) {
@@ -183,6 +221,10 @@ fun EditorUi(
                 }
 
                 is SingleEvent.ChangeSheetState -> {
+                    if (it.state == ModalBottomSheetValue.Hidden && hideTimeline) {
+                        hideTimeline = false
+                        timelineExpanded = true
+                    }
                     uiScope.launch {
                         val bottomSheetState = uiState.bottomSheetState
                         if (it.animate) {
@@ -198,13 +240,19 @@ fun EditorUi(
                         scrimBottomSheetState.hide()
                     }
                 }
+
+                is SingleEvent.Error -> {
+                    uiScope.launch {
+                        snackbarHostState.showSnackbar(
+                            // stringResource() doesn't work inside of a LaunchedEffect as it is not a composable
+                            message = activity.resources.getString(it.text),
+                        )
+                    }
+                }
             }
         }
     }
-    val activity =
-        requireNotNull(LocalContext.current.activity) {
-            "Unable to find the activity. This is an internal error. Please report this issue."
-        }
+
     LaunchedEffect(Unit) {
         viewModel.externalEvent.collect {
             externalState.value = onEvent(activity, externalState.value, it)
@@ -268,6 +316,7 @@ fun EditorUi(
                             is LibraryCategoryBottomSheetContent ->
                                 AddLibrarySheet(
                                     libraryCategory = content.libraryCategory,
+                                    addToBackgroundTrack = content.addToBackgroundTrack,
                                     onClose = {
                                         viewModel.onEvent(Event.OnHideSheet)
                                     },
@@ -307,6 +356,8 @@ fun EditorUi(
                             is CropBottomSheetContent -> CropSheet(content.uiState, viewModel::onEvent)
                             is AdjustmentSheetContent -> AdjustmentOptionsSheet(content.uiState, viewModel::onEvent)
                             is EffectSheetContent -> EffectSelectionSheet(content.uiState, viewModel::onEvent)
+                            is VolumeBottomSheetContent -> VolumeSheet(content.uiState, viewModel::onEvent)
+                            is ReorderBottomSheetContent -> ReorderSheet(content.timelineState, viewModel::onEvent)
                             else -> bottomSheetLayout(content)
                         }
                     }
@@ -316,6 +367,9 @@ fun EditorUi(
         ) {
             Scaffold(
                 topBar = topBar,
+                snackbarHost = {
+                    SnackbarHost(snackbarHostState)
+                },
             ) {
                 contentPadding = it
                 BoxWithConstraints {
@@ -333,6 +387,7 @@ fun EditorUi(
                         onMoveStart = { viewModel.onEvent(Event.OnCanvasMove(true)) },
                         onMoveEnd = { viewModel.onEvent(Event.OnCanvasMove(false)) },
                         onTouch = { viewModel.onEvent(Event.OnCanvasTouch) },
+                        onSizeChanged = { viewModel.onEvent(Event.OnResetZoom) },
                         loadScene = {
                             val topInsets = 64f // 64 for toolbar
                             val bottomInsets = 84f // 84 for dock
@@ -353,7 +408,36 @@ fun EditorUi(
                             )
                         },
                     )
-                    canvasOverlay(it)
+                    if (uiState.isCanvasVisible) {
+                        Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.BottomStart)
+                                .onSizeChanged {
+                                    viewModel.onEvent(
+                                        Event.OnUpdateBottomInset(
+                                            it.height / oneDpInPx,
+                                            zoom = !hideTimeline,
+                                            isExpanding = timelineExpanded,
+                                        ),
+                                    )
+                                },
+                        ) {
+                            uiState.timelineState?.let { timelineState ->
+                                TimelineView(
+                                    timelineState = timelineState,
+                                    expanded = timelineExpanded,
+                                    onToggleExpand = {
+                                        timelineExpanded = timelineExpanded.not()
+                                    },
+                                    onEvent = viewModel::onEvent,
+                                )
+                            }
+                            Box {
+                                canvasOverlay(it)
+                            }
+                        }
+                    }
                     canvasActionMenuUiState?.let {
                         CanvasActionMenu(
                             uiState = it,

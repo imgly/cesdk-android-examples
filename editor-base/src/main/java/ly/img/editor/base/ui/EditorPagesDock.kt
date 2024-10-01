@@ -17,14 +17,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ly.img.editor.base.dock.enterEasing
-import ly.img.editor.base.dock.exitEasing
 import ly.img.editor.compose.animation.AnimatedVisibility
 import ly.img.editor.compose.animation_core.slideInVertically
 import ly.img.editor.compose.animation_core.slideOutVertically
 import ly.img.editor.compose.animation_core.tween
 import ly.img.editor.core.theme.surface2
 import ly.img.editor.core.ui.tab_item.TabItem
+import ly.img.editor.core.ui.utils.Easing
 
 @Composable
 fun EditorPagesDock(
@@ -49,7 +48,7 @@ fun EditorPagesDock(
                 animationSpec =
                     tween(
                         durationMillis = 400,
-                        easing = enterEasing,
+                        easing = Easing.EmphasizedDecelerate,
                     ),
                 initialOffsetY = { it },
             ),
@@ -58,7 +57,7 @@ fun EditorPagesDock(
                 animationSpec =
                     tween(
                         durationMillis = 150,
-                        easing = exitEasing,
+                        easing = Easing.EmphasizedAccelerate,
                     ),
                 targetOffsetY = { it },
             ),

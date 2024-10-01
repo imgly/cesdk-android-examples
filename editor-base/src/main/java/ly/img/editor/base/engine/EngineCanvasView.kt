@@ -17,8 +17,11 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import ly.img.editor.base.R
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.theme.surface1
@@ -37,8 +40,10 @@ fun EngineCanvasView(
     onMoveStart: () -> Unit,
     onMoveEnd: () -> Unit,
     loadScene: () -> Unit,
-    onTouch: () -> Unit = {},
+    onTouch: () -> Unit,
+    onSizeChanged: () -> Unit,
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
     val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
     val activity =
         requireNotNull(LocalContext.current.activity) {
@@ -51,9 +56,17 @@ fun EngineCanvasView(
                 EngineRenderTarget.TEXTURE_VIEW -> TextureView(activity)
             }.apply { id = R.id.editor_render_view }
         }
+    val renderViewHandler =
+        remember {
+            // For TextureView, more than one callbacks cannot be attached
+            if (renderView is SurfaceView) RenderViewHandler(renderView) else null
+        }
     renderView.alpha = if (isCanvasVisible) 1F else 0F
     val clearColor = MaterialTheme.colorScheme.surface1
     var onMoveStarted by remember { mutableStateOf(false) }
+    var appIsPaused by remember {
+        mutableStateOf(false)
+    }
     AndroidView(
         factory = { renderView },
         modifier =
@@ -91,9 +104,11 @@ fun EngineCanvasView(
         }.onFailure {
             onLicenseValidationError(it)
         }.onSuccess {
+            engine.editor.setAppIsPaused(appIsPaused)
             engine.setClearColor(clearColor)
             when (renderTarget) {
                 EngineRenderTarget.SURFACE_VIEW -> {
+                    renderViewHandler?.addCallback(onSizeChanged)
                     engine.bindSurfaceView(renderView as SurfaceView)
                 }
                 EngineRenderTarget.TEXTURE_VIEW -> {
@@ -103,11 +118,29 @@ fun EngineCanvasView(
             loadScene()
         }
     }
-    DisposableEffect(engine) {
+    LaunchedEffect(appIsPaused) {
+        if (engine.isEngineRunning()) {
+            engine.editor.setAppIsPaused(appIsPaused)
+        }
+    }
+    DisposableEffect(Unit) {
+        val observer =
+            LifecycleEventObserver { _, event ->
+                when (event) {
+                    Lifecycle.Event.ON_PAUSE -> appIsPaused = true
+                    Lifecycle.Event.ON_RESUME -> appIsPaused = false
+                    else -> {
+                    }
+                }
+            }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
             if (engine.isEngineRunning()) {
                 engine.unbind()
             }
+            renderViewHandler?.removeCallback()
         }
     }
 }

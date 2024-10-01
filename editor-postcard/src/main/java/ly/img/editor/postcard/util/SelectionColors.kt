@@ -65,8 +65,8 @@ private fun Engine.getSelectionColors(
         return
     }
 
-    val hasFill = block.supportsFill(designBlock)
-    val hasStroke = block.supportsStroke(designBlock)
+    val supportsFill = block.supportsFill(designBlock)
+    val supportsStroke = block.supportsStroke(designBlock)
 
     fun addColor(
         colorType: ColorType,
@@ -96,7 +96,7 @@ private fun Engine.getSelectionColors(
         return color
     }
 
-    if (hasFill && hasStroke) {
+    if (supportsFill && supportsStroke) {
         // Assign enabled color to disabled color to ease template creation.
         val fillColor = addColor(ColorType.Fill)
         val strokeColor = addColor(ColorType.Stroke)
@@ -136,9 +136,9 @@ private fun Engine.getSelectionColors(
             addColor(ColorType.Fill, includeDisabled)
             addColor(ColorType.Stroke, includeDisabled)
         }
-    } else if (hasFill) {
+    } else if (supportsFill) {
         addColor(ColorType.Fill)
-    } else if (hasStroke) {
+    } else if (supportsStroke) {
         addColor(ColorType.Stroke)
     }
 }

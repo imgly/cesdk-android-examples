@@ -25,16 +25,18 @@ import ly.img.editor.core.library.data.TypefaceProvider
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.Environment
 import ly.img.editor.core.ui.EventsHandler
-import ly.img.editor.core.ui.engine.BlockKind
+import ly.img.editor.core.ui.engine.ROLE
 import ly.img.editor.core.ui.engine.ROLE_ADOPTER
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.dpToCanvasUnit
 import ly.img.editor.core.ui.engine.getCamera
-import ly.img.editor.core.ui.engine.getKindEnum
-import ly.img.editor.core.ui.engine.getPage
+import ly.img.editor.core.ui.engine.getCurrentPage
+import ly.img.editor.core.ui.engine.isSceneModeVideo
 import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.editor.core.ui.library.components.section.LibrarySectionItem
 import ly.img.editor.core.ui.library.data.font.FontDataMapper
+import ly.img.editor.core.ui.library.engine.getBackgroundTrack
+import ly.img.editor.core.ui.library.engine.isVideoBlock
 import ly.img.editor.core.ui.library.state.AssetLibraryUiState
 import ly.img.editor.core.ui.library.state.AssetsData
 import ly.img.editor.core.ui.library.state.AssetsLoadState
@@ -59,6 +61,7 @@ import ly.img.engine.Asset
 import ly.img.engine.AssetDefinition
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
+import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.FindAssetsQuery
@@ -67,6 +70,8 @@ import ly.img.engine.PositionMode
 import ly.img.engine.SceneMode
 import java.util.Stack
 import java.util.UUID
+import kotlin.math.max
+import kotlin.math.min
 
 class LibraryViewModel : ViewModel() {
     private val imageLoader = Environment.getImageLoader()
@@ -80,42 +85,29 @@ class LibraryViewModel : ViewModel() {
     private val sceneMode: SceneMode
         get() = engine.scene.getMode()
 
-    private val onUpload: suspend AssetDefinition.(Engine, UploadAssetSourceType) -> AssetDefinition =
-        requireNotNull(Environment.onUpload)
-    private val assetLibrary = requireNotNull(Environment.assetLibrary)
-    val navBarItems by lazy {
-        assetLibrary.tabs(sceneMode)
-    }
-    val replaceImageCategory by lazy {
-        assetLibrary.images(sceneMode)
-    }
-    val replaceStickerCategory by lazy {
-        assetLibrary.stickers(sceneMode)
-    }
-    private val libraryCategories by lazy {
-        navBarItems +
-            listOf(
-                replaceImageCategory,
-                replaceStickerCategory,
-                AppearanceLibraryCategory.Filters,
-                AppearanceLibraryCategory.FxEffects,
-                AppearanceLibraryCategory.Blur,
-                TypefaceLibraryCategory,
-            ).toSet()
-    }
+    private val onUpload: suspend AssetDefinition.(Engine, UploadAssetSourceType) -> AssetDefinition
+        get() = requireNotNull(Environment.onUpload)
+
+    private val assetLibrary
+        get() = requireNotNull(Environment.assetLibrary)
+
+    val navBarItems
+        get() = assetLibrary.tabs(sceneMode)
+
+    val replaceImageCategory
+        get() = assetLibrary.images(sceneMode)
+
+    val replaceStickerCategory
+        get() = assetLibrary.stickers(sceneMode)
+
+    val replaceVideoCategory
+        get() = assetLibrary.videos(sceneMode)
+
+    val replaceAudioCategory
+        get() = assetLibrary.audios(sceneMode)
+
     private val libraryStackDataMapping by lazy {
-        libraryCategories.associateWith {
-            LibraryCategoryStackData(
-                uiStateFlow =
-                    MutableStateFlow(
-                        AssetLibraryUiState(
-                            libraryCategory = it,
-                            titleRes = it.tabTitleRes,
-                        ),
-                    ),
-                dataStack = Stack<LibraryContent>().apply { push(it.content) },
-            )
-        }
+        hashMapOf<LibraryCategory, LibraryCategoryStackData>()
     }
 
     private val eventHandler =
@@ -139,16 +131,16 @@ class LibraryViewModel : ViewModel() {
                 onSearchTextChange(it.value, it.libraryCategory, it.debounce)
             }
             register<OnReplaceAsset> {
-                onReplaceAsset(it.wrappedAsset.assetSourceType, it.wrappedAsset.asset, it.wrappedAsset.assetType, it.designBlock)
+                onReplaceAsset(it.wrappedAsset.assetSourceType, it.wrappedAsset.asset, it.designBlock, it.wrappedAsset.assetType)
             }
             register<OnReplaceUri> {
                 onReplaceUri(it.assetSource, it.uri, it.designBlock)
             }
             register<OnAddAsset> {
-                onAddAsset(it.wrappedAsset.assetSourceType, it.wrappedAsset.asset)
+                onAddAsset(it.wrappedAsset.assetSourceType, it.wrappedAsset.asset, it.addToBackgroundTrack)
             }
             register<OnAddUri> {
-                onAddUri(it.assetSource, it.uri)
+                onAddUri(it.assetSource, it.uri, it.addToBackgroundTrack)
             }
             register<OnAssetLongClick> {
                 onAssetLongClick(it.wrappedAsset)
@@ -162,7 +154,18 @@ class LibraryViewModel : ViewModel() {
     }
 
     private fun getLibraryCategoryData(libraryCategory: LibraryCategory): LibraryCategoryStackData {
-        return checkNotNull(libraryStackDataMapping[libraryCategory])
+        return libraryStackDataMapping.getOrPut(libraryCategory) {
+            LibraryCategoryStackData(
+                uiStateFlow =
+                    MutableStateFlow(
+                        AssetLibraryUiState(
+                            libraryCategory = libraryCategory,
+                            titleRes = libraryCategory.tabTitleRes,
+                        ),
+                    ),
+                dataStack = Stack<LibraryContent>().apply { push(libraryCategory.content) },
+            )
+        }
     }
 
     private fun onAssetLongClick(wrappedAsset: WrappedAsset) {
@@ -191,40 +194,18 @@ class LibraryViewModel : ViewModel() {
     private fun onAddAsset(
         assetSourceType: AssetSourceType,
         asset: Asset,
+        addToBackgroundTrack: Boolean?,
     ) {
         viewModelScope.launch {
             val designBlock = engine.asset.applyAssetSourceAsset(assetSourceType.sourceId, asset) ?: return@launch
 
-            val camera = engine.getCamera()
-            val width = engine.block.getFrameWidth(designBlock)
-            val height = engine.block.getFrameHeight(designBlock)
-
-            val pixelRatio = engine.block.getFloat(camera, "camera/pixelRatio")
-            val cameraWidth = engine.block.getFloat(camera, "camera/resolution/width") / pixelRatio
-            val cameraHeight = engine.block.getFloat(camera, "camera/resolution/height") / pixelRatio
-
-            val screenRect = RectF(0f, 0f, cameraWidth, cameraHeight)
-            val page = engine.scene.getCurrentPage() ?: engine.getPage(0)
-            val pageRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(page))
-            val pageWidth = pageRect.width()
-
-            // find visible page rect
-            val visiblePageRect = RectF()
-            visiblePageRect.setIntersect(pageRect, screenRect)
-
-            // set the position of the new block in the center of the visible page
-            engine.block.setPositionXMode(designBlock, PositionMode.ABSOLUTE)
-            engine.block.setPositionYMode(designBlock, PositionMode.ABSOLUTE)
-
-            val newX = engine.dpToCanvasUnit((visiblePageRect.left - pageRect.left) + visiblePageRect.width() / 2) - width / 2
-            val newY = engine.dpToCanvasUnit((visiblePageRect.top - pageRect.top) + visiblePageRect.height() / 2) - height / 2
-
-            engine.block.setPositionX(designBlock, newX)
-            engine.block.setPositionY(designBlock, newY)
-
-            // scale down the new block
-            if (pageWidth > cameraWidth) {
-                engine.block.scale(designBlock, cameraWidth / pageWidth, 0.5f, 0.5f)
+            if (engine.isSceneModeVideo) {
+                val inBackgroundTrack =
+                    addToBackgroundTrack == true ||
+                        (engine.block.isVideoBlock(designBlock) && addToBackgroundTrack != false)
+                setupAssetForVideo(asset, designBlock, inBackgroundTrack)
+            } else {
+                placeDesignBlock(designBlock)
             }
         }
     }
@@ -232,28 +213,19 @@ class LibraryViewModel : ViewModel() {
     private fun onAddUri(
         assetSourceType: UploadAssetSourceType,
         uri: Uri,
+        addToBackgroundTrack: Boolean?,
     ) {
         viewModelScope.launch {
-            when (assetSourceType) {
-                AssetSourceType.ImageUploads -> {
-                    val asset = addImageToAssetSource(assetSourceType, uri)
-                    onAddAsset(assetSourceType, asset)
-                }
-
-                AssetSourceType.VideoUploads -> {
-                }
-
-                AssetSourceType.AudioUploads -> {
-                }
-            }
+            val asset = uploadToAssetSource(assetSourceType, uri)
+            onAddAsset(assetSourceType, asset, addToBackgroundTrack)
         }
     }
 
     private fun onReplaceAsset(
         assetSourceType: AssetSourceType,
         asset: Asset,
-        assetType: AssetType,
         designBlock: DesignBlock,
+        assetType: AssetType = AssetType.Image,
     ) {
         viewModelScope.launch {
             engine.asset.applyAssetSourceAsset(assetSourceType.sourceId, asset, designBlock)
@@ -261,32 +233,166 @@ class LibraryViewModel : ViewModel() {
                 engine.overrideAndRestore(designBlock, Scope.LayerCrop) {
                     engine.block.setContentFillMode(designBlock, ContentFillMode.CONTAIN)
                 }
-            } else if (engine.block.getKindEnum(designBlock) == BlockKind.Image && engine.editor.getRole() == ROLE_ADOPTER) {
+            }
+
+            setBlockName(asset, designBlock)
+
+            if (engine.editor.getSettingEnum(ROLE) == ROLE_ADOPTER) {
                 engine.block.setPlaceholderEnabled(designBlock, false)
             }
-            engine.editor.addUndoStep()
+
+            if (engine.block.isVideoBlock(designBlock) ||
+                DesignBlockType.get(engine.block.getType(designBlock)) == DesignBlockType.Audio
+            ) {
+                val oldDuration = engine.block.getDuration(designBlock)
+                asset.getDuration()?.let { duration ->
+                    engine.block.setDuration(designBlock, min(duration, oldDuration))
+                }
+                val fillBlock =
+                    if (engine.block.supportsFill(designBlock)) {
+                        engine.block.getFill(designBlock)
+                    } else {
+                        designBlock
+                    }
+                refreshDuration(designBlock, fillBlock, oldDuration)
+            }
         }
+        engine.editor.addUndoStep()
     }
 
     private fun onReplaceUri(
-        assetSourceType: UploadAssetSourceType,
+        assetSource: UploadAssetSourceType,
         uri: Uri,
         designBlock: DesignBlock,
     ) {
         viewModelScope.launch {
-            when (assetSourceType) {
-                AssetSourceType.ImageUploads -> {
-                    val asset = addImageToAssetSource(assetSourceType, uri)
-                    onReplaceAsset(assetSourceType, asset, AssetType.Image, designBlock)
+            val asset = uploadToAssetSource(assetSource, uri)
+            onReplaceAsset(assetSource, asset, designBlock)
+        }
+    }
+
+    private suspend fun setupAssetForVideo(
+        asset: Asset,
+        designBlock: DesignBlock,
+        inBackgroundTrack: Boolean,
+    ) {
+        setBlockName(asset, designBlock)
+
+        val defaultClipDuration = 5.0
+        var resolvedClipDuration = asset.getDuration() ?: defaultClipDuration
+        val page = engine.getCurrentPage()
+
+        if (inBackgroundTrack) {
+            val backgroundTrack = checkNotNull(engine.block.getBackgroundTrack())
+            engine.block.appendChild(parent = backgroundTrack, child = designBlock)
+            engine.block.fillParent(designBlock)
+            // page duration needs to be updated to ensure playback time does not get clamped to the previous known page duration
+            engine.block.setDuration(page, engine.block.getDuration(backgroundTrack))
+            engine.block.setPlaybackTime(page, engine.block.getTimeOffset(designBlock))
+        } else {
+            engine.block.appendChild(parent = page, child = designBlock)
+
+            // Adjust the time offset
+            val minClipDuration = 1.0
+            val playbackTime = engine.block.getPlaybackTime(page)
+            val totalDuration = engine.block.getDuration(page)
+
+            // Prevent inserting at the very end of the timeline, always insert audio at the beginning
+            val clampedOffset =
+                if (DesignBlockType.get(engine.block.getType(designBlock)) == DesignBlockType.Audio) {
+                    0.0
+                } else {
+                    max(0.0, min(playbackTime, totalDuration - minClipDuration))
                 }
 
-                else -> throw IllegalArgumentException("Replace using Uri is currently only supported for images.")
+            val maxClipDuration = totalDuration - clampedOffset
+            val assetDuration = asset.getDuration() ?: max(defaultClipDuration, maxClipDuration)
+
+            // If there is nothing in the scene yet, we allow the full asset duration,
+            // otherwise shorten to fit remaining time:
+            resolvedClipDuration = if (totalDuration == 0.0) assetDuration else min(assetDuration, maxClipDuration)
+            engine.block.setTimeOffset(designBlock, offset = clampedOffset)
+            placeDesignBlock(designBlock)
+        }
+
+        engine.block.setDuration(designBlock, duration = resolvedClipDuration)
+
+        val fillBlock =
+            if (DesignBlockType.get(engine.block.getType(designBlock)) == DesignBlockType.Audio) {
+                // Prevent audio blocks from being considered in the z-index reordering
+                engine.block.setAlwaysOnTop(designBlock, true)
+                designBlock
+            } else if (engine.block.isVideoBlock(designBlock)) {
+                engine.block.getFill(designBlock)
+            } else {
+                null
             }
+
+        fillBlock?.let { fill ->
+            engine.block.setLooping(fill, false)
+            refreshDuration(designBlock, fill, resolvedClipDuration, inBackgroundTrack)
+        }
+    }
+
+    private suspend fun refreshDuration(
+        designBlock: DesignBlock,
+        fill: DesignBlock,
+        resolvedClipDuration: Double,
+        inBackgroundTrack: Boolean = false,
+    ) {
+        runCatching {
+            engine.block.forceLoadAVResource(fill)
+            val totalDuration = engine.block.getAVResourceTotalDuration(fill)
+            val resolvedDuration = if (inBackgroundTrack) totalDuration else min(resolvedClipDuration, totalDuration)
+            engine.block.setDuration(designBlock, resolvedDuration)
+        }
+    }
+
+    private fun setBlockName(
+        asset: Asset,
+        designBlock: DesignBlock,
+    ) {
+        asset.label?.let { label ->
+            engine.block.setMetadata(designBlock, "name", label)
+        }
+    }
+
+    private fun placeDesignBlock(designBlock: DesignBlock) {
+        val page = engine.getCurrentPage()
+        val camera = engine.getCamera()
+        val width = engine.block.getFrameWidth(designBlock)
+        val height = engine.block.getFrameHeight(designBlock)
+
+        val pixelRatio = engine.block.getFloat(camera, "camera/pixelRatio")
+        val cameraWidth = engine.block.getFloat(camera, "camera/resolution/width") / pixelRatio
+        val cameraHeight = engine.block.getFloat(camera, "camera/resolution/height") / pixelRatio
+
+        val screenRect = RectF(0f, 0f, cameraWidth, cameraHeight)
+        val pageRect = engine.block.getScreenSpaceBoundingBoxRect(listOf(page))
+        val pageWidth = pageRect.width()
+
+        // find visible page rect
+        val visiblePageRect = RectF()
+        visiblePageRect.setIntersect(pageRect, screenRect)
+
+        // set the position of the new block in the center of the visible page
+        engine.block.setPositionXMode(designBlock, PositionMode.ABSOLUTE)
+        engine.block.setPositionYMode(designBlock, PositionMode.ABSOLUTE)
+
+        val newX = engine.dpToCanvasUnit((visiblePageRect.left - pageRect.left) + visiblePageRect.width() / 2) - width / 2
+        val newY = engine.dpToCanvasUnit((visiblePageRect.top - pageRect.top) + visiblePageRect.height() / 2) - height / 2
+
+        engine.block.setPositionX(designBlock, newX)
+        engine.block.setPositionY(designBlock, newY)
+
+        // scale down the new block
+        if (pageWidth > cameraWidth) {
+            engine.block.scale(designBlock, cameraWidth / pageWidth, 0.5f, 0.5f)
         }
     }
 
     private fun onDispose() {
-        libraryCategories.forEach {
+        libraryStackDataMapping.keys.forEach {
             // clear search
             onSearchTextChange("", it, debounce = false, force = true)
             // get out of search mode
@@ -454,7 +560,7 @@ class LibraryViewModel : ViewModel() {
                     stackIndex = stackIndex,
                     sectionIndex = sectionIndex,
                     titleRes = sectionTitleRes,
-                    uploadAssetSource =
+                    uploadAssetSourceType =
                         if (section.showUpload) {
                             section.sourceTypes.singleOrNull() as? UploadAssetSourceType
                         } else {
@@ -642,31 +748,69 @@ class LibraryViewModel : ViewModel() {
         onFetch(libraryCategory)
     }
 
-    private suspend fun addImageToAssetSource(
+    private suspend fun uploadToAssetSource(
         assetSourceType: UploadAssetSourceType,
         uri: Uri,
     ): Asset {
-        val (width, height) = getImageDimensions(uri)
+        val uuid = UUID.randomUUID().toString()
         val uriString = uri.toString()
+        val meta =
+            mutableMapOf(
+                "uri" to uriString,
+            )
+        var label: String? = null
+
+        when (assetSourceType) {
+            AssetSourceType.AudioUploads -> {
+                meta["kind"] = "audio"
+                meta["blockType"] = "//ly.img.ubq/audio"
+                Environment.getMediaMetadataExtractor().getAudioMetadata(uri)?.let {
+                    label = it.title
+                    meta["duration"] = it.duration ?: "0"
+                    if (it.artworkUri != null) {
+                        meta["thumbUri"] = it.artworkUri
+                    }
+                }
+            }
+
+            AssetSourceType.ImageUploads -> {
+                val (width, height) = getImageDimensions(uri)
+                meta["thumbUri"] = uriString
+                meta["kind"] = "image"
+                meta["fillType"] = FillType.Image.key
+                meta["width"] = width.toString()
+                meta["height"] = height.toString()
+            }
+
+            AssetSourceType.VideoUploads -> {
+                meta["kind"] = "video"
+                meta["fillType"] = FillType.Video.key
+                Environment.getMediaMetadataExtractor().getVideoMetadata(uri)?.let {
+                    meta["thumbUri"] = it.thumbUri
+                    meta["width"] = it.width
+                    meta["height"] = it.height
+                    if (it.duration != null) {
+                        meta["duration"] = it.duration
+                    }
+                }
+            }
+        }
+
         val assetDefinition =
             AssetDefinition(
-                id = UUID.randomUUID().toString(),
-                meta =
-                    mapOf(
-                        "uri" to uriString,
-                        "thumbUri" to uriString,
-                        "kind" to "image",
-                        "fillType" to FillType.Image.key,
-                        "width" to width.toString(),
-                        "height" to height.toString(),
-                    ),
-            ).let { onUpload(it, engine, assetSourceType) }
+                id = uuid,
+                meta = meta,
+                label = if (label != null) mapOf("en" to label!!) else null,
+            ).let {
+                onUpload(it, engine, assetSourceType)
+            }
+
         engine.asset.addAsset(
             sourceId = assetSourceType.sourceId,
             asset = assetDefinition,
         )
-        val result = findAssets(assetSourceType.sourceId, perPage = 10, query = assetDefinition.id)
-        return result.assets.single()
+        val result = findAssets(assetSourceType.sourceId, perPage = 10, query = label ?: uuid)
+        return result.assets.first { it.id == uuid }
     }
 
     private suspend fun getImageDimensions(uri: Uri): Pair<Int, Int> {

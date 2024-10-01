@@ -138,7 +138,7 @@ fun DesignUi(
                 ) {
                     var uri by rememberSaveable { mutableStateOf<Uri?>(null) }
                     val rootBarItems = uiState.rootDockItems
-                    val galleryLauncher = rememberGalleryLauncherForActivityResult(libraryViewModel::onEvent)
+                    val galleryLauncher = rememberGalleryLauncherForActivityResult(onEvent = libraryViewModel::onEvent)
                     val cameraLauncher =
                         rememberCameraLauncherForActivityResult(
                             captureVideo = false,
@@ -157,10 +157,12 @@ fun DesignUi(
                                 RootDockItemActionType.OpenGallery -> {
                                     galleryLauncher.launch(GalleryMimeType.Image)
                                 }
+
                                 RootDockItemActionType.OpenCamera -> {
                                     uri = prepareUriForCameraLauncher(activity)
                                     cameraLauncher.launch(uri)
                                 }
+
                                 is RootDockItemActionType.OnEvent -> {
                                     viewModel.onEvent(actionType.event)
                                 }
