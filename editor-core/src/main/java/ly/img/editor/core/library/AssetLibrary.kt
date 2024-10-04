@@ -12,7 +12,9 @@ import ly.img.engine.SceneMode
  * @param audios a provider for the category that is displayed when inserting/replacing an audio asset.
  * @param text a provider for the category that is displayed when inserting a text asset.
  * @param shapes a provider for the category that is displayed when inserting/replacing a shape asset.
- * @param stickers a provider for the category that is displayed when inserting/replacing a shape asset.
+ * @param stickers a provider for the category that is displayed when inserting/replacing a sticker asset.
+ * @param overlays the category for displaying overlays.
+ * @param clips the category for displaying clips.
  */
 data class AssetLibrary(
     val tabs: (SceneMode) -> List<LibraryCategory>,
@@ -53,6 +55,8 @@ data class AssetLibrary(
          * @param text the text category that is used in the tabs and the [text].
          * @param shapes the shapes category that is used in the tabs and the [shapes].
          * @param stickers the stickers category that is used in the tabs and the [stickers].
+         * @param overlays the overlays category.
+         * @param clips the clips category.
          */
         fun getDefault(
             tabs: List<Tab> = Tab.entries,

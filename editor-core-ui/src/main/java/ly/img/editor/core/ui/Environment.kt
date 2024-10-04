@@ -45,10 +45,7 @@ object Environment {
 
     fun getEngine(): Engine {
         return engine ?: Engine.getInstance(id = "ly.img.editor").also {
-            // FIXME: Idling has been disabled till all video issues are resolved
-            // Known issues with idlingEnabled -
-            // 1. Canvas turns black when going to background and coming back again
-            // it.idlingEnabled = true
+            it.idlingEnabled = true
             engine = it
         }
     }

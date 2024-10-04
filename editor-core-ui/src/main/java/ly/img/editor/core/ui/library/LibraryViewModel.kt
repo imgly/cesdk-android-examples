@@ -25,7 +25,6 @@ import ly.img.editor.core.library.data.TypefaceProvider
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.Environment
 import ly.img.editor.core.ui.EventsHandler
-import ly.img.editor.core.ui.engine.ROLE
 import ly.img.editor.core.ui.engine.ROLE_ADOPTER
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.dpToCanvasUnit
@@ -237,7 +236,7 @@ class LibraryViewModel : ViewModel() {
 
             setBlockName(asset, designBlock)
 
-            if (engine.editor.getSettingEnum(ROLE) == ROLE_ADOPTER) {
+            if (engine.editor.getRole() == ROLE_ADOPTER) {
                 engine.block.setPlaceholderEnabled(designBlock, false)
             }
 

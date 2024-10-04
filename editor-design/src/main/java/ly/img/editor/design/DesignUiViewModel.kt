@@ -45,7 +45,6 @@ class DesignUiViewModel(
         onClose = onClose,
         onError = onError,
         colorPalette = colorPalette,
-        scrollablePreview = true,
     ) {
     val uiState: StateFlow<EditorUiViewState> = _uiState
 
@@ -124,8 +123,4 @@ class DesignUiViewModel(
     }
 
     override fun enterPreviewMode() = Unit
-
-    override suspend fun onPreExport() = Unit
-
-    override suspend fun onPostExport() = Unit
 }
