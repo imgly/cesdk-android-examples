@@ -31,6 +31,7 @@ import ly.img.editor.core.ui.iconpack.IconPack
  * overlay. For example, you can send a ui event in one of the callbacks of the [EngineConfiguration], capture the event in
  * [onEvent], update your internal [STATE] and render in the overlay based on the state change. Check the implementation in
  * [getDefault] for the sample usage of the composable callback.
+ * Note that the overlay is edge-to-edge, therefore it is your responsibility to draw over system bars too.
  */
 class EditorConfiguration<STATE : Parcelable>(
     val initialState: STATE,

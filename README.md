@@ -18,7 +18,7 @@ There you will learn how to integrate and configure them for your use case.
 
 The `Engine` is a commercial product. To use it you need to unlock the SDK with a license file. You can purchase a license at https://img.ly/pricing.
 
-In order to run the `Showcases` application that lives in the `app` module of this repository use the instructions below:
+In order to run the `Showcases` application that lives in the `showcases-app` module of this repository use the instructions below:
 1. Get a free trial license at https://img.ly/forms/free-trial.
 2. Copy the license key.
 3. Include the license key in the `local.properties` file:

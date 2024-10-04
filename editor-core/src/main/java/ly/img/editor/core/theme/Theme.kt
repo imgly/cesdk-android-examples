@@ -1,6 +1,7 @@
 package ly.img.editor.core.theme
 
 import android.app.Activity
+import android.os.Build
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
@@ -13,8 +14,8 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -26,6 +27,7 @@ import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.defaultShimmerTheme
 import com.valentinilk.shimmer.rememberShimmer
+import ly.img.editor.core.navbar.SystemNavBar
 
 private val LightColorScheme =
     lightColorScheme(
@@ -126,19 +128,32 @@ fun EditorTheme(
 
     val view = LocalView.current
     if (!view.isInEditMode) {
-        SideEffect {
+        LaunchedEffect(Unit) {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.surface.toArgb()
-            window.navigationBarColor = colorScheme.surface.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !useDarkTheme
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !useDarkTheme
+            // Starting from android 15 following calls have no effect as it is always edge to edge and we
+            // are the ones responsible drawing behind status and navigation bars.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                window.statusBarColor = Color.Transparent.toArgb()
+                // Below API 26 we cannot control navigation icon color theme that's why it is better to let the system
+                // draw its own color instead of editor drawing own colors and potentially having it invisible.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    window.navigationBarColor = Color.Transparent.toArgb()
+                }
+            }
+            WindowCompat.getInsetsController(window, view).run {
+                isAppearanceLightStatusBars = !useDarkTheme
+                // Has no effect below API 26
+                isAppearanceLightNavigationBars = !useDarkTheme
+            }
+
             // needed for listening to keyboard changes via WindowInsets.ime
             WindowCompat.setDecorFitsSystemWindows(window, false)
         }
     }
 
-    val shimmer = rememberShimmer(shimmerBounds = ShimmerBounds.Window)
+    SystemNavBar(MaterialTheme.colorScheme.surface)
 
+    val shimmer = rememberShimmer(shimmerBounds = ShimmerBounds.Window)
     CompositionLocalProvider(
         LocalIsDarkTheme provides useDarkTheme,
         LocalShimmerTheme provides

@@ -28,7 +28,7 @@ fun MessageFontSheet(
                 fontFamily = uiState.fontFamily,
                 filter = uiState.filter,
                 onSelectFont = { fontData ->
-                    onEvent(PostcardEvent.OnChangeFont(fontData.uri, fontData.typeface))
+                    onEvent(PostcardEvent.OnChangeTypeface(fontData.uri, fontData.typeface))
                 },
             )
         }

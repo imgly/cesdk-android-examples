@@ -16,5 +16,7 @@ sealed interface PostcardEvent : Event {
 
     data class OnChangeFont(val fontUri: Uri, val typeface: Typeface) : PostcardEvent
 
+    data class OnChangeTypeface(val fallbackFontUri: Uri, val typeface: Typeface) : PostcardEvent
+
     data class OnChangeTemplateColor(val name: String, val color: Color) : PostcardEvent
 }

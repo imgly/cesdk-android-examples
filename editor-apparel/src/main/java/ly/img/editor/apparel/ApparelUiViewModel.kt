@@ -55,8 +55,4 @@ class ApparelUiViewModel(
             }
         }
     }
-
-    override suspend fun onPreExport() = Unit
-
-    override suspend fun onPostExport() = Unit
 }

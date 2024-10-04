@@ -176,7 +176,7 @@ fun DesignUi(
             EditorPagesUi(
                 modifier =
                     Modifier
-                        .padding(top = it.calculateTopPadding(), bottom = 84.dp)
+                        .padding(top = it.calculateTopPadding(), bottom = it.calculateBottomPadding() + 84.dp)
                         .fillMaxSize(),
                 state = uiState.pagesState,
                 onEvent = viewModel::onEvent,
@@ -185,6 +185,7 @@ fun DesignUi(
                 modifier =
                     Modifier
                         .align(Alignment.BottomStart)
+                        .padding(bottom = it.calculateBottomPadding())
                         .height(84.dp),
                 state = uiState.pagesState,
                 onEvent = viewModel::onEvent,

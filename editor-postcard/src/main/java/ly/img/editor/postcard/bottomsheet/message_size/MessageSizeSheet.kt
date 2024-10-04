@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,7 +19,7 @@ import ly.img.editor.base.dock.HalfHeightContainer
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
-import ly.img.editor.core.ui.inspectorSheetPadding
+import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 import ly.img.editor.postcard.PostcardEvent
 import ly.img.editor.postcard.R
 
@@ -38,8 +37,7 @@ fun MessageSizeSheet(
 
             Card(
                 Modifier
-                    .inspectorSheetPadding()
-                    .verticalScroll(rememberScrollState()),
+                    .halfSheetScrollableContentModifier(rememberScrollState()),
                 colors = UiDefaults.cardColors,
             ) {
                 Row(

@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import ly.img.editor.base.components.CheckedTextRow
 import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.ui.UiDefaults
-import ly.img.editor.core.ui.inspectorSheetPadding
+import ly.img.editor.core.ui.halfSheetCardContentModifier
 import ly.img.editor.core.ui.library.SelectableAssetListProvider
 import ly.img.editor.core.ui.library.data.font.FontData
 import ly.img.editor.core.ui.library.data.font.FontDataMapper
@@ -49,7 +49,7 @@ fun FontListUi(
     if (fontList.isNotEmpty()) {
         Card(
             colors = UiDefaults.cardColors,
-            modifier = Modifier.inspectorSheetPadding(),
+            modifier = Modifier.halfSheetCardContentModifier(),
         ) {
             val selectedIndex =
                 remember(selectedFontFamily) { fontList.indexOfFirst { selectedFontFamily == it.typeface.name } }

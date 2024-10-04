@@ -69,6 +69,10 @@ fun VideoUi(
     val activity = requireNotNull(LocalContext.current.activity)
     remember {
         Environment.init(activity.application)
+        // FIXME: Idling has been disabled till all video issues are resolved
+        // Known issues with idlingEnabled -
+        // 1. Canvas turns black when going to background and coming back again
+        Environment.getEngine().idlingEnabled = false
         mutableStateOf(Unit)
     }
 

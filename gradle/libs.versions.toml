@@ -1,7 +1,7 @@
 [versions]
 androidMinSdk = "24"
-androidCompileSdk = "34"
-androidTargetSdk = "34"
+androidCompileSdk = "35"
+androidTargetSdk = "35"
 kotlinCompilerExtension = "1.5.3"
 kotlin="1.9.10"
 camera = "1.3.0-rc01"

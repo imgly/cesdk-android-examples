@@ -3,7 +3,6 @@ package ly.img.editor.postcard.bottomsheet.message_color
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,7 +20,7 @@ import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
-import ly.img.editor.core.ui.inspectorSheetPadding
+import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 import ly.img.editor.postcard.PostcardEvent
 import ly.img.editor.postcard.R
 
@@ -47,8 +46,7 @@ fun MessageColorSheet(
 
                     Card(
                         Modifier
-                            .inspectorSheetPadding()
-                            .verticalScroll(rememberScrollState()),
+                            .halfSheetScrollableContentModifier(rememberScrollState()),
                         colors = UiDefaults.cardColors,
                     ) {
                         ColorOptions(
