@@ -96,8 +96,8 @@ class PostcardUiViewModel(
         )
     }
 
-    override fun setSettings() {
-        super.setSettings()
+    override fun onPreCreate() {
+        super.onPreCreate()
         engine.editor.setGlobalScope(Scope.EditorAdd, GlobalScope.DEFER)
     }
 
@@ -136,10 +136,6 @@ class PostcardUiViewModel(
         showAllPages()
         engine.zoomToScene(currentInsets)
     }
-
-    override suspend fun onPreExport() = Unit
-
-    override suspend fun onPostExport() = Unit
 
     override fun updateBottomSheetUiState() {
         super.updateBottomSheetUiState()

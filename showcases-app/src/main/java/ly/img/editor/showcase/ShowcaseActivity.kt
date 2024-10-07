@@ -33,6 +33,9 @@ import ly.img.engine.SceneMode
 import ly.img.engine.populateAssetSource
 
 class ShowcaseActivity : ComponentActivity() {
+    private val unsplashSupported = Secrets.unsplashHost.isNotEmpty()
+    private val remoteAssetsSupported = Secrets.remoteAssetSourceHost.isNotEmpty()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -74,7 +77,14 @@ class ShowcaseActivity : ComponentActivity() {
                 LibraryCategory.Video.copy(
                     content =
                         defaultVideoContent.copy(
-                            sections = listOf(pexelsVideoSection, giphyVideoSection) + defaultVideoContent.sections,
+                            sections =
+                                buildList {
+                                    if (remoteAssetsSupported) {
+                                        add(pexelsVideoSection)
+                                        add(giphyVideoSection)
+                                    }
+                                    addAll(defaultVideoContent.sections)
+                                },
                         ),
                 )
 
@@ -82,7 +92,16 @@ class ShowcaseActivity : ComponentActivity() {
                 LibraryCategory.Images.copy(
                     content =
                         defaultImagesContent.copy(
-                            sections = listOf(pexelsImagesSection, unsplashSection) + defaultImagesContent.sections,
+                            sections =
+                                buildList {
+                                    if (remoteAssetsSupported) {
+                                        add(pexelsImagesSection)
+                                    }
+                                    if (unsplashSupported) {
+                                        add(unsplashSection)
+                                    }
+                                    addAll(defaultImagesContent.sections)
+                                },
                         ),
                 )
 
@@ -191,21 +210,25 @@ class ShowcaseActivity : ComponentActivity() {
                 license = Secrets.license,
                 onCreate = { engine, eventHandler ->
                     EditorDefaults.onCreate(engine, sceneUri, eventHandler) { scene, scope ->
-                        engine.asset.addSource(unsplashAssetSource)
+                        if (unsplashSupported) {
+                            engine.asset.addSource(unsplashAssetSource)
+                        }
                         val isVideoScene = engine.scene.getMode() == SceneMode.VIDEO
-                        val remoteAssetSourcesSet =
-                            buildSet {
-                                add(RemoteAssetSource.Path.ImagePexels)
-                                if (isVideoScene) {
-                                    add(RemoteAssetSource.Path.VideoPexels)
-                                    add(RemoteAssetSource.Path.VideoGiphy)
-                                }
+                        if (remoteAssetsSupported) {
+                            scope.launch {
+                                val remoteAssetSourcesSet =
+                                    buildSet {
+                                        add(RemoteAssetSource.Path.ImagePexels)
+                                        if (isVideoScene) {
+                                            add(RemoteAssetSource.Path.VideoPexels)
+                                            add(RemoteAssetSource.Path.VideoGiphy)
+                                        }
+                                    }
+                                engine.addRemoteAssetSources(
+                                    host = Secrets.remoteAssetSourceHost,
+                                    paths = remoteAssetSourcesSet,
+                                )
                             }
-                        scope.launch {
-                            engine.addRemoteAssetSources(
-                                host = Secrets.remoteAssetSourceHost,
-                                paths = remoteAssetSourcesSet,
-                            )
                         }
                         if (isVideoScene) {
                             scope.launch {

@@ -40,6 +40,7 @@ import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
 import ly.img.engine.SceneMode
+import ly.img.engine.UnstableEngineApi
 
 class PhotoUiViewModel(
     baseUri: Uri,
@@ -55,7 +56,6 @@ class PhotoUiViewModel(
         onClose = onClose,
         onError = onError,
         colorPalette = colorPalette,
-        scrollablePreview = true,
     ) {
     val uiState: StateFlow<EditorUiViewState> = _uiState
 
@@ -103,8 +103,17 @@ class PhotoUiViewModel(
         super.setSelectedBlock(updatedBlock)
     }
 
-    override fun setSettings() {
-        super.setSettings()
+    override fun onPreCreate() {
+        super.onPreCreate()
+        engine.editor.setSettingBoolean(keypath = "page/allowCropInteraction", value = true)
+        engine.editor.setSettingBoolean(keypath = "page/allowMoveInteraction", value = false)
+        engine.editor.setSettingBoolean(keypath = "page/allowResizeInteraction", value = false)
+        engine.editor.setSettingBoolean(keypath = "page/restrictResizeInteractionToFixedAspectRatio", value = false)
+        engine.editor.setSettingBoolean(keypath = "page/allowRotateInteraction", value = false)
+    }
+
+    override fun onSceneLoaded() {
+        super.onSceneLoaded()
         val page = getPage()
         listOf(
             Scope.AppearanceAdjustment,
@@ -123,11 +132,6 @@ class PhotoUiViewModel(
         ).forEach {
             engine.block.setScopeEnabled(page, it, enabled = false)
         }
-        engine.editor.setSettingBoolean(keypath = "page/allowCropInteraction", value = true)
-        engine.editor.setSettingBoolean(keypath = "page/allowMoveInteraction", value = false)
-        engine.editor.setSettingBoolean(keypath = "page/allowResizeInteraction", value = false)
-        engine.editor.setSettingBoolean(keypath = "page/restrictResizeInteractionToFixedAspectRatio", value = false)
-        engine.editor.setSettingBoolean(keypath = "page/allowRotateInteraction", value = false)
     }
 
     override fun getRootDockItems(assetLibrary: AssetLibrary): List<RootDockItemData> {
@@ -191,6 +195,33 @@ class PhotoUiViewModel(
         }
     }
 
+    @OptIn(UnstableEngineApi::class)
+    override fun preEnterPreviewMode() {
+        val pages = engine.scene.getPages()
+        val firstPage = listOf(pages.first())
+        val defaultInsets = defaultInsets
+        engine.scene.enableCameraZoomClamping(
+            firstPage,
+            minZoomLimit = 1.0F,
+            maxZoomLimit = 1.0F,
+            paddingLeft = defaultInsets.left,
+            paddingTop = defaultInsets.top,
+            paddingRight = defaultInsets.right,
+            paddingBottom = defaultInsets.bottom,
+        )
+        engine.scene.enableCameraPositionClamping(
+            pages,
+            paddingLeft = defaultInsets.left - horizontalPageInset,
+            paddingTop = defaultInsets.top - verticalPageInset,
+            paddingRight = defaultInsets.right - horizontalPageInset,
+            paddingBottom = defaultInsets.bottom - verticalPageInset,
+            scaledPaddingLeft = horizontalPageInset,
+            scaledPaddingTop = verticalPageInset,
+            scaledPaddingRight = horizontalPageInset,
+            scaledPaddingBottom = verticalPageInset,
+        )
+    }
+
     override fun enterPreviewMode() {
         val page = getPage()
         engine.overrideAndRestore(page, Scope.LayerClipping) {
@@ -216,10 +247,6 @@ class PhotoUiViewModel(
             engine.block.setScopeEnabled(page, Scope.EditorSelect, enabled = false)
         }
     }
-
-    override suspend fun onPreExport() = Unit
-
-    override suspend fun onPostExport() = Unit
 
     private companion object {
         const val CROP_MODE_INSET = 24F

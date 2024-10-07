@@ -31,7 +31,6 @@ import java.util.concurrent.CountDownLatch
 
 // showcases app is deleted after test run. Issue appeared in AGP 8.1.0 https://issuetracker.google.com/issues/295039976
 @OptIn(ExperimentalTestApi::class)
-@Ignore("Until idling is enabled back")
 class ShowcasesTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule(ShowcaseActivity::class.java)
@@ -85,6 +84,7 @@ class ShowcasesTest {
     }
 
     @Test
+    @Ignore("Until idlingEnabled is enabled back")
     fun snapVideoUi() {
         loadVideoUi()
 
@@ -92,6 +92,7 @@ class ShowcasesTest {
     }
 
     @Test
+    @Ignore("Until idlingEnabled is enabled back")
     fun snapVideoUiExportSuccess() {
         loadVideoUi()
 

@@ -1,10 +1,13 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'com.google.gms.google-services'
     id 'com.dropbox.dropshots'
     id 'com.github.gmazzo.buildconfig'
     id 'com.google.firebase.appdistribution'
+}
+
+if (file("$projectDir/google-services.json").exists()) {
+    apply plugin: 'com.google.gms.google-services'
 }
 
 String getLocalProperty(String property) {

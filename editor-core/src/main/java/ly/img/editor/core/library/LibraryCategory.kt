@@ -225,6 +225,9 @@ data class LibraryCategory(
             )
         }
 
+        /**
+         * The default library category for overlay assets.
+         */
         val Overlays by lazy {
             LibraryCategory(
                 tabTitleRes = R.string.ly_img_editor_overlays,
@@ -234,6 +237,9 @@ data class LibraryCategory(
             )
         }
 
+        /**
+         * The default library category for clip assets.
+         */
         val Clips by lazy {
             LibraryCategory(
                 tabTitleRes = R.string.ly_img_editor_clips,

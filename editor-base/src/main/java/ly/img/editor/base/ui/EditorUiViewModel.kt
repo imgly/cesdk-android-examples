@@ -63,7 +63,6 @@ import ly.img.editor.base.engine.duplicate
 import ly.img.editor.base.engine.isPlaceholder
 import ly.img.editor.base.engine.resetHistory
 import ly.img.editor.base.engine.setFillType
-import ly.img.editor.base.engine.setRoleButPreserveGlobalScopes
 import ly.img.editor.base.engine.showOutline
 import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.engine.zoomToPage
@@ -114,7 +113,6 @@ abstract class EditorUiViewModel(
     private val onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
     private val onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
     protected val colorPalette: List<Color> = fillAndStrokeColors,
-    private val scrollablePreview: Boolean = false,
 ) : ViewModel(),
     EditorEventHandler {
     private val migrationHelper = EditorMigrationHelper()
@@ -123,7 +121,7 @@ abstract class EditorUiViewModel(
 
     private var firstLoad = true
     private var uiInsets = Rect.Zero
-    private val defaultInsets: Rect
+    protected val defaultInsets: Rect
         get() {
             return uiInsets.translate(horizontalPageInset, verticalPageInset)
         }
@@ -447,6 +445,8 @@ abstract class EditorUiViewModel(
 
     protected open val verticalPageInset: Float = DEFAULT_PAGE_INSET
 
+    private var initiallySetEditorSelectGlobalScope = GlobalScope.DEFER
+
     private fun loadScene(
         height: Float,
         insets: Rect,
@@ -474,9 +474,11 @@ abstract class EditorUiViewModel(
             viewModelScope.launch {
                 runCatching {
                     migrationHelper.migrate()
+                    onPreCreate()
+                    // Make sure to set all settings before calling `onCreate` so that the consumer can change them if needed!
                     onCreate(engine, this@EditorUiViewModel)
+                    initiallySetEditorSelectGlobalScope = engine.editor.getGlobalScope(Scope.EditorSelect)
                     val scene = requireNotNull(engine.scene.get()) { "onCreate body must contain scene creation." }
-                    setSettings()
                     if (engine.isSceneModeVideo) {
                         timelineState = TimelineState(engine, viewModelScope)
                     }
@@ -638,8 +640,8 @@ abstract class EditorUiViewModel(
     ) {
         val realBottomInset = bottomInset + verticalPageInset
         if (realBottomInset <= defaultInsets.bottom && currentInsets.bottom == defaultInsets.bottom) return
-        val coercedBottomValue = if (showTimeline) lastKnownBottomInsetBeforeSheetOp else defaultInsets.bottom
-        zoom(defaultInsets.copy(bottom = realBottomInset.coerceAtLeast(coercedBottomValue)))
+        val coercedBottomInset = if (showTimeline && engine.isSceneModeVideo) lastKnownBottomInsetBeforeSheetOp else defaultInsets.bottom
+        zoom(defaultInsets.copy(bottom = realBottomInset.coerceAtLeast(coercedBottomInset)))
     }
 
     // FIXME: Saving the last known bottom inset is needed because currently there are excessive re-composition
@@ -681,39 +683,6 @@ abstract class EditorUiViewModel(
             .launch {
                 if (_uiState.value.isInPreviewMode) {
                     preEnterPreviewMode()
-                    if (scrollablePreview) {
-                        val pages = engine.scene.getPages()
-                        val firstPage = listOf(pages.first())
-                        val defaultInsets = this@EditorUiViewModel.defaultInsets
-                        engine.scene.enableCameraZoomClamping(
-                            firstPage,
-                            minZoomLimit = 1.0F,
-                            maxZoomLimit = 1.0F,
-                            paddingLeft = defaultInsets.left,
-                            paddingTop = defaultInsets.top,
-                            paddingRight = defaultInsets.right,
-                            paddingBottom = defaultInsets.bottom,
-                        )
-                        engine.scene.enableCameraPositionClamping(
-                            pages,
-                            paddingLeft = defaultInsets.left - horizontalPageInset,
-                            paddingTop = defaultInsets.top - verticalPageInset,
-                            paddingRight = defaultInsets.right - horizontalPageInset,
-                            paddingBottom = defaultInsets.bottom - verticalPageInset,
-                            scaledPaddingLeft = horizontalPageInset,
-                            scaledPaddingTop = verticalPageInset,
-                            scaledPaddingRight = horizontalPageInset,
-                            scaledPaddingBottom = verticalPageInset,
-                        )
-                    } else {
-                        val scene = engine.getScene()
-                        if (engine.scene.isCameraPositionClampingEnabled(scene)) {
-                            engine.scene.disableCameraPositionClamping()
-                        }
-                        if (engine.scene.isCameraZoomClampingEnabled(scene)) {
-                            engine.scene.disableCameraZoomClamping()
-                        }
-                    }
                     enterPreviewMode()
                 } else {
                     val page = engine.getPage(pageIndex.value)
@@ -961,7 +930,7 @@ abstract class EditorUiViewModel(
                     it.copy(
                         isCanvasVisible = _isSceneLoaded.value,
                         isInPreviewMode = _isPreviewMode.value,
-                        allowEditorInteraction = scrollablePreview || !_isPreviewMode.value,
+                        allowEditorInteraction = !_isPreviewMode.value,
                         isUndoEnabled = _isSceneLoaded.value && _enableHistory.value && engine.editor.canUndo(),
                         isRedoEnabled = _isSceneLoaded.value && _enableHistory.value && engine.editor.canRedo(),
                         selectedBlock = selectedBlock.value,
@@ -1123,8 +1092,7 @@ abstract class EditorUiViewModel(
 
     private fun enableEditMode(): Job {
         _isPreviewMode.update { false }
-        engine.editor.setGlobalScope(Scope.EditorSelect, GlobalScope.DEFER)
-        engine.editor.setRoleButPreserveGlobalScopes("Adopter")
+        engine.editor.setGlobalScope(Scope.EditorSelect, initiallySetEditorSelectGlobalScope)
         enterEditMode()
         return zoom(zoomToPage = true)
     }
@@ -1133,7 +1101,6 @@ abstract class EditorUiViewModel(
         _isPreviewMode.update { true }
         setBottomSheetContent { null }
         engine.editor.setGlobalScope(Scope.EditorSelect, GlobalScope.DENY)
-        engine.editor.setRoleButPreserveGlobalScopes("Creator")
         enterPreviewMode()
         zoom(defaultInsets.copy(bottom = verticalPageInset))
     }
@@ -1152,13 +1119,11 @@ abstract class EditorUiViewModel(
         if (_isExporting.compareAndSet(expect = false, update = true)) {
             timelineState?.playerState?.pause()
             viewModelScope.launch {
-                onPreExport()
                 exportJob =
                     launch {
                         onExport(engine, this@EditorUiViewModel)
                     }
                 exportJob?.join()
-                onPostExport()
                 _isExporting.update { false }
             }
         }
@@ -1195,17 +1160,22 @@ abstract class EditorUiViewModel(
 
     abstract fun enterEditMode()
 
-    open fun preEnterPreviewMode() {}
-
-    open fun setSettings() {
-        setSettingsForEditorUi(engine, baseUri)
-    }
-
     abstract fun enterPreviewMode()
 
-    abstract suspend fun onPreExport()
+    @OptIn(UnstableEngineApi::class)
+    open fun preEnterPreviewMode() {
+        val scene = engine.getScene()
+        if (engine.scene.isCameraPositionClampingEnabled(scene)) {
+            engine.scene.disableCameraPositionClamping()
+        }
+        if (engine.scene.isCameraZoomClampingEnabled(scene)) {
+            engine.scene.disableCameraZoomClamping()
+        }
+    }
 
-    abstract suspend fun onPostExport()
+    open fun onPreCreate() {
+        setSettingsForEditorUi(engine, baseUri)
+    }
 
     private companion object {
         const val DEFAULT_PAGE_INSET = 16F

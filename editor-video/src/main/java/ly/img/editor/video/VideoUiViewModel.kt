@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import ly.img.editor.base.components.VectorIcon
+import ly.img.editor.base.engine.TOUCH_ACTION_SCALE
 import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.rootdock.RootDockItemActionType
 import ly.img.editor.base.rootdock.RootDockItemData
@@ -131,9 +132,10 @@ class VideoUiViewModel(
         )
     }
 
-    override fun setSettings() {
-        super.setSettings()
+    override fun onPreCreate() {
+        super.onPreCreate()
         with(engine.editor) {
+            setSettingEnum("touch/pinchAction", TOUCH_ACTION_SCALE)
             setSettingBoolean("controlGizmo/showRotateHandles", false)
             setSettingBoolean("controlGizmo/showScaleHandles", false)
             setSettingBoolean("controlGizmo/showMoveHandles", false)
@@ -147,8 +149,4 @@ class VideoUiViewModel(
     }
 
     override fun enterPreviewMode() = throw UnsupportedOperationException()
-
-    override suspend fun onPreExport() = Unit
-
-    override suspend fun onPostExport() = Unit
 }
