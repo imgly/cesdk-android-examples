@@ -81,6 +81,7 @@ class PostcardUiViewModel(
                     is PostcardEvent.OnChangeMessageSize -> onChangeMessageSize(event.messageSize)
                     is PostcardEvent.OnChangeMessageColor -> onChangeMessageColor(event.color)
                     is PostcardEvent.OnChangeFont -> onChangeMessageFont(event.fontUri, event.typeface)
+                    is PostcardEvent.OnChangeTypeface -> onChangeMessageTypeface(event.fallbackFontUri, event.typeface)
                     is PostcardEvent.OnChangeTemplateColor -> onChangeTemplateColor(event.name, event.color)
                 }
             }
@@ -258,6 +259,24 @@ class PostcardUiViewModel(
             engine.block.setFont(
                 block = block,
                 fontFileUri = fontUri,
+                typeface = typeface,
+            )
+        }
+        engine.editor.addUndoStep()
+    }
+
+    private fun onChangeMessageTypeface(
+        fallbackFontUri: Uri,
+        typeface: Typeface,
+    ) {
+        val block = engine.requirePinnedBlock()
+        engine.overrideAndRestore(
+            designBlock = block,
+            "text/character",
+        ) {
+            engine.block.setTypeface(
+                block = block,
+                fallbackFontFileUri = fallbackFontUri,
                 typeface = typeface,
             )
         }

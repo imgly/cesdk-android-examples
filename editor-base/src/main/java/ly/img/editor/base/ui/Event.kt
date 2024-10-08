@@ -193,6 +193,8 @@ interface BlockEvent : Event {
     data class OnChangeFont(val fontUri: Uri, val typeface: Typeface) : BlockEvent
 
     data class OnChangeFontSize(val fontSize: Float) : BlockEvent
+
+    data class OnChangeTypeface(val fallbackFontUri: Uri, val typeface: Typeface) : BlockEvent
     // endregion
 
     // region Adjustments Events

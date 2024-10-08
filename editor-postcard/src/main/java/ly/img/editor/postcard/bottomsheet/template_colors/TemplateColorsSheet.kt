@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,7 +24,7 @@ import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
-import ly.img.editor.core.ui.inspectorSheetPadding
+import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 import ly.img.editor.postcard.PostcardEvent
 import ly.img.editor.postcard.R
 import ly.img.editor.postcard.util.NamedColor
@@ -51,8 +50,7 @@ fun TemplateColorsSheet(
                     )
                     Column(
                         Modifier
-                            .inspectorSheetPadding()
-                            .verticalScroll(rememberScrollState()),
+                            .halfSheetScrollableContentModifier(rememberScrollState()),
                     ) {
                         uiState.colorSections.forEachIndexed { index, namedColor ->
                             SectionHeader(namedColor.name)

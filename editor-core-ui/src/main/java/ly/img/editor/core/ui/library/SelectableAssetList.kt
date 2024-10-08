@@ -48,6 +48,7 @@ import ly.img.editor.core.ui.library.util.AssetLibraryUiConfig
 
 @Composable
 fun SelectableAssetList(
+    modifier: Modifier,
     selectedAsset: WrappedAsset?,
     libraryCategory: LibraryCategory,
     listState: LazyListState,
@@ -107,7 +108,7 @@ fun SelectableAssetList(
 
     Surface(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
     ) {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -176,7 +177,8 @@ fun DesignUi(
             EditorPagesUi(
                 modifier =
                     Modifier
-                        .padding(top = it.calculateTopPadding(), bottom = 84.dp)
+                        .statusBarsPadding()
+                        .padding(top = it.calculateTopPadding(), bottom = it.calculateBottomPadding() + 84.dp)
                         .fillMaxSize(),
                 state = uiState.pagesState,
                 onEvent = viewModel::onEvent,
@@ -185,6 +187,7 @@ fun DesignUi(
                 modifier =
                     Modifier
                         .align(Alignment.BottomStart)
+                        .padding(bottom = it.calculateBottomPadding())
                         .height(84.dp),
                 state = uiState.pagesState,
                 onEvent = viewModel::onEvent,

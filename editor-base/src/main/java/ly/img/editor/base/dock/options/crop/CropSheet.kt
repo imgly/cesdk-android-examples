@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,11 +23,11 @@ import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
+import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 import ly.img.editor.core.ui.iconpack.Flip
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Rotate90degreesccwoutline
 import ly.img.editor.core.ui.iconpack.Undo
-import ly.img.editor.core.ui.inspectorSheetPadding
 
 @Composable
 fun CropSheet(
@@ -44,8 +43,7 @@ fun CropSheet(
 
             Column(
                 Modifier
-                    .inspectorSheetPadding()
-                    .verticalScroll(rememberScrollState()),
+                    .halfSheetScrollableContentModifier(rememberScrollState()),
             ) {
                 SectionHeader(text = stringResource(R.string.ly_img_editor_straighten))
 

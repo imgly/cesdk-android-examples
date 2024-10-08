@@ -237,6 +237,7 @@ abstract class EditorUiViewModel(
         register<Event.OnAddLibraryCategoryClick> { onAddLibraryCategoryClick(it.libraryCategory, it.addToBackgroundTrack) }
         register<Event.OnExpandSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Expanded)) }
         register<Event.OnHideSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden)) }
+        register<Event.OnHideScrimSheet> { sendSingleEvent(SingleEvent.HideScrimSheet) }
         register<Event.OnExportClick> { exportScene() }
         register<Event.OnRedoClick> { engine.editor.redo() }
         register<Event.OnUndoClick> { engine.editor.undo() }

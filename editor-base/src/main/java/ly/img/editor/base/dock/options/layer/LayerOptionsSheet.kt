@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.LocalContentColor
@@ -39,6 +38,8 @@ import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
+import ly.img.editor.core.ui.halfSheetCardContentModifier
+import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 import ly.img.editor.core.ui.iconpack.Bringforward
 import ly.img.editor.core.ui.iconpack.Bringtofront
 import ly.img.editor.core.ui.iconpack.Delete
@@ -46,7 +47,6 @@ import ly.img.editor.core.ui.iconpack.Duplicate
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Sendbackward
 import ly.img.editor.core.ui.iconpack.Sendtoback
-import ly.img.editor.core.ui.inspectorSheetPadding
 
 @Composable
 fun LayerOptionsSheet(
@@ -68,7 +68,7 @@ fun LayerOptionsSheet(
                 )
                 Card(
                     colors = UiDefaults.cardColors,
-                    modifier = Modifier.inspectorSheetPadding(),
+                    modifier = Modifier.halfSheetCardContentModifier(),
                 ) {
                     val selectedIndex =
                         remember(
@@ -99,8 +99,7 @@ fun LayerOptionsSheet(
 
                 Column(
                     Modifier
-                        .inspectorSheetPadding()
-                        .verticalScroll(rememberScrollState()),
+                        .halfSheetScrollableContentModifier(rememberScrollState()),
                 ) {
                     if (uiState.opacity != null) {
                         PropertySlider(

@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +25,7 @@ internal fun AssetCreditsContent(
     assetCreditsEvent: LibraryUiEvent.ShowAssetCredits,
     onCloseAssetDetails: () -> Unit,
 ) {
-    Column {
+    Column(Modifier.navigationBarsPadding()) {
         Spacer(modifier = Modifier.height(8.dp))
         SheetHeader(
             title = stringResource(id = R.string.ly_img_editor_credits_title),

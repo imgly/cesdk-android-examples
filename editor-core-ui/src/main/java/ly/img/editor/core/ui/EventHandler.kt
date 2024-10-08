@@ -61,42 +61,42 @@ inline fun <reified EventType : BaseEvent> EventsHandler.register(noinline lambd
     return lambda
 }
 
-/*
+/**
 * Can be used to inject a dynamic value and bind it to a property.
 * The type of the property is a primitive Int.
 * @param inject The lambda that will be called to inject the value
 */
 fun inject(inject: () -> Int) = InjectInt(inject)
 
-/*
+/**
 * Can be used to inject a dynamic value and bind it to a property.
 * * The type of the property is a primitive Float.
 * @param inject The lambda that will be called to inject the value
 */
 fun inject(inject: () -> Float) = InjectFloat(inject)
 
-/*
+/**
 * Can be used to inject a dynamic value and bind it to a property.
 * * * The type of the property is a primitive Long.
 * @param inject The lambda that will be called to inject the value
 */
 fun inject(inject: () -> Long) = InjectLong(inject)
 
-/*
+/**
 * Can be used to inject a dynamic value and bind it to a property.
 * * * The type of the property is a primitive Double.
 * @param inject The lambda that will be called to inject the value
 */
 fun inject(inject: () -> Double) = InjectDouble(inject)
 
-/*
+/**
 * Can be used to inject a dynamic value and bind it to a property.
 * * * The type of the property is a primitive Boolean.
 * @param inject The lambda that will be called to inject the value
 */
 fun inject(inject: () -> Boolean) = InjectBoolean(inject)
 
-/*
+/**
 * Can be used to inject a dynamic value and bind it to a property.
 * The type of the property will be inferred from the lambda.
 * @param inject The lambda that will be called to inject the value

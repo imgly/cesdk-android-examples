@@ -15,6 +15,7 @@ import ly.img.editor.base.ui.BlockEvent.OnChangeLineHeight
 import ly.img.editor.base.ui.BlockEvent.OnChangeLineWidth
 import ly.img.editor.base.ui.BlockEvent.OnChangeParagraphSpacing
 import ly.img.editor.base.ui.BlockEvent.OnChangeSizeMode
+import ly.img.editor.base.ui.BlockEvent.OnChangeTypeface
 import ly.img.editor.base.ui.BlockEvent.OnChangeVerticalAlignment
 import ly.img.editor.base.ui.BlockEvent.OnItalicToggle
 import ly.img.editor.core.ui.EventsHandler
@@ -46,6 +47,18 @@ fun EventsHandler.textBlockEvents(
         engine.block.setFont(
             block = block,
             fontFileUri = fontUri,
+            typeface = typeface,
+        )
+        engine.editor.addUndoStep()
+    }
+
+    fun onChangeTypeface(
+        fallbackFontUri: Uri,
+        typeface: Typeface,
+    ) {
+        engine.block.setTypeface(
+            block = block,
+            fallbackFontFileUri = fallbackFontUri,
             typeface = typeface,
         )
         engine.editor.addUndoStep()
@@ -85,6 +98,10 @@ fun EventsHandler.textBlockEvents(
 
     register<OnChangeFontSize> {
         engine.block.setFloat(block, "text/fontSize", it.fontSize)
+    }
+
+    register<OnChangeTypeface> {
+        onChangeTypeface(it.fallbackFontUri, it.typeface)
     }
 
     register<OnChangeHorizontalAlignment> {
