@@ -1,6 +1,7 @@
 package ly.img.editor.base.dock.options.effect
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -8,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.base.dock.HalfHeightContainer
@@ -58,6 +60,7 @@ fun EffectSelectionSheet(
                         onClose = { onEvent(Event.OnHideSheet) },
                     )
                     SelectableAssetList(
+                        modifier = Modifier.navigationBarsPadding(),
                         selectedAsset = selectedAsset,
                         libraryCategory = uiState.libraryCategory,
                         listState = listState,

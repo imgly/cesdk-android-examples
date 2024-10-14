@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -16,7 +15,7 @@ import ly.img.editor.base.engine.AdjustmentState
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
-import ly.img.editor.core.ui.inspectorSheetPadding
+import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 
 @Composable
 fun AdjustmentOptionsSheet(
@@ -31,8 +30,7 @@ fun AdjustmentOptionsSheet(
             )
             Column(
                 Modifier
-                    .inspectorSheetPadding()
-                    .verticalScroll(rememberScrollState()),
+                    .halfSheetScrollableContentModifier(rememberScrollState()),
             ) {
                 uiState.adjustments.forEach { (type, currentValue) ->
                     currentValue as AdjustmentState.Value.Float

@@ -102,6 +102,10 @@ fun textProperties(
     engine.block.setFont(text, typeface.fonts[3].uri, typeface)
     // highlight-setFont
 
+    // highlight-setTypeface
+    engine.block.setTypeface(text, typeface.fonts[3].uri, typeface)
+    // highlight-setTypeface
+
     // highlight-getTypeface
     val currentTypeface = engine.block.getTypeface(text)
     // highlight-getTypeface

@@ -1,7 +1,10 @@
 package ly.img.editor.core.ui
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +33,11 @@ object UiDefaults {
         )
 }
 
-fun Modifier.inspectorSheetPadding() =
-    this.then(
-        Modifier.padding(top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
-    )
+fun Modifier.halfSheetCardContentModifier() =
+    this.padding(top = 8.dp, bottom = 0.dp, start = 16.dp, end = 16.dp)
+        .navigationBarsPadding()
+
+fun Modifier.halfSheetScrollableContentModifier(scrollState: ScrollState) =
+    this.padding(top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
+        .verticalScroll(scrollState)
+        .navigationBarsPadding()
