@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -37,10 +36,10 @@ import ly.img.editor.base.ui.Event
 import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
+import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 import ly.img.editor.core.ui.iconpack.Formatbold
 import ly.img.editor.core.ui.iconpack.Formatitalic
 import ly.img.editor.core.ui.iconpack.IconPack
-import ly.img.editor.core.ui.inspectorSheetPadding
 import ly.img.engine.FontStyle
 import ly.img.engine.FontWeight
 import ly.img.engine.TextCase
@@ -68,10 +67,11 @@ fun FormatOptionsSheet(
                     Column(
                         modifier =
                             Modifier
-                                .inspectorSheetPadding()
-                                .verticalScroll(
+                                // .inspectorSheetPadding()
+                                .halfSheetScrollableContentModifier(
                                     rememberScrollState(),
                                 ),
+                        // .navigationBarsPadding(),
                     ) {
                         Card(
                             colors = UiDefaults.cardColors,
@@ -275,7 +275,7 @@ fun FormatOptionsSheet(
                         fontFamily = uiState.fontFamily,
                         filter = emptyList(),
                         onSelectFont = { fontData ->
-                            onEvent(BlockEvent.OnChangeFont(fontData.uri, fontData.typeface))
+                            onEvent(BlockEvent.OnChangeTypeface(fontData.uri, fontData.typeface))
                         },
                     )
                 }

@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +25,7 @@ import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.compose.material3.Card
 import ly.img.editor.core.ui.UiDefaults
-import ly.img.editor.core.ui.inspectorSheetPadding
+import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 import kotlin.math.roundToInt
 
 @Composable
@@ -48,8 +47,7 @@ fun EffectOptionsSheet(
         )
         Column(
             Modifier
-                .inspectorSheetPadding()
-                .verticalScroll(rememberScrollState()),
+                .halfSheetScrollableContentModifier(rememberScrollState()),
         ) {
             adjustments.forEach { (type, currentValue) ->
                 when (type.valueOptions) {

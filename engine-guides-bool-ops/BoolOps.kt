@@ -80,6 +80,7 @@ fun usingBoolOps(
     engine.block.appendChild(parent = page, child = block)
 
     engine.block.sendToBack(block)
+    engine.block.forceLoadResources(listOf(block))
     val difference = engine.block.combine(listOf(block, text), op = BooleanOperation.DIFFERENCE)
     // highlight-combine-difference
 

@@ -15,10 +15,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -237,6 +237,7 @@ abstract class EditorUiViewModel(
         register<Event.OnAddLibraryCategoryClick> { onAddLibraryCategoryClick(it.libraryCategory, it.addToBackgroundTrack) }
         register<Event.OnExpandSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Expanded)) }
         register<Event.OnHideSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden)) }
+        register<Event.OnHideScrimSheet> { sendSingleEvent(SingleEvent.HideScrimSheet) }
         register<Event.OnExportClick> { exportScene() }
         register<Event.OnRedoClick> { engine.editor.redo() }
         register<Event.OnUndoClick> { engine.editor.undo() }
@@ -465,18 +466,26 @@ abstract class EditorUiViewModel(
                 enableEditMode()
             }
         } else {
-            viewModelScope.launch {
-                engine.scene
-                    .onActiveChanged()
-                    .onEach { onSceneLoaded() }
-                    .collect()
+            if (engine.scene.get() == null) {
+                viewModelScope.launch {
+                    engine.scene
+                        .onActiveChanged()
+                        .onEach { onSceneLoaded() }
+                        .first()
+                }
             }
             viewModelScope.launch {
                 runCatching {
                     migrationHelper.migrate()
                     onPreCreate()
+                    val isSceneRestorationFlow = engine.scene.get() != null
                     // Make sure to set all settings before calling `onCreate` so that the consumer can change them if needed!
                     onCreate(engine, this@EditorUiViewModel)
+                    // Invoke onSceneLoaded only when engine was restored, because in the regular flow
+                    // we have another coroutine that observes scene change and invokes this funcion.
+                    if (isSceneRestorationFlow) {
+                        onSceneLoaded()
+                    }
                     initiallySetEditorSelectGlobalScope = engine.editor.getGlobalScope(Scope.EditorSelect)
                     val scene = requireNotNull(engine.scene.get()) { "onCreate body must contain scene creation." }
                     if (engine.isSceneModeVideo) {

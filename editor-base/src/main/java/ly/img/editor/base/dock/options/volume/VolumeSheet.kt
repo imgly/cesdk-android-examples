@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,12 +25,12 @@ import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
+import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Volumehigh
 import ly.img.editor.core.ui.iconpack.Volumelow
 import ly.img.editor.core.ui.iconpack.Volumemedium
 import ly.img.editor.core.ui.iconpack.Volumeoff
-import ly.img.editor.core.ui.inspectorSheetPadding
 
 @Composable
 fun VolumeSheet(
@@ -47,8 +46,7 @@ fun VolumeSheet(
 
             Card(
                 Modifier
-                    .inspectorSheetPadding()
-                    .verticalScroll(rememberScrollState()),
+                    .halfSheetScrollableContentModifier(rememberScrollState()),
                 colors = UiDefaults.cardColors,
             ) {
                 Row(

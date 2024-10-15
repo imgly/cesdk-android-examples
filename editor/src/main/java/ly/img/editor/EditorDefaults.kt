@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,7 +26,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,9 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -94,9 +92,8 @@ object EditorDefaults {
         sceneUri: Uri,
         eventHandler: EditorEventHandler,
         block: suspend (DesignBlock, CoroutineScope) -> Unit = { _, _ -> },
-    ) = onCreateCommon(engine, eventHandler) { scope ->
-        val scene = engine.scene.load(sceneUri)
-        block(scene, scope)
+    ) = onCreateCommon(engine, eventHandler, block) {
+        engine.scene.load(sceneUri)
     }
 
     /**
@@ -119,7 +116,7 @@ object EditorDefaults {
         eventHandler: EditorEventHandler,
         size: SizeF? = null,
         block: suspend (DesignBlock, CoroutineScope) -> Unit = { _, _ -> },
-    ) = onCreateCommon(engine, eventHandler) { scope ->
+    ) = onCreateCommon(engine, eventHandler, block) { scope ->
         val scene = engine.scene.createFromImage(imageUri)
         val graphicBlocks = engine.block.findByType(DesignBlockType.Graphic)
         require(graphicBlocks.size == 1) { "No image found." }
@@ -133,17 +130,19 @@ object EditorDefaults {
             engine.block.setWidth(page, size.width)
             engine.block.setHeight(page, size.height)
         }
-        block(scene, scope)
     }
 
     private suspend fun onCreateCommon(
         engine: Engine,
         eventHandler: EditorEventHandler,
+        onSceneCreated: suspend (DesignBlock, CoroutineScope) -> Unit,
         createScene: suspend (CoroutineScope) -> Unit,
     ) = coroutineScope {
         if (engine.scene.get() == null) {
             createScene(this)
         }
+        val scene = checkNotNull(engine.scene.get())
+        onSceneCreated(scene, this)
         launch {
             val baseUri = Uri.parse("https://cdn.img.ly/assets/v3")
             engine.addDefaultAssetSources(baseUri = baseUri)
@@ -445,16 +444,6 @@ object EditorDefaults {
         status: VideoExportStatus,
         eventHandler: EditorEventHandler,
     ) {
-        val window = (LocalView.current.context as Activity).window
-        val surfaceColor = MaterialTheme.colorScheme.surface.toArgb()
-        DisposableEffect(Unit) {
-            val originalColor = window.navigationBarColor
-            window.navigationBarColor = surfaceColor
-            onDispose {
-                window.navigationBarColor = originalColor
-            }
-        }
-
         Box(
             modifier =
                 Modifier
@@ -483,6 +472,7 @@ object EditorDefaults {
                 Box(
                     Modifier
                         .fillMaxWidth()
+                        .navigationBarsPadding()
                         .padding(all = 16.dp),
                 ) {
                     Column(
