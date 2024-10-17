@@ -3,9 +3,9 @@ import android.util.SizeF
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
-import ly.img.editor.DesignEditor
 import ly.img.editor.EditorConfiguration
 import ly.img.editor.EngineConfiguration
+import ly.img.editor.PhotoEditor
 
 // Add this composable to your NavHost
 @Composable
@@ -25,7 +25,7 @@ fun PhotoEditorSolution(navController: NavHostController) {
     val editorConfiguration = EditorConfiguration.getDefault()
     // highlight-editor-configuration
     // highlight-editor-initialization
-    DesignEditor(
+    PhotoEditor(
         engineConfiguration = engineConfiguration,
         editorConfiguration = editorConfiguration,
     ) {
