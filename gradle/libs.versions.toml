@@ -16,7 +16,6 @@ appDistributionPlugin = "5.0.0"
 appDistribution = "16.0.0-beta13"
 
 [libraries]
-cesdk-editor = { group = "ly.img", name = "editor", version.ref = "engine" }
 cesdk-engine = { group = "ly.img", name = "engine", version.ref = "engine" }
 cesdk-engine-camera = { group = "ly.img", name = "engine-camera", version.ref = "engine" }
 
@@ -42,6 +41,8 @@ firebase-installations = { module = "com.google.firebase:firebase-installations"
 firebase-app-distribution = { module = "com.google.firebase:firebase-appdistribution", version.ref = "appDistribution" }
 
 coil-compose = "io.coil-kt:coil-compose:2.2.2"
+
+play-services-auth = "com.google.android.gms:play-services-auth:21.2.0"
 
 material = "com.google.android.material:material:1.8.0"
 
