@@ -25,13 +25,14 @@ android {
     defaultConfig {
         applicationId "ly.img.editor.showcase"
         testApplicationId "ly.img.editor.showcase.test"
-        def isCIBuild = System.getenv("UBQ_USE_LOCAL_ENGINE")?.toBoolean() ?: false
-        def versionCodeValue = isCIBuild
-                ? System.currentTimeMillis().toString().take(9).toInteger()
-                : 1
-        def versionNameValue = isCIBuild
-                ? new File(rootDir.parentFile.parentFile, ".ubq-version").text.trim()
-                : libs.versions.engine.get()
+        def isPRBuild = System.getenv("UBQ_USE_LOCAL_ENGINE")?.toBoolean() ?: false
+        def versionCodeValue = isPRBuild
+            ? System.currentTimeMillis().toString().take(9).toInteger()
+            : 1
+        def versionNameValue = isPRBuild
+            ? new File(rootDir.parentFile.parentFile, ".ubq-version").text.trim()
+            : libs.versions.engine.get()
+
         minSdk libs.versions.androidMinSdk.get().toInteger()
         targetSdk libs.versions.androidTargetSdk.get().toInteger()
         versionCode versionCodeValue

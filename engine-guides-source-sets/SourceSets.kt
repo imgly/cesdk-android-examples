@@ -108,5 +108,28 @@ fun sourceSets(
     val result = engine.asset.defaultApplyAsset(asset)
     // highlight-apply-asset
 
+    // highlight-video-source-sets
+    val videoFill = engine.block.createFill(FillType.Video)
+    engine.block.setSourceSet(
+        block = videoFill,
+        property = "fill/video/sourceSet",
+        sourceSet =
+            listOf(
+                Source(
+                    uri = Uri.parse("https://img.ly/static/example-assets/sourceset/1x.mp4"),
+                    width = 720,
+                    height = 1280,
+                ),
+            ),
+    )
+
+    engine.block.addVideoFileUriToSourceSet(
+        block = videoFill,
+        property = "fill/video/sourceSet",
+        uri = "https://img.ly/static/example-assets/sourceset/2x.mp4",
+    )
+	
+    // highlight-video-source-sets
+
     engine.stop()
 }
