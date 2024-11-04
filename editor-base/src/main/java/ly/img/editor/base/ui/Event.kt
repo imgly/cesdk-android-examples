@@ -44,6 +44,13 @@ interface Event : BaseEvent {
 
     data class OnAddLibraryCategoryClick(val libraryCategory: LibraryCategory, val addToBackgroundTrack: Boolean? = null) : Event
 
+    data object OnCameraClick : Event
+
+    data class OnSystemCameraClick(
+        val captureVideo: Boolean,
+        val onCapture: (Uri) -> Unit,
+    ) : Event
+
     object OnKeyboardClose : Event
 
     data class OnKeyboardHeightChange(val heightInDp: Float) : Event

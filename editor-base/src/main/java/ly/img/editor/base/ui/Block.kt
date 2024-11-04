@@ -135,7 +135,7 @@ internal fun createBlock(
                 Duplicate -> addOption(R.string.ly_img_editor_duplicate, VectorIcon(IconPack.Duplicate))
                 Delete ->
                     addOption(
-                        R.string.ly_img_editor_delete,
+                        ly.img.editor.core.R.string.ly_img_editor_delete,
                         VectorIcon(IconPack.Delete, tint = ColorSchemeKeyToken.Error),
                         textColor = ColorSchemeKeyToken.Error,
                     )

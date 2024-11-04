@@ -13,8 +13,8 @@ class ThumbnailsManager(
 ) {
     private val providers = hashMapOf<DesignBlock, ThumbnailsProvider>()
 
-    fun getProvider(designBlock: DesignBlock): ThumbnailsProvider {
-        return requireNotNull(providers[designBlock])
+    fun getProvider(designBlock: DesignBlock): ThumbnailsProvider? {
+        return providers[designBlock]
     }
 
     fun destroyProvider(designBlock: DesignBlock) {

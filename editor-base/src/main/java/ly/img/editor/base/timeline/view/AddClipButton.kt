@@ -18,17 +18,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.base.R
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.iconpack.Libraryelements
-import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.theme.surface3
 import ly.img.editor.core.ui.Environment
+import ly.img.editor.core.ui.iconpack.Addcamerabackground
 import ly.img.editor.core.ui.iconpack.Addgallerybackground
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.library.LibraryViewModel
-import ly.img.editor.core.ui.library.components.CameraClipMenuItem
 import ly.img.editor.core.ui.library.components.ClipMenuItem
 import ly.img.editor.core.ui.library.resultcontract.GalleryMimeType
 import ly.img.editor.core.ui.library.resultcontract.rememberGalleryLauncherForActivityResult
-import ly.img.editor.core.ui.library.util.LibraryEvent
 
 @Composable
 fun AddClipButton(
@@ -53,20 +51,13 @@ fun AddClipButton(
                 showClipMenu = false
             },
         ) {
-            CameraClipMenuItem(
+            ClipMenuItem(
                 textResourceId = ly.img.editor.core.R.string.ly_img_editor_camera,
-                captureVideo = true,
-                onCapture = { uri ->
-                    showClipMenu = false
-                    libraryViewModel.onEvent(
-                        LibraryEvent.OnAddUri(
-                            AssetSourceType.VideoUploads,
-                            uri,
-                            addToBackgroundTrack = true,
-                        ),
-                    )
-                },
-            )
+                icon = IconPack.Addcamerabackground,
+            ) {
+                showClipMenu = false
+                onEvent(Event.OnCameraClick)
+            }
 
             val galleryLauncher =
                 rememberGalleryLauncherForActivityResult(addToBackgroundTrack = true) { event ->

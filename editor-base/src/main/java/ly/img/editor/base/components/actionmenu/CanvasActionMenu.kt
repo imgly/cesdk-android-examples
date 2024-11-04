@@ -109,7 +109,7 @@ fun CanvasActionMenu(
                     IconButton(onClick = { onEvent(BlockEvent.OnDelete) }) {
                         Icon(
                             IconPack.Delete,
-                            contentDescription = stringResource(R.string.ly_img_editor_delete),
+                            contentDescription = stringResource(ly.img.editor.core.R.string.ly_img_editor_delete),
                         )
                     }
                 }

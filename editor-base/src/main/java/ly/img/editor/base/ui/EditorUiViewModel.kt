@@ -235,6 +235,7 @@ abstract class EditorUiViewModel(
         register<Event.OnCloseDock> { engine.deselectAllBlocks() }
         register<Event.OnAddLibraryClick> { openLibrarySheet() }
         register<Event.OnAddLibraryCategoryClick> { onAddLibraryCategoryClick(it.libraryCategory, it.addToBackgroundTrack) }
+        register<Event.OnCameraClick> { sendSingleEvent(SingleEvent.LaunchCamera) }
         register<Event.OnExpandSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Expanded)) }
         register<Event.OnHideSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden)) }
         register<Event.OnHideScrimSheet> { sendSingleEvent(SingleEvent.HideScrimSheet) }
@@ -265,6 +266,7 @@ abstract class EditorUiViewModel(
         register<Event.OnTogglePagesMode> { onTogglePagesMode() }
         register<Event.OnPagesModePageSelectionChange> { onPagesSelectionChange(it.page) }
         register<Event.OnPagesModePageBind> { onPagesModePageBind(it.page, it.pageHeight) }
+        register<Event.OnSystemCameraClick> { sendSingleEvent(SingleEvent.LaunchSystemCamera(it.captureVideo, it.onCapture)) }
     }
 
     private fun updateVisiblePageState() {

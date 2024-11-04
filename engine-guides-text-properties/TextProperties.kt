@@ -103,22 +103,34 @@ fun textProperties(
     // highlight-setFont
 
     // highlight-setTypeface
-    engine.block.setTypeface(text, typeface.fonts[3].uri, typeface)
+    engine.block.setTypeface(text, typeface, from = 1, to = 4)
+    engine.block.setTypeface(text, typeface)
     // highlight-setTypeface
 
     // highlight-getTypeface
-    val currentTypeface = engine.block.getTypeface(text)
+    val currentDefaultTypeface = engine.block.getTypeface(text)
     // highlight-getTypeface
+
+    // highlight-getTypefaces
+    val currentTypefaces = engine.block.getTypefaces(text)
+    val currentTypefacesOfRange = engine.block.getTypefaces(text, from = 1, to = 4)
+    // highlight-getTypefaces
 
     // highlight-toggleBold
     if (engine.block.canToggleBoldFont(text)) {
         engine.block.toggleBoldFont(text)
+    }
+    if (engine.block.canToggleBoldFont(text, from = 1, to = 4)) {
+        engine.block.toggleBoldFont(text, from = 1, to = 4)
     }
     // highlight-toggleBold
 
     // highlight-toggleItalic
     if (engine.block.canToggleItalicFont(text)) {
         engine.block.toggleItalicFont(text)
+    }
+    if (engine.block.canToggleItalicFont(text, from = 1, to = 4)) {
+        engine.block.toggleItalicFont(text, from = 1, to = 4)
     }
     // highlight-toggleItalic
 

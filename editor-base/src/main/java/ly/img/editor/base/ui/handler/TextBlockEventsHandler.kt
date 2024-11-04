@@ -58,7 +58,6 @@ fun EventsHandler.textBlockEvents(
     ) {
         engine.block.setTypeface(
             block = block,
-            fallbackFontFileUri = fallbackFontUri,
             typeface = typeface,
         )
         engine.editor.addUndoStep()

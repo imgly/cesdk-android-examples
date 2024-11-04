@@ -2,6 +2,8 @@
 <resources>
     <string name="ly_img_editor_close">Close</string>
     <string name="ly_img_editor_back">Back</string>
+    <string name="ly_img_editor_cancel">Cancel</string>
+    <string name="ly_img_editor_delete">Delete</string>
 
     <string name="ly_img_editor_shape">Shape</string>
     <string name="ly_img_editor_sticker">Sticker</string>

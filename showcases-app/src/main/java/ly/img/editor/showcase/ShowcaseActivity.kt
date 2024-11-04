@@ -6,12 +6,14 @@ import addRemoteAssetSources
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
+import ly.img.camera.core.CaptureVideo
 import ly.img.editor.ApparelEditor
 import ly.img.editor.DesignEditor
 import ly.img.editor.EditorConfiguration
@@ -248,8 +250,23 @@ class ShowcaseActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = Screen.Showcases.routeScheme) {
                     composable(route = Screen.Showcases.routeScheme) {
-                        Showcases(navigateTo = {
-                            navController.navigate(it)
+                        val cameraLauncher =
+                            rememberLauncherForActivityResult(CaptureVideo()) { result ->
+                                processCameraResult(this@ShowcaseActivity, result)
+                            }
+                        Showcases(navigateTo = { route ->
+                            if (route == Screen.CameraUi.routeScheme) {
+                                cameraLauncher.launch(
+                                    CaptureVideo.Input(
+                                        engineConfiguration =
+                                            ly.img.camera.core.EngineConfiguration(
+                                                license = Secrets.license,
+                                            ),
+                                    ),
+                                )
+                            } else {
+                                navController.navigate(route)
+                            }
                         })
                     }
                     composable(
@@ -366,4 +383,6 @@ sealed class Screen(val routeScheme: String) {
     data object PostcardUi : Screen("post-greeting-cards?scene={0}")
 
     data object VideoUi : Screen("video-ui?scene={0}")
+
+    data object CameraUi : Screen("camera-ui")
 }

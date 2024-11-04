@@ -276,7 +276,6 @@ class PostcardUiViewModel(
         ) {
             engine.block.setTypeface(
                 block = block,
-                fallbackFontFileUri = fallbackFontUri,
                 typeface = typeface,
             )
         }

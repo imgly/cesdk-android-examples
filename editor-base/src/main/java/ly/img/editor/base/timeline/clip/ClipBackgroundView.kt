@@ -30,7 +30,12 @@ fun ClipBackgroundView(
             else -> MaterialTheme.colorScheme.surfaceVariant
         }
 
-    val thumbnails = if (clip.clipType == ClipType.Audio) null else timelineState.getThumbnailProvider(clip.id).thumbnails
+    val thumbnails =
+        if (clip.clipType == ClipType.Audio) {
+            null
+        } else {
+            timelineState.getThumbnailProvider(clip.id)?.thumbnails ?: emptyList()
+        }
     val isLoading = thumbnails != null && thumbnails.isEmpty()
 
     Box(
