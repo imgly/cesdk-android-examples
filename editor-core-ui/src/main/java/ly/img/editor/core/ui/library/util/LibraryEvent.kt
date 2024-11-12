@@ -7,6 +7,7 @@ import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.BaseEvent
 import ly.img.editor.core.ui.library.state.WrappedAsset
 import ly.img.engine.DesignBlock
+import kotlin.time.Duration
 
 sealed interface LibraryEvent : BaseEvent {
     data class OnEnterSearchMode(val enter: Boolean, val libraryCategory: LibraryCategory) : LibraryEvent
@@ -28,6 +29,8 @@ sealed interface LibraryEvent : BaseEvent {
     data class OnReplaceUri(val assetSource: UploadAssetSourceType, val uri: Uri, val designBlock: DesignBlock) : LibraryEvent
 
     data class OnAddUri(val assetSource: UploadAssetSourceType, val uri: Uri, val addToBackgroundTrack: Boolean? = null) : LibraryEvent
+
+    data class OnAddCameraRecordings(val recordings: List<Pair<Uri, Duration>>) : LibraryEvent
 
     data class OnAssetLongClick(val wrappedAsset: WrappedAsset) : LibraryEvent
 }

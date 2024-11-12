@@ -4,8 +4,8 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import ly.img.editor.base.timeline.ext.formatForPlayer
 import ly.img.editor.core.ui.engine.getCurrentPage
+import ly.img.editor.core.ui.utils.formatForPlayer
 import ly.img.engine.Engine
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO

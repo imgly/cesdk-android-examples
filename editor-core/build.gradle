@@ -15,4 +15,6 @@ dependencies {
     }
     implementation libs.kotlin.coroutines
     implementation libs.shimmer
+
+    compileOnly(project(":camera-core"))
 }

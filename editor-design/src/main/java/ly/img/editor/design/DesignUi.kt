@@ -19,7 +19,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +33,7 @@ import ly.img.editor.base.ui.EditorPagesDock
 import ly.img.editor.base.ui.EditorPagesUi
 import ly.img.editor.base.ui.EditorUi
 import ly.img.editor.base.ui.EditorUiTabIconMappings
+import ly.img.editor.base.ui.Event
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.event.EditorEventHandler
@@ -44,8 +44,6 @@ import ly.img.editor.core.theme.surface1
 import ly.img.editor.core.ui.Environment
 import ly.img.editor.core.ui.library.LibraryViewModel
 import ly.img.editor.core.ui.library.resultcontract.GalleryMimeType
-import ly.img.editor.core.ui.library.resultcontract.prepareUriForCameraLauncher
-import ly.img.editor.core.ui.library.resultcontract.rememberCameraLauncherForActivityResult
 import ly.img.editor.core.ui.library.resultcontract.rememberGalleryLauncherForActivityResult
 import ly.img.editor.core.ui.library.util.LibraryEvent
 import ly.img.editor.core.ui.utils.activity
@@ -137,21 +135,8 @@ fun DesignUi(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start,
                 ) {
-                    var uri by rememberSaveable { mutableStateOf<Uri?>(null) }
                     val rootBarItems = uiState.rootDockItems
                     val galleryLauncher = rememberGalleryLauncherForActivityResult(onEvent = libraryViewModel::onEvent)
-                    val cameraLauncher =
-                        rememberCameraLauncherForActivityResult(
-                            captureVideo = false,
-                            onCapture = {
-                                libraryViewModel.onEvent(
-                                    LibraryEvent.OnAddUri(
-                                        assetSource = AssetSourceType.ImageUploads,
-                                        uri = checkNotNull(uri),
-                                    ),
-                                )
-                            },
-                        )
                     rootBarItems.forEach {
                         RootDockItem(data = it) {
                             when (val actionType = it.type) {
@@ -160,8 +145,16 @@ fun DesignUi(
                                 }
 
                                 RootDockItemActionType.OpenCamera -> {
-                                    uri = prepareUriForCameraLauncher(activity)
-                                    cameraLauncher.launch(uri)
+                                    viewModel.onEvent(
+                                        Event.OnSystemCameraClick(false) {
+                                            libraryViewModel.onEvent(
+                                                LibraryEvent.OnAddUri(
+                                                    assetSource = AssetSourceType.ImageUploads,
+                                                    uri = it,
+                                                ),
+                                            )
+                                        },
+                                    )
                                 }
 
                                 is RootDockItemActionType.OnEvent -> {

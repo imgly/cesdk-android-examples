@@ -25,6 +25,7 @@ internal fun AssetLibrary(
     showAnyComposable: (AnyComposable) -> Unit,
     onClose: () -> Unit,
     onCloseAssetDetails: () -> Unit,
+    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
     viewModel: LibraryViewModel = viewModel(),
 ) {
     LaunchedEffect(Unit) {
@@ -59,6 +60,7 @@ internal fun AssetLibrary(
             uiState = uiState,
             onAssetClick = onAssetClick,
             onUriPick = onUriPick,
+            launchCamera = launchCamera,
             onLibraryEvent = viewModel::onEvent,
         )
 

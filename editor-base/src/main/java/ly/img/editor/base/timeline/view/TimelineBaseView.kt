@@ -21,11 +21,11 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import kotlinx.coroutines.launch
-import ly.img.editor.base.timeline.modifier.detectZoomGestures
 import ly.img.editor.base.timeline.state.TimelineConfiguration
 import ly.img.editor.base.timeline.state.TimelineState
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
+import ly.img.editor.core.ui.utils.detectZoomGestures
 import ly.img.editor.core.ui.utils.toDp
 import ly.img.editor.core.ui.utils.toPx
 

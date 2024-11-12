@@ -19,23 +19,19 @@ String getLocalProperty(String property) {
 }
 
 android {
+    def isAppDistributionBuild = System.getenv("UBQ_APP_DISTRIBUTION_BUILD")?.toBoolean() ?: false
+    def versionNameValue = isAppDistributionBuild ?
+            "${System.getenv("CESDK_AND_BRANCH_NAME")} - ${System.getenv("CESDK_AND_COMMIT_ID")}"
+            : libs.versions.engine.get()
+
     namespace "ly.img.editor.showcase"
     compileSdk libs.versions.androidCompileSdk.get().toInteger()
-
     defaultConfig {
         applicationId "ly.img.editor.showcase"
         testApplicationId "ly.img.editor.showcase.test"
-        def isPRBuild = System.getenv("UBQ_USE_LOCAL_ENGINE")?.toBoolean() ?: false
-        def versionCodeValue = isPRBuild
-            ? System.currentTimeMillis().toString().take(9).toInteger()
-            : 1
-        def versionNameValue = isPRBuild
-            ? new File(rootDir.parentFile.parentFile, ".ubq-version").text.trim()
-            : libs.versions.engine.get()
-
         minSdk libs.versions.androidMinSdk.get().toInteger()
         targetSdk libs.versions.androidTargetSdk.get().toInteger()
-        versionCode versionCodeValue
+        versionCode 1
         versionName versionNameValue
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         ndk {
@@ -46,10 +42,14 @@ android {
 
     sourceSets {
         main {
-            file("$projectDir/..").listFiles().each {
-                if (it.directory && (it.name.startsWith("engine-guides-") || it.name.startsWith("editor-guides-"))) {
-                    java.srcDirs += it
+            def guidePatterns = ['engine-guides-', 'editor-guides-', 'camera-guides-']
+
+            file("$projectDir/..").listFiles().findAll { file ->
+                file.directory && guidePatterns.any { pattern ->
+                    file.name.startsWith(pattern)
                 }
+            }.each { dir ->
+                java.srcDirs += dir
             }
         }
     }
@@ -67,7 +67,7 @@ android {
         release {
             firebaseAppDistribution {
                 artifactType="APK"
-                releaseNotes=System.getenv("CESDK_AND_BRANCH_NAME")
+                releaseNotes=versionNameValue
                 groups="internal"
             }
             def shrinkAndMinifyEnabled = System.getenv("CESDK_SHRINK_AND_MINIFY_ENABLED") == null
@@ -117,6 +117,7 @@ buildConfig {
     packageName "ly.img.editor.showcase"
     buildConfigField String, "BUILD_NAME", System.getenv("CESDK_AND_BUILD_NAME") ?: ""
     buildConfigField String, "BRANCH_NAME", System.getenv("CESDK_AND_BRANCH_NAME") ?: ""
+    buildConfigField String, "COMMIT_ID", System.getenv("CESDK_AND_COMMIT_ID") ?: ""
     buildConfigField String, "LICENSE", System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""
     buildConfigField String, "UNSPLASH_HOST", System.env.CESDK_AND_UNSPLASH_HOST ?: getLocalProperty("unsplash_host") ?: ""
     buildConfigField String, "REMOTE_ASSET_SOURCE_HOST", System.env.CESDK_AND_REMOTE_ASSET_SOURCE_HOST ?: getLocalProperty("remote_asset_source_host") ?: ""
@@ -125,6 +126,7 @@ buildConfig {
 
 dependencies {
     implementation project(':editor')
+    implementation project(':camera')
     implementation libs.cesdk.engine
     implementation libs.cesdk.engine.camera
     implementation findProject(":editor-version-details") ?: project(":editor-version-details-dummy")

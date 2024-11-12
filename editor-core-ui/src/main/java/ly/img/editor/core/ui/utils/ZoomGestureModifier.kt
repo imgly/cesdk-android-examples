@@ -1,4 +1,4 @@
-package ly.img.editor.base.timeline.modifier
+package ly.img.editor.core.ui.utils
 
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown

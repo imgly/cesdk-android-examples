@@ -8,7 +8,6 @@
 
     <string name="ly_img_editor_dismiss">Dismiss</string>
     <string name="ly_img_editor_exit">Exit</string>
-    <string name="ly_img_editor_cancel">Cancel</string>
 
     <string name="ly_img_editor_export_success_headline">Export Complete</string>
     <string name="ly_img_editor_export_success_label">All done. You can close this dialog.</string>
@@ -69,7 +68,6 @@
     <string name="ly_img_editor_select_group">Select Group</string>
 
     <string name="ly_img_editor_duplicate">Duplicate</string>
-    <string name="ly_img_editor_delete">Delete</string>
     <string name="ly_img_editor_next_page">Next Page</string>
     <string name="ly_img_editor_previous_page">Previous</string>
     <string name="ly_img_editor_opacity">Opacity</string>

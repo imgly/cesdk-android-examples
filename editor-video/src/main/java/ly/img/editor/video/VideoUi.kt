@@ -3,6 +3,7 @@ package ly.img.editor.video
 import android.app.Activity
 import android.net.Uri
 import android.os.Parcelable
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -16,8 +17,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,22 +24,23 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ly.img.camera.core.CameraResult
+import ly.img.camera.core.CaptureVideo
+import ly.img.camera.core.EngineConfiguration
 import ly.img.editor.base.rootdock.RootDockItem
 import ly.img.editor.base.rootdock.RootDockItemActionType
 import ly.img.editor.base.ui.EditorUi
 import ly.img.editor.base.ui.EditorUiTabIconMappings
+import ly.img.editor.base.ui.SingleEvent
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.AssetLibrary
-import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.theme.surface1
 import ly.img.editor.core.ui.Environment
 import ly.img.editor.core.ui.library.LibraryViewModel
 import ly.img.editor.core.ui.library.resultcontract.GalleryMimeType
-import ly.img.editor.core.ui.library.resultcontract.prepareUriForCameraLauncher
-import ly.img.editor.core.ui.library.resultcontract.rememberCameraLauncherForActivityResult
 import ly.img.editor.core.ui.library.resultcontract.rememberGalleryLauncherForActivityResult
 import ly.img.editor.core.ui.library.util.LibraryEvent
 import ly.img.editor.core.ui.utils.activity
@@ -101,6 +101,16 @@ fun VideoUi(
     val libraryViewModel = viewModel<LibraryViewModel>()
     val uiState by viewModel.uiState.collectAsState()
 
+    val cameraLauncher =
+        rememberLauncherForActivityResult(CaptureVideo()) { result ->
+            val recordings = (result as? CameraResult.Record)?.recordings ?: return@rememberLauncherForActivityResult
+            val mappedRecordings =
+                recordings.map { recording ->
+                    Pair(recording.videos.first().uri, recording.duration)
+                }
+            libraryViewModel.onEvent(LibraryEvent.OnAddCameraRecordings(mappedRecordings))
+        }
+
     EditorUi(
         initialExternalState = initialExternalState,
         license = license,
@@ -109,6 +119,18 @@ fun VideoUi(
         uiState = uiState.editorUiViewState,
         overlay = overlay,
         onEvent = onEvent,
+        onSingleEvent = {
+            if (it is SingleEvent.LaunchCamera) {
+                cameraLauncher.launch(
+                    CaptureVideo.Input(
+                        EngineConfiguration(
+                            license = license,
+                            userId = userId,
+                        ),
+                    ),
+                )
+            }
+        },
         topBar = {
             VideoUiToolbar(
                 navigationIcon = navigationIcon,
@@ -136,21 +158,6 @@ fun VideoUi(
                             onEvent = libraryViewModel::onEvent,
                             addToBackgroundTrack = true,
                         )
-
-                    var uri by rememberSaveable { mutableStateOf<Uri?>(null) }
-                    val cameraLauncher =
-                        rememberCameraLauncherForActivityResult(
-                            captureVideo = true,
-                            onCapture = {
-                                libraryViewModel.onEvent(
-                                    LibraryEvent.OnAddUri(
-                                        AssetSourceType.VideoUploads,
-                                        checkNotNull(uri),
-                                        addToBackgroundTrack = true,
-                                    ),
-                                )
-                            },
-                        )
                     val rootBarItems = uiState.editorUiViewState.rootDockItems
                     rootBarItems.forEach {
                         RootDockItem(data = it) {
@@ -159,14 +166,11 @@ fun VideoUi(
                                     galleryLauncher.launch(GalleryMimeType.All)
                                 }
 
-                                RootDockItemActionType.OpenCamera -> {
-                                    uri = prepareUriForCameraLauncher(activity)
-                                    cameraLauncher.launch(uri)
-                                }
-
                                 is RootDockItemActionType.OnEvent -> {
                                     viewModel.onEvent(actionType.event)
                                 }
+
+                                else -> {}
                             }
                         }
                     }

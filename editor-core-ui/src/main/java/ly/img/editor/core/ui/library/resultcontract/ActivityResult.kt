@@ -4,26 +4,12 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.ui.library.util.LibraryEvent
 import java.io.File
-
-@Composable
-fun rememberCameraLauncherForActivityResult(
-    captureVideo: Boolean,
-    onCapture: () -> Unit,
-): ManagedActivityResultLauncher<Uri, Boolean> {
-    val contract = if (captureVideo) ActivityResultContracts.CaptureVideo() else ActivityResultContracts.TakePicture()
-    return rememberLauncherForActivityResult(contract = contract) { saved ->
-        if (saved) {
-            onCapture()
-        }
-    }
-}
 
 fun prepareUriForCameraLauncher(context: Context): Uri {
     val file = File.createTempFile("imgly_", null, context.filesDir)

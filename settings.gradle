@@ -38,6 +38,8 @@ include ':editor-design'
 include ':editor-photo'
 include ':editor-video'
 include ':editor'
+include ':camera'
+include ':camera-core'
 
 // Internal use only
 def ubqRootPath = "../../"

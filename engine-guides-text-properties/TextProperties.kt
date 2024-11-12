@@ -114,11 +114,17 @@ fun textProperties(
     if (engine.block.canToggleBoldFont(text)) {
         engine.block.toggleBoldFont(text)
     }
+    if (engine.block.canToggleBoldFont(text, from = 1, to = 4)) {
+        engine.block.toggleBoldFont(text, from = 1, to = 4)
+    }
     // highlight-toggleBold
 
     // highlight-toggleItalic
     if (engine.block.canToggleItalicFont(text)) {
         engine.block.toggleItalicFont(text)
+    }
+    if (engine.block.canToggleItalicFont(text, from = 1, to = 4)) {
+        engine.block.toggleItalicFont(text, from = 1, to = 4)
     }
     // highlight-toggleItalic
 

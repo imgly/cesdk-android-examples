@@ -11,7 +11,6 @@ import ly.img.editor.base.engine.getFillType
 import ly.img.editor.base.engine.isParentBackgroundTrack
 import ly.img.editor.base.timeline.clip.Clip
 import ly.img.editor.base.timeline.clip.ClipType
-import ly.img.editor.base.timeline.ext.formatForPlayer
 import ly.img.editor.base.timeline.thumbnail.ThumbnailsManager
 import ly.img.editor.base.timeline.track.Track
 import ly.img.editor.core.ui.engine.BlockKind
@@ -20,6 +19,7 @@ import ly.img.editor.core.ui.engine.getCurrentPage
 import ly.img.editor.core.ui.engine.getKindEnum
 import ly.img.editor.core.ui.library.engine.getBackgroundTrack
 import ly.img.editor.core.ui.utils.EPS_DURATION
+import ly.img.editor.core.ui.utils.formatForPlayer
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockEvent
 import ly.img.engine.DesignBlockType

@@ -23,6 +23,7 @@ internal fun LibrarySectionColumn(
     onAssetClick: (WrappedAsset) -> Unit,
     onUriPick: (UploadAssetSourceType, Uri) -> Unit,
     onLibraryEvent: (LibraryEvent) -> Unit,
+    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
 ) {
     val nestedScrollConnection =
         remember(uiState.libraryCategory) {
@@ -56,6 +57,7 @@ internal fun LibrarySectionColumn(
                             ).let { onLibraryEvent(it) }
                         },
                         onUriPick = onUriPick,
+                        launchCamera = launchCamera,
                     )
 
                 is LibrarySectionItem.Content ->

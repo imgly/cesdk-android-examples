@@ -1,4 +1,4 @@
-package ly.img.editor.base.ui.lifecycle
+package ly.img.editor.core.ui.utils.lifecycle
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect

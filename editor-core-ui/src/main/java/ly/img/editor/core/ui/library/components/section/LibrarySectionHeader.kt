@@ -30,11 +30,11 @@ import ly.img.editor.core.R
 import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.iconpack.Add
+import ly.img.editor.core.ui.iconpack.Addcamerabackground
 import ly.img.editor.core.ui.iconpack.Arrowright
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Photolibraryoutline
 import ly.img.editor.core.ui.iconpack.Videolibraryoutline
-import ly.img.editor.core.ui.library.components.CameraClipMenuItem
 import ly.img.editor.core.ui.library.components.ClipMenuItem
 
 @Composable
@@ -42,6 +42,7 @@ internal fun LibrarySectionHeader(
     item: LibrarySectionItem.Header,
     onDrillDown: (LibraryContent) -> Unit,
     onUriPick: (UploadAssetSourceType, Uri) -> Unit,
+    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
 ) {
     Row(
         modifier =
@@ -65,6 +66,7 @@ internal fun LibrarySectionHeader(
                 onUriPick = {
                     onUriPick(uploadAssetSource, it)
                 },
+                launchCamera = launchCamera,
                 mimeTypeFilter = uploadAssetSource.mimeTypeFilter,
                 modifier = Modifier.padding(end = 8.dp),
             )
@@ -92,6 +94,7 @@ internal fun LibrarySectionHeader(
 @Composable
 private fun UploadButton(
     onUriPick: (Uri) -> Unit,
+    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
     mimeTypeFilter: String,
     modifier: Modifier,
 ) {
@@ -139,12 +142,12 @@ private fun UploadButton(
                 ) {
                     launcher.launch(mimeTypeFilter)
                 }
-                CameraClipMenuItem(
+                ClipMenuItem(
                     textResourceId = if (isVideoMimeType) R.string.ly_img_editor_take_video else R.string.ly_img_editor_take_photo,
-                    captureVideo = isVideoMimeType,
-                    onCapture = { uri ->
+                    icon = IconPack.Addcamerabackground,
+                    onClick = {
+                        launchCamera(isVideoMimeType, onUriPick)
                         showUploadMenu = false
-                        onUriPick(uri)
                     },
                 )
             }
