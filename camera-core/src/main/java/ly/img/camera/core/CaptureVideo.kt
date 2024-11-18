@@ -1,0 +1,78 @@
+package ly.img.camera.core
+
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.os.Parcel
+import android.os.Parcelable
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.annotation.CallSuper
+import ly.img.camera.core.CaptureVideo.Input
+
+/**
+ * An [ActivityResultContract] to start the IMG.LY Camera with the [Input].
+ *
+ * Returns the list of [Recording]s taken.
+ */
+open class CaptureVideo : ActivityResultContract<Input, CameraResult?>() {
+    @CallSuper
+    override fun createIntent(
+        context: Context,
+        input: Input,
+    ): Intent {
+        return Intent(context, Class.forName(ACTIVITY_CLASS_NAME)).apply {
+            putExtra(INTENT_KEY_CAMERA_INPUT, input)
+        }
+    }
+
+    final override fun getSynchronousResult(
+        context: Context,
+        input: Input,
+    ): SynchronousResult<CameraResult?>? = null
+
+    override fun parseResult(
+        resultCode: Int,
+        intent: Intent?,
+    ): CameraResult? {
+        return intent.takeIf { resultCode == Activity.RESULT_OK }?.getParcelableExtra(INTENT_KEY_CAMERA_RESULT)
+    }
+
+    companion object {
+        private const val ACTIVITY_CLASS_NAME = "ly.img.camera.CameraActivity"
+        const val INTENT_KEY_CAMERA_INPUT = "imgly_camera_input"
+        const val INTENT_KEY_CAMERA_RESULT = "imgly_camera_result"
+    }
+
+    /**
+     * Basic configuration settings to initialize the camera.
+     * @param engineConfiguration configuration to initialize the underlying engine.
+     */
+    class Input(
+        val engineConfiguration: EngineConfiguration,
+    ) : Parcelable {
+        constructor(parcel: Parcel) : this(
+            parcel.readParcelable(EngineConfiguration::class.java.classLoader)!!,
+        )
+
+        override fun writeToParcel(
+            parcel: Parcel,
+            flags: Int,
+        ) {
+            parcel.writeParcelable(engineConfiguration, flags)
+        }
+
+        override fun describeContents(): Int {
+            return 0
+        }
+
+        companion object CREATOR : Parcelable.Creator<Input> {
+            override fun createFromParcel(parcel: Parcel): Input {
+                return Input(parcel)
+            }
+
+            override fun newArray(size: Int): Array<Input?> {
+                return arrayOfNulls(size)
+            }
+        }
+    }
+}

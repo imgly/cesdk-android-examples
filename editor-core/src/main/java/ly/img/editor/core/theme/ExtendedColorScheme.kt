@@ -9,6 +9,8 @@ data class ExtendedColorScheme(
     val purple: ColorFamily,
     val green: ColorFamily,
     val yellow: ColorFamily,
+    val black: Color = Color(0xFF000000),
+    val white: Color = Color(0xFFFFFFFF),
 )
 
 @Immutable
@@ -51,7 +53,7 @@ internal fun darkExtendedColorScheme() =
         green =
             ColorFamily(
                 color = Color(0xFFA0D57A),
-                onColor = Color(0xFF173800),
+                onColor = Color(0xFFBCF293),
                 colorContainer = Color(0xFF255102),
             ),
         yellow =

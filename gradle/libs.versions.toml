@@ -4,8 +4,8 @@ androidCompileSdk = "35"
 androidTargetSdk = "35"
 kotlinCompilerExtension = "1.5.3"
 kotlin="1.9.10"
-camera = "1.3.0-rc01"
-engine = "1.38.0"
+camera = "1.5.0-alpha02" # Using an alpha version as the last stable version (1.3.4) has a bug where the front camera ouptut is inverted
+engine = "1.39.0"
 buildConfig = "5.3.5"
 dropshots = "0.4.1"
 gradleAndroid = "8.4.0"
@@ -13,13 +13,15 @@ googleServices = "4.4.2"
 exoplayerVersion = "1.3.1"
 gradleCrashlytics = "3.0.2"
 appDistributionPlugin = "5.0.0"
-appDistribution = "16.0.0-beta13"
+installer = "0.7.6"
 
 [libraries]
 cesdk-engine = { group = "ly.img", name = "engine", version.ref = "engine" }
 cesdk-engine-camera = { group = "ly.img", name = "engine-camera", version.ref = "engine" }
 
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
+
+androidx-activity = "androidx.activity:activity:1.7.0"
 
 compose-bom = "androidx.compose:compose-bom:2023.05.01"
 compose-material3 = { module = "androidx.compose.material3:material3" }
@@ -37,8 +39,6 @@ firebase-dynamicLinks = { module = "com.google.firebase:firebase-dynamic-links" 
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-crashlytics-ndk = { module = "com.google.firebase:firebase-crashlytics-ndk" }
-firebase-installations = { module = "com.google.firebase:firebase-installations" }
-firebase-app-distribution = { module = "com.google.firebase:firebase-appdistribution", version.ref = "appDistribution" }
 
 coil-compose = "io.coil-kt:coil-compose:2.2.2"
 
@@ -60,3 +60,9 @@ camera-video = { group = "androidx.camera", name = "camera-video", version.ref =
 test-androidx-runner = { group = "androidx.test", name = "runner", version.strictly = "1.5.2" }
 
 media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "exoplayerVersion" }
+
+installer = { module = "ru.solrudev.ackpine:ackpine-core",  version.ref = "installer" }
+installer-ktx = { module = "ru.solrudev.ackpine:ackpine-ktx",  version.ref = "installer" }
+
+concurrent-futures-ktx = "androidx.concurrent:concurrent-futures-ktx:1.2.0"
+guava = "com.google.guava:guava:32.1.3-android"

@@ -52,7 +52,7 @@ fun Showcases(navigateTo: (String) -> Unit) {
                         VersionDetails(
                             versionInfo = ShowcasesBuildConfig.BUILD_NAME,
                             branchName = ShowcasesBuildConfig.BRANCH_NAME,
-                            versionCode = ShowcasesBuildConfig.VERSION_CODE,
+                            commitId = ShowcasesBuildConfig.COMMIT_ID,
                         )
                     }
                 }
@@ -125,6 +125,15 @@ fun Showcases(navigateTo: (String) -> Unit) {
                         subtitle = "Loads a custom video scene with additional asset sources.",
                         onClick = {
                             navigateTo(Screen.VideoUi.getRoute("red-dot"))
+                        },
+                    )
+                }
+                item {
+                    ShowcaseItem(
+                        title = "Camera UI",
+                        subtitle = "Loads the camera.",
+                        onClick = {
+                            navigateTo(Screen.CameraUi.routeScheme)
                         },
                     )
                 }

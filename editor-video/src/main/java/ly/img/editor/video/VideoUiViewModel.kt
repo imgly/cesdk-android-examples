@@ -78,7 +78,7 @@ class VideoUiViewModel(
                     icon = VectorIcon(IconPack.Addgallerybackground),
                 ),
                 RootDockItemData(
-                    type = RootDockItemActionType.OpenCamera,
+                    type = RootDockItemActionType.OnEvent(Event.OnCameraClick),
                     labelStringRes = R.string.ly_img_editor_camera,
                     icon = VectorIcon(IconPack.Addcamerabackground),
                 ),

@@ -27,6 +27,7 @@ import ly.img.editor.core.ui.Environment
 import ly.img.editor.core.ui.EventsHandler
 import ly.img.editor.core.ui.engine.ROLE_ADOPTER
 import ly.img.editor.core.ui.engine.Scope
+import ly.img.editor.core.ui.engine.awaitEngineAndSceneLoad
 import ly.img.editor.core.ui.engine.dpToCanvasUnit
 import ly.img.editor.core.ui.engine.getCamera
 import ly.img.editor.core.ui.engine.getCurrentPage
@@ -44,6 +45,7 @@ import ly.img.editor.core.ui.library.state.LibraryCategoryStackData
 import ly.img.editor.core.ui.library.state.WrappedAsset
 import ly.img.editor.core.ui.library.util.LibraryEvent
 import ly.img.editor.core.ui.library.util.LibraryEvent.OnAddAsset
+import ly.img.editor.core.ui.library.util.LibraryEvent.OnAddCameraRecordings
 import ly.img.editor.core.ui.library.util.LibraryEvent.OnAddUri
 import ly.img.editor.core.ui.library.util.LibraryEvent.OnAssetLongClick
 import ly.img.editor.core.ui.library.util.LibraryEvent.OnDispose
@@ -67,10 +69,13 @@ import ly.img.engine.FindAssetsQuery
 import ly.img.engine.FindAssetsResult
 import ly.img.engine.PositionMode
 import ly.img.engine.SceneMode
+import ly.img.engine.ShapeType
 import java.util.Stack
 import java.util.UUID
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.time.Duration
+import kotlin.time.DurationUnit
 
 class LibraryViewModel : ViewModel() {
     private val imageLoader = Environment.getImageLoader()
@@ -141,6 +146,9 @@ class LibraryViewModel : ViewModel() {
             register<OnAddUri> {
                 onAddUri(it.assetSource, it.uri, it.addToBackgroundTrack)
             }
+            register<OnAddCameraRecordings> {
+                onAddCameraRecordings(it.recordings)
+            }
             register<OnAssetLongClick> {
                 onAssetLongClick(it.wrappedAsset)
             }
@@ -196,6 +204,7 @@ class LibraryViewModel : ViewModel() {
         addToBackgroundTrack: Boolean?,
     ) {
         viewModelScope.launch {
+            engine.awaitEngineAndSceneLoad()
             val designBlock = engine.asset.applyAssetSourceAsset(assetSourceType.sourceId, asset) ?: return@launch
 
             if (engine.isSceneModeVideo) {
@@ -215,9 +224,56 @@ class LibraryViewModel : ViewModel() {
         addToBackgroundTrack: Boolean?,
     ) {
         viewModelScope.launch {
+            engine.awaitEngineAndSceneLoad()
             val asset = uploadToAssetSource(assetSourceType, uri)
             onAddAsset(assetSourceType, asset, addToBackgroundTrack)
         }
+    }
+
+    private fun onAddCameraRecordings(recordings: List<Pair<Uri, Duration>>) {
+        viewModelScope.launch {
+            engine.awaitEngineAndSceneLoad()
+            val page = engine.getCurrentPage()
+            val backgroundTrack = checkNotNull(engine.block.getBackgroundTrack())
+
+            // set playhead position to end of background track
+            engine.block.setPlaybackTime(page, engine.block.getDuration(backgroundTrack))
+
+            recordings.forEach { (uri, duration) ->
+                uploadToAssetSource(AssetSourceType.VideoUploads, uri, duration)
+                // We cannot use engine.asset.applyAssetSourceAsset() here as it adds an undo step at the end.
+                // We only want to add one undo step at the end after adding all the recordings.
+                addCameraRecording(uri, duration)
+            }
+
+            engine.editor.addUndoStep()
+        }
+    }
+
+    private suspend fun addCameraRecording(
+        uri: Uri,
+        duration: Duration,
+    ) {
+        val backgroundTrack = checkNotNull(engine.block.getBackgroundTrack())
+        val id = engine.block.create(DesignBlockType.Graphic)
+        val rectShape = engine.block.createShape(ShapeType.Rect)
+        engine.block.setShape(id, rectShape)
+        engine.block.appendChild(parent = backgroundTrack, child = id)
+        engine.block.fillParent(id)
+
+        val durationInDouble = duration.toDouble(DurationUnit.SECONDS)
+        engine.block.setDuration(id, durationInDouble)
+        val fill = engine.block.createFill(FillType.Video)
+        engine.block.setString(fill, "fill/video/fileURI", uri.toString())
+        engine.block.setFill(id, fill)
+
+        // Refreshing the duration helps to resolve rounding errors (in case the duration set is slightly off from the actual duration)
+        refreshDuration(
+            designBlock = id,
+            fill = fill,
+            resolvedClipDuration = durationInDouble,
+            inBackgroundTrack = true,
+        )
     }
 
     private fun onReplaceAsset(
@@ -227,6 +283,7 @@ class LibraryViewModel : ViewModel() {
         assetType: AssetType = AssetType.Image,
     ) {
         viewModelScope.launch {
+            engine.awaitEngineAndSceneLoad()
             engine.asset.applyAssetSourceAsset(assetSourceType.sourceId, asset, designBlock)
             if (assetType == AssetType.Sticker) {
                 engine.overrideAndRestore(designBlock, Scope.LayerCrop) {
@@ -265,6 +322,7 @@ class LibraryViewModel : ViewModel() {
         designBlock: DesignBlock,
     ) {
         viewModelScope.launch {
+            engine.awaitEngineAndSceneLoad()
             val asset = uploadToAssetSource(assetSource, uri)
             onReplaceAsset(assetSource, asset, designBlock)
         }
@@ -750,6 +808,7 @@ class LibraryViewModel : ViewModel() {
     private suspend fun uploadToAssetSource(
         assetSourceType: UploadAssetSourceType,
         uri: Uri,
+        duration: Duration? = null,
     ): Asset {
         val uuid = UUID.randomUUID().toString()
         val uriString = uri.toString()
@@ -788,8 +847,8 @@ class LibraryViewModel : ViewModel() {
                     meta["thumbUri"] = it.thumbUri
                     meta["width"] = it.width
                     meta["height"] = it.height
-                    if (it.duration != null) {
-                        meta["duration"] = it.duration
+                    (it.duration ?: duration?.inWholeSeconds?.toString())?.let { metaDuration ->
+                        meta["duration"] = metaDuration
                     }
                 }
             }

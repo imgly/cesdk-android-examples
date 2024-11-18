@@ -161,7 +161,7 @@ private fun createEditorPagesState(
             }
             if (pages.size > 1 && engine.isDeleteAllowed(selectedPageBlock)) {
                 EditorPagesState.DockOption(
-                    titleRes = R.string.ly_img_editor_delete,
+                    titleRes = ly.img.editor.core.R.string.ly_img_editor_delete,
                     icon =
                         VectorIcon(
                             imageVector = IconPack.Delete,

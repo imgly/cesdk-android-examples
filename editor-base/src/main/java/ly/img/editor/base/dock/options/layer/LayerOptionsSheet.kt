@@ -184,7 +184,7 @@ fun LayerOptionsSheet(
                                     LocalContentColor provides MaterialTheme.colorScheme.error,
                                 ) {
                                     ActionRow(
-                                        text = stringResource(R.string.ly_img_editor_delete),
+                                        text = stringResource(ly.img.editor.core.R.string.ly_img_editor_delete),
                                         icon = IconPack.Delete,
                                         onClick = { onEvent(BlockEvent.OnDelete) },
                                     )

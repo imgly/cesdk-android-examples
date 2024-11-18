@@ -1,0 +1,1 @@
+-keep class ly.img.camera.CameraActivity

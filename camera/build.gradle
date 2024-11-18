@@ -1,0 +1,31 @@
+apply from: "$projectDir/../release/editor-library.gradle"
+
+android {
+    namespace 'ly.img.camera'
+}
+
+dependencies {
+    api project(':camera-core')
+    implementation project(':editor-core-ui')
+    implementation libs.cesdk.engine.camera
+
+    implementation libs.camera.core
+    implementation libs.camera.camera2
+    implementation libs.camera.view
+    implementation libs.camera.lifecycle
+    implementation libs.camera.video
+    implementation libs.concurrent.futures.ktx
+    implementation(libs.guava) {
+        because """
+            https://github.com/google/ExoPlayer/issues/7993#issuecomment-699930473
+            ListenableFuture is available in both `com.google.guava:listenablefuture:1.0` and `com.google.guava:guava:XX.X-android`.
+            CameraX relies on the former, while Exoplayer uses the latter.
+            `guava:XX.X-android` depends on `listenablefuture:9999.0-empty-to-avoid-conflict-with-guava`, which replaces `listenablefuture:1.0` on the classpath to avoid duplication.
+            The issue is that Exoplayer doesn't expose Guava to its consumers (it uses implementation rather than api). Gradle replaces `listenablefuture:1.0` with `9999.0`, leaving no `ListenableFuture` for CameraX. 
+            To resolve this, we need to explicitly declare Guava here to make `ListenableFuture` available.
+        """
+    }
+
+    debugImplementation libs.compose.tooling
+    implementation libs.compose.preview
+}

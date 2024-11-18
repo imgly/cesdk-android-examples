@@ -7,12 +7,6 @@ import kotlin.math.sign
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
-fun Duration.formatForPlayer(): String {
-    return toComponents { minutes, seconds, _ ->
-        String.format(locale = Locale.getDefault(), "%d:%02d", minutes, seconds)
-    }
-}
-
 private const val THRESHOLD_FOR_FRACTIONAL_SECONDS = 10
 
 fun Duration.formatForClip(showFractionalPart: Boolean = true): String {

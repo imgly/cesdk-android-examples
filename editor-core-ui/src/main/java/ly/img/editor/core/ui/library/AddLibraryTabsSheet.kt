@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.library
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +35,7 @@ fun AddLibraryTabsSheet(
     onCloseAssetDetails: () -> Unit,
     onSearchFocus: () -> Unit,
     showAnyComposable: (AnyComposable) -> Unit,
+    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
 ) {
     val viewModel = viewModel<LibraryViewModel>()
 
@@ -58,6 +60,7 @@ fun AddLibraryTabsSheet(
                     viewModel.onEvent(LibraryEvent.OnAddUri(assetSource, uri))
                     onClose()
                 },
+                launchCamera = launchCamera,
                 showAnyComposable = showAnyComposable,
                 onCloseAssetDetails = onCloseAssetDetails,
                 onClose = onClose,
@@ -83,7 +86,13 @@ fun AddLibraryTabsSheet(
                         IntOffset(
                             x = 0,
                             // 8.dp is for the top padding that is added to the bottom sheet
-                            y = (offsetWrapper.offset - (swipeableState.offset ?: 0f) - bottomNavBarHeight - 8.dp.toPx()).roundToInt(),
+                            y =
+                                (
+                                    offsetWrapper.offset - (
+                                        swipeableState.offset
+                                            ?: 0f
+                                    ) - bottomNavBarHeight - 8.dp.toPx()
+                                ).roundToInt(),
                         )
                     },
             selectedItemIndex = selectedItemIndex,

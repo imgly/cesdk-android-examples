@@ -3,9 +3,13 @@ package ly.img.editor.base.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.res.Configuration
+import android.net.Uri
 import android.os.Parcelable
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -15,11 +19,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
@@ -76,7 +83,6 @@ import ly.img.editor.base.dock.options.volume.VolumeBottomSheetContent
 import ly.img.editor.base.dock.options.volume.VolumeSheet
 import ly.img.editor.base.engine.EngineCanvasView
 import ly.img.editor.base.timeline.view.TimelineView
-import ly.img.editor.base.ui.lifecycle.LifecycleEventEffect
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetDefaults
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetLayout
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
@@ -92,7 +98,12 @@ import ly.img.editor.core.ui.AnyComposable
 import ly.img.editor.core.ui.library.AddLibrarySheet
 import ly.img.editor.core.ui.library.AddLibraryTabsSheet
 import ly.img.editor.core.ui.library.ReplaceLibrarySheet
+import ly.img.editor.core.ui.library.resultcontract.prepareUriForCameraLauncher
+import ly.img.editor.core.ui.permissions.PermissionManager.Companion.hasCameraPermission
+import ly.img.editor.core.ui.permissions.PermissionManager.Companion.hasCameraPermissionInManifest
+import ly.img.editor.core.ui.permissions.PermissionsView
 import ly.img.editor.core.ui.utils.activity
+import ly.img.editor.core.ui.utils.lifecycle.LifecycleEventEffect
 import ly.img.editor.core.ui.utils.toPx
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -109,6 +120,7 @@ fun EditorUi(
     canvasOverlay: @Composable BoxScope.(PaddingValues) -> Unit,
     bottomSheetLayout: @Composable ColumnScope.(BottomSheetContent) -> Unit = {},
     pagesOverlay: @Composable BoxScope.(PaddingValues) -> Unit = {},
+    onSingleEvent: (SingleEvent) -> Unit = {},
     viewModel: EditorUiViewModel,
     close: (Throwable?) -> Unit,
 ) {
@@ -234,6 +246,29 @@ fun EditorUi(
             "Unable to find the activity. This is an internal error. Please report this issue."
         }
 
+    var cameraResultUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var cameraResultLambda by remember { mutableStateOf<((Uri) -> Unit)?>(null) }
+    var showCameraPermissionsView by remember { mutableStateOf(false) }
+    var captureVideo by remember { mutableStateOf(false) }
+
+    fun onCapture(saved: Boolean) {
+        if (saved) {
+            cameraResultLambda?.invoke(checkNotNull(cameraResultUri))
+        }
+    }
+
+    val captureVideoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CaptureVideo(), ::onCapture)
+    val capturePictureLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture(), ::onCapture)
+
+    fun captureCamera() {
+        cameraResultUri = prepareUriForCameraLauncher(activity)
+        if (captureVideo) {
+            captureVideoLauncher.launch(cameraResultUri)
+        } else {
+            capturePictureLauncher.launch(cameraResultUri)
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect {
             when (it) {
@@ -256,6 +291,17 @@ fun EditorUi(
                     }
                 }
 
+                is SingleEvent.LaunchSystemCamera -> {
+                    cameraResultLambda = it.onCapture
+                    captureVideo = it.captureVideo
+                    // Camera permission is needed for showing the system camera in case it is declared in the manifest
+                    if (activity.hasCameraPermissionInManifest() && !activity.hasCameraPermission()) {
+                        showCameraPermissionsView = true
+                    } else {
+                        captureCamera()
+                    }
+                }
+
                 SingleEvent.HideScrimSheet -> {
                     uiScope.launch {
                         scrimBottomSheetState.hide()
@@ -270,6 +316,8 @@ fun EditorUi(
                         )
                     }
                 }
+
+                else -> onSingleEvent(it)
             }
         }
     }
@@ -327,6 +375,9 @@ fun EditorUi(
                                         showAnyComposable = {
                                             showScrimBottomSheet(it)
                                         },
+                                        launchCamera = { captureVideo, captureLambda ->
+                                            viewModel.onEvent(Event.OnSystemCameraClick(captureVideo, captureLambda))
+                                        },
                                     )
                                 is LibraryCategoryBottomSheetContent ->
                                     AddLibrarySheet(
@@ -343,6 +394,9 @@ fun EditorUi(
                                         },
                                         showAnyComposable = {
                                             showScrimBottomSheet(it)
+                                        },
+                                        launchCamera = { captureVideo, captureLambda ->
+                                            viewModel.onEvent(Event.OnSystemCameraClick(captureVideo, captureLambda))
                                         },
                                     )
 
@@ -361,6 +415,9 @@ fun EditorUi(
                                         },
                                         showAnyComposable = {
                                             showScrimBottomSheet(it)
+                                        },
+                                        launchCamera = { captureVideo, captureLambda ->
+                                            viewModel.onEvent(Event.OnSystemCameraClick(captureVideo, captureLambda))
                                         },
                                     )
 
@@ -497,5 +554,27 @@ fun EditorUi(
                     .height(navigationBarHeight),
         ) {}
         overlay(externalState.value, viewModel)
+
+        if (showCameraPermissionsView) {
+            Column(
+                modifier =
+                    Modifier
+                        .systemBarsPadding()
+                        .background(canvasColor)
+                        .fillMaxSize()
+                        .align(Alignment.TopCenter)
+                        .requiredWidth(264.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                PermissionsView(requestOnlyCameraPermission = true) {
+                    showCameraPermissionsView = false
+                    captureCamera()
+                }
+            }
+            BackHandler(showCameraPermissionsView) {
+                showCameraPermissionsView = false
+            }
+        }
     }
 }

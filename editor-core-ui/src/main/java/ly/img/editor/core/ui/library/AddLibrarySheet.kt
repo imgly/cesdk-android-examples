@@ -1,5 +1,6 @@
 package ly.img.editor.core.ui.library
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.core.library.LibraryCategory
@@ -14,6 +15,7 @@ fun AddLibrarySheet(
     onCloseAssetDetails: () -> Unit,
     onSearchFocus: () -> Unit,
     showAnyComposable: (AnyComposable) -> Unit,
+    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
 ) {
     val viewModel = viewModel<LibraryViewModel>()
 
@@ -42,5 +44,6 @@ fun AddLibrarySheet(
         onCloseAssetDetails = onCloseAssetDetails,
         onSearchFocus = onSearchFocus,
         showAnyComposable = showAnyComposable,
+        launchCamera = launchCamera,
     )
 }

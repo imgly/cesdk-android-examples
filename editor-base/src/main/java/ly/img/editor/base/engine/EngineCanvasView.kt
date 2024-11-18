@@ -64,9 +64,22 @@ fun EngineCanvasView(
     renderView.alpha = if (isCanvasVisible) 1F else 0F
     val clearColor = MaterialTheme.colorScheme.surface1
     var onMoveStarted by remember { mutableStateOf(false) }
-    var appIsPaused by remember {
-        mutableStateOf(false)
+    var appIsPaused by remember { mutableStateOf(false) }
+
+    fun bind() {
+        if (appIsPaused.not() && engine.isEngineRunning() && engine.isBound().not()) {
+            when (renderTarget) {
+                EngineRenderTarget.SURFACE_VIEW -> {
+                    engine.bindSurfaceView(renderView as SurfaceView)
+                }
+
+                EngineRenderTarget.TEXTURE_VIEW -> {
+                    engine.bindTextureView(renderView as TextureView)
+                }
+            }
+        }
     }
+
     AndroidView(
         factory = { renderView },
         modifier =
@@ -106,29 +119,29 @@ fun EngineCanvasView(
         }.onSuccess {
             engine.editor.setAppIsPaused(appIsPaused)
             engine.setClearColor(clearColor)
-            when (renderTarget) {
-                EngineRenderTarget.SURFACE_VIEW -> {
-                    renderViewHandler?.addCallback(onSizeChanged)
-                    engine.bindSurfaceView(renderView as SurfaceView)
-                }
-                EngineRenderTarget.TEXTURE_VIEW -> {
-                    engine.bindTextureView(renderView as TextureView)
-                }
+            if (renderTarget == EngineRenderTarget.SURFACE_VIEW) {
+                renderViewHandler?.addCallback(onSizeChanged)
             }
+            bind()
             loadScene()
-        }
-    }
-    LaunchedEffect(appIsPaused) {
-        if (engine.isEngineRunning()) {
-            engine.editor.setAppIsPaused(appIsPaused)
         }
     }
     DisposableEffect(Unit) {
         val observer =
             LifecycleEventObserver { _, event ->
+                if (engine.isEngineRunning().not()) return@LifecycleEventObserver
                 when (event) {
-                    Lifecycle.Event.ON_PAUSE -> appIsPaused = true
-                    Lifecycle.Event.ON_RESUME -> appIsPaused = false
+                    Lifecycle.Event.ON_PAUSE -> {
+                        appIsPaused = true
+                        engine.editor.setAppIsPaused(true)
+                        engine.pause()
+                    }
+                    Lifecycle.Event.ON_RESUME -> {
+                        appIsPaused = false
+                        engine.unpause()
+                        bind()
+                        engine.editor.setAppIsPaused(false)
+                    }
                     else -> {
                     }
                 }

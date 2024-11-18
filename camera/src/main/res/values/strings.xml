@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ly_img_camera_flip_camera">Flip Camera</string>
+    <string name="ly_img_camera_toggle_flash">Toggle Flash</string>
+
+    <string name="ly_img_camera_permission_denied">Permission denied</string>
+
+    <string name="ly_img_camera_delete_last_recording">Delete last recording</string>
+    <string name="ly_img_camera_delete_last_recording_dialog_title">Delete last recording?</string>
+    <string name="ly_img_camera_delete_last_recording_dialog_text">Deleting the last recording cannot be undone.</string>
+
+    <string name="ly_img_camera_delete_recordings_dialog_title">Close and delete all recordings?</string>
+    <string name="ly_img_camera_delete_recordings_dialog_text">Deleting all recordings cannot be undone.</string>
+    <string name="ly_img_camera_delete_recordings_dialog_confirm_text">Delete all</string>
+    
+    <string name="ly_img_camera_timer">Timer</string>
+    <string name="ly_img_camera_timer_off">Off</string>
+    <string name="ly_img_camera_timer_3">3 seconds</string>
+    <string name="ly_img_camera_timer_10">10 seconds</string>
+
+</resources>

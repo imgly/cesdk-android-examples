@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ly_img_camera_mic_permission_text">Please allow the camera and microphone to have access.</string>
+    <string name="ly_img_camera_permission_text">Please allow the camera to have access.</string>
+    <string name="ly_img_camera_permission_camera">Allow camera</string>
+    <string name="ly_img_camera_permission_mic">Allow microphone</string>
+</resources>

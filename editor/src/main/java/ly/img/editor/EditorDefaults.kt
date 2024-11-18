@@ -428,7 +428,7 @@ object EditorDefaults {
                 TextButton(
                     onClick = { eventHandler.send(DismissCloseConfirmationDialogEvent) },
                 ) {
-                    Text(stringResource(R.string.ly_img_editor_cancel))
+                    Text(stringResource(ly.img.editor.core.R.string.ly_img_editor_cancel))
                 }
             },
         )
@@ -486,7 +486,7 @@ object EditorDefaults {
                                 VideoStatusOverlayContent(
                                     headlineText = R.string.ly_img_editor_export_progress_headline,
                                     labelText = R.string.ly_img_editor_export_progress_label,
-                                    buttonText = R.string.ly_img_editor_cancel,
+                                    buttonText = ly.img.editor.core.R.string.ly_img_editor_cancel,
                                     buttonColor = MaterialTheme.colorScheme.error,
                                     onClick = {
                                         showCancelDialog = true

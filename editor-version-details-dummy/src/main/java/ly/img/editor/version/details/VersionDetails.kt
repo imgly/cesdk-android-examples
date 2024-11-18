@@ -8,5 +8,5 @@ fun VersionDetails(
     modifier: Modifier = Modifier,
     versionInfo: String,
     branchName: String,
-    versionCode: Int,
+    commitId: String,
 ) {}

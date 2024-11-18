@@ -1,9 +1,17 @@
 package ly.img.editor.core.ui.engine
 
+import kotlinx.coroutines.flow.first
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.SceneMode
+
+suspend fun Engine.awaitEngineAndSceneLoad() {
+    awaitStart()
+    if (scene.get() == null) {
+        scene.onActiveChanged().first()
+    }
+}
 
 val Engine.isSceneModeVideo: Boolean
     get() =
