@@ -17,8 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
 import ly.img.editor.base.ui.BlockEvent
+import ly.img.editor.core.iconpack.Delete
 import ly.img.editor.core.ui.iconpack.Bringforward
-import ly.img.editor.core.ui.iconpack.Delete
 import ly.img.editor.core.ui.iconpack.Duplicate
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.NavigateBefore
@@ -28,6 +28,8 @@ import ly.img.editor.core.ui.utils.roundToPx
 import ly.img.editor.core.ui.utils.toPx
 import kotlin.math.cos
 import kotlin.math.roundToInt
+import ly.img.editor.core.R as CoreR
+import ly.img.editor.core.iconpack.IconPack as CoreIconPack
 
 @Composable
 fun CanvasActionMenu(
@@ -108,8 +110,8 @@ fun CanvasActionMenu(
                 if (uiState.isDeleteAllowed) {
                     IconButton(onClick = { onEvent(BlockEvent.OnDelete) }) {
                         Icon(
-                            IconPack.Delete,
-                            contentDescription = stringResource(ly.img.editor.core.R.string.ly_img_editor_delete),
+                            CoreIconPack.Delete,
+                            contentDescription = stringResource(CoreR.string.ly_img_editor_delete),
                         )
                     }
                 }

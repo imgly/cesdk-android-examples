@@ -12,7 +12,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.ConfigurableHeightContainer
 import ly.img.editor.base.dock.options.fillstroke.ColorPickerSheet
 import ly.img.editor.base.engine.AdjustmentState
 import ly.img.editor.base.engine.EffectAndBlurOptions
@@ -53,7 +53,7 @@ fun EffectSelectionSheet(
     when (screenState) {
         ScreenState.Main -> {
             // The minHeight 204.dp is chosen to match the height of the "Main" screen, while you are on the "Adjustment" screen.
-            HalfHeightContainer(minHeight = 204.dp) {
+            ConfigurableHeightContainer(minHeight = 204.dp) {
                 Column {
                     SheetHeader(
                         title = stringResource(id = uiState.titleRes),

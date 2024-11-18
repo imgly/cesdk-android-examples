@@ -10,7 +10,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
 import ly.img.editor.base.components.PropertySlider
-import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.ConfigurableHeightContainer
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
@@ -21,7 +21,7 @@ fun ShapeOptionsSheet(
     uiState: ShapeOptionsUiState,
     onEvent: (Event) -> Unit,
 ) {
-    HalfHeightContainer {
+    ConfigurableHeightContainer {
         Column {
             SheetHeader(
                 title = stringResource(R.string.ly_img_editor_shape_options),

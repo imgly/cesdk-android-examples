@@ -11,8 +11,7 @@ import ly.img.camera.core.CaptureVideo.Input
 
 /**
  * An [ActivityResultContract] to start the IMG.LY Camera with the [Input].
- *
- * Returns the list of [Recording]s taken.
+ * The output is a [CameraResult].
  */
 open class CaptureVideo : ActivityResultContract<Input, CameraResult?>() {
     @CallSuper
@@ -46,12 +45,15 @@ open class CaptureVideo : ActivityResultContract<Input, CameraResult?>() {
     /**
      * Basic configuration settings to initialize the camera.
      * @param engineConfiguration configuration to initialize the underlying engine.
+     * @param cameraConfiguration configuration to customise the camera experience and behaviour.
      */
     class Input(
         val engineConfiguration: EngineConfiguration,
+        val cameraConfiguration: CameraConfiguration = CameraConfiguration(),
     ) : Parcelable {
         constructor(parcel: Parcel) : this(
             parcel.readParcelable(EngineConfiguration::class.java.classLoader)!!,
+            parcel.readParcelable(CameraConfiguration::class.java.classLoader)!!,
         )
 
         override fun writeToParcel(
@@ -59,6 +61,7 @@ open class CaptureVideo : ActivityResultContract<Input, CameraResult?>() {
             flags: Int,
         ) {
             parcel.writeParcelable(engineConfiguration, flags)
+            parcel.writeParcelable(cameraConfiguration, flags)
         }
 
         override fun describeContents(): Int {

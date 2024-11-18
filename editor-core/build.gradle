@@ -6,13 +6,16 @@ android {
 
 dependencies {
     api libs.cesdk.engine
+    api libs.androidx.activity
 
     implementation platform(libs.compose.bom)
     implementation libs.compose.material3
     implementation libs.compose.viewmodel
+    implementation libs.compose.preview
     implementation(libs.compose.activity) {
         because "WindowCompat.getInsetsController"
     }
+    debugImplementation libs.compose.tooling
     implementation libs.kotlin.coroutines
     implementation libs.shimmer
 

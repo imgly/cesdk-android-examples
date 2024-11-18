@@ -33,27 +33,29 @@ import ly.img.editor.base.components.CheckedTextRow
 import ly.img.editor.base.components.NestedSheetHeader
 import ly.img.editor.base.components.PropertyLink
 import ly.img.editor.base.components.PropertySlider
-import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.ConfigurableHeightContainer
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
+import ly.img.editor.core.iconpack.Delete
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
 import ly.img.editor.core.ui.halfSheetCardContentModifier
 import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 import ly.img.editor.core.ui.iconpack.Bringforward
 import ly.img.editor.core.ui.iconpack.Bringtofront
-import ly.img.editor.core.ui.iconpack.Delete
 import ly.img.editor.core.ui.iconpack.Duplicate
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Sendbackward
 import ly.img.editor.core.ui.iconpack.Sendtoback
+import ly.img.editor.core.R as CoreR
+import ly.img.editor.core.iconpack.IconPack as CoreIconPack
 
 @Composable
 fun LayerOptionsSheet(
     uiState: LayerUiState,
     onEvent: (Event) -> Unit,
 ) {
-    HalfHeightContainer {
+    ConfigurableHeightContainer {
         var selectBlendMode by remember { mutableStateOf(false) }
 
         if (selectBlendMode) {
@@ -184,8 +186,8 @@ fun LayerOptionsSheet(
                                     LocalContentColor provides MaterialTheme.colorScheme.error,
                                 ) {
                                     ActionRow(
-                                        text = stringResource(ly.img.editor.core.R.string.ly_img_editor_delete),
-                                        icon = IconPack.Delete,
+                                        text = stringResource(CoreR.string.ly_img_editor_delete),
+                                        icon = CoreIconPack.Delete,
                                         onClick = { onEvent(BlockEvent.OnDelete) },
                                     )
                                 }
