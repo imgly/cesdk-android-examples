@@ -20,19 +20,20 @@ import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
 import ly.img.editor.base.components.PropertyPicker
 import ly.img.editor.base.components.SectionHeader
-import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.ConfigurableHeightContainer
 import ly.img.editor.base.dock.options.crop.RangeInclusionType
 import ly.img.editor.base.dock.options.crop.ScalePicker
-import ly.img.editor.base.engine.GradientFill
-import ly.img.editor.base.engine.LinearGradientFill
-import ly.img.editor.base.engine.SolidFill
-import ly.img.editor.base.engine.toComposeColor
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
+import ly.img.editor.core.component.data.GradientFill
+import ly.img.editor.core.component.data.LinearGradientFill
+import ly.img.editor.core.component.data.SolidFill
+import ly.img.editor.core.engine.toComposeColor
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
 import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 import ly.img.engine.RGBAColor
+import ly.img.editor.core.R as CoreR
 
 @Composable
 fun FillStrokeOptionsSheet(
@@ -47,7 +48,7 @@ fun FillStrokeOptionsSheet(
 
     when (screenState) {
         ScreenState.Main -> {
-            HalfHeightContainer {
+            ConfigurableHeightContainer {
                 Column {
                     SheetHeader(
                         title = stringResource(id = uiState.titleRes),
@@ -58,7 +59,7 @@ fun FillStrokeOptionsSheet(
                             .halfSheetScrollableContentModifier(rememberScrollState()),
                     ) {
                         if (uiState.fillUiState != null) {
-                            SectionHeader(stringResource(R.string.ly_img_editor_fill))
+                            SectionHeader(stringResource(CoreR.string.ly_img_editor_fill))
                             Card(
                                 colors = UiDefaults.cardColors,
                             ) {
@@ -105,7 +106,7 @@ fun FillStrokeOptionsSheet(
                                     is SolidFill -> {
                                         ColorOptions(
                                             enabled = uiState.fillUiState.isFillEnabled,
-                                            selectedColor = fillState.fillColor,
+                                            selectedColor = fillState.mainColor,
                                             onNoColorSelected = {
                                                 onEvent(
                                                     BlockEvent.OnDisableFill,
@@ -113,7 +114,7 @@ fun FillStrokeOptionsSheet(
                                             },
                                             onColorSelected = {
                                                 onEvent(BlockEvent.OnChangeFillColor(it))
-                                                if (it != fillState.fillColor) {
+                                                if (it != fillState.mainColor) {
                                                     onEvent(BlockEvent.OnChangeFinish)
                                                 }
                                             },
@@ -136,7 +137,7 @@ fun FillStrokeOptionsSheet(
                                                 onEvent(
                                                     BlockEvent.OnChangeGradientFillColors(0, it),
                                                 )
-                                                if (it != fillState.fillColor) {
+                                                if (it != fillState.mainColor) {
                                                     onEvent(BlockEvent.OnChangeFinish)
                                                 }
                                             },
@@ -151,17 +152,9 @@ fun FillStrokeOptionsSheet(
                                             valueRange = FILL_ROTATION_LOWER_BOUND..FILL_ROTATION_UPPER_BOUND,
                                             rangeInclusionType = RangeInclusionType.RangeInclusiveExclusive,
                                             onValueChange = {
-                                                val newFill =
-                                                    LinearGradientFill.calculateLinearGradientFromRotation(
-                                                        it,
-                                                        fillState.colorStops,
-                                                    )
                                                 onEvent(
                                                     BlockEvent.OnChangeLinearGradientParams(
-                                                        newFill.startPointX,
-                                                        newFill.startPointY,
-                                                        newFill.endPointX,
-                                                        newFill.endPointY,
+                                                        rotationInDegrees = it,
                                                     ),
                                                 )
                                             },
@@ -186,7 +179,7 @@ fun FillStrokeOptionsSheet(
                                                 onEvent(
                                                     BlockEvent.OnChangeGradientFillColors(1, it),
                                                 )
-                                                if (it != fillState.fillColor) {
+                                                if (it != fillState.mainColor) {
                                                     onEvent(BlockEvent.OnChangeFinish)
                                                 }
                                             },
@@ -245,7 +238,7 @@ fun FillStrokeOptionsSheet(
                         }
 
                         else -> {
-                            checkNotNull(uiState.fillUiState?.fillState?.fillColor)
+                            checkNotNull(uiState.fillUiState?.fillState?.mainColor)
                         }
                     },
                 title =

@@ -1,14 +1,15 @@
 package ly.img.editor.base.dock
 
 import androidx.annotation.StringRes
-import ly.img.editor.core.ui.ColorSchemeKeyToken
-import ly.img.editor.core.ui.tab_item.TabIcon
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import ly.img.editor.core.component.data.EditorIcon
 
 data class OptionItemData(
     val optionType: OptionType,
     @StringRes val labelStringRes: Int,
-    val icon: TabIcon,
-    val textColor: ColorSchemeKeyToken? = null,
+    val icon: EditorIcon,
+    val textColor: (@Composable () -> Color)? = null,
 )
 
 enum class OptionType {

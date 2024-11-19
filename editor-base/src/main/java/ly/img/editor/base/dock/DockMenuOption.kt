@@ -1,17 +1,19 @@
 package ly.img.editor.base.dock
 
 import androidx.compose.runtime.Composable
-import ly.img.editor.core.ui.tab_item.TabItem
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import ly.img.editor.core.ui.IconTextButton
 
 @Composable
 fun DockMenuOption(
     data: OptionItemData,
     onClick: (OptionType) -> Unit,
 ) {
-    TabItem(
+    IconTextButton(
         onClick = { onClick(data.optionType) },
-        textRes = data.labelStringRes,
-        icon = data.icon,
-        textColor = data.textColor,
+        text = stringResource(data.labelStringRes),
+        editorIcon = data.icon,
+        textColor = data.textColor?.invoke() ?: Color.Unspecified,
     )
 }

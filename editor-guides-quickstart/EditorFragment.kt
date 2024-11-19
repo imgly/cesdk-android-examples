@@ -15,14 +15,14 @@ class EditorFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         return ComposeView(requireContext()).apply {
-            // highlight-engine-configuration
-            val engineConfiguration =
-                EngineConfiguration.getForDesign(
-                    license = "<your license here>",
-                    userId = "<your unique user id>",
-                )
-            // highlight-engine-configuration
             setContent {
+                // highlight-engine-configuration
+                val engineConfiguration =
+                    EngineConfiguration.rememberForDesign(
+                        license = "<your license here>",
+                        userId = "<your unique user id>",
+                    )
+                // highlight-engine-configuration
                 // highlight-editor-invoke
                 DesignEditor(engineConfiguration = engineConfiguration) {
                     // You can set result here

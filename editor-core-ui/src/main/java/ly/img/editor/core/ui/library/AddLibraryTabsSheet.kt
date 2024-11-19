@@ -1,6 +1,5 @@
 package ly.img.editor.core.ui.library
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,9 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
 import ly.img.editor.compose.bottomsheet.SwipeableV2State
+import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.AnyComposable
 import ly.img.editor.core.ui.library.components.LibraryNavigationBar
 import ly.img.editor.core.ui.library.util.LibraryEvent
+import ly.img.engine.DesignBlock
 import kotlin.math.roundToInt
 
 internal class OffsetWrapper(var offset: Float = 0f)
@@ -35,7 +36,8 @@ fun AddLibraryTabsSheet(
     onCloseAssetDetails: () -> Unit,
     onSearchFocus: () -> Unit,
     showAnyComposable: (AnyComposable) -> Unit,
-    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
+    launchGetContent: (String, UploadAssetSourceType, DesignBlock?) -> Unit,
+    launchCamera: (Boolean, DesignBlock?) -> Unit,
 ) {
     val viewModel = viewModel<LibraryViewModel>()
 
@@ -60,7 +62,10 @@ fun AddLibraryTabsSheet(
                     viewModel.onEvent(LibraryEvent.OnAddUri(assetSource, uri))
                     onClose()
                 },
-                launchCamera = launchCamera,
+                launchGetContent = { mimeType, uploadAssetSourceType ->
+                    launchGetContent(mimeType, uploadAssetSourceType, null)
+                },
+                launchCamera = { launchCamera(it, null) },
                 showAnyComposable = showAnyComposable,
                 onCloseAssetDetails = onCloseAssetDetails,
                 onClose = onClose,

@@ -16,13 +16,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.compose.animation.AnimatedVisibility
 import ly.img.editor.compose.animation_core.slideInVertically
 import ly.img.editor.compose.animation_core.slideOutVertically
 import ly.img.editor.compose.animation_core.tween
 import ly.img.editor.core.theme.surface2
-import ly.img.editor.core.ui.tab_item.TabItem
+import ly.img.editor.core.ui.IconTextButton
 import ly.img.editor.core.ui.utils.Easing
 
 @Composable
@@ -70,17 +72,17 @@ fun EditorPagesDock(
                 Row(
                     modifier =
                         Modifier
-                            .padding(top = 8.dp, bottom = 12.dp)
+                            .padding(vertical = 10.dp)
                             .horizontalScroll(rememberScrollState()),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     cachedState.dockOptions.forEach {
-                        TabItem(
-                            textRes = it.titleRes,
-                            icon = it.icon,
+                        IconTextButton(
+                            editorIcon = it.icon,
+                            text = stringResource(it.titleRes),
+                            textColor = it.icon.tint?.invoke() ?: Color.Unspecified,
                             enabled = it.enabled,
-                            textColor = it.icon.tint,
                             onClick = {
                                 it.actions.forEach { action -> onEvent(action) }
                             },

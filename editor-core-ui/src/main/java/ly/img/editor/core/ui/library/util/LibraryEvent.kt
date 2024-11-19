@@ -22,15 +22,15 @@ sealed interface LibraryEvent : BaseEvent {
 
     data class OnFetch(val libraryCategory: LibraryCategory) : LibraryEvent
 
-    data class OnAddAsset(val wrappedAsset: WrappedAsset, val addToBackgroundTrack: Boolean? = null) : LibraryEvent
+    data class OnAddAsset(val wrappedAsset: WrappedAsset, val addToBackgroundTrack: Boolean = false) : LibraryEvent
 
     data class OnReplaceAsset(val wrappedAsset: WrappedAsset, val designBlock: DesignBlock) : LibraryEvent
 
     data class OnReplaceUri(val assetSource: UploadAssetSourceType, val uri: Uri, val designBlock: DesignBlock) : LibraryEvent
 
-    data class OnAddUri(val assetSource: UploadAssetSourceType, val uri: Uri, val addToBackgroundTrack: Boolean? = null) : LibraryEvent
+    data class OnAddUri(val assetSource: UploadAssetSourceType, val uri: Uri, val addToBackgroundTrack: Boolean = false) : LibraryEvent
 
-    data class OnAddCameraRecordings(val recordings: List<Pair<Uri, Duration>>) : LibraryEvent
+    data class OnAddCameraRecordings(val assetSource: UploadAssetSourceType, val recordings: List<Pair<Uri, Duration>>) : LibraryEvent
 
     data class OnAssetLongClick(val wrappedAsset: WrappedAsset) : LibraryEvent
 }

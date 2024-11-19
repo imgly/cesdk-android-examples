@@ -18,6 +18,7 @@ import ly.img.editor.base.components.SectionHeader
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.UiDefaults
+import ly.img.editor.core.R as CoreR
 
 @Composable
 fun StrokeOptions(
@@ -25,7 +26,7 @@ fun StrokeOptions(
     onEvent: (Event) -> Unit,
     openColorPicker: () -> Unit,
 ) {
-    SectionHeader(stringResource(R.string.ly_img_editor_stroke))
+    SectionHeader(stringResource(CoreR.string.ly_img_editor_stroke))
     Card(
         colors = UiDefaults.cardColors,
     ) {

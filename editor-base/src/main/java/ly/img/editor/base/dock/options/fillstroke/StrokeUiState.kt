@@ -2,8 +2,8 @@ package ly.img.editor.base.dock.options.fillstroke
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
-import ly.img.editor.base.engine.getStrokeColor
 import ly.img.editor.base.ui.Block
+import ly.img.editor.core.engine.getStrokeColor
 import ly.img.editor.core.ui.engine.BlockType
 import ly.img.engine.Engine
 import kotlin.math.ln

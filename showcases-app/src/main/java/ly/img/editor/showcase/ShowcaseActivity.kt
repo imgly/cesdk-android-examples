@@ -8,6 +8,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,7 +19,6 @@ import ly.img.editor.ApparelEditor
 import ly.img.editor.DesignEditor
 import ly.img.editor.EditorConfiguration
 import ly.img.editor.EditorDefaults
-import ly.img.editor.EditorUiState
 import ly.img.editor.EngineConfiguration
 import ly.img.editor.PhotoEditor
 import ly.img.editor.PostcardEditor
@@ -37,6 +37,16 @@ import ly.img.engine.populateAssetSource
 class ShowcaseActivity : ComponentActivity() {
     private val unsplashSupported = Secrets.unsplashHost.isNotEmpty()
     private val remoteAssetsSupported = Secrets.remoteAssetSourceHost.isNotEmpty()
+    private val colorPalette =
+        listOf(
+            Color(0xFF000000),
+            Color(0xFFFFFFFF),
+            Color(0xFF4932D1),
+            Color(0xFFFE6755),
+            Color(0xFF606060),
+            Color(0xFF696969),
+            Color(0xFF999999),
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +54,7 @@ class ShowcaseActivity : ComponentActivity() {
         val stickerMiscId = "ly.img.sticker.misc"
         val unsplashAssetSource = UnsplashAssetSource(Secrets.unsplashHost)
 
-        fun getEditorConfiguration(screen: Screen): EditorConfiguration<EditorUiState> {
+        fun getAssetLibrary(useExtendedStickers: Boolean = false): AssetLibrary {
             val unsplashSection =
                 LibraryContent.Section(
                     titleRes = R.string.unsplash,
@@ -107,111 +117,100 @@ class ShowcaseActivity : ComponentActivity() {
                         ),
                 )
 
-            return EditorConfiguration.getDefault(
-                assetLibrary =
-                    AssetLibrary.getDefault(
-                        images = images,
-                        videos = videos,
-                        overlays =
-                            LibraryCategory.Overlays
-                                .replaceSection(0) {
-                                    copy(
-                                        sourceTypes = videos.content.sourceTypes,
-                                        expandContent = videos.content,
-                                    )
-                                }.replaceSection(1) {
-                                    copy(
-                                        sourceTypes = images.content.sourceTypes,
-                                        expandContent = images.content,
-                                    )
-                                },
-                        clips =
-                            LibraryCategory.Clips
-                                .replaceSection(0) {
-                                    copy(
-                                        sourceTypes = videos.content.sourceTypes,
-                                        expandContent = videos.content,
-                                    )
-                                }.replaceSection(1) {
-                                    copy(
-                                        sourceTypes = images.content.sourceTypes,
-                                        expandContent = images.content,
-                                    )
-                                },
-                        stickers =
-                            if (screen != Screen.VideoUi) {
-                                LibraryCategory.Stickers
-                            } else {
-                                LibraryCategory.Stickers.copy(
-                                    content =
-                                        LibraryContent.Stickers.copy(
-                                            sections =
-                                                listOf(
-                                                    LibraryContent.Section(
-                                                        titleRes = ly.img.editor.core.R.string.ly_img_editor_stickers_hands,
-                                                        sourceTypes = listOf(AssetSourceType.Stickers),
-                                                        groups = listOf("//ly.img.cesdk.stickers.hand/category/hand"),
-                                                        assetType = AssetType.Sticker,
-                                                    ),
-                                                    LibraryContent.Section(
-                                                        titleRes = R.string.ly_img_sticker_misc_sketches,
-                                                        sourceTypes = listOf(stickersMiscAssetSourceType),
-                                                        groups = listOf("sketches"),
-                                                        assetType = AssetType.Sticker,
-                                                    ),
-                                                    LibraryContent.Section(
-                                                        titleRes = R.string.ly_img_sticker_misc_tape,
-                                                        sourceTypes = listOf(stickersMiscAssetSourceType),
-                                                        groups = listOf("tape"),
-                                                        assetType = AssetType.Sticker,
-                                                    ),
-                                                    LibraryContent.Section(
-                                                        titleRes = R.string.ly_img_sticker_misc_marker,
-                                                        sourceTypes = listOf(stickersMiscAssetSourceType),
-                                                        groups = listOf("marker"),
-                                                        assetType = AssetType.Sticker,
-                                                    ),
-                                                    LibraryContent.Section(
-                                                        titleRes = R.string.ly_img_sticker_misc_3dstickers,
-                                                        sourceTypes = listOf(stickersMiscAssetSourceType),
-                                                        groups = listOf("3dstickers"),
-                                                        assetType = AssetType.Sticker,
-                                                    ),
-                                                    LibraryContent.Section(
-                                                        titleRes = ly.img.editor.core.R.string.ly_img_editor_shapes_basic,
-                                                        sourceTypes = listOf(AssetSourceType.Shapes),
-                                                        groups = listOf("//ly.img.cesdk.vectorpaths/category/vectorpaths"),
-                                                        assetType = AssetType.Shape,
-                                                    ),
-                                                    LibraryContent.Section(
-                                                        titleRes = ly.img.editor.core.R.string.ly_img_editor_shapes_abstract,
-                                                        sourceTypes = listOf(AssetSourceType.Shapes),
-                                                        groups = listOf("//ly.img.cesdk.vectorpaths.abstract/category/abstract"),
-                                                        assetType = AssetType.Shape,
-                                                    ),
-                                                ),
+            return AssetLibrary.getDefault(
+                images = images,
+                videos = videos,
+                overlays =
+                    LibraryCategory.Overlays
+                        .replaceSection(0) {
+                            copy(
+                                sourceTypes = videos.content.sourceTypes,
+                                expandContent = videos.content,
+                            )
+                        }.replaceSection(1) {
+                            copy(
+                                sourceTypes = images.content.sourceTypes,
+                                expandContent = images.content,
+                            )
+                        },
+                clips =
+                    LibraryCategory.Clips
+                        .replaceSection(0) {
+                            copy(
+                                sourceTypes = videos.content.sourceTypes,
+                                expandContent = videos.content,
+                            )
+                        }.replaceSection(1) {
+                            copy(
+                                sourceTypes = images.content.sourceTypes,
+                                expandContent = images.content,
+                            )
+                        },
+                stickers =
+                    if (useExtendedStickers) {
+                        LibraryCategory.Stickers
+                    } else {
+                        LibraryCategory.Stickers.copy(
+                            content =
+                                LibraryContent.Stickers.copy(
+                                    sections =
+                                        listOf(
+                                            LibraryContent.Section(
+                                                titleRes = ly.img.editor.core.R.string.ly_img_editor_stickers_hands,
+                                                sourceTypes = listOf(AssetSourceType.Stickers),
+                                                groups = listOf("//ly.img.cesdk.stickers.hand/category/hand"),
+                                                assetType = AssetType.Sticker,
+                                            ),
+                                            LibraryContent.Section(
+                                                titleRes = R.string.ly_img_sticker_misc_sketches,
+                                                sourceTypes = listOf(stickersMiscAssetSourceType),
+                                                groups = listOf("sketches"),
+                                                assetType = AssetType.Sticker,
+                                            ),
+                                            LibraryContent.Section(
+                                                titleRes = R.string.ly_img_sticker_misc_tape,
+                                                sourceTypes = listOf(stickersMiscAssetSourceType),
+                                                groups = listOf("tape"),
+                                                assetType = AssetType.Sticker,
+                                            ),
+                                            LibraryContent.Section(
+                                                titleRes = R.string.ly_img_sticker_misc_marker,
+                                                sourceTypes = listOf(stickersMiscAssetSourceType),
+                                                groups = listOf("marker"),
+                                                assetType = AssetType.Sticker,
+                                            ),
+                                            LibraryContent.Section(
+                                                titleRes = R.string.ly_img_sticker_misc_3dstickers,
+                                                sourceTypes = listOf(stickersMiscAssetSourceType),
+                                                groups = listOf("3dstickers"),
+                                                assetType = AssetType.Sticker,
+                                            ),
+                                            LibraryContent.Section(
+                                                titleRes = ly.img.editor.core.R.string.ly_img_editor_shapes_basic,
+                                                sourceTypes = listOf(AssetSourceType.Shapes),
+                                                groups = listOf("//ly.img.cesdk.vectorpaths/category/vectorpaths"),
+                                                assetType = AssetType.Shape,
+                                            ),
+                                            LibraryContent.Section(
+                                                titleRes = ly.img.editor.core.R.string.ly_img_editor_shapes_abstract,
+                                                sourceTypes = listOf(AssetSourceType.Shapes),
+                                                groups = listOf("//ly.img.cesdk.vectorpaths.abstract/category/abstract"),
+                                                assetType = AssetType.Shape,
+                                            ),
                                         ),
-                                )
-                            },
-                    ),
-                colorPalette =
-                    listOf(
-                        Color(0xFF000000),
-                        Color(0xFFFFFFFF),
-                        Color(0xFF4932D1),
-                        Color(0xFFFE6755),
-                        Color(0xFF606060),
-                        Color(0xFF696969),
-                        Color(0xFF999999),
-                    ),
+                                ),
+                        )
+                    },
             )
         }
 
-        fun getEngineConfiguration(sceneUri: Uri) =
-            EngineConfiguration(
+        @Composable
+        fun rememberEngineConfiguration(sceneUri: Uri) =
+            EngineConfiguration.remember(
                 license = Secrets.license,
-                onCreate = { engine, eventHandler ->
-                    EditorDefaults.onCreate(engine, sceneUri, eventHandler) { scene, scope ->
+                onCreate = { ->
+                    val engine = editorContext.engine
+                    EditorDefaults.onCreate(engine, sceneUri, editorContext.eventHandler) { _, scope ->
                         if (unsplashSupported) {
                             engine.asset.addSource(unsplashAssetSource)
                         }
@@ -275,15 +274,19 @@ class ShowcaseActivity : ComponentActivity() {
                         val scene = requireNotNull(it.arguments?.getString("0"))
                         if (scene == "default") {
                             ApparelEditor(
-                                engineConfiguration = EngineConfiguration.getForApparel(license = Secrets.license),
+                                engineConfiguration = EngineConfiguration.rememberForApparel(license = Secrets.license),
                             ) {
                                 navController.popBackStack()
                             }
                         } else {
                             val sceneUri = Uri.parse("file:///android_asset/scenes/$scene.scene")
                             ApparelEditor(
-                                engineConfiguration = getEngineConfiguration(sceneUri),
-                                editorConfiguration = getEditorConfiguration(Screen.ApparelUi),
+                                engineConfiguration = rememberEngineConfiguration(sceneUri),
+                                editorConfiguration =
+                                    EditorConfiguration.rememberForApparel(
+                                        assetLibrary = getAssetLibrary(),
+                                        colorPalette = colorPalette,
+                                    ),
                             ) {
                                 navController.popBackStack()
                             }
@@ -295,15 +298,19 @@ class ShowcaseActivity : ComponentActivity() {
                         val scene = requireNotNull(it.arguments?.getString("0"))
                         if (scene == "default") {
                             PostcardEditor(
-                                engineConfiguration = EngineConfiguration.getForPostcard(license = Secrets.license),
+                                engineConfiguration = EngineConfiguration.rememberForPostcard(license = Secrets.license),
                             ) {
                                 navController.popBackStack()
                             }
                         } else {
                             val sceneUri = Uri.parse("file:///android_asset/scenes/$scene.scene")
                             PostcardEditor(
-                                engineConfiguration = getEngineConfiguration(sceneUri),
-                                editorConfiguration = getEditorConfiguration(Screen.PostcardUi),
+                                engineConfiguration = rememberEngineConfiguration(sceneUri),
+                                editorConfiguration =
+                                    EditorConfiguration.rememberForPostcard(
+                                        assetLibrary = getAssetLibrary(),
+                                        colorPalette = colorPalette,
+                                    ),
                             ) { navController.popBackStack() }
                         }
                     }
@@ -313,15 +320,23 @@ class ShowcaseActivity : ComponentActivity() {
                         val scene = requireNotNull(it.arguments?.getString("0"))
                         if (scene == "default") {
                             DesignEditor(
-                                engineConfiguration = EngineConfiguration.getForDesign(license = Secrets.license),
+                                engineConfiguration =
+                                    EngineConfiguration.rememberForDesign(
+                                        license = Secrets.license,
+                                    ),
                             ) {
                                 navController.popBackStack()
                             }
                         } else {
                             val sceneUri = Uri.parse("file:///android_asset/scenes/$scene.scene")
+                            val assetLibrary = getAssetLibrary(useExtendedStickers = true)
                             DesignEditor(
-                                engineConfiguration = getEngineConfiguration(sceneUri),
-                                editorConfiguration = getEditorConfiguration(Screen.DesignUi),
+                                engineConfiguration = rememberEngineConfiguration(sceneUri),
+                                editorConfiguration =
+                                    EditorConfiguration.rememberForDesign(
+                                        assetLibrary = assetLibrary,
+                                        colorPalette = colorPalette,
+                                    ),
                             ) { navController.popBackStack() }
                         }
                     }
@@ -331,7 +346,7 @@ class ShowcaseActivity : ComponentActivity() {
                         val image = requireNotNull(it.arguments?.getString("0"))
                         PhotoEditor(
                             engineConfiguration =
-                                EngineConfiguration.getForPhoto(
+                                EngineConfiguration.rememberForPhoto(
                                     license = Secrets.license,
                                     imageUri = Uri.parse(image),
                                 ),
@@ -345,15 +360,20 @@ class ShowcaseActivity : ComponentActivity() {
                         val scene = requireNotNull(it.arguments?.getString("0"))
                         if (scene == "default") {
                             VideoEditor(
-                                engineConfiguration = EngineConfiguration.getForVideo(license = Secrets.license),
+                                engineConfiguration = EngineConfiguration.rememberForVideo(license = Secrets.license),
                             ) {
                                 navController.popBackStack()
                             }
                         } else {
                             val sceneUri = Uri.parse("file:///android_asset/scenes/$scene.scene")
+                            val assetLibrary = getAssetLibrary(useExtendedStickers = true)
                             VideoEditor(
-                                engineConfiguration = getEngineConfiguration(sceneUri),
-                                editorConfiguration = getEditorConfiguration(Screen.VideoUi),
+                                engineConfiguration = rememberEngineConfiguration(sceneUri),
+                                editorConfiguration =
+                                    EditorConfiguration.rememberForVideo(
+                                        assetLibrary = assetLibrary,
+                                        colorPalette = colorPalette,
+                                    ),
                             ) {
                                 navController.popBackStack()
                             }

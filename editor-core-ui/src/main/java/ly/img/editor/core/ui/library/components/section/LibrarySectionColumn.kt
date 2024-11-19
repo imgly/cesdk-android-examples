@@ -1,6 +1,5 @@
 package ly.img.editor.core.ui.library.components.section
 
-import android.net.Uri
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,9 +20,9 @@ import ly.img.editor.core.ui.library.util.LibraryEvent
 internal fun LibrarySectionColumn(
     uiState: AssetLibraryUiState,
     onAssetClick: (WrappedAsset) -> Unit,
-    onUriPick: (UploadAssetSourceType, Uri) -> Unit,
     onLibraryEvent: (LibraryEvent) -> Unit,
-    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
+    launchGetContent: (String, UploadAssetSourceType) -> Unit,
+    launchCamera: (Boolean) -> Unit,
 ) {
     val nestedScrollConnection =
         remember(uiState.libraryCategory) {
@@ -56,7 +55,7 @@ internal fun LibrarySectionColumn(
                                 expandContent = content,
                             ).let { onLibraryEvent(it) }
                         },
-                        onUriPick = onUriPick,
+                        launchGetContent = launchGetContent,
                         launchCamera = launchCamera,
                     )
 

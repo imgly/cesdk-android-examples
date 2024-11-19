@@ -22,7 +22,7 @@ android {
     def isAppDistributionBuild = System.getenv("UBQ_APP_DISTRIBUTION_BUILD")?.toBoolean() ?: false
     def versionNameValue = isAppDistributionBuild ?
             "${System.getenv("CESDK_AND_BRANCH_NAME")} - ${System.getenv("CESDK_AND_COMMIT_ID")}"
-            : libs.versions.engine.get()
+            : "local"
 
     namespace "ly.img.editor.showcase"
     compileSdk libs.versions.androidCompileSdk.get().toInteger()
@@ -112,6 +112,20 @@ tasks.register('validateDropshotsRecordIsDisabled') {
     }
 }
 
+tasks.register('validateDropshotsRecordIsEnabled') {
+    doLast {
+        def propertiesFile = new File(rootDir, "gradle.properties")
+        if (!propertiesFile.exists()) {
+            throw GradleException("Internal error. Please report to the android engine members!")
+        }
+        def properties = new Properties()
+        properties.load(propertiesFile.newDataInputStream())
+        if (!properties.containsKey("dropshots.record")) {
+            throw GradleException("Screenshots need update. Enable dropshots.record in apps/cesdk_android_examples/gradle.properties.")
+        }
+    }
+}
+
 buildConfig {
     className "ShowcasesBuildConfig"
     packageName "ly.img.editor.showcase"
@@ -148,5 +162,6 @@ dependencies {
     androidTestImplementation composeBom
     androidTestImplementation libs.test.androidx.runner
     androidTestImplementation libs.compose.test.junit4
+    androidTestImplementation libs.espresso.core
     debugImplementation libs.compose.test.manifest
 }

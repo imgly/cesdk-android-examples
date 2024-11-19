@@ -52,13 +52,9 @@ fun EventsHandler.textBlockEvents(
         engine.editor.addUndoStep()
     }
 
-    fun onChangeTypeface(
-        fallbackFontUri: Uri,
-        typeface: Typeface,
-    ) {
+    fun onChangeTypeface(typeface: Typeface) {
         engine.block.setTypeface(
             block = block,
-            fallbackFontFileUri = fallbackFontUri,
             typeface = typeface,
         )
         engine.editor.addUndoStep()
@@ -101,7 +97,7 @@ fun EventsHandler.textBlockEvents(
     }
 
     register<OnChangeTypeface> {
-        onChangeTypeface(it.fallbackFontUri, it.typeface)
+        onChangeTypeface(it.typeface)
     }
 
     register<OnChangeHorizontalAlignment> {

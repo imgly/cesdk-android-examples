@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import ly.img.editor.base.dock.BottomSheetContent
-import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.ConfigurableHeightContainer
 import ly.img.editor.base.dock.options.fillstroke.ColorOptions
 import ly.img.editor.base.dock.options.fillstroke.ColorPickerSheet
 import ly.img.editor.base.ui.BlockEvent
@@ -37,7 +37,7 @@ fun MessageColorSheet(
 
     when (screenState) {
         ScreenState.Main -> {
-            HalfHeightContainer {
+            ConfigurableHeightContainer {
                 Column {
                     SheetHeader(
                         title = stringResource(id = R.string.ly_img_editor_color),
@@ -97,4 +97,7 @@ private enum class ScreenState {
     ColorPicker,
 }
 
-class MessageColorBottomSheetContent(val color: Color) : BottomSheetContent
+class MessageColorBottomSheetContent(
+    override val isFloating: Boolean,
+    val color: Color,
+) : BottomSheetContent

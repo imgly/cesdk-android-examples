@@ -21,6 +21,8 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 internal class RecordingManager(
+    private val maxDuration: Duration,
+    private val allowExceedingMaxDuration: Boolean,
     private val coroutineScope: CoroutineScope,
     private val videoRecorder: VideoRecorder,
 ) {
@@ -34,6 +36,7 @@ internal class RecordingManager(
 
     fun toggleRecording(context: Context) {
         when {
+            state.hasReachedMaxDuration -> return
             state.status is Status.TimerRunning -> resetTimer()
             hasStartedRecording -> stop()
             state.timer != Timer.Off -> startTimer(context)
@@ -51,7 +54,13 @@ internal class RecordingManager(
         val recording = state.recordings.lastOrNull()
         recording ?: return
         val recordings = state.recordings.dropLast(1)
-        state = state.copy(recordings = recordings, totalRecordedDuration = calculateUpdatedDuration(recordings))
+        val updatedDuration = calculateUpdatedDuration(recordings)
+        state =
+            state.copy(
+                recordings = recordings,
+                totalRecordedDuration = updatedDuration,
+                hasReachedMaxDuration = hasReachedMaxDuration(updatedDuration),
+            )
         GlobalScope.launch(Dispatchers.IO) {
             deleteSingleRecording(recording)
         }
@@ -86,6 +95,7 @@ internal class RecordingManager(
 
     private fun startRecording(context: Context) {
         state = state.copy(status = Status.StartRecording)
+        var reachedMaxDuration = false
         videoRecorder.startRecording(context) { status ->
             when (status) {
                 is VideoRecorder.RecordingStatus.Error -> {
@@ -97,20 +107,29 @@ internal class RecordingManager(
                 }
 
                 is VideoRecorder.RecordingStatus.Finished -> {
+                    val updatedDuration = calculateUpdatedDuration()
                     state =
                         state.copy(
                             status = Status.Idle,
                             recordings = state.recordings + Recording(listOf(Video(status.outputUri)), status.duration),
-                            totalRecordedDuration = calculateUpdatedDuration(),
+                            totalRecordedDuration = updatedDuration,
+                            hasReachedMaxDuration = hasReachedMaxDuration(updatedDuration),
                         )
                 }
 
                 is VideoRecorder.RecordingStatus.Recording -> {
-                    state =
-                        state.copy(
-                            status = Status.Recording(status.duration),
-                            totalRecordedDuration = calculateUpdatedDuration(),
-                        )
+                    val updatedDuration = calculateUpdatedDuration()
+                    if (!reachedMaxDuration) {
+                        state =
+                            state.copy(
+                                status = Status.Recording(status.duration),
+                                totalRecordedDuration = updatedDuration,
+                            )
+                    }
+                    if (hasReachedMaxDuration(updatedDuration)) {
+                        reachedMaxDuration = true
+                        stop()
+                    }
                 }
             }
         }
@@ -160,6 +179,8 @@ internal class RecordingManager(
         currentRecordingDuration: Duration? = (state.status as? Status.Recording)?.currentRecordingDuration,
     ) = recordings.fold(0.seconds) { total, recording -> total + recording.duration } + (currentRecordingDuration ?: 0.seconds)
 
+    private fun hasReachedMaxDuration(duration: Duration) = !allowExceedingMaxDuration && duration >= maxDuration
+
     sealed interface Status {
         data object Idle : Status
 
@@ -174,6 +195,7 @@ internal class RecordingManager(
         val timer: Timer = Timer.Off,
         val recordings: List<Recording> = emptyList(),
         val totalRecordedDuration: Duration = Duration.ZERO,
+        val hasReachedMaxDuration: Boolean = false,
         val status: Status = Status.Idle,
     )
 }

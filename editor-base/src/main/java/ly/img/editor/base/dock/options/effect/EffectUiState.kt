@@ -1,6 +1,5 @@
 package ly.img.editor.base.dock.options.effect
 
-import ly.img.editor.base.R
 import ly.img.editor.base.engine.AdjustmentState
 import ly.img.editor.base.engine.EffectAndBlurOptions
 import ly.img.editor.base.engine.EffectGroup
@@ -21,6 +20,7 @@ import ly.img.engine.Color
 import ly.img.engine.DesignBlock
 import ly.img.engine.EffectType
 import ly.img.engine.Engine
+import ly.img.editor.core.R as CoreR
 
 data class EffectUiState(
     val engine: Engine,
@@ -31,9 +31,9 @@ data class EffectUiState(
 ) {
     val titleRes =
         when (libraryCategory) {
-            AppearanceLibraryCategory.FxEffects -> R.string.ly_img_editor_effect
-            AppearanceLibraryCategory.Filters -> R.string.ly_img_editor_filter
-            AppearanceLibraryCategory.Blur -> R.string.ly_img_editor_blur
+            AppearanceLibraryCategory.FxEffects -> CoreR.string.ly_img_editor_effect
+            AppearanceLibraryCategory.Filters -> CoreR.string.ly_img_editor_filter
+            AppearanceLibraryCategory.Blur -> CoreR.string.ly_img_editor_blur
             else -> throw IllegalArgumentException("Unsupported library category: $libraryCategory")
         }
 

@@ -1,21 +1,18 @@
 package ly.img.editor.base.ui
 
 import android.graphics.Bitmap
-import android.net.Uri
-import androidx.compose.runtime.snapshotFlow
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -29,9 +26,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ly.img.editor.base.components.actionmenu.CanvasActionMenuUiState
 import ly.img.editor.base.components.actionmenu.createCanvasActionMenuUiState
-import ly.img.editor.base.components.color_picker.fillAndStrokeColors
 import ly.img.editor.base.dock.AdjustmentSheetContent
 import ly.img.editor.base.dock.BottomSheetContent
+import ly.img.editor.base.dock.CustomBottomSheetContent
+import ly.img.editor.base.dock.CustomFullScreenBottomSheetContent
 import ly.img.editor.base.dock.EffectSheetContent
 import ly.img.editor.base.dock.FillStrokeBottomSheetContent
 import ly.img.editor.base.dock.FormatBottomSheetContent
@@ -68,7 +66,6 @@ import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.engine.zoomToPage
 import ly.img.editor.base.engine.zoomToSelectedText
 import ly.img.editor.base.migration.EditorMigrationHelper
-import ly.img.editor.base.rootdock.RootDockItemData
 import ly.img.editor.base.timeline.state.TimelineState
 import ly.img.editor.base.ui.handler.appearanceEvents
 import ly.img.editor.base.ui.handler.blockEvents
@@ -80,14 +77,17 @@ import ly.img.editor.base.ui.handler.textBlockEvents
 import ly.img.editor.base.ui.handler.timelineEvents
 import ly.img.editor.base.ui.handler.volumeEvents
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
+import ly.img.editor.core.EditorScope
+import ly.img.editor.core.component.Dock
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.event.EditorEventHandler
-import ly.img.editor.core.library.AssetLibrary
 import ly.img.editor.core.library.LibraryCategory
-import ly.img.editor.core.ui.Environment
+import ly.img.editor.core.library.data.AssetSourceType
+import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.EventsHandler
 import ly.img.editor.core.ui.engine.BlockType
 import ly.img.editor.core.ui.engine.Scope
+import ly.img.editor.core.ui.engine.awaitEngineAndSceneLoad
 import ly.img.editor.core.ui.engine.deselectAllBlocks
 import ly.img.editor.core.ui.engine.dpToCanvasUnit
 import ly.img.editor.core.ui.engine.getCamera
@@ -96,27 +96,27 @@ import ly.img.editor.core.ui.engine.getScene
 import ly.img.editor.core.ui.engine.isSceneModeVideo
 import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.editor.core.ui.library.AppearanceLibraryCategory
+import ly.img.editor.core.ui.library.LibraryViewModel
+import ly.img.editor.core.ui.library.util.LibraryEvent
 import ly.img.editor.core.ui.register
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
-import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.GlobalScope
 import ly.img.engine.UnstableEngineApi
 import kotlin.math.abs
 
-@OptIn(FlowPreview::class)
 abstract class EditorUiViewModel(
-    private val baseUri: Uri,
-    private val onCreate: suspend (Engine, EditorEventHandler) -> Unit,
-    private val onExport: suspend (Engine, EditorEventHandler) -> Unit,
-    private val onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
-    private val onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
-    protected val colorPalette: List<Color> = fillAndStrokeColors,
-) : ViewModel(),
-    EditorEventHandler {
+    private val editorScope: EditorScope,
+    private val onCreate: suspend EditorScope.() -> Unit,
+    private val onExport: suspend EditorScope.() -> Unit,
+    private val onClose: suspend EditorScope.(Boolean) -> Unit,
+    private val onError: suspend EditorScope.(Throwable) -> Unit,
+    private val libraryViewModel: LibraryViewModel,
+) : ViewModel(), EditorEventHandler {
     private val migrationHelper = EditorMigrationHelper()
-    val engine = Environment.getEngine()
+    val editor = editorScope.run { editorContext }
+    val engine = editor.engine
     protected var timelineState: TimelineState? = null
 
     private var firstLoad = true
@@ -134,17 +134,19 @@ abstract class EditorUiViewModel(
     private val _isExporting = MutableStateFlow(false)
     private val _enableHistory = MutableStateFlow(true)
 
-    protected val _updateBlock = MutableStateFlow(false)
-    protected val selectedBlock = MutableStateFlow<Block?>(null)
-    protected val isKeyboardShowing = MutableStateFlow(false)
+    private val _updateBlock = MutableStateFlow(false)
+    private val selectedBlock = MutableStateFlow<Block?>(null)
+    private val isKeyboardShowing = MutableStateFlow(false)
     protected val pageIndex = MutableStateFlow(0)
-    protected val isZoomedIn = MutableStateFlow(false)
-    protected val _isSceneLoaded = MutableStateFlow(false)
+    private val isZoomedIn = MutableStateFlow(false)
+    private val _isSceneLoaded = MutableStateFlow(false)
+    protected val isSceneLoaded: StateFlow<Boolean> = _isSceneLoaded
 
     protected var inPortraitMode = true
     protected var currentInsets = Rect.Zero
 
-    protected val _uiState = MutableStateFlow(EditorUiViewState())
+    private val _uiState = MutableStateFlow(EditorUiViewState())
+    protected val baseUiState: StateFlow<EditorUiViewState> = _uiState
 
     private val _uiEvent = Channel<SingleEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -166,21 +168,7 @@ abstract class EditorUiViewModel(
     private val thumbnailGenerationJobs: MutableMap<DesignBlock, Job?> = mutableMapOf()
     private var pagesSessionId = 0
 
-    init {
-        with(viewModelScope) {
-            launch {
-                // Reset bottomSheetContent
-                // The debounce is added to avoid the situation when another block is selected
-                // This is needed because there is no other way currently to figure out when the bottom sheet has been dismissed by dragging
-                val swipeableState = _uiState.value.bottomSheetState.swipeableState
-                snapshotFlow { swipeableState.offset }.debounce(16).collect {
-                    if (swipeableState.offset == swipeableState.maxOffset) {
-                        onSheetDismiss()
-                    }
-                }
-            }
-        }
-    }
+    private var cropSheetFloatingValue = true
 
     private val eventHandler =
         EventsHandler {
@@ -230,21 +218,36 @@ abstract class EditorUiViewModel(
 
     private fun EventsHandler.editorEvents() {
         register<Event.OnError> { onError(it.throwable) }
-        register<Event.OnBackPress> { onBackPress() }
+        register<Event.OnBackPress> {
+            onBackPress(
+                bottomSheetOffset = it.bottomSheetOffset,
+                bottomSheetMaxOffset = it.bottomSheetMaxOffset,
+            )
+        }
         register<Event.OnBack> { onBack() }
         register<Event.OnCloseDock> { engine.deselectAllBlocks() }
         register<Event.OnAddLibraryClick> { openLibrarySheet() }
-        register<Event.OnAddLibraryCategoryClick> { onAddLibraryCategoryClick(it.libraryCategory, it.addToBackgroundTrack) }
-        register<Event.OnCameraClick> { sendSingleEvent(SingleEvent.LaunchCamera) }
+        register<Event.OnAddClipCategoryClick> {
+            onAddLibraryCategoryClick(
+                libraryCategory = editor.assetLibrary.clips,
+                addToBackgroundTrack = it.addToBackgroundTrack,
+            )
+        }
+        register<Event.OnAddAudioCategoryClick> {
+            onAddLibraryCategoryClick(
+                libraryCategory = editor.assetLibrary.audios(engine.scene.getMode()),
+                addToBackgroundTrack = false,
+            )
+        }
         register<Event.OnExpandSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Expanded)) }
         register<Event.OnHideSheet> { sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden)) }
+        register<Event.OnSheetDismissed> { onSheetDismissed() }
         register<Event.OnHideScrimSheet> { sendSingleEvent(SingleEvent.HideScrimSheet) }
         register<Event.OnExportClick> { exportScene() }
         register<Event.OnRedoClick> { engine.editor.redo() }
         register<Event.OnUndoClick> { engine.editor.undo() }
         register<Event.OnTogglePreviewMode> { togglePreviewMode(it.isChecked) }
-        register<Event.OnOptionClick> { setOptionType(it.optionType) }
-        register<Event.OnReorder> { onReorder() }
+        register<Event.OnOptionClick> { setOptionType(it.optionType, it.floating) }
         register<Event.OnCanvasMove> { onCanvasMove(it.move) }
         register<Event.OnCanvasTouch> { updateZoomState() }
         register<Event.OnResetZoom> {
@@ -266,8 +269,88 @@ abstract class EditorUiViewModel(
         register<Event.OnTogglePagesMode> { onTogglePagesMode() }
         register<Event.OnPagesModePageSelectionChange> { onPagesSelectionChange(it.page) }
         register<Event.OnPagesModePageBind> { onPagesModePageBind(it.page, it.pageHeight) }
-        register<Event.OnSystemCameraClick> { sendSingleEvent(SingleEvent.LaunchSystemCamera(it.captureVideo, it.onCapture)) }
+        register<Event.OnSystemCameraClick> { onSystemCameraClick(it.captureVideo, it.designBlock, it.addToBackgroundTrack) }
+        register<Event.OnLaunchGetContent> {
+            onLaunchGetContent(it.mimeType, it.uploadAssetSourceType, it.designBlock, it.addToBackgroundTrack)
+        }
+        register<Event.OnVideoCameraClick> { onVideoCameraClick() }
+        register<Event.OnLaunchContractResult> { onLaunchContractResult(it.onResult, it.editorScope, it.result) }
     }
+
+    private fun handleInternalEditorEvent(event: EditorEvent.Internal) =
+        when (event) {
+            is EditorEvent.CloseEditor -> {
+                sendSingleEvent(SingleEvent.Exit(event.throwable))
+            }
+            is EditorEvent.CancelExport -> {
+                exportJob?.cancel()
+            }
+            is EditorEvent.OpenLibrarySheet -> {
+                onAddLibraryCategoryClick(
+                    libraryCategory = event.libraryCategory,
+                    addToBackgroundTrack = event.addToBackgroundTrack,
+                    isFloating = event.isFloating,
+                    isHalfExpandingEnabled = event.isHalfExpandingEnabled,
+                    isHalfExpandedInitially = event.isHalfExpandedInitially,
+                )
+            }
+            is EditorEvent.OpenBottomSheet -> {
+                setBottomSheetContent {
+                    CustomBottomSheetContent(
+                        isFloating = event.isFloating,
+                        maxHeight = event.maxHeight,
+                        content = event.content,
+                    )
+                }
+            }
+            is EditorEvent.OpenFullScreenBottomSheet -> {
+                setBottomSheetContent {
+                    CustomFullScreenBottomSheetContent(
+                        heightFraction = event.heightFraction,
+                        isHalfExpandingEnabled = event.isHalfExpandingEnabled,
+                        isHalfExpandedInitially = event.isHalfExpandedInitially,
+                        content = event.content,
+                    )
+                }
+            }
+            is EditorEvent.CloseBottomSheet -> {
+                onEvent(Event.OnHideSheet)
+            }
+            is EditorEvent.LaunchContract<*, *> -> {
+                _uiState.update { it.copy(openContract = event) }
+            }
+            is EditorEvent.AddUriToScene -> {
+                libraryViewModel.onEvent(
+                    LibraryEvent.OnAddUri(event.uploadAssetSourceType, event.uri, event.addToBackgroundTrack),
+                )
+            }
+            is EditorEvent.ReplaceUriAtScene -> {
+                libraryViewModel.onEvent(
+                    LibraryEvent.OnReplaceUri(event.uploadAssetSourceType, event.uri, event.designBlock),
+                )
+            }
+            is EditorEvent.AddCameraRecordingsToScene -> {
+                libraryViewModel.onEvent(LibraryEvent.OnAddCameraRecordings(event.uploadAssetSourceType, event.recordings))
+            }
+            is EditorEvent.OpenReorderSheet -> {
+                onReorder(event.isFloating)
+            }
+            is EditorEvent.OpenAdjustmentsSheet -> {
+                onEvent(Event.OnOptionClick(OptionType.Adjustments, event.isFloating))
+            }
+            is EditorEvent.OpenFilterSheet -> {
+                onEvent(Event.OnOptionClick(OptionType.Filter, event.isFloating))
+            }
+            is EditorEvent.OpenEffectSheet -> {
+                onEvent(Event.OnOptionClick(OptionType.Effect, event.isFloating))
+            }
+            is EditorEvent.OpenBlurSheet -> {
+                onEvent(Event.OnOptionClick(OptionType.Blur, event.isFloating))
+            }
+            is EditorEvent.OpenCropSheet -> {
+                onEvent(Event.OnOptionClick(OptionType.Crop, event.isFloating))
+            }
+        }
 
     private fun updateVisiblePageState() {
         val pages = engine.scene.getPages()
@@ -287,16 +370,16 @@ abstract class EditorUiViewModel(
     }
 
     override fun send(event: EditorEvent) {
-        viewModelScope.launch {
-            externalEventChannel.send(event)
+        if (event is EditorEvent.Internal) {
+            handleInternalEditorEvent(event)
+        } else {
+            viewModelScope.launch {
+                externalEventChannel.send(event)
+            }
         }
     }
 
-    override fun sendCloseEditorEvent(throwable: Throwable?) {
-        sendSingleEvent(SingleEvent.Exit(throwable))
-    }
-
-    protected open fun getBlockForEvents(): Block? = selectedBlock.value
+    open fun getBlockForEvents(): Block? = selectedBlock.value
 
     private fun requireDesignBlockForEvents(): DesignBlock = checkNotNull(getBlockForEvents()?.designBlock)
 
@@ -304,10 +387,6 @@ abstract class EditorUiViewModel(
 
     protected open fun setSelectedBlock(block: Block?) {
         selectedBlock.update { block }
-    }
-
-    override fun sendCancelExportEvent() {
-        exportJob?.cancel()
     }
 
     protected open fun onCanvasMove(move: Boolean) {
@@ -322,62 +401,76 @@ abstract class EditorUiViewModel(
         val designBlock = block.designBlock
         // In the case when a block is deleted, the block is unselected after receiving the delete event
         if (!engine.block.isValid(designBlock)) return
-        setBottomSheetContent {
-            when (it) {
-                is LayerBottomSheetContent -> LayerBottomSheetContent(createLayerUiState(designBlock, engine))
+        setBottomSheetContent { content ->
+            when (content) {
+                is LayerBottomSheetContent ->
+                    LayerBottomSheetContent(
+                        isFloating = content.isFloating,
+                        uiState = createLayerUiState(designBlock, engine),
+                    )
                 is OptionsBottomSheetContent ->
                     OptionsBottomSheetContent(
-                        createShapeOptionsUiState(designBlock, engine),
+                        isFloating = content.isFloating,
+                        uiState = createShapeOptionsUiState(designBlock, engine),
                     )
 
                 is FillStrokeBottomSheetContent -> {
                     _updateBlock.update { !it }
                     FillStrokeBottomSheetContent(
-                        FillStrokeUiState.create(block, engine, colorPalette),
+                        isFloating = content.isFloating,
+                        uiState = FillStrokeUiState.create(block, engine, editor.colorPalette),
                     )
                 }
 
                 is AdjustmentSheetContent -> {
                     _updateBlock.update { !it }
                     AdjustmentSheetContent(
-                        AdjustmentUiState.create(block, engine),
+                        isFloating = content.isFloating,
+                        uiState = AdjustmentUiState.create(block, engine),
                     )
                 }
 
                 is EffectSheetContent -> {
                     _updateBlock.update { !it }
                     EffectSheetContent(
-                        EffectUiState.create(block, engine, it.uiState.libraryCategory),
+                        isFloating = content.isFloating,
+                        uiState = EffectUiState.create(block, engine, content.uiState.libraryCategory),
                     )
                 }
 
                 is FormatBottomSheetContent ->
                     FormatBottomSheetContent(
-                        createFormatUiState(designBlock, engine),
+                        isFloating = content.isFloating,
+                        uiState = createFormatUiState(designBlock, engine),
                     )
 
                 is CropBottomSheetContent -> {
                     val useOldScaleRatio = isStraighteningOrRotating
                     isStraighteningOrRotating = false
                     CropBottomSheetContent(
-                        createCropUiState(designBlock, engine, if (useOldScaleRatio) it.uiState.cropScaleRatio else null),
+                        isFloating = content.isFloating,
+                        uiState =
+                            createCropUiState(
+                                designBlock,
+                                engine,
+                                if (useOldScaleRatio) content.uiState.cropScaleRatio else null,
+                            ),
                     )
                 }
 
                 is VolumeBottomSheetContent -> {
                     VolumeBottomSheetContent(
-                        VolumeUiState.create(designBlock, engine),
+                        isFloating = content.isFloating,
+                        uiState = VolumeUiState.create(designBlock, engine),
                     )
                 }
 
                 else -> {
-                    it
+                    content
                 }
             }
         }
     }
-
-    protected open fun getRootDockItems(assetLibrary: AssetLibrary): List<RootDockItemData> = emptyList()
 
     protected open fun showPage(index: Int) {
         engine.showPage(index)
@@ -395,10 +488,11 @@ abstract class EditorUiViewModel(
         pageIndex.update { index }
     }
 
-    protected open fun handleBackPress(): Boolean =
-        if ((_uiState.value.bottomSheetState.swipeableState.offset ?: Float.MAX_VALUE)
-            < _uiState.value.bottomSheetState.swipeableState.maxOffset
-        ) {
+    protected open fun handleBackPress(
+        bottomSheetOffset: Float,
+        bottomSheetMaxOffset: Float,
+    ): Boolean =
+        if (bottomSheetOffset < bottomSheetMaxOffset) {
             sendSingleEvent(SingleEvent.ChangeSheetState(ModalBottomSheetValue.Hidden))
             true
         } else if (selectedBlock.value != null) {
@@ -430,8 +524,8 @@ abstract class EditorUiViewModel(
         setCanvasActionMenuState(show = bottomSheetContent.value == null)
     }
 
-    private fun onSheetDismiss() {
-        setOptionType(null)
+    private fun onSheetDismissed() {
+        setOptionType(null, isFloating = false)
         if (engine.isEngineRunning().not()) return
         if (engine.editor.getEditMode() == CROP_EDIT_MODE) {
             engine.editor.setEditMode(TRANSFORM_EDIT_MODE)
@@ -482,7 +576,7 @@ abstract class EditorUiViewModel(
                     onPreCreate()
                     val isSceneRestorationFlow = engine.scene.get() != null
                     // Make sure to set all settings before calling `onCreate` so that the consumer can change them if needed!
-                    onCreate(engine, this@EditorUiViewModel)
+                    onCreate(editorScope)
                     // Invoke onSceneLoaded only when engine was restored, because in the regular flow
                     // we have another coroutine that observes scene change and invokes this funcion.
                     if (isSceneRestorationFlow) {
@@ -520,16 +614,105 @@ abstract class EditorUiViewModel(
 
     private fun onAddLibraryCategoryClick(
         libraryCategory: LibraryCategory,
-        addToBackgroundTrack: Boolean?,
+        addToBackgroundTrack: Boolean,
+        isFloating: Boolean = true,
+        isHalfExpandingEnabled: Boolean = true,
+        isHalfExpandedInitially: Boolean? = null,
     ) {
-        setBottomSheetContent { LibraryCategoryBottomSheetContent(libraryCategory, addToBackgroundTrack) }
+        setBottomSheetContent {
+            LibraryCategoryBottomSheetContent(
+                libraryCategory = libraryCategory,
+                addToBackgroundTrack = addToBackgroundTrack,
+                isFloating = isFloating,
+                isHalfExpandingEnabled = isHalfExpandingEnabled,
+                isHalfExpandedInitially = isHalfExpandedInitially,
+            )
+        }
+    }
+
+    private fun onSystemCameraClick(
+        captureVideo: Boolean,
+        designBlock: DesignBlock?,
+        addToBackgroundTrack: Boolean,
+    ) {
+        Dock.Button.systemCamera(
+            launchContract = {
+                if (captureVideo) ActivityResultContracts.CaptureVideo() else ActivityResultContracts.TakePicture()
+            },
+            onUriReady = { uri ->
+                val assetSource = if (captureVideo) AssetSourceType.VideoUploads else AssetSourceType.ImageUploads
+                val event =
+                    designBlock?.let {
+                        EditorEvent.ReplaceUriAtScene(
+                            uri = uri,
+                            uploadAssetSourceType = assetSource,
+                            designBlock = designBlock,
+                        )
+                    } ?: EditorEvent.AddUriToScene(
+                        uploadAssetSourceType = assetSource,
+                        uri = uri,
+                        addToBackgroundTrack = addToBackgroundTrack,
+                    )
+                editorContext.eventHandler.send(event)
+                onEvent(Event.OnHideSheet)
+            },
+        ).onClick(Dock.ButtonScope(editorScope))
+    }
+
+    private fun onLaunchGetContent(
+        mimeType: String,
+        uploadAssetSourceType: UploadAssetSourceType,
+        designBlock: DesignBlock?,
+        addToBackgroundTrack: Boolean,
+    ) {
+        EditorEvent.LaunchContract(
+            contract = ActivityResultContracts.GetContent(),
+            input = mimeType,
+            onOutput = { uri ->
+                uri?.let {
+                    val event =
+                        designBlock?.let {
+                            EditorEvent.ReplaceUriAtScene(
+                                uri = uri,
+                                uploadAssetSourceType = uploadAssetSourceType,
+                                designBlock = designBlock,
+                            )
+                        } ?: EditorEvent.AddUriToScene(
+                            uploadAssetSourceType = uploadAssetSourceType,
+                            uri = uri,
+                            addToBackgroundTrack = addToBackgroundTrack,
+                        )
+                    editorContext.eventHandler.send(event)
+                    onEvent(Event.OnHideSheet)
+                }
+            },
+        ).let(::send)
+    }
+
+    private fun onVideoCameraClick() {
+        // If imgly camera is missing, then use system camera.
+        runCatching {
+            Dock.Button.imglyCamera()
+        }.getOrElse {
+            Dock.Button.systemCamera()
+        }.onClick(Dock.ButtonScope(editorScope))
+    }
+
+    private fun onLaunchContractResult(
+        onResult: EditorScope.(Any?) -> Unit,
+        editorScope: EditorScope,
+        result: Any?,
+    ) = viewModelScope.launch {
+        editorScope.run {
+            editorContext.engine.awaitEngineAndSceneLoad()
+            onResult(result)
+        }
     }
 
     private fun onBottomSheetHeightChange(
         heightInDp: Float,
         showTimeline: Boolean,
     ) {
-        // we don't want to change zoom level for Library
         if (_isPreviewMode.value || !_isSceneLoaded.value) return
         bottomSheetHeight = heightInDp
         val closingSheetContent = this.closingSheetContent
@@ -537,8 +720,10 @@ abstract class EditorUiViewModel(
             this.closingSheetContent = null
         }
         val bottomSheetContent = bottomSheetContent.value
-        if (bottomSheetContent is LibraryBottomSheetContent || bottomSheetContent is LibraryCategoryBottomSheetContent) return
-        if (closingSheetContent is LibraryBottomSheetContent || closingSheetContent is LibraryCategoryBottomSheetContent) return
+
+        // we don't want to change zoom level for floating sheets
+        if (bottomSheetContent?.isFloating == true) return
+        if (closingSheetContent?.isFloating == true) return
         zoom(heightInDp, showTimeline)
     }
 
@@ -806,16 +991,20 @@ abstract class EditorUiViewModel(
         )
     }
 
-    private fun onReorder() {
+    private fun onReorder(floating: Boolean) {
         timelineState?.playerState?.pause()
         setBottomSheetContent {
             ReorderBottomSheetContent(
-                checkNotNull(timelineState),
+                isFloating = floating,
+                timelineState = checkNotNull(timelineState),
             )
         }
     }
 
-    private fun setOptionType(optionType: OptionType?) {
+    private fun setOptionType(
+        optionType: OptionType?,
+        isFloating: Boolean,
+    ) {
         if (optionType == null) {
             setBottomSheetContent { null }
             return
@@ -830,8 +1019,17 @@ abstract class EditorUiViewModel(
         val designBlock = block.designBlock
         setBottomSheetContent {
             when (optionType) {
-                OptionType.Replace -> ReplaceBottomSheetContent(designBlock, block.type)
-                OptionType.Layer -> LayerBottomSheetContent(createLayerUiState(designBlock, engine))
+                OptionType.Replace ->
+                    ReplaceBottomSheetContent(
+                        isFloating = isFloating,
+                        designBlock = designBlock,
+                        blockType = block.type,
+                    )
+                OptionType.Layer ->
+                    LayerBottomSheetContent(
+                        isFloating = isFloating,
+                        uiState = createLayerUiState(designBlock, engine),
+                    )
                 OptionType.Edit -> {
                     engine.editor.setEditMode(TEXT_EDIT_MODE)
                     null
@@ -839,17 +1037,20 @@ abstract class EditorUiViewModel(
 
                 OptionType.Format ->
                     FormatBottomSheetContent(
-                        createFormatUiState(designBlock, engine),
+                        isFloating = isFloating,
+                        uiState = createFormatUiState(designBlock, engine),
                     )
 
                 OptionType.ShapeOptions ->
                     OptionsBottomSheetContent(
-                        createShapeOptionsUiState(designBlock, engine),
+                        isFloating = isFloating,
+                        uiState = createShapeOptionsUiState(designBlock, engine),
                     )
 
                 OptionType.FillStroke ->
                     FillStrokeBottomSheetContent(
-                        FillStrokeUiState.create(block, engine, colorPalette),
+                        isFloating = isFloating,
+                        uiState = FillStrokeUiState.create(block, engine, editor.colorPalette),
                     )
 
                 OptionType.EnterGroup -> {
@@ -863,6 +1064,7 @@ abstract class EditorUiViewModel(
                 }
 
                 OptionType.Crop -> {
+                    cropSheetFloatingValue = isFloating
                     engine.block.setScopeEnabled(designBlock, Scope.EditorSelect, enabled = true)
                     engine.block.setSelected(designBlock, selected = true)
                     engine.editor.setEditMode(CROP_EDIT_MODE)
@@ -871,33 +1073,39 @@ abstract class EditorUiViewModel(
 
                 OptionType.Reorder -> {
                     ReorderBottomSheetContent(
-                        checkNotNull(timelineState),
+                        isFloating = isFloating,
+                        timelineState = checkNotNull(timelineState),
                     )
                 }
 
                 OptionType.Adjustments ->
                     AdjustmentSheetContent(
-                        AdjustmentUiState.create(block, engine),
+                        isFloating = isFloating,
+                        uiState = AdjustmentUiState.create(block, engine),
                     )
 
                 OptionType.Filter ->
                     EffectSheetContent(
-                        EffectUiState.create(block, engine, AppearanceLibraryCategory.Filters),
+                        isFloating = isFloating,
+                        uiState = EffectUiState.create(block, engine, AppearanceLibraryCategory.Filters),
                     )
 
                 OptionType.Effect ->
                     EffectSheetContent(
-                        EffectUiState.create(block, engine, AppearanceLibraryCategory.FxEffects),
+                        isFloating = isFloating,
+                        uiState = EffectUiState.create(block, engine, AppearanceLibraryCategory.FxEffects),
                     )
 
                 OptionType.Blur ->
                     EffectSheetContent(
-                        EffectUiState.create(block, engine, AppearanceLibraryCategory.Blur),
+                        isFloating = isFloating,
+                        uiState = EffectUiState.create(block, engine, AppearanceLibraryCategory.Blur),
                     )
 
                 OptionType.Volume ->
                     VolumeBottomSheetContent(
-                        VolumeUiState.create(designBlock, engine),
+                        isFloating = isFloating,
+                        uiState = VolumeUiState.create(designBlock, engine),
                     )
 
                 OptionType.Split -> {
@@ -948,12 +1156,7 @@ abstract class EditorUiViewModel(
                         isEditingText = isKeyboardShowing.value,
                         timelineState = timelineState,
                         pageCount = pageCount,
-                        rootDockItems =
-                            if (_isSceneLoaded.value) {
-                                getRootDockItems(requireNotNull(Environment.assetLibrary))
-                            } else {
-                                emptyList()
-                            },
+                        isDockVisible = _isSceneLoaded.value,
                     )
                 }
             }
@@ -973,12 +1176,23 @@ abstract class EditorUiViewModel(
         var visibleAtCurrentPlaybackTimeFlag: Boolean? = null
         viewModelScope.launch {
             engine.event.subscribe().collect {
+                val durationBefore = timelineState?.totalDuration
                 timelineState?.refresh(it)
+                // Before dock configurability feature, unnecessary dock updates were updating the _uiState,
+                // therefore, VideoUiViewModel.uiState were getting the updates. Since those updates are gone now,
+                // we have to force state update.
+                // if condition is absolutely necessary otherwise we will have text block jumping up and down
+                // that was fixed in this PR https://github.com/imgly/ubq/pull/7807
+                if (timelineState?.totalDuration != durationBefore) {
+                    _uiState.update { state ->
+                        state.copy(timelineTrigger = state.timelineTrigger.not())
+                    }
+                }
 
                 // update canvas action menu if visibility of block has changed
-                selectedBlock.value?.designBlock?.let {
-                    if (engine.block.isValid(it)) {
-                        val visibleAtCurrentPlaybackTime = engine.block.isVisibleAtCurrentPlaybackTime(it)
+                selectedBlock.value?.designBlock?.let { selectedBlock ->
+                    if (engine.block.isValid(selectedBlock)) {
+                        val visibleAtCurrentPlaybackTime = engine.block.isVisibleAtCurrentPlaybackTime(selectedBlock)
                         if (visibleAtCurrentPlaybackTime != visibleAtCurrentPlaybackTimeFlag) {
                             visibleAtCurrentPlaybackTimeFlag = visibleAtCurrentPlaybackTime
                             setCanvasActionMenuState(show = visibleAtCurrentPlaybackTime)
@@ -1013,7 +1227,10 @@ abstract class EditorUiViewModel(
                     CROP_EDIT_MODE -> {
                         engine.editor.setSettingEnum("touch/pinchAction", TOUCH_ACTION_SCALE)
                         setBottomSheetContent {
-                            CropBottomSheetContent(createCropUiState(engine.block.findAllSelected().single(), engine))
+                            CropBottomSheetContent(
+                                isFloating = cropSheetFloatingValue,
+                                uiState = createCropUiState(engine.block.findAllSelected().single(), engine),
+                            )
                         }
                     }
 
@@ -1057,9 +1274,9 @@ abstract class EditorUiViewModel(
                 setSelectedBlock(block)
                 if (oldBlock != block?.designBlock) {
                     if (block != null && engine.isPlaceholder(block.designBlock)) {
-                        setOptionType(OptionType.Replace)
+                        setOptionType(OptionType.Replace, isFloating = false)
                     } else if (block == null || bottomSheetContent.value != null) {
-                        setOptionType(null)
+                        setOptionType(null, isFloating = false)
                     } else {
                         setCanvasActionMenuState()
                     }
@@ -1085,18 +1302,21 @@ abstract class EditorUiViewModel(
 
     private fun onBack() {
         viewModelScope.launch {
-            onClose(engine, hasUnsavedChanges(), this@EditorUiViewModel)
+            onClose(editorScope, hasUnsavedChanges())
         }
     }
 
     private fun onError(throwable: Throwable) {
         viewModelScope.launch {
-            onError(throwable, engine, this@EditorUiViewModel)
+            onError(editorScope, throwable)
         }
     }
 
-    private fun onBackPress() {
-        if (!handleBackPress()) {
+    private fun onBackPress(
+        bottomSheetOffset: Float,
+        bottomSheetMaxOffset: Float,
+    ) {
+        if (!handleBackPress(bottomSheetOffset = bottomSheetOffset, bottomSheetMaxOffset = bottomSheetMaxOffset)) {
             onBack()
         }
     }
@@ -1132,7 +1352,7 @@ abstract class EditorUiViewModel(
             viewModelScope.launch {
                 exportJob =
                     launch {
-                        onExport(engine, this@EditorUiViewModel)
+                        onExport(editorScope)
                     }
                 exportJob?.join()
                 _isExporting.update { false }
@@ -1166,7 +1386,6 @@ abstract class EditorUiViewModel(
 
     override fun onCleared() {
         engine.stop()
-        Environment.clear()
     }
 
     abstract fun enterEditMode()
@@ -1185,7 +1404,7 @@ abstract class EditorUiViewModel(
     }
 
     open fun onPreCreate() {
-        setSettingsForEditorUi(engine, baseUri)
+        setSettingsForEditorUi(engine, editor.baseUri)
     }
 
     private companion object {

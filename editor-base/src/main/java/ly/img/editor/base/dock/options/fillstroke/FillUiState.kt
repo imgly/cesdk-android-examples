@@ -2,10 +2,10 @@ package ly.img.editor.base.dock.options.fillstroke
 
 import androidx.compose.ui.graphics.Color
 import ly.img.editor.base.R
-import ly.img.editor.base.engine.Fill
-import ly.img.editor.base.engine.getFillInfo
-import ly.img.editor.base.engine.getFillType
 import ly.img.editor.base.ui.Block
+import ly.img.editor.core.component.data.Fill
+import ly.img.editor.core.engine.getFill
+import ly.img.editor.core.engine.getFillType
 import ly.img.editor.core.ui.engine.BlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
@@ -31,7 +31,7 @@ internal fun createFillUiState(
         colorPalette = colorPalette,
         isFillEnabled = isEnabled,
         supportFillTypes = supportFillTypes,
-        fillState = checkNotNull(engine.getFillInfo(designBlock)),
+        fillState = checkNotNull(engine.getFill(designBlock)),
         fillTypeRes = getFillTypeRes(fillType.takeIf { isEnabled }),
     )
 }

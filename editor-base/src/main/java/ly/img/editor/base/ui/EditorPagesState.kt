@@ -2,13 +2,13 @@ package ly.img.editor.base.ui
 
 import android.graphics.Bitmap
 import androidx.annotation.StringRes
+import androidx.compose.material3.MaterialTheme
 import ly.img.editor.base.R
-import ly.img.editor.base.components.VectorIcon
 import ly.img.editor.base.engine.isDeleteAllowed
 import ly.img.editor.base.engine.isDuplicateAllowed
-import ly.img.editor.core.ui.ColorSchemeKeyToken
+import ly.img.editor.core.component.data.EditorIcon
+import ly.img.editor.core.iconpack.Delete
 import ly.img.editor.core.ui.iconpack.Addpage
-import ly.img.editor.core.ui.iconpack.Delete
 import ly.img.editor.core.ui.iconpack.Duplicate
 import ly.img.editor.core.ui.iconpack.Edit
 import ly.img.editor.core.ui.iconpack.IconPack
@@ -16,6 +16,8 @@ import ly.img.editor.core.ui.iconpack.Movedown
 import ly.img.editor.core.ui.iconpack.Moveup
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine
+import ly.img.editor.core.R as CoreR
+import ly.img.editor.core.iconpack.IconPack as CoreIconPack
 
 data class EditorPagesState(
     val sessionId: Int,
@@ -37,7 +39,7 @@ data class EditorPagesState(
 
     data class DockOption(
         @StringRes val titleRes: Int,
-        val icon: VectorIcon,
+        val icon: EditorIcon.Vector,
         val enabled: Boolean,
         val actions: List<Event>,
     )
@@ -125,7 +127,7 @@ private fun createEditorPagesState(
         buildList {
             EditorPagesState.DockOption(
                 titleRes = R.string.ly_img_editor_edit,
-                icon = VectorIcon(IconPack.Edit),
+                icon = EditorIcon.Vector(IconPack.Edit),
                 enabled = true,
                 actions =
                     listOf(
@@ -135,37 +137,37 @@ private fun createEditorPagesState(
             ).let(::add)
             EditorPagesState.DockOption(
                 titleRes = R.string.ly_img_editor_move_up,
-                icon = VectorIcon(IconPack.Moveup),
+                icon = EditorIcon.Vector(IconPack.Moveup),
                 enabled = selectedPageIndex != 0,
                 actions = listOf(BlockEvent.OnBackwardNonSelected(selectedPageBlock)),
             ).let(::add)
             EditorPagesState.DockOption(
                 titleRes = R.string.ly_img_editor_move_down,
-                icon = VectorIcon(IconPack.Movedown),
+                icon = EditorIcon.Vector(IconPack.Movedown),
                 enabled = selectedPageIndex != pages.lastIndex,
                 actions = listOf(BlockEvent.OnForwardNonSelected(selectedPageBlock)),
             ).let(::add)
             EditorPagesState.DockOption(
                 titleRes = R.string.ly_img_editor_add_page,
-                icon = VectorIcon(IconPack.Addpage),
+                icon = EditorIcon.Vector(IconPack.Addpage),
                 enabled = true,
                 actions = listOf(Event.OnAddPage(index = selectedPageIndex + 1)),
             ).let(::add)
             if (engine.isDuplicateAllowed(selectedPageBlock)) {
                 EditorPagesState.DockOption(
                     titleRes = R.string.ly_img_editor_duplicate,
-                    icon = VectorIcon(IconPack.Duplicate),
+                    icon = EditorIcon.Vector(IconPack.Duplicate),
                     enabled = true,
                     actions = listOf(BlockEvent.OnDuplicateNonSelected(selectedPageBlock)),
                 ).let(::add)
             }
             if (pages.size > 1 && engine.isDeleteAllowed(selectedPageBlock)) {
                 EditorPagesState.DockOption(
-                    titleRes = ly.img.editor.core.R.string.ly_img_editor_delete,
+                    titleRes = CoreR.string.ly_img_editor_delete,
                     icon =
-                        VectorIcon(
-                            imageVector = IconPack.Delete,
-                            tint = ColorSchemeKeyToken.Error,
+                        EditorIcon.Vector(
+                            imageVector = CoreIconPack.Delete,
+                            tint = { MaterialTheme.colorScheme.error },
                         ),
                     enabled = true,
                     actions = listOf(BlockEvent.OnDeleteNonSelected(selectedPageBlock)),
