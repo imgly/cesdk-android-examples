@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
 import ly.img.editor.base.dock.BottomSheetContent
-import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.ConfigurableHeightContainer
 import ly.img.editor.base.timeline.state.TimelineState
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
@@ -34,16 +34,17 @@ import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.swappable.SwappableItem
 import ly.img.editor.core.ui.swappable.rememberSwappableListState
 import ly.img.engine.DesignBlock
+import ly.img.editor.core.R as CoreR
 
 @Composable
 fun ReorderSheet(
     timelineState: TimelineState,
     onEvent: (Event) -> Unit,
 ) {
-    HalfHeightContainer {
+    ConfigurableHeightContainer {
         Column {
             SheetHeader(
-                title = stringResource(id = R.string.ly_img_editor_reorder),
+                title = stringResource(id = CoreR.string.ly_img_editor_reorder),
                 onClose = { onEvent(Event.OnHideSheet) },
             )
 
@@ -137,4 +138,7 @@ fun ReorderSheet(
     }
 }
 
-class ReorderBottomSheetContent(val timelineState: TimelineState) : BottomSheetContent
+class ReorderBottomSheetContent(
+    override val isFloating: Boolean,
+    val timelineState: TimelineState,
+) : BottomSheetContent

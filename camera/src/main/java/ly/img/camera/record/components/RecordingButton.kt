@@ -1,49 +1,62 @@
 package ly.img.camera.record.components
 
 import android.util.Range
+import android.view.HapticFeedbackConstants
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import ly.img.editor.compose.foundation.clickable
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import ly.img.editor.compose.foundation.gestures.detectTapGestures
 import ly.img.editor.core.theme.LocalExtendedColorScheme
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+private val longPressToRecordCircleSize = 144.dp
+private val canvasSize = 88.dp
+
 @Composable
 internal fun RecordingButton(
     modifier: Modifier,
+    recordingColor: Color,
+    maxDuration: Duration,
     enabled: Boolean,
     hasStartedRecording: Boolean,
     isRecording: Boolean,
     isTimerRunning: Boolean,
     recordedDurations: List<Duration>,
-    recordingColor: Color,
     backgroundColor: Color = LocalExtendedColorScheme.current.black,
     strokeColor: Color = MaterialTheme.colorScheme.onBackground,
     prevRecordedSegmentsColor: Color = LocalExtendedColorScheme.current.white,
@@ -51,7 +64,10 @@ internal fun RecordingButton(
     segmentStrokeWidth: Dp = 5.dp,
     padding: Dp = 1.dp,
     normalizedDurationGap: Double = 0.01,
-    onClick: () -> Unit,
+    longPressTimeout: Int = 600,
+    onShortPress: () -> Unit,
+    onLongPress: () -> Unit,
+    onLongPressRelease: () -> Unit,
 ) {
     val state =
         when {
@@ -162,7 +178,7 @@ internal fun RecordingButton(
             normalizedSegmentPositions = listOf()
         } else {
             // Limit the visualization to a sensible max duration
-            val maxTotalDuration = 60.seconds
+            val maxTotalDuration = if (maxDuration == Duration.INFINITE) 60.seconds else maxDuration
             val totalDuration = maxOf(maxTotalDuration, recordedDurations.reduce { acc, duration -> acc + duration })
 
             // Add the length of the visual gaps to the total duration to make calculations easier
@@ -177,7 +193,7 @@ internal fun RecordingButton(
                 for (duration in recordedDurations) {
                     val normalizedDuration = duration / finalDuration
                     val end = currentPosition + normalizedDuration
-                    normalizedSegments.add(Range.create(currentPosition, end))
+                    normalizedSegments.add(Range.create(currentPosition, end.coerceAtMost(1.0)))
                     currentPosition = end + normalizedDurationGap
                 }
                 return normalizedSegments
@@ -197,74 +213,137 @@ internal fun RecordingButton(
         }
     }
 
-    Canvas(
-        modifier =
-            modifier
-                .size(88.dp)
-                .padding(paddingAnimation)
-                .clip(CircleShape)
-                .clickable(
-                    enabled = state != RecordingButtonState.Disabled,
-                    onClick = onClick,
-                ),
-    ) {
-        val canvasSize = size.minDimension
+    val scope = rememberCoroutineScope()
 
-        // Background circle
-        drawCircle(
-            color = backgroundColorAnimation,
-            radius = backgroundCircleSizeAnimation.toPx(),
-        )
+    var isPressed by remember { mutableStateOf(false) }
+    val longPressAlpha by animateFloatAsState(
+        targetValue = if (isPressed) 0.88f else 0f,
+        label = "LongPressAlpha",
+        animationSpec =
+            tween(
+                durationMillis = if (isPressed) longPressTimeout else 200,
+                easing = EaseInOut,
+            ),
+    )
+    val longPressScale by animateFloatAsState(
+        targetValue = if (isPressed) (longPressToRecordCircleSize / canvasSize) else 0f,
+        label = "LongPressScale",
+        animationSpec =
+            tween(
+                durationMillis = if (isPressed) longPressTimeout else 200,
+                easing = EaseInOut,
+            ),
+    )
 
-        // Animated morphing symbol (circle to square)
-        val symbolSize = symbolSizeAnimation.toPx()
-        val cornerRadius = cornerRadiusAnimation.toPx()
-        rotate(rotationAnimation) {
-            drawRoundRect(
-                color = symbolColorAnimation,
-                size = Size(symbolSize, symbolSize),
-                cornerRadius = CornerRadius(cornerRadius, cornerRadius),
-                topLeft = center - Offset(symbolSize / 2, symbolSize / 2),
+    val localView = LocalView.current
+
+    Box(modifier.size(longPressToRecordCircleSize)) {
+        Canvas(
+            modifier =
+                Modifier
+                    .align(Alignment.Center)
+                    .size(canvasSize)
+                    .padding(paddingAnimation)
+                    .pointerInput(enabled) {
+                        if (!enabled) return@pointerInput
+
+                        var isLongPress: Boolean
+                        detectTapGestures(
+                            onPress = {
+                                isLongPress = false
+                                isPressed = true
+                                val job =
+                                    scope.launch {
+                                        delay(longPressTimeout.toLong()) // Delay for long press
+                                        if (isActive) {
+                                            isLongPress = true
+                                            isPressed = false
+                                            localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+                                            onLongPress()
+                                        }
+                                    }
+
+                                try {
+                                    awaitRelease()
+                                } finally {
+                                    job.cancel()
+                                    isPressed = false
+                                    localView.performHapticFeedback(HapticFeedbackConstants.CONTEXT_CLICK)
+                                    if (isLongPress) {
+                                        onLongPressRelease()
+                                    } else {
+                                        onShortPress()
+                                    }
+                                }
+                            },
+                        )
+                    },
+        ) {
+            val canvasSize = size.minDimension
+
+            // Long press circle
+            drawCircle(
+                color = recordingColor,
+                radius = (canvasSize * longPressScale) / 2.0f,
+                alpha = longPressAlpha,
             )
-        }
 
-        // Stroke behind the segments
-        val paddingPx = padding.toPx()
-        val segmentBackgroundStrokeWidthPx = segmentBackgroundStrokeWidth.toPx()
-        val segmentBackgroundTopLeftOffset =
-            Offset(paddingPx + segmentBackgroundStrokeWidthPx / 2, paddingPx + segmentBackgroundStrokeWidthPx / 2)
-        val segmentBackgroundAdjustedSize = canvasSize - segmentBackgroundTopLeftOffset.x - segmentBackgroundTopLeftOffset.y
-        drawArc(
-            color = strokeColorAnimation,
-            style = Stroke(width = segmentBackgroundStrokeWidth.toPx()),
-            topLeft = segmentBackgroundTopLeftOffset,
-            size = Size(segmentBackgroundAdjustedSize, segmentBackgroundAdjustedSize),
-            startAngle = segmentsBackgroundStartAngleAnimation,
-            sweepAngle = segmentsBackgroundSweepAngleAnimation,
-            useCenter = false,
-        )
+            // Background circle
+            drawCircle(
+                color = backgroundColorAnimation,
+                radius = backgroundCircleSizeAnimation.toPx(),
+            )
 
-        // Recording segments
-        val segmentStrokeWidthPx = segmentStrokeWidth.toPx()
-        val segmentTopLeftOffset = Offset(segmentStrokeWidthPx / 2, segmentStrokeWidthPx / 2)
-        val segmentDiameter = canvasSize - segmentTopLeftOffset.x - segmentTopLeftOffset.y
+            // Animated morphing symbol (circle to square)
+            val symbolSize = symbolSizeAnimation.toPx()
+            val cornerRadius = cornerRadiusAnimation.toPx()
+            rotate(rotationAnimation) {
+                drawRoundRect(
+                    color = symbolColorAnimation,
+                    size = Size(symbolSize, symbolSize),
+                    cornerRadius = CornerRadius(cornerRadius, cornerRadius),
+                    topLeft = center - Offset(symbolSize / 2, symbolSize / 2),
+                )
+            }
 
-        normalizedSegmentPositions.forEachIndexed { index, segment ->
-            val color = if (index == normalizedSegmentPositions.size - 1) recordingColor else inactiveSegmentColorAnimation
+            // Stroke behind the segments
+            val paddingPx = padding.toPx()
+            val segmentBackgroundStrokeWidthPx = segmentBackgroundStrokeWidth.toPx()
+            val segmentBackgroundTopLeftOffset =
+                Offset(paddingPx + segmentBackgroundStrokeWidthPx / 2, paddingPx + segmentBackgroundStrokeWidthPx / 2)
+            val segmentBackgroundAdjustedSize = canvasSize - segmentBackgroundTopLeftOffset.x - segmentBackgroundTopLeftOffset.y
             drawArc(
-                color = color,
-                style = Stroke(width = segmentStrokeWidthPx),
-                topLeft = segmentTopLeftOffset,
-                size = Size(segmentDiameter, segmentDiameter),
-                startAngle = -90f + (segment.lower * 360).toFloat(),
-                sweepAngle = (segment.upper - segment.lower).toFloat() * 360,
+                color = strokeColorAnimation,
+                style = Stroke(width = segmentBackgroundStrokeWidth.toPx()),
+                topLeft = segmentBackgroundTopLeftOffset,
+                size = Size(segmentBackgroundAdjustedSize, segmentBackgroundAdjustedSize),
+                startAngle = segmentsBackgroundStartAngleAnimation,
+                sweepAngle = segmentsBackgroundSweepAngleAnimation,
                 useCenter = false,
             )
+
+            // Recording segments
+            val segmentStrokeWidthPx = segmentStrokeWidth.toPx()
+            val segmentTopLeftOffset = Offset(segmentStrokeWidthPx / 2, segmentStrokeWidthPx / 2)
+            val segmentDiameter = canvasSize - segmentTopLeftOffset.x - segmentTopLeftOffset.y
+
+            normalizedSegmentPositions.forEachIndexed { index, segment ->
+                val color = if (index == normalizedSegmentPositions.size - 1) recordingColor else inactiveSegmentColorAnimation
+                drawArc(
+                    color = color,
+                    style = Stroke(width = segmentStrokeWidthPx),
+                    topLeft = segmentTopLeftOffset,
+                    size = Size(segmentDiameter, segmentDiameter),
+                    startAngle = -90f + (segment.lower * 360).toFloat(),
+                    sweepAngle = (segment.upper - segment.lower).toFloat() * 360,
+                    useCenter = false,
+                )
+            }
         }
     }
 }
 
-enum class RecordingButtonState {
+private enum class RecordingButtonState {
     Disabled,
     Ready,
     TimerRunning,

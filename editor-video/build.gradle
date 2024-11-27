@@ -6,6 +6,4 @@ android {
 
 dependencies {
     api project(':editor-base')
-    implementation project(':camera-core')
-    implementation project(':camera')
 }

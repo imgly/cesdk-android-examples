@@ -6,12 +6,12 @@ import ly.img.editor.base.timeline.clip.ClipType
 import ly.img.editor.base.timeline.state.TimelineConfiguration
 import ly.img.editor.base.timeline.state.TimelineState
 import ly.img.editor.base.ui.BlockEvent
+import ly.img.editor.core.engine.getBackgroundTrack
 import ly.img.editor.core.ui.EventsHandler
 import ly.img.editor.core.ui.engine.BlockKind
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.getKindEnum
 import ly.img.editor.core.ui.inject
-import ly.img.editor.core.ui.library.engine.getBackgroundTrack
 import ly.img.editor.core.ui.register
 import ly.img.engine.DesignBlock
 import ly.img.engine.Engine

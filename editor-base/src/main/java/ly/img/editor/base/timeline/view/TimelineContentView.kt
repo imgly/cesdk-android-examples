@@ -31,12 +31,10 @@ import ly.img.editor.base.timeline.state.TimelineConfiguration
 import ly.img.editor.base.timeline.state.TimelineState
 import ly.img.editor.base.timeline.track.TrackView
 import ly.img.editor.base.ui.Event
+import ly.img.editor.core.iconpack.Addaudio
+import ly.img.editor.core.iconpack.IconPack
 import ly.img.editor.core.theme.surface3
-import ly.img.editor.core.ui.Environment
-import ly.img.editor.core.ui.iconpack.Addaudio
-import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.utils.roundToPx
-import ly.img.engine.SceneMode
 
 @Composable
 fun TimelineContentView(
@@ -125,11 +123,7 @@ fun TimelineContentView(
                                         }
                                         .padding(start = 1.dp),
                             ) {
-                                onEvent(
-                                    Event.OnAddLibraryCategoryClick(
-                                        libraryCategory = checkNotNull(Environment.assetLibrary).audios(SceneMode.VIDEO),
-                                    ),
-                                )
+                                onEvent(Event.OnAddAudioCategoryClick)
                             }
                         }
                     }

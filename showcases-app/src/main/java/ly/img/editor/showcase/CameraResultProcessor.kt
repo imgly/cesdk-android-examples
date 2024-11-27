@@ -8,14 +8,14 @@ import java.io.File
 
 fun processCameraResult(
     context: Context,
-    result: CameraResult?,
+    result: ly.img.camera.core.CameraResult?,
 ) {
-    val recordings = (result as? CameraResult.Record)?.recordings ?: return
+    val recordings = (result as? ly.img.camera.core.CameraResult.Record)?.recordings ?: return
     val uris =
         recordings.flatMap { recording -> recording.videos }.map { video ->
             FileProvider.getUriForFile(
                 context,
-                "${context.packageName}.fileprovider",
+                "${context.packageName}.ly.img.editor.fileprovider",
                 File(video.uri.path!!),
             )
         }

@@ -25,6 +25,7 @@ internal val TOOLBAR_HEIGHT = 64.dp
 internal fun Toolbar(
     isRecording: Boolean,
     duration: Duration,
+    maxDuration: Duration,
     recordingColor: Color,
     onCloseClick: () -> Unit,
 ) {
@@ -50,6 +51,7 @@ internal fun Toolbar(
         TimecodeView(
             modifier = Modifier.align(Alignment.Center),
             duration = duration,
+            maxDuration = maxDuration,
             isRecording = isRecording,
             recordingColor = recordingColor,
         )

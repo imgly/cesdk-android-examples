@@ -20,7 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
 import ly.img.editor.base.dock.BottomSheetContent
-import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.ConfigurableHeightContainer
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
@@ -37,7 +37,7 @@ fun VolumeSheet(
     uiState: VolumeUiState,
     onEvent: (Event) -> Unit,
 ) {
-    HalfHeightContainer {
+    ConfigurableHeightContainer {
         Column {
             SheetHeader(
                 title = stringResource(id = R.string.ly_img_editor_volume),
@@ -93,4 +93,7 @@ fun VolumeSheet(
     }
 }
 
-class VolumeBottomSheetContent(val uiState: VolumeUiState) : BottomSheetContent
+class VolumeBottomSheetContent(
+    override val isFloating: Boolean,
+    val uiState: VolumeUiState,
+) : BottomSheetContent

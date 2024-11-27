@@ -8,12 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ly.img.editor.base.R
 import ly.img.editor.base.components.PropertySlider
-import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.ConfigurableHeightContainer
 import ly.img.editor.base.engine.AdjustmentState
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
+import ly.img.editor.core.R
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 
@@ -22,10 +22,10 @@ fun AdjustmentOptionsSheet(
     uiState: AdjustmentUiState,
     onEvent: (Event) -> Unit,
 ) {
-    HalfHeightContainer {
+    ConfigurableHeightContainer {
         Column {
             SheetHeader(
-                title = stringResource(id = R.string.ly_img_editor_adjustment),
+                title = stringResource(id = R.string.ly_img_editor_adjustments),
                 onClose = { onEvent(Event.OnHideSheet) },
             )
             Column(

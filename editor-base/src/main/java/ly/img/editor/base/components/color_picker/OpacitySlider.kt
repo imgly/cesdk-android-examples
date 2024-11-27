@@ -20,9 +20,9 @@ import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import ly.img.editor.base.R
 import ly.img.editor.compose.material3.Slider
 import ly.img.editor.compose.material3.SliderDefaults
+import ly.img.editor.core.R
 
 @Composable
 internal fun OpacitySlider(

@@ -13,12 +13,12 @@ import java.io.File
 
 fun prepareUriForCameraLauncher(context: Context): Uri {
     val file = File.createTempFile("imgly_", null, context.filesDir)
-    return FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+    return FileProvider.getUriForFile(context, "${context.packageName}.ly.img.editor.fileprovider", file)
 }
 
 @Composable
 fun rememberGalleryLauncherForActivityResult(
-    addToBackgroundTrack: Boolean? = null,
+    addToBackgroundTrack: Boolean = false,
     onEvent: (LibraryEvent) -> Unit,
 ): ManagedActivityResultLauncher<Array<String>, Uri?> {
     val context = LocalContext.current

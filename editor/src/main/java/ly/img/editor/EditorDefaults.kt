@@ -54,6 +54,8 @@ import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.data.TextAssetSource
 import ly.img.editor.core.library.data.TypefaceProvider
 import ly.img.editor.core.theme.LocalExtendedColorScheme
+import ly.img.editor.core.ui.engine.getCurrentPage
+import ly.img.editor.core.ui.engine.isSceneModeVideo
 import ly.img.editor.core.ui.iconpack.Checkcircleoutline
 import ly.img.editor.core.ui.iconpack.Cloudalertoutline
 import ly.img.editor.core.ui.iconpack.Erroroutline
@@ -69,6 +71,7 @@ import ly.img.engine.addDemoAssetSources
 import java.io.File
 import java.nio.ByteBuffer
 import java.util.UUID
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * A helper class that provides implementations of some of the properties in [EngineConfiguration] and [EditorConfiguration].
@@ -83,7 +86,7 @@ object EditorDefaults {
      *
      * @param engine the engine that is used in the editor.
      * @param sceneUri the Uri that is used to load the scene file into the scene.
-     * @param eventHandler the object that can send [EditorEvent]s and close the editor.
+     * @param eventHandler the object that can send [EditorEvent]s.
      * @param block a suspend function that allows custom modifications to the scene after it has been loaded.
      * It receives the scene [DesignBlock] and [CoroutineScope] as parameters.
      */
@@ -106,7 +109,7 @@ object EditorDefaults {
      * @param engine the engine that is used in the editor.
      * @param imageUri the uri of the image that is used to create a scene with single page and image fill.
      * @param size the size that should be used to load the image. If null, original size of the image will be used.
-     * @param eventHandler the object that can send [EditorEvent]s and close the editor.
+     * @param eventHandler the object that can send [EditorEvent]s.
      * @param block a suspend function that allows custom modifications to the scene after it has been loaded.
      * It receives the scene [DesignBlock] and [CoroutineScope] as parameters.
      */
@@ -116,8 +119,8 @@ object EditorDefaults {
         eventHandler: EditorEventHandler,
         size: SizeF? = null,
         block: suspend (DesignBlock, CoroutineScope) -> Unit = { _, _ -> },
-    ) = onCreateCommon(engine, eventHandler, block) { scope ->
-        val scene = engine.scene.createFromImage(imageUri)
+    ) = onCreateCommon(engine, eventHandler, block) {
+        engine.scene.createFromImage(imageUri)
         val graphicBlocks = engine.block.findByType(DesignBlockType.Graphic)
         require(graphicBlocks.size == 1) { "No image found." }
         val graphicBlock = graphicBlocks[0]
@@ -138,6 +141,7 @@ object EditorDefaults {
         onSceneCreated: suspend (DesignBlock, CoroutineScope) -> Unit,
         createScene: suspend (CoroutineScope) -> Unit,
     ) = coroutineScope {
+        // Loading is guaranteed to be showing here, no need to send eventHandler.send(ShowLoading)
         if (engine.scene.get() == null) {
             createScene(this)
         }
@@ -159,6 +163,7 @@ object EditorDefaults {
         }
         coroutineContext[Job]?.invokeOnCompletion {
             eventHandler.send(HideLoading)
+            eventHandler.send(OnSceneLoaded())
         }
     }
 
@@ -184,9 +189,7 @@ object EditorDefaults {
         }
 
     /**
-     * A helper function that opens a system dialog to share the [file]. Note that you should declare a [FileProvider] in the
-     * AndroidManifest.xml file of your application module with the following configuration:
-     *      android:authorities="${applicationId}.fileprovider"
+     * A helper function that opens a system dialog to share the [file].
      *
      * @param activity the activity that is used to construct the uri of the [file] and launch the activity of the system dialog.
      * @param file the file that should be shared.
@@ -197,7 +200,7 @@ object EditorDefaults {
         file: File,
         mimeType: String,
     ) {
-        val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", file)
+        val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.ly.img.editor.fileprovider", file)
         shareUri(activity, uri, mimeType)
     }
 
@@ -223,6 +226,64 @@ object EditorDefaults {
     }
 
     /**
+     * A helper function to invoke when invoking [EngineConfiguration.onExport].
+     *
+     * @param engine the engine that is used in the editor.
+     * @param eventHandler the object that can send [EditorEvent]s.
+     */
+    suspend fun onExport(
+        engine: Engine,
+        eventHandler: EditorEventHandler,
+    ) {
+        EditorDefaults.run {
+            val mimeType: MimeType
+            if (engine.isSceneModeVideo) {
+                mimeType = MimeType.MP4
+                val page = engine.getCurrentPage()
+                eventHandler.send(ShowVideoExportProgressEvent(0f))
+                runCatching {
+                    val buffer =
+                        engine.block.exportVideo(
+                            block = page,
+                            timeOffset = 0.0,
+                            duration = engine.block.getDuration(page),
+                            mimeType = mimeType,
+                            progressCallback = { progress ->
+                                eventHandler.send(
+                                    ShowVideoExportProgressEvent(progress.encodedFrames.toFloat() / progress.totalFrames),
+                                )
+                            },
+                        )
+                    writeToTempFile(buffer, mimeType)
+                }.onSuccess { file ->
+                    eventHandler.send(ShowVideoExportSuccessEvent(file, mimeType.key))
+                }.onFailure {
+                    if (it is CancellationException) {
+                        eventHandler.send(DismissVideoExportEvent)
+                    } else {
+                        eventHandler.send(ShowVideoExportErrorEvent)
+                    }
+                }
+            } else {
+                eventHandler.send(ShowLoading)
+                mimeType = MimeType.PDF
+                val buffer =
+                    engine.block.export(
+                        block = requireNotNull(engine.scene.get()),
+                        mimeType = mimeType,
+                    ) {
+                        scene.getPages().forEach {
+                            block.setScopeEnabled(it, key = "layer/visibility", enabled = true)
+                            block.setVisible(it, visible = true)
+                        }
+                    }
+                eventHandler.send(HideLoading)
+                eventHandler.send(ShareFileEvent(writeToTempFile(buffer, mimeType), mimeType.key))
+            }
+        }
+    }
+
+    /**
      * A helper function that handles the default events specified in Events.kt file. By default the function is invoked
      * by the default implementation of the [EditorConfiguration].
      *
@@ -239,11 +300,12 @@ object EditorDefaults {
             is ShowLoading -> {
                 state.copy(showLoading = true)
             }
-
             is HideLoading -> {
                 state.copy(showLoading = false)
             }
-
+            is OnSceneLoaded -> {
+                state.copy(sceneIsLoaded = true)
+            }
             is ShowErrorDialogEvent -> {
                 state.copy(error = event.error)
             }
@@ -290,7 +352,7 @@ object EditorDefaults {
      * By default the composable function is invoked by the default implementation of the [EditorConfiguration].
      *
      * @param state the current state of the editor.
-     * @param eventHandler the object that can send [EditorEvent]s and close the editor.
+     * @param eventHandler the object that can send [EditorEvent]s.
      */
     @Composable
     fun Overlay(
@@ -353,7 +415,7 @@ object EditorDefaults {
                 TextButton(
                     onClick = {
                         eventHandler.send(HideErrorDialogEvent)
-                        eventHandler.sendCloseEditorEvent(EditorException(EditorException.Code.NO_INTERNET))
+                        eventHandler.send(EditorEvent.CloseEditor(EditorException(EditorException.Code.NO_INTERNET)))
                     },
                 ) {
                     Text(stringResource(R.string.ly_img_editor_dismiss))
@@ -366,8 +428,8 @@ object EditorDefaults {
     /**
      * A helper composable function for displaying a dialog when the editor captures an error.
      *
-     * @param engineException the exception that was caought.
-     * @param eventHandler the object that can send [EditorEvent]s and close the editor.
+     * @param engineException the exception that was caught.
+     * @param eventHandler the object that can send [EditorEvent]s.
      */
     @Composable
     fun ErrorDialog(
@@ -386,7 +448,7 @@ object EditorDefaults {
                 TextButton(
                     onClick = {
                         eventHandler.send(HideErrorDialogEvent)
-                        eventHandler.sendCloseEditorEvent(engineException)
+                        eventHandler.send(EditorEvent.CloseEditor(engineException))
                     },
                 ) {
                     Text(stringResource(R.string.ly_img_editor_dismiss))
@@ -399,7 +461,7 @@ object EditorDefaults {
     /**
      * A helper composable function for displaying a confirmation dialog when closing the editor.
      *
-     * @param eventHandler the object that can send [EditorEvent]s and close the editor.
+     * @param eventHandler the object that can send [EditorEvent]s.
      */
     @Composable
     fun CloseConfirmationDialog(eventHandler: EditorEventHandler) {
@@ -418,7 +480,7 @@ object EditorDefaults {
                 TextButton(
                     onClick = {
                         eventHandler.send(DismissCloseConfirmationDialogEvent)
-                        eventHandler.sendCloseEditorEvent()
+                        eventHandler.send(EditorEvent.CloseEditor())
                     },
                 ) {
                     Text(stringResource(R.string.ly_img_editor_exit))
@@ -526,7 +588,7 @@ object EditorDefaults {
                                             TextButton(
                                                 onClick = {
                                                     showCancelDialog = false
-                                                    eventHandler.sendCancelExportEvent()
+                                                    eventHandler.send(EditorEvent.CancelExport())
                                                 },
                                                 colors =
                                                     ButtonDefaults.textButtonColors(

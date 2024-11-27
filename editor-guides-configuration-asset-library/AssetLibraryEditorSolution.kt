@@ -1,5 +1,4 @@
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import ly.img.editor.DesignEditor
 import ly.img.editor.EditorConfiguration
@@ -10,12 +9,12 @@ import ly.img.editor.core.library.AssetLibrary
 @Composable
 fun AssetLibraryEditorSolution(navController: NavHostController) {
     val engineConfiguration =
-        remember {
-            EngineConfiguration.getForDesign(license = "<your license here>")
-        }
+        EngineConfiguration.rememberForDesign(
+            license = "<your license here>",
+        )
     // highlight-configuration-asset-library
     val editorConfiguration =
-        EditorConfiguration.getDefault(
+        EditorConfiguration.rememberForDesign(
             assetLibrary = AssetLibrary.getDefault(),
         )
     // highlight-configuration-asset-library

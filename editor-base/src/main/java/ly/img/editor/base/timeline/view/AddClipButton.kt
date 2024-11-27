@@ -17,12 +17,11 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.base.R
 import ly.img.editor.base.ui.Event
+import ly.img.editor.core.iconpack.Addcamerabackground
+import ly.img.editor.core.iconpack.Addgallerybackground
+import ly.img.editor.core.iconpack.IconPack
 import ly.img.editor.core.iconpack.Libraryelements
 import ly.img.editor.core.theme.surface3
-import ly.img.editor.core.ui.Environment
-import ly.img.editor.core.ui.iconpack.Addcamerabackground
-import ly.img.editor.core.ui.iconpack.Addgallerybackground
-import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.library.LibraryViewModel
 import ly.img.editor.core.ui.library.components.ClipMenuItem
 import ly.img.editor.core.ui.library.resultcontract.GalleryMimeType
@@ -56,7 +55,7 @@ fun AddClipButton(
                 icon = IconPack.Addcamerabackground,
             ) {
                 showClipMenu = false
-                onEvent(Event.OnCameraClick)
+                onEvent(Event.OnVideoCameraClick)
             }
 
             val galleryLauncher =
@@ -77,14 +76,11 @@ fun AddClipButton(
 
             ClipMenuItem(
                 textResourceId = R.string.ly_img_editor_library,
-                icon = ly.img.editor.core.iconpack.IconPack.Libraryelements,
+                icon = IconPack.Libraryelements,
             ) {
                 showClipMenu = false
                 onEvent(
-                    Event.OnAddLibraryCategoryClick(
-                        libraryCategory = checkNotNull(Environment.assetLibrary).clips,
-                        addToBackgroundTrack = true,
-                    ),
+                    Event.OnAddClipCategoryClick(addToBackgroundTrack = true),
                 )
             }
         }

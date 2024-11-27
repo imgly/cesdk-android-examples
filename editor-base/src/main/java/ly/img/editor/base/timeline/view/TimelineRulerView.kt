@@ -17,10 +17,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import ly.img.editor.base.timeline.ext.formatForClip
 import ly.img.editor.base.timeline.modifier.OffsetDirection
 import ly.img.editor.base.timeline.modifier.offsetByWidth
 import ly.img.editor.base.timeline.state.TimelineZoomState
+import ly.img.editor.core.ui.utils.formatForClip
 import ly.img.editor.core.ui.utils.formatForPlayer
 import kotlin.math.ceil
 import kotlin.time.Duration
