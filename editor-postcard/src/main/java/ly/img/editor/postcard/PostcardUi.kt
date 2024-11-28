@@ -1,7 +1,5 @@
 package ly.img.editor.postcard
 
-import android.app.Activity
-import android.net.Uri
 import android.os.Parcelable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -20,20 +18,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.base.components.LibraryButton
 import ly.img.editor.base.ui.EditorUi
+import ly.img.editor.core.EditorScope
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
-import ly.img.editor.core.event.EditorEventHandler
-import ly.img.editor.core.library.AssetLibrary
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.theme.surface1
 import ly.img.editor.core.ui.Environment
+import ly.img.editor.core.ui.library.LibraryViewModel
 import ly.img.editor.core.ui.utils.activity
 import ly.img.editor.postcard.bottomsheet.message_color.MessageColorBottomSheetContent
 import ly.img.editor.postcard.bottomsheet.message_color.MessageColorSheet
@@ -44,27 +40,20 @@ import ly.img.editor.postcard.bottomsheet.message_size.MessageSizeSheet
 import ly.img.editor.postcard.bottomsheet.template_colors.TemplateColorsBottomSheetContent
 import ly.img.editor.postcard.bottomsheet.template_colors.TemplateColorsSheet
 import ly.img.editor.postcard.rootbar.RootBarItem
-import ly.img.editor.postcard.rootbar.tab_icons.PostcardUiTabIconMappings
 import ly.img.engine.AssetDefinition
-import ly.img.engine.Engine
 
 @Composable
 fun PostcardUi(
     initialExternalState: Parcelable,
-    license: String,
-    userId: String? = null,
     renderTarget: EngineRenderTarget,
-    navigationIcon: ImageVector,
-    baseUri: Uri,
-    colorPalette: List<Color>,
-    assetLibrary: AssetLibrary,
-    onCreate: suspend (Engine, EditorEventHandler) -> Unit,
-    onExport: suspend (Engine, EditorEventHandler) -> Unit,
-    onUpload: suspend AssetDefinition.(Engine, EditorEventHandler, UploadAssetSourceType) -> AssetDefinition,
-    onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
-    onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
-    onEvent: (Activity, Parcelable, EditorEvent) -> Parcelable,
-    overlay: @Composable ((Parcelable, EditorEventHandler) -> Unit),
+    editorScope: EditorScope,
+    onCreate: suspend EditorScope.() -> Unit,
+    onExport: suspend EditorScope.() -> Unit,
+    onUpload: suspend EditorScope.(AssetDefinition, UploadAssetSourceType) -> AssetDefinition,
+    onClose: suspend EditorScope.(Boolean) -> Unit,
+    onError: suspend EditorScope.(Throwable) -> Unit,
+    onEvent: EditorScope.(Parcelable, EditorEvent) -> Parcelable,
+    overlay: @Composable (EditorScope.(Parcelable) -> Unit),
     close: (Throwable?) -> Unit,
 ) {
     val activity = requireNotNull(LocalContext.current.activity)
@@ -73,41 +62,38 @@ fun PostcardUi(
         mutableStateOf(Unit)
     }
 
+    val libraryViewModel =
+        viewModel {
+            LibraryViewModel(
+                editorScope = editorScope,
+                onUpload = onUpload,
+            )
+        }
     val viewModel =
         viewModel {
             PostcardUiViewModel(
-                baseUri = baseUri,
+                editorScope = editorScope,
                 onCreate = onCreate,
                 onExport = onExport,
                 onClose = onClose,
                 onError = onError,
-                colorPalette = colorPalette,
+                libraryViewModel = libraryViewModel,
             )
         }
 
-    // cannot combine remember blocks because onUpload requires viewModel instance
-    remember {
-        Environment.tabIconMappings = PostcardUiTabIconMappings()
-        Environment.assetLibrary = assetLibrary
-        Environment.onUpload = { engine, assetSourceType ->
-            onUpload(this, engine, viewModel, assetSourceType)
-        }
-        mutableStateOf(Unit)
-    }
-
     val uiState by viewModel.uiState.collectAsState()
-
+    val editorContext = editorScope.run { editorContext }
     EditorUi(
         initialExternalState = initialExternalState,
-        license = license,
-        userId = userId,
         renderTarget = renderTarget,
         uiState = uiState.editorUiViewState,
+        editorScope = editorScope,
+        editorContext = editorContext,
         overlay = overlay,
         onEvent = onEvent,
         topBar = {
             PostcardUiToolbar(
-                navigationIcon = navigationIcon,
+                navigationIcon = editorContext.navigationIcon,
                 onEvent = viewModel::onEvent,
                 postcardMode = uiState.postcardMode,
                 isInPreviewMode = uiState.editorUiViewState.isInPreviewMode,

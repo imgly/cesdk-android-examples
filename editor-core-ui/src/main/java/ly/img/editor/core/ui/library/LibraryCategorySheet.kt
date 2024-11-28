@@ -24,7 +24,8 @@ internal fun LibraryCategorySheet(
     onCloseAssetDetails: () -> Unit,
     onSearchFocus: () -> Unit,
     showAnyComposable: (AnyComposable) -> Unit,
-    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
+    launchGetContent: (String, UploadAssetSourceType) -> Unit,
+    launchCamera: (Boolean) -> Unit,
 ) {
     val viewModel = viewModel<LibraryViewModel>()
 
@@ -45,6 +46,7 @@ internal fun LibraryCategorySheet(
             },
             showAnyComposable = showAnyComposable,
             onCloseAssetDetails = onCloseAssetDetails,
+            launchGetContent = launchGetContent,
             launchCamera = launchCamera,
             onClose = onClose,
         )

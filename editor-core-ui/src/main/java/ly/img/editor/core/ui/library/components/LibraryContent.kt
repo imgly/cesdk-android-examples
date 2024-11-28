@@ -17,7 +17,8 @@ internal fun LibraryContent(
     onAssetClick: (WrappedAsset) -> Unit,
     onUriPick: (UploadAssetSourceType, Uri) -> Unit,
     onLibraryEvent: (LibraryEvent) -> Unit,
-    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
+    launchGetContent: (String, UploadAssetSourceType) -> Unit,
+    launchCamera: (Boolean) -> Unit,
 ) {
     val libraryCategory = uiState.libraryCategory
 
@@ -36,8 +37,8 @@ internal fun LibraryContent(
         LibrarySectionColumn(
             uiState = uiState,
             onAssetClick = onAssetClick,
-            onUriPick = onUriPick,
             onLibraryEvent = onLibraryEvent,
+            launchGetContent = launchGetContent,
             launchCamera = launchCamera,
         )
     }

@@ -9,10 +9,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import ly.img.editor.base.components.ColorButton
 import ly.img.editor.base.components.color_picker.ColorPickerButton
 import ly.img.editor.base.components.color_picker.fillAndStrokeColors
 import ly.img.editor.core.theme.EditorTheme
+import ly.img.editor.core.ui.ColorButton
 import ly.img.editor.core.ui.utils.ThemePreview
 
 @Composable

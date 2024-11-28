@@ -1,7 +1,6 @@
 import android.net.Uri
 import android.util.SizeF
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import ly.img.editor.EditorConfiguration
 import ly.img.editor.EngineConfiguration
@@ -12,17 +11,15 @@ import ly.img.editor.PhotoEditor
 fun PhotoEditorSolution(navController: NavHostController) {
     // highlight-engine-configuration
     val engineConfiguration =
-        remember {
-            EngineConfiguration.getForPhoto(
-                license = "<your license here>",
-                imageUri = Uri.parse("https://img.ly/static/ubq_samples/sample_4.jpg"),
-                imageSize = SizeF(1080F, 1920F),
-                userId = "<your unique user id>",
-            )
-        }
+        EngineConfiguration.rememberForPhoto(
+            license = "<your license here>",
+            imageUri = Uri.parse("https://img.ly/static/ubq_samples/sample_4.jpg"),
+            imageSize = SizeF(1080F, 1920F),
+            userId = "<your unique user id>",
+        )
     // highlight-engine-configuration
     // highlight-editor-configuration
-    val editorConfiguration = EditorConfiguration.getDefault()
+    val editorConfiguration = EditorConfiguration.rememberForPhoto()
     // highlight-editor-configuration
     // highlight-editor-initialization
     PhotoEditor(

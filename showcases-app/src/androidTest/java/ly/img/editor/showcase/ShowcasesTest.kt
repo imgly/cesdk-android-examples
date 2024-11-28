@@ -20,14 +20,17 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.espresso.IdlingPolicies
 import androidx.test.platform.app.InstrumentationRegistry
 import com.dropbox.dropshots.Dropshots
 import ly.img.editor.base.R
+import ly.img.engine.Engine
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 // showcases app is deleted after test run. Issue appeared in AGP 8.1.0 https://issuetracker.google.com/issues/295039976
 @OptIn(ExperimentalTestApi::class)
@@ -38,11 +41,17 @@ class ShowcasesTest {
     @get:Rule
     val dropshots = Dropshots()
 
+    init {
+        Engine.`$disableInternalDeployMode` = true
+    }
+
     @Before
     fun before() {
         composeTestRule.runOnUiThread {
             // We should force the light/dark mode to get correct screenshot tests.
-            InstrumentationRegistry.getInstrumentation().context
+            InstrumentationRegistry
+                .getInstrumentation()
+                .context
                 .getSystemService(Context.UI_MODE_SERVICE)
                 .let { it as UiModeManager }
                 .setApplicationNightMode(MODE_NIGHT_YES)
@@ -64,7 +73,8 @@ class ShowcasesTest {
             .onNodeWithTag(testTag = "LibraryButton")
             .performClick()
 
-        composeTestRule.onNodeWithTag(testTag = "LibraryNavigationBar")
+        composeTestRule
+            .onNodeWithTag(testTag = "LibraryNavigationBar")
             .onChildAt(0)
             .onChildAt(1) // Images tab
             .performClick()
@@ -75,8 +85,7 @@ class ShowcasesTest {
         composeTestRule
             .onNodeWithTag(
                 testTag = "LibraryImageCard/assets/demo/v2/ly.img.image/thumbnails/sample_1.jpg",
-            )
-            .performClick()
+            ).performClick()
 
         composeTestRule.waitForIdle()
 
@@ -84,23 +93,28 @@ class ShowcasesTest {
     }
 
     @Test
-    @Ignore("Until idlingEnabled is enabled back")
     fun snapVideoUi() {
+        IdlingPolicies.setIdlingResourceTimeout(5, TimeUnit.MINUTES)
+        IdlingPolicies.setMasterPolicyTimeout(5, TimeUnit.MINUTES)
         loadVideoUi()
 
         dropshots.assertSnapshot(bitmap = capture(), name = "video_loaded")
     }
 
     @Test
-    @Ignore("Until idlingEnabled is enabled back")
+    @Ignore("This test taskes to long to run.")
     fun snapVideoUiExportSuccess() {
+        IdlingPolicies.setIdlingResourceTimeout(5, TimeUnit.MINUTES)
+        IdlingPolicies.setMasterPolicyTimeout(5, TimeUnit.MINUTES)
         loadVideoUi()
 
         composeTestRule
             .onNodeWithContentDescription("Export")
             .performClick()
 
-        composeTestRule.waitUntilExactlyOneExists(hasText("Export Complete"), 30_000)
+        composeTestRule.waitForIdle()
+
+        composeTestRule.waitUntilExactlyOneExists(hasText("Export Complete"), 60_000)
 
         composeTestRule.waitForIdle()
 
@@ -108,6 +122,8 @@ class ShowcasesTest {
     }
 
     private fun loadVideoUi() {
+        IdlingPolicies.setIdlingResourceTimeout(5, TimeUnit.MINUTES)
+        IdlingPolicies.setMasterPolicyTimeout(5, TimeUnit.MINUTES)
         composeTestRule
             .onNodeWithText(text = "Video UI")
             .performClick()
@@ -140,17 +156,18 @@ class ShowcasesTest {
                 bitmap to location
             }
         val (canvasBitmap, canvasLocation) =
-            activity.findViewById<SurfaceView>(
-                R.id.editor_render_view,
-            ).run {
-                val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                val location = IntArray(2)
-                getLocationInWindow(location)
-                PixelCopy.request(this, bitmap, {
-                    lock.countDown()
-                }, Handler(Looper.getMainLooper()))
-                bitmap to location
-            }
+            activity
+                .findViewById<SurfaceView>(
+                    R.id.editor_render_view,
+                ).run {
+                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                    val location = IntArray(2)
+                    getLocationInWindow(location)
+                    PixelCopy.request(this, bitmap, {
+                        lock.countDown()
+                    }, Handler(Looper.getMainLooper()))
+                    bitmap to location
+                }
         lock.await()
         val jointBitmap =
             Bitmap.createBitmap(

@@ -18,4 +18,5 @@
     <string name="ly_img_camera_timer_3">3 seconds</string>
     <string name="ly_img_camera_timer_10">10 seconds</string>
 
+    <string name="ly_img_camera_recording_limit">Recording limit is %s</string>
 </resources>

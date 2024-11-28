@@ -8,14 +8,14 @@ import ly.img.editor.EngineConfiguration
 class EditorActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // highlight-engine-configuration
-        val engineConfiguration =
-            EngineConfiguration.getForDesign(
-                license = "<your license here>",
-                userId = "<your unique user id>",
-            )
-        // highlight-engine-configuration
         setContent {
+            // highlight-engine-configuration
+            val engineConfiguration =
+                EngineConfiguration.rememberForDesign(
+                    license = "<your license here>",
+                    userId = "<your unique user id>",
+                )
+            // highlight-engine-configuration
             // highlight-editor-invoke
             DesignEditor(engineConfiguration = engineConfiguration) {
                 // You can set result here

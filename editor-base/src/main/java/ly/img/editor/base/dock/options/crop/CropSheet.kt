@@ -18,7 +18,7 @@ import ly.img.editor.base.R
 import ly.img.editor.base.components.CardButton
 import ly.img.editor.base.components.SectionHeader
 import ly.img.editor.base.dock.BottomSheetContent
-import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.ConfigurableHeightContainer
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
@@ -28,16 +28,17 @@ import ly.img.editor.core.ui.iconpack.Flip
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Rotate90degreesccwoutline
 import ly.img.editor.core.ui.iconpack.Undo
+import ly.img.editor.core.R as CoreR
 
 @Composable
 fun CropSheet(
     uiState: CropUiState,
     onEvent: (Event) -> Unit,
 ) {
-    HalfHeightContainer {
+    ConfigurableHeightContainer {
         Column {
             SheetHeader(
-                title = stringResource(id = R.string.ly_img_editor_crop),
+                title = stringResource(id = CoreR.string.ly_img_editor_crop),
                 onClose = { onEvent(Event.OnHideSheet) },
             )
 
@@ -102,4 +103,7 @@ fun CropSheet(
     }
 }
 
-class CropBottomSheetContent(val uiState: CropUiState) : BottomSheetContent
+class CropBottomSheetContent(
+    override val isFloating: Boolean,
+    val uiState: CropUiState,
+) : BottomSheetContent

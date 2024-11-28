@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.base.components.SectionHeader
 import ly.img.editor.base.dock.BottomSheetContent
-import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.ConfigurableHeightContainer
 import ly.img.editor.base.dock.options.fillstroke.ColorOptions
 import ly.img.editor.base.dock.options.fillstroke.ColorPickerSheet
 import ly.img.editor.base.engine.toComposeColor
@@ -42,7 +42,7 @@ fun TemplateColorsSheet(
 
     when (screenState) {
         ScreenState.Main -> {
-            HalfHeightContainer {
+            ConfigurableHeightContainer {
                 Column {
                     SheetHeader(
                         title = stringResource(id = R.string.ly_img_editor_template_colors),
@@ -104,4 +104,7 @@ private sealed interface ScreenState {
     data class SectionColorPicker(val namedColor: NamedColor) : ScreenState
 }
 
-class TemplateColorsBottomSheetContent(val uiState: TemplateColorsUiState) : BottomSheetContent
+class TemplateColorsBottomSheetContent(
+    override val isFloating: Boolean,
+    val uiState: TemplateColorsUiState,
+) : BottomSheetContent

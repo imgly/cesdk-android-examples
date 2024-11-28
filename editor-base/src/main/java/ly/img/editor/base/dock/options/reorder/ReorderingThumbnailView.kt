@@ -14,9 +14,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ly.img.editor.base.timeline.clip.Clip
 import ly.img.editor.base.timeline.clip.ClipBackgroundView
-import ly.img.editor.base.timeline.ext.formatForClip
 import ly.img.editor.base.timeline.state.TimelineState
 import ly.img.editor.core.theme.surface2
+import ly.img.editor.core.ui.utils.formatForClip
 import kotlin.time.Duration
 
 @Composable

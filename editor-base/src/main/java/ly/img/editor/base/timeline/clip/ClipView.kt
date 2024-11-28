@@ -44,13 +44,13 @@ import ly.img.editor.base.timeline.clip.trim.ClipSelectionView
 import ly.img.editor.base.timeline.clip.trim.ClipTrimHandleIconView
 import ly.img.editor.base.timeline.clip.trim.ClipTrimOutlineView
 import ly.img.editor.base.timeline.clip.trim.IconStyle
-import ly.img.editor.base.timeline.ext.formatForClip
 import ly.img.editor.base.timeline.state.TimelineConfiguration
 import ly.img.editor.base.timeline.state.TimelineState
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.theme.LocalExtendedColorScheme
 import ly.img.editor.core.ui.utils.almostEquals
+import ly.img.editor.core.ui.utils.formatForClip
 import ly.img.editor.core.ui.utils.toDp
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
@@ -88,7 +88,8 @@ fun ClipView(
             Modifier
                 .offset {
                     IntOffset(x = offset.roundToInt(), y = 0)
-                }.height(TimelineConfiguration.clipHeight)
+                }
+                .height(TimelineConfiguration.clipHeight)
                 .width(width.toDp())
                 .zIndex(if (isSelected) 1f else 0f)
                 .absolutePadding(right = 1.dp)
@@ -186,7 +187,8 @@ fun ClipView(
                                         animatedTrailingTrimHandleOvershoot != 0f -> Alignment.CenterStart
                                         else -> Alignment.Center
                                     },
-                            ).offset(
+                            )
+                            .offset(
                                 x =
                                     handleWidth *
                                         when {
@@ -194,7 +196,8 @@ fun ClipView(
                                             animatedTrailingTrimHandleOvershoot != 0f -> -1
                                             else -> 0
                                         },
-                            ).size(
+                            )
+                            .size(
                                 width =
                                     maxWidth + (handleWidth * 2) +
                                         (animatedLeadingTrimHandleOvershoot + animatedTrailingTrimHandleOvershoot).toDp(),

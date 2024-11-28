@@ -30,7 +30,7 @@ import ly.img.editor.base.components.PropertySlider
 import ly.img.editor.base.components.PropertySwitch
 import ly.img.editor.base.components.SectionHeader
 import ly.img.editor.base.components.ToggleIconButton
-import ly.img.editor.base.dock.HalfHeightContainer
+import ly.img.editor.base.dock.ConfigurableHeightContainer
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.base.ui.Event
 import ly.img.editor.core.library.LibraryCategory
@@ -49,7 +49,7 @@ fun FormatOptionsSheet(
     uiState: FormatUiState,
     onEvent: (Event) -> Unit,
 ) {
-    HalfHeightContainer {
+    ConfigurableHeightContainer {
         var screenState by remember { mutableStateOf(ScreenState.Main) }
 
         BackHandler(enabled = screenState != ScreenState.Main) {
@@ -275,7 +275,7 @@ fun FormatOptionsSheet(
                         fontFamily = uiState.fontFamily,
                         filter = emptyList(),
                         onSelectFont = { fontData ->
-                            onEvent(BlockEvent.OnChangeTypeface(fontData.uri, fontData.typeface))
+                            onEvent(BlockEvent.OnChangeTypeface(fontData.typeface))
                         },
                     )
                 }
