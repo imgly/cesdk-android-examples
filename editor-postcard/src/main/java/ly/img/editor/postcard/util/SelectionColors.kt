@@ -1,11 +1,11 @@
 package ly.img.editor.postcard.util
 
-import ly.img.editor.base.engine.GradientFill
-import ly.img.editor.base.engine.SolidFill
-import ly.img.editor.base.engine.getFillInfo
 import ly.img.editor.base.engine.setFillType
 import ly.img.editor.base.engine.toEngineColor
+import ly.img.editor.core.component.data.GradientFill
+import ly.img.editor.core.component.data.SolidFill
 import ly.img.editor.core.ui.engine.Scope
+import ly.img.editor.core.ui.engine.getFill
 import ly.img.editor.core.ui.engine.getPage
 import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.engine.DesignBlock
@@ -76,8 +76,8 @@ private fun Engine.getSelectionColors(
             when (colorType) {
                 ColorType.Fill ->
                     if ((block.isFillEnabled(designBlock) || includeDisabled)) {
-                        when (val fillInfo = getFillInfo(designBlock)) {
-                            is SolidFill, is GradientFill -> fillInfo.fillColor.toEngineColor()
+                        when (val fillInfo = getFill(designBlock)) {
+                            is SolidFill, is GradientFill -> fillInfo.mainColor.toEngineColor()
                             else -> null
                         }
                     } else {
@@ -107,7 +107,7 @@ private fun Engine.getSelectionColors(
         ) {
             val propertyColor =
                 when (colorType) {
-                    ColorType.Fill -> getFillInfo(designBlock)?.fillColor?.toEngineColor()
+                    ColorType.Fill -> getFill(designBlock)?.mainColor?.toEngineColor()
                     ColorType.Stroke -> block.getStrokeColor(designBlock)
                 }
             if (setDisabled && propertyColor != color) {

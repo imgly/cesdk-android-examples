@@ -6,13 +6,17 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,16 +25,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import ly.img.camera.CameraViewModel
+import ly.img.camera.R
 import ly.img.camera.components.sidemenu.SideMenu
 import ly.img.camera.preview.CameraEnginePreview
 import ly.img.camera.record.RecordingManager
 import ly.img.camera.record.Timer
-import ly.img.camera.record.components.BottomDock
+import ly.img.camera.record.components.CameraDock
 import ly.img.camera.record.components.DeleteAllRecordingsDialog
+import ly.img.editor.core.theme.LocalExtendedColorScheme
 import ly.img.editor.core.ui.utils.activity
+import ly.img.editor.core.ui.utils.formatForClip
 import ly.img.editor.core.ui.utils.lifecycle.LifecycleEventEffect
 
 @Composable
@@ -100,11 +108,17 @@ internal fun BoxScope.CameraView(
         Toolbar(
             isRecording = recordingManager.hasStartedRecording,
             duration = recordingManager.state.totalRecordedDuration,
+            maxDuration = viewModel.cameraConfiguration.maxTotalDuration,
             recordingColor = viewModel.cameraConfiguration.recordingColor,
             onCloseClick = ::close,
         )
 
-        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+        Box(
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+        ) {
             this@Column.AnimatedVisibility(
                 visible = cameraState.isReady && recordingManager.state.status is RecordingManager.Status.Idle,
                 modifier =
@@ -128,13 +142,34 @@ internal fun BoxScope.CameraView(
                     recordingStatus = state.status,
                 )
             }
+
+            this@Column.AnimatedVisibility(
+                visible = state.hasReachedMaxDuration,
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter),
+                enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+                exit = fadeOut() + slideOutVertically(targetOffsetY = { it / 2 }),
+            ) {
+                Shadowed {
+                    Text(
+                        text =
+                            stringResource(
+                                id = R.string.ly_img_camera_recording_limit,
+                                viewModel.cameraConfiguration.maxTotalDuration.formatForClip(),
+                            ),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = LocalExtendedColorScheme.current.white,
+                    )
+                }
+            }
         }
 
-        BottomDock(
+        CameraDock(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 20.dp),
+                    .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
             cameraState = cameraState,
             recordingManager = recordingManager,
             cameraConfiguration = viewModel.cameraConfiguration,

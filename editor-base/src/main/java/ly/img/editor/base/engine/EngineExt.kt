@@ -12,14 +12,13 @@ import ly.img.editor.core.ui.engine.getPage
 import ly.img.editor.core.ui.engine.getScene
 import ly.img.editor.core.ui.engine.getStackOrNull
 import ly.img.editor.core.ui.engine.overrideAndRestore
+import ly.img.editor.core.ui.engine.toRGBColor
 import ly.img.engine.BlendMode
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
-import ly.img.engine.FillType
 import ly.img.engine.PositionMode
-import ly.img.engine.RGBAColor
 import ly.img.engine.ShapeType
 import ly.img.engine.SizeMode
 import ly.img.engine.StrokeStyle
@@ -168,64 +167,6 @@ fun Engine.getFillColor(designBlock: DesignBlock): Color? {
     return block.getColor(designBlock, "fill/solid/color")
         .toRGBColor(this)
         .toComposeColor()
-}
-
-fun Engine.getStrokeColor(designBlock: DesignBlock): Color? {
-    if (!block.supportsStroke(designBlock)) return null
-    return block.getColor(designBlock, "stroke/color")
-        .toRGBColor(this)
-        .toComposeColor()
-}
-
-fun Engine.getFillInfo(designBlock: DesignBlock): Fill? {
-    return if (!block.supportsFill(designBlock)) {
-        null
-    } else {
-        when (block.getFillType(designBlock)) {
-            FillType.Color -> {
-                val rgbaColor =
-                    if (DesignBlockType.getOrNull(block.getType(designBlock)) == DesignBlockType.Text) {
-                        block.getTextColors(designBlock).first().toRGBColor(this)
-                    } else {
-                        block.getColor(designBlock, "fill/solid/color") as RGBAColor
-                    }
-                SolidFill(rgbaColor.toComposeColor())
-            }
-
-            FillType.LinearGradient -> {
-                val fill = block.getFill(designBlock)
-                LinearGradientFill(
-                    startPointX = block.getFloat(fill, "fill/gradient/linear/startPointX"),
-                    startPointY = block.getFloat(fill, "fill/gradient/linear/startPointY"),
-                    endPointX = block.getFloat(fill, "fill/gradient/linear/endPointX"),
-                    endPointY = block.getFloat(fill, "fill/gradient/linear/endPointY"),
-                    colorStops = block.getGradientColorStops(fill, "fill/gradient/colors"),
-                )
-            }
-
-            FillType.RadialGradient -> {
-                val fill = block.getFill(designBlock)
-                RadialGradientFill(
-                    centerX = block.getFloat(fill, "fill/gradient/radial/centerPointX"),
-                    centerY = block.getFloat(fill, "fill/gradient/radial/centerPointY"),
-                    radius = block.getFloat(fill, "fill/gradient/radial/radius"),
-                    colorStops = block.getGradientColorStops(fill, "fill/gradient/colors"),
-                )
-            }
-
-            FillType.ConicalGradient -> {
-                val fill = block.getFill(designBlock)
-                ConicalGradientFill(
-                    centerX = block.getFloat(fill, "fill/gradient/conical/centerPointX"),
-                    centerY = block.getFloat(fill, "fill/gradient/conical/centerPointY"),
-                    colorStops = block.getGradientColorStops(fill, "fill/gradient/colors"),
-                )
-            }
-
-            // Image fill and Video fill are not supported yet
-            else -> null
-        }
-    }
 }
 
 fun Engine.canResetCrop(designBlock: DesignBlock) = block.getContentFillMode(designBlock) == ContentFillMode.CROP

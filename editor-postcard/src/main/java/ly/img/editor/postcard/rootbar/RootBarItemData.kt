@@ -2,32 +2,24 @@ package ly.img.editor.postcard.rootbar
 
 import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
-import ly.img.editor.base.components.VectorIcon
 import ly.img.editor.base.engine.getFillColor
 import ly.img.editor.base.engine.toComposeColor
+import ly.img.editor.core.component.data.EditorIcon
+import ly.img.editor.core.sheet.SheetType
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Typeface
-import ly.img.editor.core.ui.tab_item.TabIcon
 import ly.img.editor.postcard.R
+import ly.img.editor.postcard.bottomsheet.PostcardSheetType
 import ly.img.editor.postcard.bottomsheet.message_size.MessageSize
-import ly.img.editor.postcard.rootbar.tab_icons.MessageColorIcon
-import ly.img.editor.postcard.rootbar.tab_icons.TemplateColorsIcon
 import ly.img.editor.postcard.util.SelectionColors
 import ly.img.editor.postcard.util.getPinnedBlock
 import ly.img.engine.Engine
 
 data class RootBarItemData(
-    val type: RootBarItemType,
+    val sheetType: SheetType,
     @StringRes val labelStringRes: Int,
-    val icon: TabIcon,
+    val icon: EditorIcon,
 )
-
-enum class RootBarItemType {
-    TemplateColors,
-    Font,
-    Size,
-    Color,
-}
 
 internal fun rootBarItems(
     engine: Engine,
@@ -46,30 +38,31 @@ internal fun rootBarItems(
         } else {
             listOf(
                 RootBarItemData(
-                    RootBarItemType.TemplateColors,
-                    R.string.ly_img_editor_colors,
-                    TemplateColorsIcon(
-                        pageSelectionColors.getColors().map { it.color.toComposeColor() },
-                    ),
+                    sheetType = PostcardSheetType.TemplateColors(),
+                    labelStringRes = R.string.ly_img_editor_colors,
+                    icon =
+                        EditorIcon.Colors(
+                            pageSelectionColors.getColors().map { it.color.toComposeColor() },
+                        ),
                 ),
             )
         }
     } else {
         listOf(
             RootBarItemData(
-                RootBarItemType.Font,
-                ly.img.editor.base.R.string.ly_img_editor_font,
-                VectorIcon(IconPack.Typeface),
+                sheetType = PostcardSheetType.Font(),
+                labelStringRes = ly.img.editor.base.R.string.ly_img_editor_font,
+                icon = EditorIcon.Vector(IconPack.Typeface),
             ),
             RootBarItemData(
-                RootBarItemType.Size,
-                R.string.ly_img_editor_size,
-                VectorIcon(MessageSize.get(engine, block).circledIcon),
+                sheetType = PostcardSheetType.Size(),
+                labelStringRes = R.string.ly_img_editor_size,
+                icon = EditorIcon.Vector(MessageSize.get(engine, block).circledIcon),
             ),
             RootBarItemData(
-                RootBarItemType.Color,
-                R.string.ly_img_editor_color,
-                MessageColorIcon(engine.getFillColor(block) ?: Color.Black),
+                sheetType = PostcardSheetType.Color(),
+                labelStringRes = R.string.ly_img_editor_color,
+                icon = EditorIcon.Colors(engine.getFillColor(block) ?: Color.Black),
             ),
         )
     }

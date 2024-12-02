@@ -1,5 +1,6 @@
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.core.os.ParcelCompat
 import ly.img.editor.EditorUiState
 
 // highlight-configuration-custom-state
@@ -9,10 +10,9 @@ data class OverlayCustomState(
     val showCustomLoading: Boolean = true,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        baseState = parcel.readParcelable(EditorUiState::class.java.classLoader)!!,
+        baseState = ParcelCompat.readParcelable(parcel, EditorUiState::class.java.classLoader, EditorUiState::class.java)!!,
         showCustomLoading = parcel.readByte() != 0.toByte(),
-    ) {
-    }
+    )
 
     override fun writeToParcel(
         parcel: Parcel,

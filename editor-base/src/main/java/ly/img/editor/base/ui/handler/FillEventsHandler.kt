@@ -2,7 +2,6 @@ package ly.img.editor.base.ui.handler
 
 import androidx.compose.ui.graphics.Color
 import ly.img.editor.base.engine.changeLightnessBy
-import ly.img.editor.base.engine.getFillType
 import ly.img.editor.base.engine.setConicalGradientFill
 import ly.img.editor.base.engine.setFillType
 import ly.img.editor.base.engine.setLinearGradientFill
@@ -17,6 +16,7 @@ import ly.img.editor.base.ui.BlockEvent.OnChangeRadialGradientParams
 import ly.img.editor.base.ui.BlockEvent.OnDisableFill
 import ly.img.editor.base.ui.BlockEvent.OnEnableFill
 import ly.img.editor.core.ui.EventsHandler
+import ly.img.editor.core.ui.engine.getFillType
 import ly.img.editor.core.ui.inject
 import ly.img.editor.core.ui.register
 import ly.img.engine.DesignBlock
@@ -25,6 +25,7 @@ import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.GradientColorStop
 import ly.img.engine.RGBAColor
+import kotlin.math.tan
 
 @Suppress("NAME_SHADOWING")
 fun EventsHandler.blockFillEvents(
@@ -154,7 +155,42 @@ fun EventsHandler.blockFillEvents(
         }
     }
     register<OnChangeLinearGradientParams> {
-        engine.block.setLinearGradientFill(block, it.startX, it.startY, it.endX, it.endY)
+        val absRotationInDegrees = ((it.rotationInDegrees % 360.0) + 360.0) % 360.0
+
+        val slope = tan(Math.toRadians(absRotationInDegrees))
+
+        val startX: Double
+        val startY: Double
+        val endX: Double
+        val endY: Double
+
+        when (absRotationInDegrees) {
+            in 0f..45f, in 315f..360f -> {
+                startX = 0.0
+                startY = 0.5 - 0.5 * slope
+                endX = 1.0
+                endY = 0.5 + 0.5 * slope
+            }
+            in 135.0f..225.0f -> {
+                startX = 1.0
+                startY = 0.5 + 0.5 * slope
+                endX = 0.0
+                endY = 0.5 - 0.5 * slope
+            }
+            in 45f..135.0f -> {
+                startX = 0.5 - 0.5 / slope
+                startY = 0.0
+                endX = 0.5 + 0.5 / slope
+                endY = 1.0
+            }
+            else -> { // 225.0f..315.0f
+                startX = 0.5 + 0.5 / slope
+                startY = 1.0
+                endX = 0.5 - 0.5 / slope
+                endY = 0.0
+            }
+        }
+        engine.block.setLinearGradientFill(block, startX.toFloat(), startY.toFloat(), endX.toFloat(), endY.toFloat())
     }
     register<OnChangeRadialGradientParams> {
         engine.block.setRadialGradientFill(block, it.centerX, it.centerY, it.radius)

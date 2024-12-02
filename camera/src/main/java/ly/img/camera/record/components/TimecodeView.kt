@@ -14,8 +14,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -28,8 +30,9 @@ import kotlin.time.Duration
 @Composable
 internal fun TimecodeView(
     modifier: Modifier,
-    isRecording: Boolean,
     duration: Duration,
+    maxDuration: Duration,
+    isRecording: Boolean,
     recordingColor: Color,
 ) {
     Row(
@@ -58,14 +61,30 @@ internal fun TimecodeView(
             )
         }
 
+        val isMaxDurationLimited =
+            remember(maxDuration) {
+                maxDuration < Duration.INFINITE
+            }
+
         // Setting `includeFontPadding` to false ensures that the recording indicator and the text are correctly aligned.
+        val textStyle =
+            MaterialTheme.typography.labelLarge.copy(
+                platformStyle = PlatformTextStyle(includeFontPadding = false),
+            )
+
         Text(
             text = duration.formatForPlayer(),
-            style =
-                MaterialTheme.typography.labelLarge.copy(
-                    platformStyle = PlatformTextStyle(includeFontPadding = false),
-                ),
+            style = textStyle,
             color = MaterialTheme.colorScheme.onSurface,
         )
+
+        if (isMaxDurationLimited) {
+            Text(
+                text = " / ${maxDuration.formatForPlayer()}",
+                style = textStyle,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.alpha(0.75f),
+            )
+        }
     }
 }

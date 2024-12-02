@@ -1,8 +1,5 @@
 package ly.img.editor.core.ui.library.components.section
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -27,22 +24,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ly.img.editor.core.R
+import ly.img.editor.core.iconpack.AddCameraBackground
 import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.iconpack.Add
-import ly.img.editor.core.ui.iconpack.Addcamerabackground
 import ly.img.editor.core.ui.iconpack.Arrowright
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Photolibraryoutline
 import ly.img.editor.core.ui.iconpack.Videolibraryoutline
 import ly.img.editor.core.ui.library.components.ClipMenuItem
+import ly.img.editor.core.iconpack.IconPack as CoreIconPack
 
 @Composable
 internal fun LibrarySectionHeader(
     item: LibrarySectionItem.Header,
     onDrillDown: (LibraryContent) -> Unit,
-    onUriPick: (UploadAssetSourceType, Uri) -> Unit,
-    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
+    launchGetContent: (String, UploadAssetSourceType) -> Unit,
+    launchCamera: (Boolean) -> Unit,
 ) {
     Row(
         modifier =
@@ -63,9 +61,8 @@ internal fun LibrarySectionHeader(
         val uploadAssetSource = item.uploadAssetSourceType
         if (uploadAssetSource != null) {
             UploadButton(
-                onUriPick = {
-                    onUriPick(uploadAssetSource, it)
-                },
+                uploadAssetSource = uploadAssetSource,
+                launchGetContent = launchGetContent,
                 launchCamera = launchCamera,
                 mimeTypeFilter = uploadAssetSource.mimeTypeFilter,
                 modifier = Modifier.padding(end = 8.dp),
@@ -93,28 +90,20 @@ internal fun LibrarySectionHeader(
 
 @Composable
 private fun UploadButton(
-    onUriPick: (Uri) -> Unit,
-    launchCamera: (Boolean, (Uri) -> Unit) -> Unit,
+    uploadAssetSource: UploadAssetSourceType,
+    launchGetContent: (String, UploadAssetSourceType) -> Unit,
+    launchCamera: (Boolean) -> Unit,
     mimeTypeFilter: String,
     modifier: Modifier,
 ) {
     val isAudioMimeType = mimeTypeFilter.isAudioMimeType()
     var showUploadMenu by remember { mutableStateOf(false) }
-
-    val launcher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
-            uri?.let {
-                showUploadMenu = false
-                onUriPick(it)
-            }
-        }
-
     Box {
         TextButton(
             modifier = modifier,
             onClick = {
                 if (isAudioMimeType) {
-                    launcher.launch(mimeTypeFilter)
+                    launchGetContent(mimeTypeFilter, uploadAssetSource)
                 } else {
                     showUploadMenu = true
                 }
@@ -140,14 +129,14 @@ private fun UploadButton(
                     textResourceId = if (isVideoMimeType) R.string.ly_img_editor_choose_video else R.string.ly_img_editor_choose_photo,
                     icon = if (isVideoMimeType) IconPack.Videolibraryoutline else IconPack.Photolibraryoutline,
                 ) {
-                    launcher.launch(mimeTypeFilter)
+                    launchGetContent(mimeTypeFilter, uploadAssetSource)
                 }
                 ClipMenuItem(
                     textResourceId = if (isVideoMimeType) R.string.ly_img_editor_take_video else R.string.ly_img_editor_take_photo,
-                    icon = IconPack.Addcamerabackground,
+                    icon = CoreIconPack.AddCameraBackground,
                     onClick = {
-                        launchCamera(isVideoMimeType, onUriPick)
                         showUploadMenu = false
+                        launchCamera(isVideoMimeType)
                     },
                 )
             }

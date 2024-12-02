@@ -36,12 +36,10 @@ internal class CameraViewModel(
         Engine.getInstance("ly.img.camera").also {
             it.idlingEnabled = true
         }
-    val engineConfiguration: EngineConfiguration? =
-        savedStateHandle.get<CaptureVideo.Input>(
-            CaptureVideo.INTENT_KEY_CAMERA_INPUT,
-        )?.engineConfiguration
 
-    val cameraConfiguration = CameraConfiguration()
+    private val cameraInput = savedStateHandle.get<CaptureVideo.Input>(CaptureVideo.INTENT_KEY_CAMERA_INPUT)
+    val engineConfiguration: EngineConfiguration? = cameraInput?.engineConfiguration
+    val cameraConfiguration: CameraConfiguration = cameraInput?.cameraConfiguration ?: CameraConfiguration()
 
     private val previewUseCase =
         Preview.Builder()
@@ -50,8 +48,8 @@ internal class CameraViewModel(
                     .setResolutionStrategy(
                         ResolutionStrategy(
                             Size(
-                                cameraConfiguration.width.toInt(),
-                                cameraConfiguration.height.toInt(),
+                                cameraConfiguration.videoSize.width.toInt(),
+                                cameraConfiguration.videoSize.height.toInt(),
                             ),
                             ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER,
                         ),
@@ -67,7 +65,13 @@ internal class CameraViewModel(
             .build()
 
     val cameraState = CameraState(previewUseCase, videoCaptureUseCase)
-    val recordingManager = RecordingManager(viewModelScope, VideoRecorder(videoCaptureUseCase))
+    val recordingManager =
+        RecordingManager(
+            maxDuration = cameraConfiguration.maxTotalDuration,
+            allowExceedingMaxDuration = cameraConfiguration.allowExceedingMaxDuration,
+            coroutineScope = viewModelScope,
+            videoRecorder = VideoRecorder(videoCaptureUseCase),
+        )
 
     private var page: DesignBlock = -1
     private var pixelStreamFill1: DesignBlock = -1
@@ -89,8 +93,8 @@ internal class CameraViewModel(
         page = engine.block.create(DesignBlockType.Page)
         engine.block.appendChild(scene, page)
 
-        val canvasWidth = cameraConfiguration.width
-        val canvasHeight = cameraConfiguration.height
+        val canvasWidth = cameraConfiguration.videoSize.width
+        val canvasHeight = cameraConfiguration.videoSize.height
 
         engine.block.setWidth(scene, canvasWidth)
         engine.block.setHeight(scene, canvasHeight)
@@ -135,7 +139,7 @@ internal class CameraViewModel(
             engine.block.setVisible(streamRect1, true)
             cameraState.isReady = true
         }
-        val zoomedHeight = maxWidth * (cameraConfiguration.height / cameraConfiguration.width)
+        val zoomedHeight = maxWidth * (cameraConfiguration.videoSize.height / cameraConfiguration.videoSize.width)
         val topPadding = (maxHeight - zoomedHeight).coerceAtLeast(0f)
         engine.scene.zoomToBlock(page, paddingTop = topPadding)
     }

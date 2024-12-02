@@ -1,11 +1,10 @@
 package ly.img.editor.base.ui
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.res.Configuration
-import android.net.Uri
 import android.os.Parcelable
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -40,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -53,22 +53,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import ly.img.editor.base.components.EditingTextCard
 import ly.img.editor.base.components.actionmenu.CanvasActionMenu
 import ly.img.editor.base.dock.AdjustmentSheetContent
 import ly.img.editor.base.dock.BottomSheetContent
-import ly.img.editor.base.dock.Dock
+import ly.img.editor.base.dock.CustomBottomSheetContent
 import ly.img.editor.base.dock.EffectSheetContent
 import ly.img.editor.base.dock.FillStrokeBottomSheetContent
 import ly.img.editor.base.dock.FormatBottomSheetContent
+import ly.img.editor.base.dock.InspectorBar
 import ly.img.editor.base.dock.LayerBottomSheetContent
-import ly.img.editor.base.dock.LibraryBottomSheetContent
-import ly.img.editor.base.dock.LibraryCategoryBottomSheetContent
+import ly.img.editor.base.dock.LibraryAddBottomSheetContent
+import ly.img.editor.base.dock.LibraryReplaceBottomSheetContent
+import ly.img.editor.base.dock.LibraryTabsBottomSheetContent
 import ly.img.editor.base.dock.OptionsBottomSheetContent
-import ly.img.editor.base.dock.ReplaceBottomSheetContent
 import ly.img.editor.base.dock.options.adjustment.AdjustmentOptionsSheet
 import ly.img.editor.base.dock.options.crop.CropBottomSheetContent
 import ly.img.editor.base.dock.options.crop.CropSheet
@@ -85,42 +88,45 @@ import ly.img.editor.base.engine.EngineCanvasView
 import ly.img.editor.base.timeline.view.TimelineView
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetDefaults
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetLayout
+import ly.img.editor.compose.bottomsheet.ModalBottomSheetState
 import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
 import ly.img.editor.compose.bottomsheet.rememberModalBottomSheetState
+import ly.img.editor.core.EditorContext
+import ly.img.editor.core.EditorScope
 import ly.img.editor.core.R
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
-import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.navbar.SystemNavBar
+import ly.img.editor.core.sheet.SheetStyle
 import ly.img.editor.core.theme.surface1
 import ly.img.editor.core.theme.surface2
 import ly.img.editor.core.ui.AnyComposable
 import ly.img.editor.core.ui.library.AddLibrarySheet
 import ly.img.editor.core.ui.library.AddLibraryTabsSheet
 import ly.img.editor.core.ui.library.ReplaceLibrarySheet
-import ly.img.editor.core.ui.library.resultcontract.prepareUriForCameraLauncher
 import ly.img.editor.core.ui.permissions.PermissionManager.Companion.hasCameraPermission
 import ly.img.editor.core.ui.permissions.PermissionManager.Companion.hasCameraPermissionInManifest
 import ly.img.editor.core.ui.permissions.PermissionsView
+import ly.img.editor.core.ui.scope.EditorContextImpl
+import ly.img.editor.core.ui.sheet.Sheet
 import ly.img.editor.core.ui.utils.activity
 import ly.img.editor.core.ui.utils.lifecycle.LifecycleEventEffect
 import ly.img.editor.core.ui.utils.toPx
 
+@OptIn(FlowPreview::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EditorUi(
     initialExternalState: Parcelable,
-    license: String,
-    userId: String?,
     renderTarget: EngineRenderTarget,
     uiState: EditorUiViewState,
-    onEvent: (Activity, Parcelable, EditorEvent) -> Parcelable,
-    overlay: @Composable ((Parcelable, EditorEventHandler) -> Unit),
+    editorScope: EditorScope,
+    editorContext: EditorContext,
+    onEvent: EditorScope.(Parcelable, EditorEvent) -> Parcelable,
     topBar: @Composable () -> Unit,
     canvasOverlay: @Composable BoxScope.(PaddingValues) -> Unit,
-    bottomSheetLayout: @Composable ColumnScope.(BottomSheetContent) -> Unit = {},
+    bottomSheetLayout: @Composable ColumnScope.(BottomSheetContent, (Boolean) -> Unit) -> Unit = { _, _ -> },
     pagesOverlay: @Composable BoxScope.(PaddingValues) -> Unit = {},
-    onSingleEvent: (SingleEvent) -> Unit = {},
     viewModel: EditorUiViewModel,
     close: (Throwable?) -> Unit,
 ) {
@@ -132,17 +138,36 @@ fun EditorUi(
     var timelineExpanded by remember { mutableStateOf(true) }
     var hideTimeline: Boolean by remember { mutableStateOf(false) }
 
-    BackHandler(true) {
-        viewModel.onEvent(Event.OnBackPress)
-    }
+    var sheetStyle by remember(bottomSheetContent?.type) { mutableStateOf(bottomSheetContent?.type?.style) }
+    val bottomSheetState =
+        remember(sheetStyle) {
+            val internalSheetStyle = sheetStyle
+            val initialValue =
+                when {
+                    internalSheetStyle == null -> ModalBottomSheetValue.Hidden
+                    internalSheetStyle.isHalfExpandingEnabled && internalSheetStyle.isHalfExpandedInitially -> ModalBottomSheetValue.HalfExpanded
+                    else -> ModalBottomSheetValue.Expanded
+                }
+            ModalBottomSheetState(
+                initialValue = if (sheetStyle?.animateInitialValue == true) ModalBottomSheetValue.Hidden else initialValue,
+                isSkipHalfExpanded = sheetStyle?.isHalfExpandingEnabled?.not() ?: true,
+            )
+        }
 
-    LaunchedEffect(bottomSheetContent?.getType()) {
-        val sheetState = uiState.bottomSheetState
-        if (bottomSheetContent == null && sheetState.isVisible) sheetState.snapTo(ModalBottomSheetValue.Hidden)
+    BackHandler(true) {
+        viewModel.send(
+            Event.OnBackPress(
+                bottomSheetOffset = bottomSheetState.swipeableState.offset ?: Float.MAX_VALUE,
+                bottomSheetMaxOffset = bottomSheetState.swipeableState.maxOffset,
+            ),
+        )
+    }
+    LaunchedEffect(bottomSheetContent?.type) {
+        if (bottomSheetContent == null && bottomSheetState.isVisible) bottomSheetState.snapTo(ModalBottomSheetValue.Hidden)
         if (bottomSheetContent != null &&
-            bottomSheetContent !is ReplaceBottomSheetContent &&
-            bottomSheetContent !is LibraryBottomSheetContent &&
-            bottomSheetContent !is LibraryCategoryBottomSheetContent &&
+            bottomSheetContent !is LibraryReplaceBottomSheetContent &&
+            bottomSheetContent !is LibraryTabsBottomSheetContent &&
+            bottomSheetContent !is LibraryAddBottomSheetContent &&
             timelineExpanded
         ) {
             hideTimeline = true
@@ -152,17 +177,17 @@ fun EditorUi(
             timelineExpanded = true
         }
         val sheetContent = bottomSheetContent
-        if (sheetContent != null) {
-            if (sheetContent.isInitialExpandHalf()) {
-                sheetState.halfExpand()
+        if (sheetContent != null && sheetStyle?.animateInitialValue == true) {
+            if (sheetContent.isHalfExpandingEnabled && sheetContent.isInitialExpandHalf) {
+                bottomSheetState.halfExpand()
             } else {
-                sheetState.expand()
+                bottomSheetState.expand()
             }
         }
     }
 
     LifecycleEventEffect(event = Lifecycle.Event.ON_PAUSE) {
-        viewModel.onEvent(Event.OnPause)
+        viewModel.send(Event.OnPause)
     }
 
     var anyComposable: AnyComposable? by remember {
@@ -186,7 +211,7 @@ fun EditorUi(
                         else -> canvasColor
                     }
                 }
-                bottomSheetContent is LibraryBottomSheetContent -> {
+                bottomSheetContent is LibraryTabsBottomSheetContent -> {
                     libraryColor
                 }
                 else -> {
@@ -203,20 +228,52 @@ fun EditorUi(
             .asPaddingValues()
             .calculateBottomPadding()
     navigationBarHeightPx = navigationBarHeight.toPx()
-
+    val activity =
+        requireNotNull(LocalContext.current.activity) {
+            "Unable to find the activity. This is an internal error. Please report this issue."
+        }
     val oneDpInPx = 1.dp.toPx()
-    LaunchedEffect(Unit) {
-        val swipeableState = uiState.bottomSheetState.swipeableState
-        snapshotFlow { swipeableState.offset }.collectLatest { offset ->
-            if (offset == null) return@collectLatest
-            val bottomSheetHeight =
-                (
-                    (swipeableState.maxOffset - offset).coerceAtMost(
-                        0.7f * swipeableState.maxOffset,
-                    ) - navigationBarHeightPx
-                ).coerceAtLeast(0F)
-            val bottomSheetHeightInDp = (bottomSheetHeight / oneDpInPx)
-            viewModel.onEvent(Event.OnBottomSheetHeightChange(bottomSheetHeightInDp, showTimeline = timelineExpanded))
+    remember {
+        (editorContext as EditorContextImpl).init(
+            activity = activity,
+            eventHandler = viewModel,
+        )
+        mutableStateOf(Unit)
+    }
+    LaunchedEffect(bottomSheetState) {
+        val swipeableState = bottomSheetState.swipeableState
+        launch {
+            // Reset bottomSheetContent
+            // The debounce is added to avoid the situation when another block is selected
+            // This is needed because there is no other way currently to figure out when the bottom sheet has been dismissed by dragging
+            snapshotFlow { swipeableState.offset }
+                .debounce(16)
+                .collect { offset ->
+                    bottomSheetContent?.let {
+                        if (swipeableState.offset == swipeableState.maxOffset && swipeableState.targetValue == ModalBottomSheetValue.Hidden) {
+                            viewModel.send(EditorEvent.Sheet.OnClosed(it.type))
+                        }
+                        if (offset == 0F && swipeableState.currentValue == ModalBottomSheetValue.Expanded) {
+                            viewModel.send(EditorEvent.Sheet.OnExpanded(it.type))
+                        }
+                        if (offset == swipeableState.maxOffset / 2 && swipeableState.currentValue == ModalBottomSheetValue.HalfExpanded) {
+                            viewModel.send(EditorEvent.Sheet.OnHalfExpanded(it.type))
+                        }
+                    }
+                }
+        }
+        launch {
+            snapshotFlow { swipeableState.offset }.collectLatest { offset ->
+                if (offset == null) return@collectLatest
+                val bottomSheetHeight =
+                    (
+                        (swipeableState.maxOffset - offset).coerceAtMost(
+                            0.7f * swipeableState.maxOffset,
+                        ) - navigationBarHeightPx
+                    ).coerceAtLeast(0F)
+                val bottomSheetHeightInDp = (bottomSheetHeight / oneDpInPx)
+                viewModel.send(Event.OnBottomSheetHeightChange(bottomSheetHeightInDp, showTimeline = timelineExpanded))
+            }
         }
     }
 
@@ -241,35 +298,8 @@ fun EditorUi(
         }
     }
 
-    val activity =
-        requireNotNull(LocalContext.current.activity) {
-            "Unable to find the activity. This is an internal error. Please report this issue."
-        }
-
-    var cameraResultUri by rememberSaveable { mutableStateOf<Uri?>(null) }
-    var cameraResultLambda by remember { mutableStateOf<((Uri) -> Unit)?>(null) }
     var showCameraPermissionsView by remember { mutableStateOf(false) }
-    var captureVideo by remember { mutableStateOf(false) }
-
-    fun onCapture(saved: Boolean) {
-        if (saved) {
-            cameraResultLambda?.invoke(checkNotNull(cameraResultUri))
-        }
-    }
-
-    val captureVideoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CaptureVideo(), ::onCapture)
-    val capturePictureLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture(), ::onCapture)
-
-    fun captureCamera() {
-        cameraResultUri = prepareUriForCameraLauncher(activity)
-        if (captureVideo) {
-            captureVideoLauncher.launch(cameraResultUri)
-        } else {
-            capturePictureLauncher.launch(cameraResultUri)
-        }
-    }
-
-    LaunchedEffect(Unit) {
+    LaunchedEffect(bottomSheetState) {
         viewModel.uiEvent.collect {
             when (it) {
                 is SingleEvent.Exit -> {
@@ -282,23 +312,11 @@ fun EditorUi(
                         timelineExpanded = true
                     }
                     uiScope.launch {
-                        val bottomSheetState = uiState.bottomSheetState
                         if (it.animate) {
                             bottomSheetState.animateTo(it.state)
                         } else {
                             bottomSheetState.snapTo(it.state)
                         }
-                    }
-                }
-
-                is SingleEvent.LaunchSystemCamera -> {
-                    cameraResultLambda = it.onCapture
-                    captureVideo = it.captureVideo
-                    // Camera permission is needed for showing the system camera in case it is declared in the manifest
-                    if (activity.hasCameraPermissionInManifest() && !activity.hasCameraPermission()) {
-                        showCameraPermissionsView = true
-                    } else {
-                        captureCamera()
                     }
                 }
 
@@ -316,19 +334,65 @@ fun EditorUi(
                         )
                     }
                 }
-
-                else -> onSingleEvent(it)
             }
         }
     }
 
     LaunchedEffect(Unit) {
         viewModel.externalEvent.collect {
-            externalState.value = onEvent(activity, externalState.value, it)
+            externalState.value = onEvent(editorScope, externalState.value, it)
         }
     }
     var contentPadding by remember {
         mutableStateOf<PaddingValues?>(null)
+    }
+    val openContract =
+        rememberSaveable(
+            inputs = arrayOf(uiState.openContract),
+            saver =
+                Saver(
+                    save = {
+                        EditorEvent.LaunchContract.current = it
+                        true
+                    },
+                    restore = {
+                        EditorEvent.LaunchContract.current.also {
+                            EditorEvent.LaunchContract.current = null
+                        }
+                    },
+                ),
+        ) { uiState.openContract }
+    val contract = openContract.contract
+
+    @Suppress("UNCHECKED_CAST")
+    val launcher =
+        rememberLauncherForActivityResult(openContract.contract) { result ->
+            (openContract.onOutput as? EditorScope.(Any?) -> Unit)?.let {
+                viewModel.send(
+                    Event.OnLaunchContractResult(
+                        onResult = it,
+                        editorScope = editorScope,
+                        result = result,
+                    ),
+                )
+            }
+        } as ManagedActivityResultLauncher<Any?, Any?>
+
+    fun launchContract() {
+        if (contract is DummyContract) return
+        if (openContract.launched) return
+        openContract.launched = true
+        launcher.launch(openContract.input)
+    }
+    LaunchedEffect(contract) {
+        val isSystemCameraContract =
+            contract is ActivityResultContracts.CaptureVideo ||
+                contract is ActivityResultContracts.TakePicture
+        if (isSystemCameraContract && activity.hasCameraPermissionInManifest() && !activity.hasCameraPermission()) {
+            showCameraPermissionsView = true
+        } else {
+            launchContract()
+        }
     }
 
     Box(modifier = Modifier.background(colorScheme.surface)) {
@@ -347,92 +411,154 @@ fun EditorUi(
                     bottomStart = 0.0.dp,
                 ),
         ) {
-            val cornerRadius = if (uiState.bottomSheetState.swipeableState.offset != 0f) 28.dp else 0.dp
-            val sheetElevation = if (uiState.bottomSheetState.swipeableState.offset != 0f) ModalBottomSheetDefaults.Elevation else 0.dp
+            val cornerRadius = if (bottomSheetState.swipeableState.offset != 0f) 28.dp else 0.dp
+            val sheetElevation = if (bottomSheetState.swipeableState.offset != 0f) ModalBottomSheetDefaults.Elevation else 0.dp
             ModalBottomSheetLayout(
-                sheetState = uiState.bottomSheetState,
+                sheetState = bottomSheetState,
                 modifier = Modifier.statusBarsPadding(),
                 dismissContentDescription = stringResource(id = R.string.ly_img_editor_close),
                 sheetElevation = sheetElevation,
                 sheetContent = {
                     val content = bottomSheetContent
                     if (content != null) {
-                        Column {
-                            Spacer(Modifier.height(8.dp))
-                            when (content) {
-                                LibraryBottomSheetContent ->
-                                    AddLibraryTabsSheet(
-                                        swipeableState = uiState.bottomSheetState.swipeableState,
-                                        onClose = {
-                                            viewModel.onEvent(Event.OnHideSheet)
-                                        },
-                                        onCloseAssetDetails = {
-                                            viewModel.onEvent(Event.OnHideScrimSheet)
-                                        },
-                                        onSearchFocus = {
-                                            viewModel.onEvent(Event.OnExpandSheet)
-                                        },
-                                        showAnyComposable = {
-                                            showScrimBottomSheet(it)
-                                        },
-                                        launchCamera = { captureVideo, captureLambda ->
-                                            viewModel.onEvent(Event.OnSystemCameraClick(captureVideo, captureLambda))
-                                        },
-                                    )
-                                is LibraryCategoryBottomSheetContent ->
-                                    AddLibrarySheet(
-                                        libraryCategory = content.libraryCategory,
-                                        addToBackgroundTrack = content.addToBackgroundTrack,
-                                        onClose = {
-                                            viewModel.onEvent(Event.OnHideSheet)
-                                        },
-                                        onCloseAssetDetails = {
-                                            viewModel.onEvent(Event.OnHideScrimSheet)
-                                        },
-                                        onSearchFocus = {
-                                            viewModel.onEvent(Event.OnExpandSheet)
-                                        },
-                                        showAnyComposable = {
-                                            showScrimBottomSheet(it)
-                                        },
-                                        launchCamera = { captureVideo, captureLambda ->
-                                            viewModel.onEvent(Event.OnSystemCameraClick(captureVideo, captureLambda))
-                                        },
-                                    )
+                        Sheet(style = requireNotNull(sheetStyle)) {
+                            Column {
+                                val onColorPickerActiveChanged =
+                                    remember {
+                                        { active: Boolean ->
+                                            sheetStyle =
+                                                if (active) {
+                                                    SheetStyle(
+                                                        maxHeight = null,
+                                                        isHalfExpandingEnabled = true,
+                                                        isHalfExpandedInitially = true,
+                                                        animateInitialValue = false,
+                                                    )
+                                                } else {
+                                                    content.type.style.copy(animateInitialValue = false)
+                                                }
+                                        }
+                                    }
+                                if (content !is CustomBottomSheetContent) {
+                                    Spacer(Modifier.height(8.dp))
+                                }
+                                when (content) {
+                                    is LibraryTabsBottomSheetContent ->
+                                        AddLibraryTabsSheet(
+                                            swipeableState = bottomSheetState.swipeableState,
+                                            onClose = {
+                                                viewModel.send(EditorEvent.Sheet.Close(animate = true))
+                                            },
+                                            onCloseAssetDetails = {
+                                                viewModel.send(Event.OnHideScrimSheet)
+                                            },
+                                            onSearchFocus = {
+                                                viewModel.send(EditorEvent.Sheet.Expand(animate = true))
+                                            },
+                                            showAnyComposable = {
+                                                showScrimBottomSheet(it)
+                                            },
+                                            launchGetContent = { mimeType, uploadAssetSourceType, designBlock ->
+                                                viewModel.send(
+                                                    Event.OnLaunchGetContent(mimeType, uploadAssetSourceType, designBlock),
+                                                )
+                                            },
+                                            launchCamera = { captureVideo, designBlock ->
+                                                viewModel.send(Event.OnSystemCameraClick(captureVideo, designBlock))
+                                            },
+                                        )
+                                    is LibraryAddBottomSheetContent ->
+                                        AddLibrarySheet(
+                                            libraryCategory = content.libraryCategory,
+                                            addToBackgroundTrack = content.addToBackgroundTrack,
+                                            onClose = {
+                                                viewModel.send(EditorEvent.Sheet.Close(animate = true))
+                                            },
+                                            onCloseAssetDetails = {
+                                                viewModel.send(Event.OnHideScrimSheet)
+                                            },
+                                            onSearchFocus = {
+                                                viewModel.send(EditorEvent.Sheet.Expand(animate = true))
+                                            },
+                                            showAnyComposable = {
+                                                showScrimBottomSheet(it)
+                                            },
+                                            launchGetContent = { mimeType, uploadAssetSourceType, designBlock ->
+                                                Event.OnLaunchGetContent(
+                                                    mimeType = mimeType,
+                                                    uploadAssetSourceType = uploadAssetSourceType,
+                                                    designBlock = designBlock,
+                                                    addToBackgroundTrack = content.addToBackgroundTrack,
+                                                ).let(viewModel::send)
+                                            },
+                                            launchCamera = { captureVideo, designBlock ->
+                                                viewModel.send(
+                                                    Event.OnSystemCameraClick(
+                                                        captureVideo = captureVideo,
+                                                        designBlock = designBlock,
+                                                        addToBackgroundTrack = content.addToBackgroundTrack,
+                                                    ),
+                                                )
+                                            },
+                                        )
 
-                                is ReplaceBottomSheetContent ->
-                                    ReplaceLibrarySheet(
-                                        designBlock = content.designBlock,
-                                        type = content.blockType,
-                                        onClose = {
-                                            viewModel.onEvent(Event.OnHideSheet)
-                                        },
-                                        onCloseAssetDetails = {
-                                            viewModel.onEvent(Event.OnHideScrimSheet)
-                                        },
-                                        onSearchFocus = {
-                                            viewModel.onEvent(Event.OnExpandSheet)
-                                        },
-                                        showAnyComposable = {
-                                            showScrimBottomSheet(it)
-                                        },
-                                        launchCamera = { captureVideo, captureLambda ->
-                                            viewModel.onEvent(Event.OnSystemCameraClick(captureVideo, captureLambda))
-                                        },
-                                    )
+                                    is LibraryReplaceBottomSheetContent ->
+                                        ReplaceLibrarySheet(
+                                            libraryCategory = content.libraryCategory,
+                                            designBlock = content.designBlock,
+                                            onClose = {
+                                                viewModel.send(EditorEvent.Sheet.Close(animate = true))
+                                            },
+                                            onCloseAssetDetails = {
+                                                viewModel.send(Event.OnHideScrimSheet)
+                                            },
+                                            onSearchFocus = {
+                                                viewModel.send(EditorEvent.Sheet.Expand(animate = true))
+                                            },
+                                            showAnyComposable = {
+                                                showScrimBottomSheet(it)
+                                            },
+                                            launchGetContent = { mimeType, uploadAssetSourceType, designBlock ->
+                                                Event.OnLaunchGetContent(
+                                                    mimeType = mimeType,
+                                                    uploadAssetSourceType = uploadAssetSourceType,
+                                                    designBlock = designBlock,
+                                                ).let(viewModel::send)
+                                            },
+                                            launchCamera = { captureVideo, designBlock ->
+                                                viewModel.send(
+                                                    Event.OnSystemCameraClick(
+                                                        captureVideo = captureVideo,
+                                                        designBlock = designBlock,
+                                                    ),
+                                                )
+                                            },
+                                        )
 
-                                is LayerBottomSheetContent -> LayerOptionsSheet(content.uiState, viewModel::onEvent)
-                                is FillStrokeBottomSheetContent -> FillStrokeOptionsSheet(content.uiState, viewModel::onEvent)
-                                is OptionsBottomSheetContent -> ShapeOptionsSheet(content.uiState, viewModel::onEvent)
-                                is FormatBottomSheetContent -> FormatOptionsSheet(content.uiState, viewModel::onEvent)
-                                is CropBottomSheetContent -> CropSheet(content.uiState, viewModel::onEvent)
-                                is AdjustmentSheetContent -> AdjustmentOptionsSheet(content.uiState, viewModel::onEvent)
-                                is EffectSheetContent -> EffectSelectionSheet(content.uiState, viewModel::onEvent)
-                                is VolumeBottomSheetContent -> VolumeSheet(content.uiState, viewModel::onEvent)
-                                is ReorderBottomSheetContent -> ReorderSheet(content.timelineState, viewModel::onEvent)
-                                else -> bottomSheetLayout(content)
+                                    is LayerBottomSheetContent -> LayerOptionsSheet(content.uiState, viewModel::send)
+                                    is FillStrokeBottomSheetContent ->
+                                        FillStrokeOptionsSheet(
+                                            content.uiState,
+                                            onColorPickerActiveChanged,
+                                            viewModel::send,
+                                        )
+                                    is OptionsBottomSheetContent -> ShapeOptionsSheet(content.uiState, viewModel::send)
+                                    is FormatBottomSheetContent -> FormatOptionsSheet(content.uiState, viewModel::send)
+                                    is CropBottomSheetContent -> CropSheet(content.uiState, viewModel::send)
+                                    is AdjustmentSheetContent -> AdjustmentOptionsSheet(content.uiState, viewModel::send)
+                                    is EffectSheetContent ->
+                                        EffectSelectionSheet(
+                                            content.uiState,
+                                            onColorPickerActiveChanged,
+                                            viewModel::send,
+                                        )
+                                    is VolumeBottomSheetContent -> VolumeSheet(content.uiState, viewModel::send)
+                                    is ReorderBottomSheetContent -> ReorderSheet(content.timelineState, viewModel::send)
+                                    is CustomBottomSheetContent -> content.content(editorScope)
+                                    else -> bottomSheetLayout(content, onColorPickerActiveChanged)
+                                }
+                                Spacer(Modifier.height(8.dp))
                             }
-                            Spacer(Modifier.height(8.dp))
                         }
                     }
                 },
@@ -444,24 +570,24 @@ fun EditorUi(
                     snackbarHost = {
                         SnackbarHost(snackbarHostState)
                     },
-                ) {
-                    contentPadding = it
+                ) { paddingValues ->
+                    contentPadding = paddingValues
                     BoxWithConstraints {
                         val orientation = LocalConfiguration.current.orientation
                         EngineCanvasView(
-                            license = license,
-                            userId = userId,
+                            license = editorContext.license,
+                            userId = editorContext.userId,
                             renderTarget = renderTarget,
                             engine = viewModel.engine,
                             isCanvasVisible = uiState.isCanvasVisible,
                             passTouches = uiState.allowEditorInteraction,
                             onLicenseValidationError = {
-                                viewModel.onEvent(Event.OnError(it))
+                                viewModel.send(Event.OnError(it))
                             },
-                            onMoveStart = { viewModel.onEvent(Event.OnCanvasMove(true)) },
-                            onMoveEnd = { viewModel.onEvent(Event.OnCanvasMove(false)) },
-                            onTouch = { viewModel.onEvent(Event.OnCanvasTouch) },
-                            onSizeChanged = { viewModel.onEvent(Event.OnResetZoom) },
+                            onMoveStart = { viewModel.send(Event.OnCanvasMove(true)) },
+                            onMoveEnd = { viewModel.send(Event.OnCanvasMove(false)) },
+                            onTouch = { viewModel.send(Event.OnCanvasTouch) },
+                            onSizeChanged = { viewModel.send(Event.OnResetZoom) },
                             loadScene = {
                                 val topInsets = 64f // 64 for toolbar
                                 val bottomInsets = 84f // 84 for dock
@@ -473,13 +599,16 @@ fun EditorUi(
                                         right = sideInsets,
                                         bottom = bottomInsets,
                                     )
-                                viewModel.onEvent(
+                                viewModel.send(
                                     Event.OnLoadScene(
                                         height = maxHeight.value,
                                         insets = insets,
                                         inPortraitMode = orientation != Configuration.ORIENTATION_LANDSCAPE,
                                     ),
                                 )
+                            },
+                            onDisposed = {
+                                (editorContext as EditorContextImpl).clear()
                             },
                         )
                         if (uiState.isCanvasVisible) {
@@ -488,7 +617,7 @@ fun EditorUi(
                                     .fillMaxWidth()
                                     .align(Alignment.BottomStart)
                                     .onSizeChanged {
-                                        viewModel.onEvent(
+                                        viewModel.send(
                                             Event.OnUpdateBottomInset(
                                                 it.height / oneDpInPx,
                                                 zoom = !hideTimeline,
@@ -504,18 +633,18 @@ fun EditorUi(
                                         onToggleExpand = {
                                             timelineExpanded = timelineExpanded.not()
                                         },
-                                        onEvent = viewModel::onEvent,
+                                        onEvent = viewModel::send,
                                     )
                                 }
                                 Box {
-                                    canvasOverlay(it)
+                                    canvasOverlay(paddingValues)
                                 }
                             }
                         }
                         canvasActionMenuUiState?.let {
                             CanvasActionMenu(
                                 uiState = it,
-                                onEvent = viewModel::onEvent,
+                                onEvent = viewModel::send,
                             )
                         }
                         if (uiState.isEditingText) {
@@ -524,16 +653,16 @@ fun EditorUi(
                                     Modifier
                                         .align(Alignment.BottomStart)
                                         .onGloballyPositioned {
-                                            viewModel.onEvent(Event.OnKeyboardHeightChange(it.size.height / oneDpInPx))
+                                            viewModel.send(Event.OnKeyboardHeightChange(it.size.height / oneDpInPx))
                                         },
-                                onClose = { viewModel.onEvent(Event.OnKeyboardClose) },
+                                onClose = { viewModel.send(Event.OnKeyboardClose) },
                             )
                         }
-                        Dock(
+                        InspectorBar(
                             selectedBlock = uiState.selectedBlock,
                             modifier = Modifier.align(Alignment.BottomStart),
-                            onClose = { viewModel.onEvent(Event.OnCloseDock) },
-                            onClick = { viewModel.onEvent(Event.OnOptionClick(it)) },
+                            onClose = { viewModel.send(Event.OnCloseInspectorBar) },
+                            onClick = { viewModel.send(Event.OnOptionClick(it)) },
                         )
                     }
                 }
@@ -553,7 +682,7 @@ fun EditorUi(
                     .fillMaxWidth()
                     .height(navigationBarHeight),
         ) {}
-        overlay(externalState.value, viewModel)
+        editorContext.overlay?.invoke(editorScope, externalState.value)
 
         if (showCameraPermissionsView) {
             Column(
@@ -569,7 +698,7 @@ fun EditorUi(
             ) {
                 PermissionsView(requestOnlyCameraPermission = true) {
                     showCameraPermissionsView = false
-                    captureCamera()
+                    launchContract()
                 }
             }
             BackHandler(showCameraPermissionsView) {

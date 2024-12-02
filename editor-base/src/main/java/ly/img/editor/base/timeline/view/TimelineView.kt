@@ -16,7 +16,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.filterNotNull
 import ly.img.editor.base.timeline.state.TimelineState
-import ly.img.editor.base.ui.Event
+import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.theme.surface1
 import ly.img.editor.core.ui.utils.Easing
 
@@ -26,7 +26,7 @@ fun TimelineView(
     timelineState: TimelineState,
     expanded: Boolean,
     onToggleExpand: () -> Unit,
-    onEvent: (Event) -> Unit,
+    onEvent: (EditorEvent) -> Unit,
 ) {
     Column(
         modifier =

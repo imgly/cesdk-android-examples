@@ -6,6 +6,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import ly.img.editor.DesignEditor
 import ly.img.editor.EngineConfiguration
+import ly.img.editor.rememberForDesign
 
 // Add this fragment via fragmentManager API
 class EditorFragment : Fragment() {
@@ -15,14 +16,14 @@ class EditorFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         return ComposeView(requireContext()).apply {
-            // highlight-engine-configuration
-            val engineConfiguration =
-                EngineConfiguration.getForDesign(
-                    license = "<your license here>",
-                    userId = "<your unique user id>",
-                )
-            // highlight-engine-configuration
             setContent {
+                // highlight-engine-configuration
+                val engineConfiguration =
+                    EngineConfiguration.rememberForDesign(
+                        license = "<your license here>",
+                        userId = "<your unique user id>",
+                    )
+                // highlight-engine-configuration
                 // highlight-editor-invoke
                 DesignEditor(engineConfiguration = engineConfiguration) {
                     // You can set result here

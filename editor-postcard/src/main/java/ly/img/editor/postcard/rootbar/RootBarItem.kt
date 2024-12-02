@@ -1,18 +1,18 @@
 package ly.img.editor.postcard.rootbar
 
 import androidx.compose.runtime.Composable
-import ly.img.editor.base.ui.Event
-import ly.img.editor.core.ui.tab_item.TabItem
-import ly.img.editor.postcard.PostcardEvent
+import androidx.compose.ui.res.stringResource
+import ly.img.editor.core.event.EditorEvent
+import ly.img.editor.core.ui.IconTextButton
 
 @Composable
 fun RootBarItem(
     data: RootBarItemData,
-    onEvent: (Event) -> Unit,
+    onEvent: (EditorEvent) -> Unit,
 ) {
-    TabItem(
-        onClick = { onEvent(PostcardEvent.OnRootBarItemClick(data.type)) },
-        textRes = data.labelStringRes,
-        icon = data.icon,
+    IconTextButton(
+        onClick = { onEvent(EditorEvent.Sheet.Open(data.sheetType)) },
+        text = stringResource(data.labelStringRes),
+        editorIcon = data.icon,
     )
 }

@@ -1,6 +1,7 @@
 package ly.img.editor.base.engine
 
-import ly.img.editor.core.ui.library.engine.isBackgroundTrack
+import ly.img.editor.core.ui.engine.getFillType
+import ly.img.editor.core.ui.engine.isBackgroundTrack
 import ly.img.engine.BlockApi
 import ly.img.engine.BlurType
 import ly.img.engine.DesignBlock
@@ -10,25 +11,6 @@ import ly.img.engine.GradientColorStop
 import kotlin.math.min
 
 const val NoneDesignBlock: DesignBlock = -1
-
-fun BlockApi.isFillStrokeSupported(designBlock: DesignBlock): Pair<Boolean, Boolean> {
-    val supportsStroke = supportsStroke(designBlock)
-    val fillType = getFillType(designBlock)
-    val hasSolidOrGradientFill = (
-        fillType == FillType.Color ||
-            fillType == FillType.LinearGradient ||
-            fillType == FillType.RadialGradient ||
-            fillType == FillType.ConicalGradient
-    )
-    return hasSolidOrGradientFill to supportsStroke
-}
-
-fun BlockApi.getFillType(designBlock: DesignBlock): FillType? =
-    if (!this.supportsFill(designBlock)) {
-        null
-    } else {
-        FillType.get(this.getType(this.getFill(designBlock)))
-    }
 
 fun BlockApi.setFillType(
     designBlock: DesignBlock,

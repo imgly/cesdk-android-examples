@@ -1,63 +1,41 @@
 package ly.img.editor.photo
 
-import android.net.Uri
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import ly.img.editor.base.components.VectorIcon
-import ly.img.editor.base.dock.OptionType
 import ly.img.editor.base.engine.CROP_EDIT_MODE
 import ly.img.editor.base.engine.TRANSFORM_EDIT_MODE
 import ly.img.editor.base.engine.showPage
 import ly.img.editor.base.engine.zoomToPage
-import ly.img.editor.base.rootdock.RootDockItemActionType
-import ly.img.editor.base.rootdock.RootDockItemData
 import ly.img.editor.base.ui.Block
 import ly.img.editor.base.ui.EditorUiViewModel
-import ly.img.editor.base.ui.EditorUiViewState
-import ly.img.editor.base.ui.Event
-import ly.img.editor.core.R
-import ly.img.editor.core.event.EditorEventHandler
-import ly.img.editor.core.library.AssetLibrary
-import ly.img.editor.core.library.LibraryCategory
+import ly.img.editor.core.EditorScope
 import ly.img.editor.core.ui.engine.BlockType
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.deselectAllBlocks
 import ly.img.editor.core.ui.engine.overrideAndRestore
-import ly.img.editor.core.ui.iconpack.Addshape
-import ly.img.editor.core.ui.iconpack.Addsticker
-import ly.img.editor.core.ui.iconpack.Addtext
-import ly.img.editor.core.ui.iconpack.Adjustments
-import ly.img.editor.core.ui.iconpack.Blur
-import ly.img.editor.core.ui.iconpack.Croprotate
-import ly.img.editor.core.ui.iconpack.Effect
-import ly.img.editor.core.ui.iconpack.Filter
-import ly.img.editor.core.ui.iconpack.IconPack
+import ly.img.editor.core.ui.library.LibraryViewModel
 import ly.img.engine.DesignBlock
-import ly.img.engine.Engine
-import ly.img.engine.SceneMode
 import ly.img.engine.UnstableEngineApi
 
 class PhotoUiViewModel(
-    baseUri: Uri,
-    onCreate: suspend (Engine, EditorEventHandler) -> Unit,
-    onExport: suspend (Engine, EditorEventHandler) -> Unit,
-    onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
-    onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
-    colorPalette: List<Color>,
+    editorScope: EditorScope,
+    onCreate: suspend EditorScope.() -> Unit,
+    onExport: suspend EditorScope.() -> Unit,
+    onClose: suspend EditorScope.(Boolean) -> Unit,
+    onError: suspend EditorScope.(Throwable) -> Unit,
+    libraryViewModel: LibraryViewModel,
 ) : EditorUiViewModel(
-        baseUri = baseUri,
+        editorScope = editorScope,
         onCreate = onCreate,
         onExport = onExport,
         onClose = onClose,
         onError = onError,
-        colorPalette = colorPalette,
+        libraryViewModel = libraryViewModel,
     ) {
-    val uiState: StateFlow<EditorUiViewState> = _uiState
+    val uiState = baseUiState
 
     init {
         viewModelScope.launch {
@@ -132,59 +110,6 @@ class PhotoUiViewModel(
         ).forEach {
             engine.block.setScopeEnabled(page, it, enabled = false)
         }
-    }
-
-    override fun getRootDockItems(assetLibrary: AssetLibrary): List<RootDockItemData> {
-        fun getType(libraryCategory: LibraryCategory): RootDockItemActionType {
-            return RootDockItemActionType.OnEvent(
-                Event.OnAddLibraryCategoryClick(
-                    libraryCategory = libraryCategory,
-                    addToBackgroundTrack = false,
-                ),
-            )
-        }
-        return listOf(
-            RootDockItemData(
-                type = RootDockItemActionType.OnEvent(Event.OnOptionClick(OptionType.Adjustments)),
-                labelStringRes = ly.img.editor.base.R.string.ly_img_editor_adjustment,
-                icon = VectorIcon(IconPack.Adjustments),
-            ),
-            RootDockItemData(
-                type = RootDockItemActionType.OnEvent(Event.OnOptionClick(OptionType.Filter)),
-                labelStringRes = ly.img.editor.base.R.string.ly_img_editor_filter,
-                icon = VectorIcon(IconPack.Filter),
-            ),
-            RootDockItemData(
-                type = RootDockItemActionType.OnEvent(Event.OnOptionClick(OptionType.Effect)),
-                labelStringRes = ly.img.editor.base.R.string.ly_img_editor_effect,
-                icon = VectorIcon(IconPack.Effect),
-            ),
-            RootDockItemData(
-                type = RootDockItemActionType.OnEvent(Event.OnOptionClick(OptionType.Blur)),
-                labelStringRes = ly.img.editor.base.R.string.ly_img_editor_blur,
-                icon = VectorIcon(IconPack.Blur),
-            ),
-            RootDockItemData(
-                type = RootDockItemActionType.OnEvent(Event.OnOptionClick(OptionType.Crop)),
-                labelStringRes = ly.img.editor.base.R.string.ly_img_editor_crop,
-                icon = VectorIcon(IconPack.Croprotate),
-            ),
-            RootDockItemData(
-                type = getType(assetLibrary.text(SceneMode.DESIGN)),
-                labelStringRes = R.string.ly_img_editor_text,
-                icon = VectorIcon(IconPack.Addtext),
-            ),
-            RootDockItemData(
-                type = getType(assetLibrary.shapes(SceneMode.DESIGN)),
-                labelStringRes = R.string.ly_img_editor_shape,
-                icon = VectorIcon(IconPack.Addshape),
-            ),
-            RootDockItemData(
-                type = getType(assetLibrary.stickers(SceneMode.DESIGN)),
-                labelStringRes = R.string.ly_img_editor_sticker,
-                icon = VectorIcon(IconPack.Addsticker),
-            ),
-        )
     }
 
     override fun enterEditMode() {

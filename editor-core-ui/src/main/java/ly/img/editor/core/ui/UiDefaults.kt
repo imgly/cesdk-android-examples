@@ -1,8 +1,8 @@
 package ly.img.editor.core.ui
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CardColors
@@ -10,6 +10,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ly.img.editor.core.theme.surface1
 
@@ -33,11 +35,15 @@ object UiDefaults {
         )
 }
 
-fun Modifier.halfSheetCardContentModifier() =
-    this.padding(top = 8.dp, bottom = 0.dp, start = 16.dp, end = 16.dp)
+fun Modifier.sheetCardContentModifier(top: Dp = 8.dp) =
+    this
+        .padding(top = top, bottom = 0.dp, start = 16.dp, end = 16.dp)
         .navigationBarsPadding()
 
-fun Modifier.halfSheetScrollableContentModifier(scrollState: ScrollState) =
-    this.padding(top = 8.dp, bottom = 16.dp, start = 16.dp, end = 16.dp)
-        .verticalScroll(scrollState)
-        .navigationBarsPadding()
+fun Modifier.sheetScrollableContentModifier(top: Dp = 8.dp) =
+    composed {
+        this
+            .verticalScroll(rememberScrollState())
+            .padding(top = top, bottom = 16.dp, start = 16.dp, end = 16.dp)
+            .navigationBarsPadding()
+    }

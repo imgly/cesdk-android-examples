@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.base.R
 import ly.img.editor.base.components.scrollbar.LazyColumnScrollbar
 import ly.img.editor.base.components.scrollbar.RowScrollbar
@@ -30,19 +31,19 @@ import ly.img.editor.base.components.scrollbar.ScrollbarSettings
 import ly.img.editor.base.timeline.state.TimelineConfiguration
 import ly.img.editor.base.timeline.state.TimelineState
 import ly.img.editor.base.timeline.track.TrackView
-import ly.img.editor.base.ui.Event
+import ly.img.editor.core.event.EditorEvent
+import ly.img.editor.core.iconpack.AddAudio
+import ly.img.editor.core.iconpack.IconPack
+import ly.img.editor.core.sheet.SheetType
 import ly.img.editor.core.theme.surface3
-import ly.img.editor.core.ui.Environment
-import ly.img.editor.core.ui.iconpack.Addaudio
-import ly.img.editor.core.ui.iconpack.IconPack
+import ly.img.editor.core.ui.library.LibraryViewModel
 import ly.img.editor.core.ui.utils.roundToPx
-import ly.img.engine.SceneMode
 
 @Composable
 fun TimelineContentView(
     timelineState: TimelineState,
     verticalScrollState: LazyListState,
-    onEvent: (Event) -> Unit,
+    onEvent: (EditorEvent) -> Unit,
 ) {
     TimelineBaseView(
         timelineState = timelineState,
@@ -61,7 +62,7 @@ fun TimelineContentView(
         )
 
         val timelineRulerHeight = TimelineConfiguration.rulerHeight
-
+        val libraryViewModel = viewModel<LibraryViewModel>()
         Row(
             modifier = Modifier.horizontalScroll(horizontalScrollState),
         ) {
@@ -117,7 +118,7 @@ fun TimelineContentView(
 
                             TimelineButton(
                                 id = R.string.ly_img_editor_add_audio,
-                                icon = IconPack.Addaudio,
+                                icon = IconPack.AddAudio,
                                 modifier =
                                     Modifier
                                         .offset {
@@ -126,8 +127,10 @@ fun TimelineContentView(
                                         .padding(start = 1.dp),
                             ) {
                                 onEvent(
-                                    Event.OnAddLibraryCategoryClick(
-                                        libraryCategory = checkNotNull(Environment.assetLibrary).audios(SceneMode.VIDEO),
+                                    EditorEvent.Sheet.Open(
+                                        SheetType.LibraryAdd(
+                                            libraryCategory = libraryViewModel.assetLibrary.audios(libraryViewModel.sceneMode),
+                                        ),
                                     ),
                                 )
                             }

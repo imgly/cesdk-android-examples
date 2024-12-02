@@ -42,6 +42,7 @@ fun EngineCanvasView(
     loadScene: () -> Unit,
     onTouch: () -> Unit,
     onSizeChanged: () -> Unit,
+    onDisposed: () -> Unit,
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
@@ -154,6 +155,7 @@ fun EngineCanvasView(
                 engine.unbind()
             }
             renderViewHandler?.removeCallback()
+            onDisposed()
         }
     }
 }

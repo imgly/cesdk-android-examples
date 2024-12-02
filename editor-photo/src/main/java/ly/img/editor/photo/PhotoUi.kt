@@ -1,68 +1,38 @@
 package ly.img.editor.photo
 
-import android.app.Activity
-import android.net.Uri
 import android.os.Parcelable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ly.img.editor.base.rootdock.RootDockItem
-import ly.img.editor.base.rootdock.RootDockItemActionType
 import ly.img.editor.base.ui.EditorUi
-import ly.img.editor.base.ui.EditorUiTabIconMappings
-import ly.img.editor.base.ui.Event
+import ly.img.editor.core.EditorScope
+import ly.img.editor.core.component.EditorComponent
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
-import ly.img.editor.core.event.EditorEventHandler
-import ly.img.editor.core.library.AssetLibrary
-import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.data.UploadAssetSourceType
-import ly.img.editor.core.theme.surface1
 import ly.img.editor.core.ui.Environment
 import ly.img.editor.core.ui.library.LibraryViewModel
-import ly.img.editor.core.ui.library.resultcontract.GalleryMimeType
-import ly.img.editor.core.ui.library.resultcontract.rememberGalleryLauncherForActivityResult
-import ly.img.editor.core.ui.library.util.LibraryEvent
 import ly.img.editor.core.ui.utils.activity
 import ly.img.engine.AssetDefinition
-import ly.img.engine.Engine
 
 @Composable
 fun PhotoUi(
     initialExternalState: Parcelable,
-    license: String,
-    userId: String? = null,
     renderTarget: EngineRenderTarget,
-    navigationIcon: ImageVector,
-    baseUri: Uri,
-    colorPalette: List<Color>,
-    assetLibrary: AssetLibrary,
-    onCreate: suspend (Engine, EditorEventHandler) -> Unit,
-    onExport: suspend (Engine, EditorEventHandler) -> Unit,
-    onUpload: suspend AssetDefinition.(Engine, EditorEventHandler, UploadAssetSourceType) -> AssetDefinition,
-    onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
-    onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
-    onEvent: (Activity, Parcelable, EditorEvent) -> Parcelable,
-    overlay: @Composable ((Parcelable, EditorEventHandler) -> Unit),
+    editorScope: EditorScope,
+    onCreate: suspend EditorScope.() -> Unit,
+    onExport: suspend EditorScope.() -> Unit,
+    onUpload: suspend EditorScope.(AssetDefinition, UploadAssetSourceType) -> AssetDefinition,
+    onClose: suspend EditorScope.(Boolean) -> Unit,
+    onError: suspend EditorScope.(Throwable) -> Unit,
+    onEvent: EditorScope.(Parcelable, EditorEvent) -> Parcelable,
     close: (Throwable?) -> Unit,
 ) {
     val activity = requireNotNull(LocalContext.current.activity)
@@ -71,92 +41,49 @@ fun PhotoUi(
         mutableStateOf(Unit)
     }
 
+    val libraryViewModel =
+        viewModel {
+            LibraryViewModel(
+                editorScope = editorScope,
+                onUpload = onUpload,
+            )
+        }
     val viewModel =
         viewModel {
             PhotoUiViewModel(
-                baseUri = baseUri,
+                editorScope = editorScope,
                 onCreate = onCreate,
                 onExport = onExport,
                 onClose = onClose,
                 onError = onError,
-                colorPalette = colorPalette,
+                libraryViewModel = libraryViewModel,
             )
         }
 
-    // cannot combine remember blocks because onUpload requires viewModel instance
-    remember {
-        Environment.tabIconMappings = EditorUiTabIconMappings()
-        Environment.assetLibrary = assetLibrary
-        Environment.onUpload = { engine, assetSourceType ->
-            onUpload(this, engine, viewModel, assetSourceType)
-        }
-        mutableStateOf(Unit)
-    }
-
-    val libraryViewModel = viewModel<LibraryViewModel>()
     val uiState by viewModel.uiState.collectAsState()
-
+    val editorContext = editorScope.run { editorContext }
     EditorUi(
         initialExternalState = initialExternalState,
-        license = license,
-        userId = userId,
         renderTarget = renderTarget,
         uiState = uiState,
-        overlay = overlay,
+        editorScope = editorScope,
+        editorContext = editorContext,
         onEvent = onEvent,
         close = close,
         topBar = {
             PhotoUiToolbar(
-                navigationIcon = navigationIcon,
-                onEvent = viewModel::onEvent,
+                navigationIcon = editorContext.navigationIcon,
+                onEvent = viewModel::send,
                 isInPreviewMode = uiState.isInPreviewMode,
                 isUndoEnabled = uiState.isUndoEnabled,
                 isRedoEnabled = uiState.isRedoEnabled,
             )
         },
         canvasOverlay = {
-            if (!uiState.isInPreviewMode) {
-                Surface(
-                    Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomStart)
-                        .height(84.dp),
-                    color = MaterialTheme.colorScheme.surface1.copy(alpha = 0.95f),
-                ) {
-                    Row(
-                        modifier =
-                            Modifier
-                                .padding(top = 8.dp, bottom = 12.dp)
-                                .horizontalScroll(rememberScrollState()),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start,
-                    ) {
-                        val rootBarItems = uiState.rootDockItems
-                        val galleryLauncher = rememberGalleryLauncherForActivityResult(onEvent = libraryViewModel::onEvent)
-                        rootBarItems.forEach {
-                            RootDockItem(data = it) {
-                                when (val actionType = it.type) {
-                                    RootDockItemActionType.OpenGallery -> {
-                                        galleryLauncher.launch(GalleryMimeType.Image)
-                                    }
-                                    RootDockItemActionType.OpenCamera -> {
-                                        viewModel.onEvent(
-                                            Event.OnSystemCameraClick(false) {
-                                                libraryViewModel.onEvent(
-                                                    LibraryEvent.OnAddUri(
-                                                        assetSource = AssetSourceType.ImageUploads,
-                                                        uri = it,
-                                                    ),
-                                                )
-                                            },
-                                        )
-                                    }
-                                    is RootDockItemActionType.OnEvent -> {
-                                        viewModel.onEvent(actionType.event)
-                                    }
-                                }
-                            }
-                        }
+            if (uiState.isDockVisible && !uiState.isInPreviewMode) {
+                editorContext.dock?.let {
+                    Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                        EditorComponent(component = it(editorScope))
                     }
                 }
             }

@@ -1,6 +1,5 @@
 import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import ly.img.editor.DesignEditor
 import ly.img.editor.EditorConfiguration
@@ -18,32 +17,30 @@ data object OnCreateCustomEvent : EditorEvent
 @Composable
 fun UiEventsEditorSolution(navController: NavHostController) {
     val engineConfiguration =
-        remember {
-            EngineConfiguration(
-                license = "<your license here>",
-                // highlight-configuration-engine-callback
-                onCreate = { engine, eventHandler ->
-                    EditorDefaults.onCreate(
-                        engine = engine,
-                        sceneUri = EngineConfiguration.defaultDesignSceneUri,
-                        eventHandler = eventHandler,
-                    )
-                    // highlight-configuration-send-event
-                    eventHandler.send(OnCreateCustomEvent)
-                    // highlight-configuration-send-event
-                },
-                // highlight-configuration-engine-callback
-            )
-        }
+        EngineConfiguration.remember(
+            license = "<your license here>",
+            // highlight-configuration-engine-callback
+            onCreate = {
+                EditorDefaults.onCreate(
+                    engine = editorContext.engine,
+                    sceneUri = EngineConfiguration.defaultDesignSceneUri,
+                    eventHandler = editorContext.eventHandler,
+                )
+                // highlight-configuration-send-event
+                editorContext.eventHandler.send(OnCreateCustomEvent)
+                // highlight-configuration-send-event
+            },
+            // highlight-configuration-engine-callback
+        )
     val editorConfiguration =
-        EditorConfiguration(
+        EditorConfiguration.remember(
             initialState = EditorUiState(),
             // highlight-configuration-on-event
-            onEvent = { activity, state, event ->
+            onEvent = { state, event ->
                 when (event) {
                     // highlight-configuration-on-event-new
                     OnCreateCustomEvent -> {
-                        Toast.makeText(activity, "Editor is created!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(editorContext.activity, "Editor is created!", Toast.LENGTH_SHORT).show()
                         state
                     }
                     // highlight-configuration-on-event-new
@@ -55,7 +52,7 @@ fun UiEventsEditorSolution(navController: NavHostController) {
                     // highlight-configuration-on-event-default-remaining
                     else -> {
                         // handle other default events
-                        EditorDefaults.onEvent(activity, state, event)
+                        EditorDefaults.onEvent(editorContext.activity, state, event)
                     }
                     // highlight-configuration-on-event-default-remaining
                 }

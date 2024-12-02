@@ -2,7 +2,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
 import ly.img.editor.DesignEditor
@@ -11,19 +10,21 @@ import ly.img.editor.EditorDefaults
 import ly.img.editor.EngineConfiguration
 import ly.img.editor.HideLoading
 import ly.img.editor.ShowLoading
+import ly.img.editor.core.event.EditorEvent
+import ly.img.editor.rememberForDesign
 
 // Add this composable to your NavHost
 @Composable
 fun OverlayEditorSolution(navController: NavHostController) {
     val engineConfiguration =
-        remember {
-            EngineConfiguration.getForDesign(license = "<your license here>")
-        }
+        EngineConfiguration.rememberForDesign(
+            license = "<your license here>",
+        )
     val editorConfiguration =
-        EditorConfiguration(
+        EditorConfiguration.remember(
             initialState = OverlayCustomState(),
             // highlight-configuration-on-event
-            onEvent = { activity, state, event ->
+            onEvent = { state, event ->
                 when (event) {
                     is ShowLoading -> {
                         state.copy(showCustomLoading = true)
@@ -33,13 +34,13 @@ fun OverlayEditorSolution(navController: NavHostController) {
                     }
                     else -> {
                         // handle other default events
-                        state.copy(baseState = EditorDefaults.onEvent(activity, state.baseState, event))
+                        state.copy(baseState = EditorDefaults.onEvent(editorContext.activity, state.baseState, event))
                     }
                 }
             },
             // highlight-configuration-on-event
             // highlight-configuration-overlay
-            overlay = { state, eventHandler ->
+            overlay = { state ->
                 if (state.showCustomLoading) {
                     AlertDialog(
                         onDismissRequest = { },
@@ -49,8 +50,8 @@ fun OverlayEditorSolution(navController: NavHostController) {
                         confirmButton = {
                             TextButton(
                                 onClick = {
-                                    eventHandler.send(HideLoading)
-                                    eventHandler.sendCloseEditorEvent()
+                                    editorContext.eventHandler.send(HideLoading)
+                                    editorContext.eventHandler.send(EditorEvent.CloseEditor())
                                 },
                             ) {
                                 Text(text = "Close")
@@ -59,7 +60,7 @@ fun OverlayEditorSolution(navController: NavHostController) {
                         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
                     )
                 }
-                EditorDefaults.Overlay(state = state.baseState, eventHandler = eventHandler)
+                EditorDefaults.Overlay(state = state.baseState, eventHandler = editorContext.eventHandler)
             },
             // highlight-configuration-overlay
         )

@@ -13,6 +13,7 @@ import ly.img.editor.core.library.addSection
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.dropSection
 import ly.img.editor.core.library.replaceSection
+import ly.img.editor.rememberForDesign
 import ly.img.editor.showcase.R
 import ly.img.editor.showcase.Secrets
 
@@ -20,53 +21,56 @@ import ly.img.editor.showcase.Secrets
 @Composable
 fun DefaultAssetLibraryEditorSolution(navController: NavHostController) {
     // highlight-configuration-custom-asset-source
-    val unsplashAssetSource = UnsplashAssetSource(Secrets.unsplashHost)
-    val engineConfiguration =
+    val unsplashAssetSource =
         remember {
-            EngineConfiguration(
-                license = "<your license here>",
-                onCreate = { engine, eventHandler ->
-                    EditorDefaults.onCreate(
-                        engine = engine,
-                        sceneUri = EngineConfiguration.defaultDesignSceneUri,
-                        eventHandler = eventHandler,
-                    ) { _, _ ->
-                        engine.asset.addSource(unsplashAssetSource)
-                    }
-                },
-            )
+            UnsplashAssetSource(Secrets.unsplashHost)
         }
+    val engineConfiguration =
+        EngineConfiguration.remember(
+            license = "<your license here>",
+            onCreate = {
+                EditorDefaults.onCreate(
+                    engine = editorContext.engine,
+                    sceneUri = EngineConfiguration.defaultDesignSceneUri,
+                    eventHandler = editorContext.eventHandler,
+                ) { _, _ ->
+                    editorContext.engine.asset.addSource(unsplashAssetSource)
+                }
+            },
+        )
     // highlight-configuration-custom-asset-source
     // highlight-configuration-default-asset-library
-    val unsplashSection =
-        LibraryContent.Section(
-            titleRes = R.string.unsplash,
-            sourceTypes = listOf(AssetSourceType(sourceId = unsplashAssetSource.sourceId)),
-            assetType = AssetType.Image,
-        )
     val assetLibrary =
-        AssetLibrary.getDefault(
-            tabs =
-                listOf(
-                    AssetLibrary.Tab.IMAGES,
-                    AssetLibrary.Tab.SHAPES,
-                    AssetLibrary.Tab.STICKERS,
-                    AssetLibrary.Tab.TEXT,
-                ),
-            images =
-                LibraryCategory.Images
-                    .replaceSection(index = 0) {
-                        // We replace the title: "Image Uploads" -> "Uploads"
-                        copy(titleRes = R.string.uploads)
-                    }
-                    .dropSection(index = 1)
-                    .addSection(unsplashSection),
-        )
-    // highlight-configuration-default-asset-library
+        remember {
+            val unsplashSection =
+                LibraryContent.Section(
+                    titleRes = R.string.unsplash,
+                    sourceTypes = listOf(AssetSourceType(sourceId = unsplashAssetSource.sourceId)),
+                    assetType = AssetType.Image,
+                )
+            AssetLibrary.getDefault(
+                tabs =
+                    listOf(
+                        AssetLibrary.Tab.IMAGES,
+                        AssetLibrary.Tab.SHAPES,
+                        AssetLibrary.Tab.STICKERS,
+                        AssetLibrary.Tab.TEXT,
+                    ),
+                images =
+                    LibraryCategory.Images
+                        .replaceSection(index = 0) {
+                            // We replace the title: "Image Uploads" -> "Uploads"
+                            copy(titleRes = R.string.uploads)
+                        }
+                        .dropSection(index = 1)
+                        .addSection(unsplashSection),
+            )
+        }
     val editorConfiguration =
-        EditorConfiguration.getDefault(
+        EditorConfiguration.rememberForDesign(
             assetLibrary = assetLibrary,
         )
+    // highlight-configuration-default-asset-library
     DesignEditor(
         engineConfiguration = engineConfiguration,
         editorConfiguration = editorConfiguration,

@@ -2,10 +2,11 @@ package ly.img.editor
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.core.os.ParcelCompat
 import java.io.File
 
 /**
- * The state class of the editor that is used in the default implementation of [EditorConfiguration.getDefault].
+ * The state class of the editor that is used in the default implementations of [EditorConfiguration].
  *
  * @param showLoading whether a loading should be displayed.
  * @param showCloseConfirmationDialog whether a confirmation dialog should be shown before closing the editor.
@@ -18,19 +19,25 @@ data class EditorUiState(
     val showCloseConfirmationDialog: Boolean = false,
     val error: Throwable? = null,
     val videoExportStatus: VideoExportStatus = VideoExportStatus.Idle,
+    val sceneIsLoaded: Boolean = false,
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        showLoading = parcel.readByte() != 0.toByte(),
+        showLoading = true, // showLoading should never be stored
         showCloseConfirmationDialog = parcel.readByte() != 0.toByte(),
-        error = null,
-        videoExportStatus = parcel.readParcelableCompat(VideoExportStatus::class.java)!!,
+        error = null, // error should never be stored
+        videoExportStatus =
+            ParcelCompat.readParcelable(
+                parcel,
+                VideoExportStatus::class.java.classLoader,
+                VideoExportStatus::class.java,
+            )!!,
+        sceneIsLoaded = false, // sceneIsLoaded should never be stored
     )
 
     override fun writeToParcel(
         parcel: Parcel,
         flags: Int,
     ) {
-        parcel.writeByte(if (showLoading) 1 else 0)
         parcel.writeByte(if (showCloseConfirmationDialog) 1 else 0)
         parcel.writeParcelable(videoExportStatus, flags)
     }
@@ -116,10 +123,3 @@ sealed class VideoExportStatus : Parcelable {
         }
     }
 }
-
-private fun <T> Parcel.readParcelableCompat(clazz: Class<T>): T? =
-    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-        this.readParcelable(clazz.classLoader, clazz)
-    } else {
-        this.readParcelable(clazz.classLoader)
-    }

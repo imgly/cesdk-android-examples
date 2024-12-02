@@ -9,7 +9,7 @@ import ly.img.camera.core.CameraResult
 import ly.img.camera.core.CaptureVideo
 import ly.img.camera.core.EngineConfiguration
 
-private const val TAG = "CameraActivity"
+private const val TAG = "RecordingsCameraActivity"
 
 class RecordingsCameraActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

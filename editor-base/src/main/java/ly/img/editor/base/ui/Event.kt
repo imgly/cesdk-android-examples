@@ -1,6 +1,7 @@
 package ly.img.editor.base.ui
 
 import android.net.Uri
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import ly.img.editor.base.dock.OptionType
@@ -8,9 +9,10 @@ import ly.img.editor.base.dock.options.format.HorizontalAlignment
 import ly.img.editor.base.dock.options.format.VerticalAlignment
 import ly.img.editor.base.engine.AdjustmentState
 import ly.img.editor.base.engine.EffectAndBlurOptions
-import ly.img.editor.core.library.LibraryCategory
+import ly.img.editor.core.EditorScope
+import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.library.data.AssetSourceType
-import ly.img.editor.core.ui.BaseEvent
+import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.engine.Asset
 import ly.img.engine.BlendMode
 import ly.img.engine.BlurType
@@ -23,32 +25,43 @@ import kotlin.time.Duration
 /**
  * To communicate events from the UI to the ViewModel.
  */
-interface Event : BaseEvent {
+interface Event : EditorEvent {
     data class OnError(val throwable: Throwable) : Event
 
     object OnBack : Event
 
-    object OnBackPress : Event
+    class OnBackPress(
+        val bottomSheetOffset: Float,
+        val bottomSheetMaxOffset: Float,
+    ) : Event
 
-    object OnCloseDock : Event
-
-    object OnHideSheet : Event
-
-    object OnExpandSheet : Event
+    object OnCloseInspectorBar : Event
 
     object OnHideScrimSheet : Event
 
     data class OnOptionClick(val optionType: OptionType) : Event
 
-    object OnAddLibraryClick : Event
+    data class OnVideoCameraClick(
+        val callback: (@Composable () -> Unit) -> Unit, // todo get rid of this in the future with mobile configuration extension
+    ) : Event
 
-    data class OnAddLibraryCategoryClick(val libraryCategory: LibraryCategory, val addToBackgroundTrack: Boolean? = null) : Event
+    data class OnLaunchContractResult(
+        val onResult: EditorScope.(Any?) -> Unit,
+        val editorScope: EditorScope,
+        val result: Any?,
+    ) : Event
 
-    data object OnCameraClick : Event
+    data class OnLaunchGetContent(
+        val mimeType: String,
+        val uploadAssetSourceType: UploadAssetSourceType,
+        val designBlock: DesignBlock?, // If not null, then it is a replace event
+        val addToBackgroundTrack: Boolean = false,
+    ) : Event
 
     data class OnSystemCameraClick(
         val captureVideo: Boolean,
-        val onCapture: (Uri) -> Unit,
+        val designBlock: DesignBlock?, // If not null, then it is a replace event
+        val addToBackgroundTrack: Boolean = false,
     ) : Event
 
     object OnKeyboardClose : Event
@@ -84,8 +97,6 @@ interface Event : BaseEvent {
     data object OnPreviousPage : Event
 
     data object OnPause : Event
-
-    data object OnReorder : Event
 
     data class OnAddPage(val index: Int) : Event
 
@@ -134,7 +145,9 @@ interface BlockEvent : Event {
 
     data class OnChangeGradientFillColors(val index: Int, val color: Color) : BlockEvent
 
-    data class OnChangeLinearGradientParams(val startX: Float, val startY: Float, val endX: Float, val endY: Float) : BlockEvent
+    data class OnChangeLinearGradientParams(
+        val rotationInDegrees: Float,
+    ) : BlockEvent
 
     data class OnChangeRadialGradientParams(val centerX: Float, val centerY: Float, val radius: Float) : BlockEvent
 
@@ -201,7 +214,7 @@ interface BlockEvent : Event {
 
     data class OnChangeFontSize(val fontSize: Float) : BlockEvent
 
-    data class OnChangeTypeface(val fallbackFontUri: Uri, val typeface: Typeface) : BlockEvent
+    data class OnChangeTypeface(val typeface: Typeface) : BlockEvent
     // endregion
 
     // region Adjustments Events

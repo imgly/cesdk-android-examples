@@ -25,8 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
-import ly.img.editor.base.components.ColorButton
 import ly.img.editor.base.components.SectionHeader
+import ly.img.editor.core.ui.ColorButton
 
 @Composable
 fun ColorPicker(
@@ -45,7 +45,7 @@ fun ColorPicker(
         }
     }
     Column(modifier = modifier) {
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(16.dp))
         SaturationValueArea(
             currentColor = hsvColor,
             onSaturationValueChanged = { saturation, value ->

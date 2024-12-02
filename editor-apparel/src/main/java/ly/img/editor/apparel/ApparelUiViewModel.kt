@@ -1,34 +1,31 @@
 package ly.img.editor.apparel
 
-import android.net.Uri
-import androidx.compose.ui.graphics.Color
-import kotlinx.coroutines.flow.asStateFlow
 import ly.img.editor.base.engine.showOutline
 import ly.img.editor.base.engine.zoomToBackdrop
 import ly.img.editor.base.ui.EditorUiViewModel
-import ly.img.editor.core.event.EditorEventHandler
+import ly.img.editor.core.EditorScope
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.deselectAllBlocks
 import ly.img.editor.core.ui.engine.getPage
 import ly.img.editor.core.ui.engine.overrideAndRestore
-import ly.img.engine.Engine
+import ly.img.editor.core.ui.library.LibraryViewModel
 
 class ApparelUiViewModel(
-    baseUri: Uri,
-    onCreate: suspend (Engine, EditorEventHandler) -> Unit,
-    onExport: suspend (Engine, EditorEventHandler) -> Unit,
-    onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
-    onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
-    colorPalette: List<Color>,
+    editorScope: EditorScope,
+    onCreate: suspend EditorScope.() -> Unit,
+    onExport: suspend EditorScope.() -> Unit,
+    onClose: suspend EditorScope.(Boolean) -> Unit,
+    onError: suspend EditorScope.(Throwable) -> Unit,
+    libraryViewModel: LibraryViewModel,
 ) : EditorUiViewModel(
-        baseUri = baseUri,
+        editorScope = editorScope,
         onCreate = onCreate,
         onExport = onExport,
         onClose = onClose,
         onError = onError,
-        colorPalette = colorPalette,
+        libraryViewModel = libraryViewModel,
     ) {
-    val uiState = _uiState.asStateFlow()
+    val uiState = baseUiState
 
     override fun enterEditMode() {
         pageSetup()

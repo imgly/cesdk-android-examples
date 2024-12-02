@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
 import ly.img.editor.base.components.ToggleIconButton
 import ly.img.editor.base.ui.Event
-import ly.img.editor.core.ui.iconpack.Arrowback
+import ly.img.editor.core.iconpack.ArrowBack
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Redo
 import ly.img.editor.core.ui.iconpack.Share
@@ -35,6 +35,7 @@ import ly.img.editor.core.ui.iconpack.Undo
 import ly.img.editor.core.ui.iconpack.Visibility
 import ly.img.editor.core.ui.iconpack.Visibilityoutline
 import ly.img.editor.core.R as coreR
+import ly.img.editor.core.iconpack.IconPack as CoreIconPack
 import ly.img.editor.postcard.R as postCardR
 
 @Composable
@@ -77,7 +78,7 @@ internal fun PostcardUiToolbar(
                             },
                         ) {
                             Icon(
-                                IconPack.Arrowback,
+                                CoreIconPack.ArrowBack,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )

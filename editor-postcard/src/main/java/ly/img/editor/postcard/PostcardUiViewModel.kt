@@ -17,12 +17,16 @@ import ly.img.editor.base.engine.toEngineColor
 import ly.img.editor.base.engine.zoomToScene
 import ly.img.editor.base.ui.Block
 import ly.img.editor.base.ui.EditorUiViewModel
-import ly.img.editor.base.ui.Event
-import ly.img.editor.core.event.EditorEventHandler
+import ly.img.editor.core.EditorScope
+import ly.img.editor.core.sheet.SheetType
+import ly.img.editor.core.ui.EventsHandler
 import ly.img.editor.core.ui.engine.BlockType
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.deselectAllBlocks
 import ly.img.editor.core.ui.engine.overrideAndRestore
+import ly.img.editor.core.ui.library.LibraryViewModel
+import ly.img.editor.core.ui.register
+import ly.img.editor.postcard.bottomsheet.PostcardSheetType
 import ly.img.editor.postcard.bottomsheet.message_color.MessageColorBottomSheetContent
 import ly.img.editor.postcard.bottomsheet.message_font.MessageFontBottomSheetContent
 import ly.img.editor.postcard.bottomsheet.message_font.createMessageFontUiState
@@ -30,64 +34,53 @@ import ly.img.editor.postcard.bottomsheet.message_size.MessageSize
 import ly.img.editor.postcard.bottomsheet.message_size.MessageSizeBottomSheetContent
 import ly.img.editor.postcard.bottomsheet.template_colors.TemplateColorsBottomSheetContent
 import ly.img.editor.postcard.bottomsheet.template_colors.TemplateColorsUiState
-import ly.img.editor.postcard.rootbar.RootBarItemType
 import ly.img.editor.postcard.rootbar.rootBarItems
 import ly.img.editor.postcard.util.ColorType
 import ly.img.editor.postcard.util.SelectionColors
 import ly.img.editor.postcard.util.getPageSelectionColors
 import ly.img.editor.postcard.util.requirePinnedBlock
-import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.GlobalScope
 import ly.img.engine.Typeface
 
 class PostcardUiViewModel(
-    baseUri: Uri,
-    onCreate: suspend (Engine, EditorEventHandler) -> Unit,
-    onExport: suspend (Engine, EditorEventHandler) -> Unit,
-    onClose: suspend (Engine, Boolean, EditorEventHandler) -> Unit,
-    onError: suspend (Throwable, Engine, EditorEventHandler) -> Unit,
-    colorPalette: List<Color>,
+    editorScope: EditorScope,
+    onCreate: suspend EditorScope.() -> Unit,
+    onExport: suspend EditorScope.() -> Unit,
+    onClose: suspend EditorScope.(Boolean) -> Unit,
+    onError: suspend EditorScope.(Throwable) -> Unit,
+    libraryViewModel: LibraryViewModel,
 ) : EditorUiViewModel(
-        baseUri = baseUri,
+        editorScope = editorScope,
         onCreate = onCreate,
         onExport = onExport,
         onClose = onClose,
         onError = onError,
-        colorPalette = colorPalette,
+        libraryViewModel = libraryViewModel,
     ) {
     private var pageSelectionColors: SelectionColors? = null
     private var hasUnsavedChanges = false
 
     val uiState =
-        merge(_uiState, pageIndex, historyChangeTrigger).map {
+        merge(baseUiState, pageIndex, historyChangeTrigger).map {
             updatePageSelectionColors()
             PostcardUiViewState(
-                editorUiViewState = _uiState.value,
+                editorUiViewState = baseUiState.value,
                 postcardMode = if (pageIndex.value == 0) PostcardMode.Design else PostcardMode.Write,
                 rootBarItems = rootBarItems(engine, pageIndex.value, pageSelectionColors),
             )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = PostcardUiViewState(_uiState.value),
+            initialValue = PostcardUiViewState(baseUiState.value),
         )
 
-    override fun onEvent(event: Event) {
-        when (event) {
-            is PostcardEvent -> {
-                when (event) {
-                    is PostcardEvent.OnRootBarItemClick -> onRootBarItemClick(event.itemType)
-                    is PostcardEvent.OnChangeMessageSize -> onChangeMessageSize(event.messageSize)
-                    is PostcardEvent.OnChangeMessageColor -> onChangeMessageColor(event.color)
-                    is PostcardEvent.OnChangeFont -> onChangeMessageFont(event.fontUri, event.typeface)
-                    is PostcardEvent.OnChangeTypeface -> onChangeMessageTypeface(event.fallbackFontUri, event.typeface)
-                    is PostcardEvent.OnChangeTemplateColor -> onChangeTemplateColor(event.name, event.color)
-                }
-            }
-
-            else -> super.onEvent(event)
-        }
+    override fun EventsHandler.extraEvents() {
+        register<PostcardEvent.OnChangeMessageSize> { onChangeMessageSize(it.messageSize) }
+        register<PostcardEvent.OnChangeMessageColor> { onChangeMessageColor(it.color) }
+        register<PostcardEvent.OnChangeFont> { onChangeMessageFont(it.fontUri, it.typeface) }
+        register<PostcardEvent.OnChangeTypeface> { onChangeMessageTypeface(it.typeface) }
+        register<PostcardEvent.OnChangeTemplateColor> { onChangeTemplateColor(it.name, it.color) }
     }
 
     override fun getBlockForEvents(): Block {
@@ -138,32 +131,83 @@ class PostcardUiViewModel(
         engine.zoomToScene(currentInsets)
     }
 
+    override fun openSheet(type: SheetType) {
+        when (type) {
+            // Cannot be invoked by customers
+            is PostcardSheetType ->
+                when (type) {
+                    is PostcardSheetType.TemplateColors -> {
+                        setBottomSheetContent {
+                            TemplateColorsBottomSheetContent(
+                                type = type,
+                                uiState =
+                                    TemplateColorsUiState(
+                                        editor.colorPalette,
+                                        checkNotNull(pageSelectionColors).getColors(),
+                                    ),
+                            )
+                        }
+                    }
+                    is PostcardSheetType.Font -> {
+                        setBottomSheetContent {
+                            MessageFontBottomSheetContent(
+                                type = type,
+                                uiState = createMessageFontUiState(designBlock = engine.requirePinnedBlock(), engine = engine),
+                            )
+                        }
+                    }
+                    is PostcardSheetType.Size -> {
+                        setBottomSheetContent {
+                            MessageSizeBottomSheetContent(
+                                type = type,
+                                messageSize = MessageSize.get(engine, engine.requirePinnedBlock()),
+                            )
+                        }
+                    }
+                    is PostcardSheetType.Color -> {
+                        setBottomSheetContent {
+                            MessageColorBottomSheetContent(
+                                type = type,
+                                color = engine.block.getFillSolidColor(engine.requirePinnedBlock()).toComposeColor(),
+                            )
+                        }
+                    }
+                }
+            else -> super.openSheet(type)
+        }
+    }
+
     override fun updateBottomSheetUiState() {
         super.updateBottomSheetUiState()
         setBottomSheetContent {
             when (it) {
                 is MessageSizeBottomSheetContent ->
                     MessageSizeBottomSheetContent(
-                        MessageSize.get(engine, engine.requirePinnedBlock()),
+                        type = it.type,
+                        messageSize = MessageSize.get(engine, engine.requirePinnedBlock()),
                     )
 
                 is MessageColorBottomSheetContent ->
                     MessageColorBottomSheetContent(
-                        engine.block.getFillSolidColor(engine.requirePinnedBlock()).toComposeColor(),
+                        type = it.type,
+                        color = engine.block.getFillSolidColor(engine.requirePinnedBlock()).toComposeColor(),
                     )
 
                 is MessageFontBottomSheetContent ->
                     MessageFontBottomSheetContent(
-                        createMessageFontUiState(designBlock = engine.requirePinnedBlock(), engine = engine),
+                        type = it.type,
+                        uiState = createMessageFontUiState(designBlock = engine.requirePinnedBlock(), engine = engine),
                     )
 
                 is TemplateColorsBottomSheetContent -> {
                     updatePageSelectionColors()
                     TemplateColorsBottomSheetContent(
-                        TemplateColorsUiState(
-                            colorPalette,
-                            checkNotNull(pageSelectionColors).getColors(),
-                        ),
+                        type = it.type,
+                        uiState =
+                            TemplateColorsUiState(
+                                editor.colorPalette,
+                                checkNotNull(pageSelectionColors).getColors(),
+                            ),
                     )
                 }
 
@@ -174,8 +218,16 @@ class PostcardUiViewModel(
         }
     }
 
-    override fun handleBackPress(): Boolean {
-        return if (!super.handleBackPress()) {
+    override fun handleBackPress(
+        bottomSheetOffset: Float,
+        bottomSheetMaxOffset: Float,
+    ): Boolean {
+        val handled =
+            super.handleBackPress(
+                bottomSheetOffset = bottomSheetOffset,
+                bottomSheetMaxOffset = bottomSheetMaxOffset,
+            )
+        return if (handled.not()) {
             val page = pageIndex.value
             if (page > 0) {
                 setPage(page - 1)
@@ -192,30 +244,8 @@ class PostcardUiViewModel(
         return super.hasUnsavedChanges() || hasUnsavedChanges
     }
 
-    private fun onRootBarItemClick(itemType: RootBarItemType) {
-        setBottomSheetContent {
-            when (itemType) {
-                RootBarItemType.TemplateColors ->
-                    TemplateColorsBottomSheetContent(
-                        TemplateColorsUiState(colorPalette, checkNotNull(pageSelectionColors).getColors()),
-                    )
-
-                RootBarItemType.Font ->
-                    MessageFontBottomSheetContent(
-                        createMessageFontUiState(designBlock = engine.requirePinnedBlock(), engine = engine),
-                    )
-
-                RootBarItemType.Size -> MessageSizeBottomSheetContent(MessageSize.get(engine, engine.requirePinnedBlock()))
-                RootBarItemType.Color ->
-                    MessageColorBottomSheetContent(
-                        engine.block.getFillSolidColor(engine.requirePinnedBlock()).toComposeColor(),
-                    )
-            }
-        }
-    }
-
     private fun updatePageSelectionColors() {
-        if (_isSceneLoaded.value && pageIndex.value == 0) {
+        if (isSceneLoaded.value && pageIndex.value == 0) {
             pageSelectionColors =
                 engine.getPageSelectionColors(
                     forPage = 0,
@@ -228,7 +258,7 @@ class PostcardUiViewModel(
 
     override fun setPage(index: Int) {
         super.setPage(index)
-        if (_uiState.value.isUndoEnabled) hasUnsavedChanges = true
+        if (baseUiState.value.isUndoEnabled) hasUnsavedChanges = true
         engine.resetHistory()
     }
 
@@ -265,10 +295,7 @@ class PostcardUiViewModel(
         engine.editor.addUndoStep()
     }
 
-    private fun onChangeMessageTypeface(
-        fallbackFontUri: Uri,
-        typeface: Typeface,
-    ) {
+    private fun onChangeMessageTypeface(typeface: Typeface) {
         val block = engine.requirePinnedBlock()
         engine.overrideAndRestore(
             designBlock = block,
@@ -276,7 +303,6 @@ class PostcardUiViewModel(
         ) {
             engine.block.setTypeface(
                 block = block,
-                fallbackFontFileUri = fallbackFontUri,
                 typeface = typeface,
             )
         }

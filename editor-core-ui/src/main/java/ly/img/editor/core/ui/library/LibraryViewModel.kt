@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ly.img.editor.core.EditorScope
 import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.library.LibraryContent
@@ -29,13 +30,13 @@ import ly.img.editor.core.ui.engine.ROLE_ADOPTER
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.awaitEngineAndSceneLoad
 import ly.img.editor.core.ui.engine.dpToCanvasUnit
+import ly.img.editor.core.ui.engine.getBackgroundTrack
 import ly.img.editor.core.ui.engine.getCamera
 import ly.img.editor.core.ui.engine.getCurrentPage
 import ly.img.editor.core.ui.engine.isSceneModeVideo
 import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.editor.core.ui.library.components.section.LibrarySectionItem
 import ly.img.editor.core.ui.library.data.font.FontDataMapper
-import ly.img.editor.core.ui.library.engine.getBackgroundTrack
 import ly.img.editor.core.ui.library.engine.isVideoBlock
 import ly.img.editor.core.ui.library.state.AssetLibraryUiState
 import ly.img.editor.core.ui.library.state.AssetsData
@@ -63,7 +64,6 @@ import ly.img.engine.AssetDefinition
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
-import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.FindAssetsQuery
 import ly.img.engine.FindAssetsResult
@@ -77,23 +77,24 @@ import kotlin.math.min
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 
-class LibraryViewModel : ViewModel() {
+class LibraryViewModel(
+    private val editorScope: EditorScope,
+    private val onUpload: suspend EditorScope.(AssetDefinition, UploadAssetSourceType) -> AssetDefinition,
+) : ViewModel() {
     private val imageLoader = Environment.getImageLoader()
-    private val engine = Environment.getEngine()
+    private val editor = editorScope.run { editorContext }
+    private val engine = editor.engine
     private val typefaceProvider = TypefaceProvider()
     private val fontDataMapper = FontDataMapper()
 
     private val _uiEvent = Channel<LibraryUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    private val sceneMode: SceneMode
+    val sceneMode: SceneMode
         get() = engine.scene.getMode()
 
-    private val onUpload: suspend AssetDefinition.(Engine, UploadAssetSourceType) -> AssetDefinition
-        get() = requireNotNull(Environment.onUpload)
-
-    private val assetLibrary
-        get() = requireNotNull(Environment.assetLibrary)
+    val assetLibrary
+        get() = editor.assetLibrary
 
     val navBarItems
         get() = assetLibrary.tabs(sceneMode)
@@ -147,7 +148,7 @@ class LibraryViewModel : ViewModel() {
                 onAddUri(it.assetSource, it.uri, it.addToBackgroundTrack)
             }
             register<OnAddCameraRecordings> {
-                onAddCameraRecordings(it.recordings)
+                onAddCameraRecordings(it.assetSource, it.recordings)
             }
             register<OnAssetLongClick> {
                 onAssetLongClick(it.wrappedAsset)
@@ -201,17 +202,14 @@ class LibraryViewModel : ViewModel() {
     private fun onAddAsset(
         assetSourceType: AssetSourceType,
         asset: Asset,
-        addToBackgroundTrack: Boolean?,
+        addToBackgroundTrack: Boolean,
     ) {
         viewModelScope.launch {
             engine.awaitEngineAndSceneLoad()
             val designBlock = engine.asset.applyAssetSourceAsset(assetSourceType.sourceId, asset) ?: return@launch
 
             if (engine.isSceneModeVideo) {
-                val inBackgroundTrack =
-                    addToBackgroundTrack == true ||
-                        (engine.block.isVideoBlock(designBlock) && addToBackgroundTrack != false)
-                setupAssetForVideo(asset, designBlock, inBackgroundTrack)
+                setupAssetForVideo(asset, designBlock, addToBackgroundTrack)
             } else {
                 placeDesignBlock(designBlock)
             }
@@ -221,7 +219,7 @@ class LibraryViewModel : ViewModel() {
     private fun onAddUri(
         assetSourceType: UploadAssetSourceType,
         uri: Uri,
-        addToBackgroundTrack: Boolean?,
+        addToBackgroundTrack: Boolean,
     ) {
         viewModelScope.launch {
             engine.awaitEngineAndSceneLoad()
@@ -230,7 +228,10 @@ class LibraryViewModel : ViewModel() {
         }
     }
 
-    private fun onAddCameraRecordings(recordings: List<Pair<Uri, Duration>>) {
+    private fun onAddCameraRecordings(
+        assetSource: UploadAssetSourceType,
+        recordings: List<Pair<Uri, Duration>>,
+    ) {
         viewModelScope.launch {
             engine.awaitEngineAndSceneLoad()
             val page = engine.getCurrentPage()
@@ -240,7 +241,7 @@ class LibraryViewModel : ViewModel() {
             engine.block.setPlaybackTime(page, engine.block.getDuration(backgroundTrack))
 
             recordings.forEach { (uri, duration) ->
-                uploadToAssetSource(AssetSourceType.VideoUploads, uri, duration)
+                uploadToAssetSource(assetSource, uri, duration)
                 // We cannot use engine.asset.applyAssetSourceAsset() here as it adds an undo step at the end.
                 // We only want to add one undo step at the end after adding all the recordings.
                 addCameraRecording(uri, duration)
@@ -832,12 +833,13 @@ class LibraryViewModel : ViewModel() {
             }
 
             AssetSourceType.ImageUploads -> {
-                val (width, height) = getImageDimensions(uri)
                 meta["thumbUri"] = uriString
                 meta["kind"] = "image"
                 meta["fillType"] = FillType.Image.key
-                meta["width"] = width.toString()
-                meta["height"] = height.toString()
+                getImageDimensions(uri)?.let { (width, height) ->
+                    meta["width"] = width.toString()
+                    meta["height"] = height.toString()
+                }
             }
 
             AssetSourceType.VideoUploads -> {
@@ -860,7 +862,7 @@ class LibraryViewModel : ViewModel() {
                 meta = meta,
                 label = if (label != null) mapOf("en" to label!!) else null,
             ).let {
-                onUpload(it, engine, assetSourceType)
+                onUpload(editorScope, it, assetSourceType)
             }
 
         engine.asset.addAsset(
@@ -871,9 +873,9 @@ class LibraryViewModel : ViewModel() {
         return result.assets.first { it.id == uuid }
     }
 
-    private suspend fun getImageDimensions(uri: Uri): Pair<Int, Int> {
+    private suspend fun getImageDimensions(uri: Uri): Pair<Int, Int>? {
         val result = imageLoader.execute(Environment.newImageRequest(uri))
-        val bitmap = ((result as? SuccessResult)?.drawable as BitmapDrawable).bitmap
+        val bitmap = ((result as? SuccessResult)?.drawable as? BitmapDrawable)?.bitmap ?: return null
         val width = bitmap.width
         val height = bitmap.height
         return width to height

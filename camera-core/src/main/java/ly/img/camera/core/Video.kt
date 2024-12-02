@@ -3,6 +3,7 @@ package ly.img.camera.core
 import android.net.Uri
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.core.os.ParcelCompat
 
 /**
  * A video in a [Recording].
@@ -12,7 +13,7 @@ import android.os.Parcelable
 data class Video(
     val uri: Uri,
 ) : Parcelable {
-    constructor(parcel: Parcel) : this(parcel.readParcelable(Uri::class.java.classLoader)!!)
+    constructor(parcel: Parcel) : this(ParcelCompat.readParcelable(parcel, Uri::class.java.classLoader, Uri::class.java)!!)
 
     override fun writeToParcel(
         parcel: Parcel,

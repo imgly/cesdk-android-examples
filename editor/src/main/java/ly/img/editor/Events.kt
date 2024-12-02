@@ -16,6 +16,11 @@ object ShowLoading : EditorEvent
 object HideLoading : EditorEvent
 
 /**
+ * An event that is invoked in the default implementations of [EngineConfiguration.onCreate] when the scene load is finished.
+ */
+class OnSceneLoaded : EditorEvent
+
+/**
  * An event that is invoked in the default implementation of [EngineConfiguration.onExport] for a video scene
  * for showing the progress of the export.
  */
