@@ -36,7 +36,7 @@ import ly.img.editor.core.component.data.Fill
 import ly.img.editor.core.component.data.LinearGradientFill
 import ly.img.editor.core.component.data.RadialGradientFill
 import ly.img.editor.core.component.data.SolidFill
-import ly.img.editor.core.component.data.toComposeColor
+import ly.img.editor.core.engine.toComposeColor
 import ly.img.engine.RGBAColor
 
 /**

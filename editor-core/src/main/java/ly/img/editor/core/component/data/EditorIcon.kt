@@ -4,6 +4,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import ly.img.editor.core.engine.EngineScope
+import ly.img.editor.core.engine.getFill
+import ly.img.editor.core.engine.getStrokeColor
+import ly.img.editor.core.engine.hasColorOrGradientFill
+import ly.img.engine.DesignBlock
+import ly.img.engine.Engine
 
 @Stable
 sealed interface EditorIcon {
@@ -57,5 +63,43 @@ sealed interface EditorIcon {
         val showStroke: Boolean,
         val fill: Fill?,
         val stroke: Color?,
-    ) : EditorIcon
+    ) : EditorIcon {
+        companion object {
+            /**
+             * Returns a fill stroke icon for the [designBlock] based on the current engine state.
+             *
+             * @param engine the engine of the current editor.
+             * @param designBlock the design block that is queried.
+             * @return a fill stroke icon for the queried design block.
+             */
+            fun getForDesignBlock(
+                engine: Engine,
+                designBlock: DesignBlock,
+            ): FillStroke {
+                val showFill =
+                    engine.block.supportsFill(designBlock) &&
+                        engine.block.hasColorOrGradientFill(designBlock) &&
+                        engine.block.isAllowedByScope(designBlock, EngineScope.FillChange)
+                val showStroke =
+                    engine.block.supportsStroke(designBlock) &&
+                        engine.block.isAllowedByScope(designBlock, EngineScope.StrokeChange)
+                return FillStroke(
+                    showFill = showFill,
+                    showStroke = showStroke,
+                    fill =
+                        if (showFill && engine.block.isFillEnabled(designBlock)) {
+                            engine.getFill(designBlock)
+                        } else {
+                            null
+                        },
+                    stroke =
+                        if (showStroke && engine.block.isStrokeEnabled(designBlock)) {
+                            engine.getStrokeColor(designBlock)
+                        } else {
+                            null
+                        },
+                )
+            }
+        }
+    }
 }

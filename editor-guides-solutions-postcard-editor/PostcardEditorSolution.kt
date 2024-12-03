@@ -3,7 +3,6 @@ import androidx.navigation.NavHostController
 import ly.img.editor.EditorConfiguration
 import ly.img.editor.EngineConfiguration
 import ly.img.editor.PostcardEditor
-import ly.img.editor.rememberForPostcard
 
 // Add this composable to your NavHost
 @Composable

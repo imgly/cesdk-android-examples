@@ -4,8 +4,8 @@ import ly.img.editor.base.engine.setFillType
 import ly.img.editor.base.engine.toEngineColor
 import ly.img.editor.core.component.data.GradientFill
 import ly.img.editor.core.component.data.SolidFill
+import ly.img.editor.core.engine.getFill
 import ly.img.editor.core.ui.engine.Scope
-import ly.img.editor.core.ui.engine.getFill
 import ly.img.editor.core.ui.engine.getPage
 import ly.img.editor.core.ui.engine.overrideAndRestore
 import ly.img.engine.DesignBlock

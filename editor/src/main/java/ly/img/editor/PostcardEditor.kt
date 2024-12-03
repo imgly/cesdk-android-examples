@@ -53,6 +53,9 @@ fun PostcardEditor(
                 onClose = engineConfiguration.onClose,
                 onError = engineConfiguration.onError,
                 onEvent = editorConfiguration.onEvent as EditorScope.(Parcelable, EditorEvent) -> Parcelable,
+                overlay = { state ->
+                    (editorConfiguration as EditorConfiguration<Parcelable>).overlay(this, state)
+                },
                 close = onClose,
             )
         }

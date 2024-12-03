@@ -20,6 +20,7 @@ fun AddLibrarySheet(
     launchCamera: (Boolean, DesignBlock?) -> Unit,
 ) {
     val viewModel = viewModel<LibraryViewModel>()
+
     LibraryCategorySheet(
         libraryCategory = libraryCategory,
         onAssetClick = { wrappedAsset ->

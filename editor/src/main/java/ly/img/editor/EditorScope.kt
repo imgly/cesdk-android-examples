@@ -1,6 +1,5 @@
 package ly.img.editor
 
-import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import ly.img.editor.core.EditorContext
@@ -23,7 +22,6 @@ internal fun rememberEditorScope(
                     colorPalette = editorConfiguration.colorPalette,
                     assetLibrary = editorConfiguration.assetLibrary,
                     dock = editorConfiguration.dock,
-                    overlay = (editorConfiguration as EditorConfiguration<Parcelable>).overlay,
                 )
         }
     }

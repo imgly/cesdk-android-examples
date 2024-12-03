@@ -2,7 +2,6 @@ package ly.img.editor.core.ui.scope
 
 import android.app.Activity
 import android.net.Uri
-import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.RememberObserver
@@ -58,8 +57,7 @@ class EditorContextImpl(
     override val navigationIcon: ImageVector,
     override val colorPalette: List<Color>,
     override val assetLibrary: AssetLibrary,
-    override val overlay: (@Composable (EditorScope.(Parcelable) -> Unit)?),
-    override val dock: (@Composable (EditorScope.() -> Dock))?,
+    override val dock: @Composable (EditorScope.() -> Dock),
 ) : EditorContext {
     @OptIn(UnstableEngineApi::class)
     override val engine: Engine by lazy {

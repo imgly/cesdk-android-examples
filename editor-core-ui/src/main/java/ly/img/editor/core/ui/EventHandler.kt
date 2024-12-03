@@ -1,8 +1,9 @@
 package ly.img.editor.core.ui
 
-import ly.img.editor.core.event.EditorEvent
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
+
+interface BaseEvent
 
 /**
  * A simple event system that can be used to communicate between different parts of the SDK.
@@ -12,13 +13,13 @@ import kotlin.reflect.KProperty
 class EventsHandler(
     register: EventsHandler.() -> Unit,
 ) {
-    private val eventMap = mutableMapOf<KClass<out EditorEvent>, (event: EditorEvent) -> Unit>()
+    private val eventMap = mutableMapOf<KClass<out BaseEvent>, (event: BaseEvent) -> Unit>()
 
     /**
      * handles an event by calling the lambda that was registered for the event type.
      * @param event The event to handle.
      */
-    fun handleEvent(event: EditorEvent) {
+    fun handleEvent(event: BaseEvent) {
         eventMap[event::class]?.invoke(event)
     }
 
@@ -28,11 +29,11 @@ class EventsHandler(
      * @return The lambda that was passed in.
      */
     @Suppress("UNCHECKED_CAST")
-    operator fun <EventType : EditorEvent> set(
+    operator fun <EventType : BaseEvent> set(
         event: KClass<out EventType>,
         lambda: (event: EventType) -> Unit,
     ) {
-        eventMap[event] = lambda as (event: EditorEvent) -> Unit
+        eventMap[event] = lambda as (event: BaseEvent) -> Unit
     }
 
     /**
@@ -41,8 +42,8 @@ class EventsHandler(
      * @return The lambda that was passed in.
      */
     @Suppress("UNCHECKED_CAST")
-    infix fun <EventType : EditorEvent> KClass<out EventType>.to(lambda: (event: EventType) -> Unit) {
-        eventMap[this] = lambda as (event: EditorEvent) -> Unit
+    infix fun <EventType : BaseEvent> KClass<out EventType>.to(lambda: (event: EventType) -> Unit) {
+        eventMap[this] = lambda as (event: BaseEvent) -> Unit
     }
 
     init {
@@ -55,7 +56,7 @@ class EventsHandler(
  * @param lambda The lambda that will be called when the event is fired.
  * @return The lambda that was passed in.
  */
-inline fun <reified EventType : EditorEvent> EventsHandler.register(noinline lambda: (event: EventType) -> Unit): Any {
+inline fun <reified EventType : BaseEvent> EventsHandler.register(noinline lambda: (event: EventType) -> Unit): Any {
     this[EventType::class] = lambda
     return lambda
 }

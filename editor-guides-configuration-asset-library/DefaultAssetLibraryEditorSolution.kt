@@ -13,7 +13,6 @@ import ly.img.editor.core.library.addSection
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.dropSection
 import ly.img.editor.core.library.replaceSection
-import ly.img.editor.rememberForDesign
 import ly.img.editor.showcase.R
 import ly.img.editor.showcase.Secrets
 
@@ -28,7 +27,7 @@ fun DefaultAssetLibraryEditorSolution(navController: NavHostController) {
     val engineConfiguration =
         EngineConfiguration.remember(
             license = "<your license here>",
-            onCreate = {
+            onCreate = { ->
                 EditorDefaults.onCreate(
                     engine = editorContext.engine,
                     sceneUri = EngineConfiguration.defaultDesignSceneUri,

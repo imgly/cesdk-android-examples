@@ -7,7 +7,6 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.annotation.CallSuper
-import androidx.core.os.ParcelCompat
 import ly.img.camera.core.CaptureVideo.Input
 
 /**
@@ -53,8 +52,8 @@ open class CaptureVideo : ActivityResultContract<Input, CameraResult?>() {
         val cameraConfiguration: CameraConfiguration = CameraConfiguration(),
     ) : Parcelable {
         constructor(parcel: Parcel) : this(
-            ParcelCompat.readParcelable(parcel, EngineConfiguration::class.java.classLoader, EngineConfiguration::class.java)!!,
-            ParcelCompat.readParcelable(parcel, CameraConfiguration::class.java.classLoader, CameraConfiguration::class.java)!!,
+            parcel.readParcelable(EngineConfiguration::class.java.classLoader)!!,
+            parcel.readParcelable(CameraConfiguration::class.java.classLoader)!!,
         )
 
         override fun writeToParcel(

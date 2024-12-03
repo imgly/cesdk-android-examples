@@ -17,12 +17,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import ly.img.editor.core.iconpack.ImageOutline
+import ly.img.editor.core.iconpack.Imageoutline
 import ly.img.editor.core.iconpack.Music
-import ly.img.editor.core.iconpack.PlayBoxOutline
-import ly.img.editor.core.iconpack.ShapesOutline
-import ly.img.editor.core.iconpack.StickerEmojiOutline
-import ly.img.editor.core.iconpack.TextFields
+import ly.img.editor.core.iconpack.Playboxoutline
+import ly.img.editor.core.iconpack.Shapesoutline
+import ly.img.editor.core.iconpack.Stickeremojioutline
+import ly.img.editor.core.iconpack.Textfields
 import ly.img.editor.core.theme.LocalExtendedColorScheme
 import ly.img.editor.core.theme.surface2
 import ly.img.editor.core.ui.iconpack.IconPack
@@ -86,11 +86,11 @@ private fun ClipIcon(clip: Clip) {
         } else {
             when (clip.clipType) {
                 ClipType.Audio -> ly.img.editor.core.iconpack.IconPack.Music
-                ClipType.Image -> ly.img.editor.core.iconpack.IconPack.ImageOutline
-                ClipType.Shape -> ly.img.editor.core.iconpack.IconPack.ShapesOutline
-                ClipType.Sticker -> ly.img.editor.core.iconpack.IconPack.StickerEmojiOutline
-                ClipType.Text -> ly.img.editor.core.iconpack.IconPack.TextFields
-                ClipType.Video -> ly.img.editor.core.iconpack.IconPack.PlayBoxOutline
+                ClipType.Image -> ly.img.editor.core.iconpack.IconPack.Imageoutline
+                ClipType.Shape -> ly.img.editor.core.iconpack.IconPack.Shapesoutline
+                ClipType.Sticker -> ly.img.editor.core.iconpack.IconPack.Stickeremojioutline
+                ClipType.Text -> ly.img.editor.core.iconpack.IconPack.Textfields
+                ClipType.Video -> ly.img.editor.core.iconpack.IconPack.Playboxoutline
             }
         }
     Icon(icon, contentDescription = null, modifier = Modifier.requiredSize(16.dp))

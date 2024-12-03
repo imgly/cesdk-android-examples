@@ -12,11 +12,7 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-@Deprecated("Use IconPack.CropRotate instead.", ReplaceWith("IconPack.CropRotate"))
 val IconPack.Croprotate: ImageVector
-    get() = CropRotate
-
-val IconPack.CropRotate: ImageVector
     get() {
         if (_croprotate != null) {
             return _croprotate!!
@@ -107,4 +103,4 @@ private var _croprotate: ImageVector? = null
 
 @Preview
 @Composable
-private fun Preview() = IconPack.CropRotate.IconPreview()
+private fun Preview() = IconPack.Croprotate.IconPreview()

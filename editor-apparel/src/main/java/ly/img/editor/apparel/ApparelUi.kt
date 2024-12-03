@@ -34,6 +34,7 @@ fun ApparelUi(
     onClose: suspend EditorScope.(Boolean) -> Unit,
     onError: suspend EditorScope.(Throwable) -> Unit,
     onEvent: EditorScope.(Parcelable, EditorEvent) -> Parcelable,
+    overlay: @Composable (EditorScope.(Parcelable) -> Unit),
     close: (Throwable?) -> Unit,
 ) {
     val activity = requireNotNull(LocalContext.current.activity)
@@ -69,11 +70,12 @@ fun ApparelUi(
         uiState = uiState,
         editorScope = editorScope,
         editorContext = editorContext,
+        overlay = overlay,
         onEvent = onEvent,
         topBar = {
             ApparelUiToolbar(
                 navigationIcon = editorContext.navigationIcon,
-                onEvent = viewModel::send,
+                onEvent = viewModel::onEvent,
                 isInPreviewMode = uiState.isInPreviewMode,
                 isUndoEnabled = uiState.isUndoEnabled,
                 isRedoEnabled = uiState.isRedoEnabled,
@@ -86,7 +88,7 @@ fun ApparelUi(
                         Modifier
                             .align(Alignment.BottomStart)
                             .padding(16.dp),
-                    onEvent = viewModel::send,
+                    onEvent = viewModel::onEvent,
                 )
             }
         },

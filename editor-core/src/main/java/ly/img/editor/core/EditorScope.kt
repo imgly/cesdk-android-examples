@@ -20,4 +20,4 @@ abstract class EditorScope {
 /**
  * Composition local containing currently active [EditorScope].
  */
-val LocalEditorScope = compositionLocalOf<EditorScope> { error("No initial value!") }
+val LocalEditorScope = compositionLocalOf<EditorScope?> { null }

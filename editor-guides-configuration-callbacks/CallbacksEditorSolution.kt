@@ -54,7 +54,7 @@ fun CallbacksEditorSolution(navController: NavHostController) {
             },
             // highlight-configuration-onCreate
             // highlight-configuration-onExport
-            onExport = {
+            onExport = { ->
                 EditorDefaults.run {
                     editorContext.eventHandler.send(ShowLoading)
                     val blob =

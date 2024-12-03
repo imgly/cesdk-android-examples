@@ -5,17 +5,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import ly.img.editor.core.R
 import ly.img.editor.core.iconpack.IconPack
 import ly.img.editor.core.iconpack.Image
-import ly.img.editor.core.iconpack.ImageOutline
-import ly.img.editor.core.iconpack.LibraryElements
-import ly.img.editor.core.iconpack.LibraryElementsOutline
+import ly.img.editor.core.iconpack.Imageoutline
+import ly.img.editor.core.iconpack.Libraryelements
+import ly.img.editor.core.iconpack.Libraryelementsoutline
 import ly.img.editor.core.iconpack.Music
-import ly.img.editor.core.iconpack.PlayBox
-import ly.img.editor.core.iconpack.PlayBoxOutline
+import ly.img.editor.core.iconpack.Playbox
+import ly.img.editor.core.iconpack.Playboxoutline
 import ly.img.editor.core.iconpack.Shapes
-import ly.img.editor.core.iconpack.ShapesOutline
-import ly.img.editor.core.iconpack.StickerEmoji
-import ly.img.editor.core.iconpack.StickerEmojiOutline
-import ly.img.editor.core.iconpack.TextFields
+import ly.img.editor.core.iconpack.Shapesoutline
+import ly.img.editor.core.iconpack.Stickeremoji
+import ly.img.editor.core.iconpack.Stickeremojioutline
+import ly.img.editor.core.iconpack.Textfields
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.engine.SceneMode
 
@@ -34,7 +34,6 @@ data class LibraryCategory(
     @StringRes val tabTitleRes: Int,
     val tabSelectedIcon: ImageVector,
     val tabUnselectedIcon: ImageVector,
-    @Deprecated("Parameter is unused. Consider configuring it via SheetType.LibraryAdd.mode or SheetType.LibraryReplace.mode")
     val isHalfExpandedInitially: Boolean = false,
     val content: LibraryContent,
 ) {
@@ -54,8 +53,8 @@ data class LibraryCategory(
             val isSceneModeVideo = sceneMode == SceneMode.VIDEO
             return LibraryCategory(
                 tabTitleRes = R.string.ly_img_editor_elements,
-                tabSelectedIcon = IconPack.LibraryElements,
-                tabUnselectedIcon = IconPack.LibraryElementsOutline,
+                tabSelectedIcon = IconPack.Libraryelements,
+                tabUnselectedIcon = IconPack.Libraryelementsoutline,
                 content =
                     LibraryContent.Sections(
                         titleRes = R.string.ly_img_editor_elements,
@@ -159,8 +158,8 @@ data class LibraryCategory(
         val Video by lazy {
             LibraryCategory(
                 tabTitleRes = R.string.ly_img_editor_videos,
-                tabSelectedIcon = IconPack.PlayBox,
-                tabUnselectedIcon = IconPack.PlayBoxOutline,
+                tabSelectedIcon = IconPack.Playbox,
+                tabUnselectedIcon = IconPack.Playboxoutline,
                 content = LibraryContent.Video,
             )
         }
@@ -184,7 +183,7 @@ data class LibraryCategory(
             LibraryCategory(
                 tabTitleRes = R.string.ly_img_editor_images,
                 tabSelectedIcon = IconPack.Image,
-                tabUnselectedIcon = IconPack.ImageOutline,
+                tabUnselectedIcon = IconPack.Imageoutline,
                 content = LibraryContent.Images,
             )
         }
@@ -195,8 +194,8 @@ data class LibraryCategory(
         val Text by lazy {
             LibraryCategory(
                 tabTitleRes = R.string.ly_img_editor_text,
-                tabSelectedIcon = IconPack.TextFields,
-                tabUnselectedIcon = IconPack.TextFields,
+                tabSelectedIcon = IconPack.Textfields,
+                tabUnselectedIcon = IconPack.Textfields,
                 isHalfExpandedInitially = true,
                 content = LibraryContent.Text,
             )
@@ -209,7 +208,7 @@ data class LibraryCategory(
             LibraryCategory(
                 tabTitleRes = R.string.ly_img_editor_shapes,
                 tabSelectedIcon = IconPack.Shapes,
-                tabUnselectedIcon = IconPack.ShapesOutline,
+                tabUnselectedIcon = IconPack.Shapesoutline,
                 content = LibraryContent.Shapes,
             )
         }
@@ -220,8 +219,8 @@ data class LibraryCategory(
         val Stickers by lazy {
             LibraryCategory(
                 tabTitleRes = R.string.ly_img_editor_stickers,
-                tabSelectedIcon = IconPack.StickerEmoji,
-                tabUnselectedIcon = IconPack.StickerEmojiOutline,
+                tabSelectedIcon = IconPack.Stickeremoji,
+                tabUnselectedIcon = IconPack.Stickeremojioutline,
                 content = LibraryContent.Stickers,
             )
         }
@@ -232,8 +231,8 @@ data class LibraryCategory(
         val Overlays by lazy {
             LibraryCategory(
                 tabTitleRes = R.string.ly_img_editor_overlays,
-                tabSelectedIcon = IconPack.PlayBox,
-                tabUnselectedIcon = IconPack.PlayBoxOutline,
+                tabSelectedIcon = IconPack.Playbox,
+                tabUnselectedIcon = IconPack.Playboxoutline,
                 content = LibraryContent.Overlays,
             )
         }
@@ -244,8 +243,8 @@ data class LibraryCategory(
         val Clips by lazy {
             LibraryCategory(
                 tabTitleRes = R.string.ly_img_editor_clips,
-                tabSelectedIcon = IconPack.PlayBox,
-                tabUnselectedIcon = IconPack.PlayBoxOutline,
+                tabSelectedIcon = IconPack.Playbox,
+                tabUnselectedIcon = IconPack.Playboxoutline,
                 content = LibraryContent.Clips,
             )
         }

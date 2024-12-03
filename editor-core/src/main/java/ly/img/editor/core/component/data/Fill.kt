@@ -2,6 +2,7 @@ package ly.img.editor.core.component.data
 
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
+import ly.img.editor.core.engine.toComposeColor
 import ly.img.engine.GradientColorStop
 import ly.img.engine.RGBAColor
 import kotlin.math.atan2
@@ -123,12 +124,3 @@ data class ConicalGradientFill(
      */
     override val colorStops: List<GradientColorStop>,
 ) : GradientFill
-
-internal fun RGBAColor.toComposeColor(): Color {
-    return Color(
-        red = this.r,
-        green = this.g,
-        blue = this.b,
-        alpha = this.a,
-    )
-}

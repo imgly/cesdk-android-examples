@@ -9,10 +9,7 @@ import ly.img.editor.compose.bottomsheet.ModalBottomSheetValue
 sealed interface SingleEvent {
     data class Exit(val throwable: Throwable?) : SingleEvent
 
-    data class ChangeSheetState(
-        val state: ModalBottomSheetValue,
-        val animate: Boolean,
-    ) : SingleEvent
+    data class ChangeSheetState(val state: ModalBottomSheetValue, val animate: Boolean = true) : SingleEvent
 
     data object HideScrimSheet : SingleEvent
 

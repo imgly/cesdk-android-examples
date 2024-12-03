@@ -33,22 +33,19 @@ import ly.img.editor.base.engine.isGrouped
 import ly.img.editor.base.engine.isMoveAllowed
 import ly.img.editor.base.engine.isParentBackgroundTrack
 import ly.img.editor.core.component.data.EditorIcon
+import ly.img.editor.core.engine.getBackgroundTrack
+import ly.img.editor.core.engine.getFillType
 import ly.img.editor.core.iconpack.Adjustments
 import ly.img.editor.core.iconpack.Blur
-import ly.img.editor.core.iconpack.CropRotate
+import ly.img.editor.core.iconpack.Croprotate
 import ly.img.editor.core.iconpack.Delete
 import ly.img.editor.core.iconpack.Effect
 import ly.img.editor.core.iconpack.Filter
-import ly.img.editor.core.iconpack.ReorderHorizontally
+import ly.img.editor.core.iconpack.Reorderhorizontally
 import ly.img.editor.core.ui.engine.BlockKind
 import ly.img.editor.core.ui.engine.BlockType
 import ly.img.editor.core.ui.engine.Scope
-import ly.img.editor.core.ui.engine.getBackgroundTrack
-import ly.img.editor.core.ui.engine.getFill
-import ly.img.editor.core.ui.engine.getFillType
 import ly.img.editor.core.ui.engine.getKindEnum
-import ly.img.editor.core.ui.engine.getStrokeColor
-import ly.img.editor.core.ui.engine.hasColorOrGradientFill
 import ly.img.editor.core.ui.engine.isSceneModeVideo
 import ly.img.editor.core.ui.iconpack.Asclip
 import ly.img.editor.core.ui.iconpack.Asoverlay
@@ -111,8 +108,8 @@ internal fun createBlock(
                 optionItems += OptionItemData(this, titleRes, icon, textColor)
             }
             when (this) {
-                Crop -> addOption(CoreR.string.ly_img_editor_crop, EditorIcon.Vector(CoreIconPack.CropRotate))
-                Reorder -> addOption(CoreR.string.ly_img_editor_reorder, EditorIcon.Vector(CoreIconPack.ReorderHorizontally))
+                Crop -> addOption(CoreR.string.ly_img_editor_crop, EditorIcon.Vector(CoreIconPack.Croprotate))
+                Reorder -> addOption(CoreR.string.ly_img_editor_reorder, EditorIcon.Vector(CoreIconPack.Reorderhorizontally))
                 Edit -> addOption(R.string.ly_img_editor_edit, EditorIcon.Vector(IconPack.Keyboard))
                 Layer -> addOption(R.string.ly_img_editor_layer, EditorIcon.Vector(IconPack.Layersoutline))
                 Filter -> addOption(CoreR.string.ly_img_editor_filter, EditorIcon.Vector(CoreIconPack.Filter))
@@ -122,7 +119,7 @@ internal fun createBlock(
                 Replace -> addOption(R.string.ly_img_editor_replace, EditorIcon.Vector(IconPack.Replace))
                 EnterGroup -> addOption(R.string.ly_img_editor_enter_group, EditorIcon.Vector(IconPack.Groupenter))
                 FillStroke -> {
-                    val icon = getFillStrokeIcon(engine, designBlock)
+                    val icon = EditorIcon.FillStroke.getForDesignBlock(engine, designBlock)
                     if (icon.showFill || icon.showStroke) {
                         addOption(
                             FillStrokeUiState.getFillStrokeTitleRes(icon.showFill, icon.showStroke),
@@ -278,42 +275,5 @@ internal fun createBlock(
         designBlock = designBlock,
         type = blockType,
         options = optionItems,
-    )
-}
-
-/**
- * Returns a fill stroke icon for the [designBlock] based on the current engine state.
- *
- * @param engine the engine of the current editor.
- * @param designBlock the design block that is queried.
- * @return a fill stroke icon for the queried design block.
- */
-// todo temporary location of this function. Reconsider in inspector bar PR.
-private fun getFillStrokeIcon(
-    engine: Engine,
-    designBlock: DesignBlock,
-): EditorIcon.FillStroke {
-    val showFill =
-        engine.block.supportsFill(designBlock) &&
-            engine.block.hasColorOrGradientFill(designBlock) &&
-            engine.block.isAllowedByScope(designBlock, "fill/change")
-    val showStroke =
-        engine.block.supportsStroke(designBlock) &&
-            engine.block.isAllowedByScope(designBlock, "stroke/change")
-    return EditorIcon.FillStroke(
-        showFill = showFill,
-        showStroke = showStroke,
-        fill =
-            if (showFill && engine.block.isFillEnabled(designBlock)) {
-                engine.getFill(designBlock)
-            } else {
-                null
-            },
-        stroke =
-            if (showStroke && engine.block.isStrokeEnabled(designBlock)) {
-                engine.getStrokeColor(designBlock)
-            } else {
-                null
-            },
     )
 }

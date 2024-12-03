@@ -11,14 +11,14 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-val IconPack.AddSticker: ImageVector
+val IconPack.Addoverlay: ImageVector
     get() {
-        if (_addsticker != null) {
-            return _addsticker!!
+        if (_addoverlay != null) {
+            return _addoverlay!!
         }
-        _addsticker =
+        _addoverlay =
             Builder(
-                name = "Addsticker",
+                name = "Addoverlay",
                 defaultWidth = 24.0.dp,
                 defaultHeight = 24.0.dp,
                 viewportWidth = 24.0f,
@@ -33,11 +33,11 @@ val IconPack.AddSticker: ImageVector
                     strokeLineMiter = 4.0f,
                     pathFillType = NonZero,
                 ) {
-                    moveTo(12.3875f, 7.3026f)
-                    curveTo(11.6643f, 7.6753f, 11.2879f, 8.5114f, 11.4972f, 9.34f)
-                    curveTo(11.5472f, 9.49f, 11.6172f, 9.64f, 11.7072f, 9.78f)
-                    lineTo(13.4748f, 9.2984f)
-                    curveTo(13.0107f, 8.7027f, 12.6408f, 8.0299f, 12.3875f, 7.3026f)
+                    moveTo(12.0f, 5.0f)
+                    horizontalLineTo(6.0f)
+                    curveTo(4.8954f, 5.0f, 4.0f, 5.8954f, 4.0f, 7.0f)
+                    horizontalLineTo(12.2899f)
+                    curveTo(12.1013f, 6.3663f, 12.0f, 5.695f, 12.0f, 5.0f)
                     close()
                 }
                 path(
@@ -47,47 +47,62 @@ val IconPack.AddSticker: ImageVector
                     strokeLineCap = Butt,
                     strokeLineJoin = Miter,
                     strokeLineMiter = 4.0f,
-                    pathFillType = NonZero,
+                    pathFillType = EvenOdd,
                 ) {
-                    moveTo(16.1252f, 11.3843f)
-                    lineTo(7.12f, 13.86f)
-                    curveTo(7.7684f, 14.6103f, 8.6154f, 15.1623f, 9.5637f, 15.4524f)
-                    curveTo(10.5119f, 15.7425f, 11.5228f, 15.759f, 12.48f, 15.5f)
-                    curveTo(13.4351f, 15.2328f, 14.2954f, 14.7017f, 14.9623f, 13.9676f)
-                    curveTo(15.6103f, 13.2542f, 16.0501f, 12.3774f, 16.2346f, 11.4325f)
-                    curveTo(16.1979f, 11.4168f, 16.1615f, 11.4007f, 16.1252f, 11.3843f)
-                    close()
-                }
-                path(
-                    fill = SolidColor(Color(0xFF46464F)),
-                    stroke = null,
-                    strokeLineWidth = 0.0f,
-                    strokeLineCap = Butt,
-                    strokeLineJoin = Miter,
-                    strokeLineMiter = 4.0f,
-                    pathFillType = NonZero,
-                ) {
-                    moveTo(20.0f, 11.9291f)
-                    verticalLineTo(15.0f)
-                    horizontalLineTo(18.5f)
-                    curveTo(16.56f, 15.0f, 15.0f, 16.56f, 15.0f, 18.5f)
+                    moveTo(12.6736f, 8.0f)
+                    horizontalLineTo(4.0f)
+                    curveTo(2.8954f, 8.0f, 2.0f, 8.8954f, 2.0f, 10.0f)
                     verticalLineTo(20.0f)
-                    horizontalLineTo(5.75f)
-                    curveTo(5.2859f, 20.0f, 4.8408f, 19.8156f, 4.5126f, 19.4874f)
-                    curveTo(4.1844f, 19.1592f, 4.0f, 18.7141f, 4.0f, 18.25f)
-                    verticalLineTo(5.75f)
-                    curveTo(4.0f, 5.2859f, 4.1844f, 4.8408f, 4.5126f, 4.5126f)
-                    curveTo(4.8408f, 4.1844f, 5.2859f, 4.0f, 5.75f, 4.0f)
-                    horizontalLineTo(12.0709f)
-                    curveTo(12.1719f, 3.2938f, 12.3783f, 2.6217f, 12.6736f, 2.0f)
-                    horizontalLineTo(5.5f)
-                    curveTo(3.56f, 2.0f, 2.0f, 3.56f, 2.0f, 5.5f)
-                    verticalLineTo(18.5f)
-                    curveTo(2.0f, 20.44f, 3.56f, 22.0f, 5.5f, 22.0f)
-                    horizontalLineTo(16.0f)
-                    lineTo(22.0f, 16.0f)
+                    curveTo(2.0f, 21.1046f, 2.8954f, 22.0f, 4.0f, 22.0f)
+                    horizontalLineTo(20.0f)
+                    curveTo(21.1046f, 22.0f, 22.0f, 21.1046f, 22.0f, 20.0f)
                     verticalLineTo(11.3264f)
                     curveTo(21.3783f, 11.6217f, 20.7061f, 11.8281f, 20.0f, 11.9291f)
+                    verticalLineTo(12.0f)
+                    horizontalLineTo(18.0f)
+                    verticalLineTo(11.9291f)
+                    curveTo(17.2939f, 11.8281f, 16.6217f, 11.6217f, 16.0f, 11.3264f)
+                    verticalLineTo(14.0f)
+                    horizontalLineTo(8.0f)
+                    verticalLineTo(10.0f)
+                    horizontalLineTo(14.101f)
+                    curveTo(13.5151f, 9.4259f, 13.0297f, 8.7496f, 12.6736f, 8.0f)
+                    close()
+                    moveTo(6.0f, 10.0f)
+                    horizontalLineTo(4.0f)
+                    verticalLineTo(12.0f)
+                    horizontalLineTo(6.0f)
+                    verticalLineTo(10.0f)
+                    close()
+                    moveTo(6.0f, 14.0f)
+                    horizontalLineTo(4.0f)
+                    verticalLineTo(16.0f)
+                    horizontalLineTo(6.0f)
+                    verticalLineTo(14.0f)
+                    close()
+                    moveTo(4.0f, 18.0f)
+                    horizontalLineTo(6.0f)
+                    verticalLineTo(20.0f)
+                    horizontalLineTo(4.0f)
+                    verticalLineTo(18.0f)
+                    close()
+                    moveTo(18.0f, 20.0f)
+                    verticalLineTo(18.0f)
+                    horizontalLineTo(20.0f)
+                    verticalLineTo(20.0f)
+                    horizontalLineTo(18.0f)
+                    close()
+                    moveTo(16.0f, 20.0f)
+                    horizontalLineTo(8.0f)
+                    verticalLineTo(16.0f)
+                    horizontalLineTo(16.0f)
+                    verticalLineTo(20.0f)
+                    close()
+                    moveTo(20.0f, 14.0f)
+                    verticalLineTo(16.0f)
+                    horizontalLineTo(18.0f)
+                    verticalLineTo(14.0f)
+                    horizontalLineTo(20.0f)
                     close()
                 }
                 path(
@@ -99,15 +114,11 @@ val IconPack.AddSticker: ImageVector
                     strokeLineMiter = 4.0f,
                     pathFillType = NonZero,
                 ) {
-                    moveTo(7.23f, 8.64f)
-                    curveTo(7.38f, 8.59f, 7.53f, 8.59f, 7.7f, 8.59f)
-                    curveTo(8.0825f, 8.5862f, 8.4553f, 8.71f, 8.7596f, 8.9418f)
-                    curveTo(9.0639f, 9.1736f, 9.2822f, 9.5002f, 9.38f, 9.87f)
-                    curveTo(9.42f, 10.03f, 9.44f, 10.2f, 9.44f, 10.37f)
-                    lineTo(6.21f, 11.25f)
-                    curveTo(6.1976f, 11.2279f, 6.1851f, 11.2062f, 6.1729f, 11.1848f)
-                    curveTo(6.0963f, 11.051f, 6.0259f, 10.9279f, 6.0f, 10.79f)
-                    curveTo(5.75f, 9.86f, 6.3f, 8.9f, 7.23f, 8.64f)
+                    moveTo(12.6736f, 2.0f)
+                    horizontalLineTo(8.0f)
+                    curveTo(6.8954f, 2.0f, 6.0f, 2.8954f, 6.0f, 4.0f)
+                    horizontalLineTo(12.0709f)
+                    curveTo(12.1719f, 3.2938f, 12.3783f, 2.6217f, 12.6736f, 2.0f)
                     close()
                 }
                 path(
@@ -140,8 +151,9 @@ val IconPack.AddSticker: ImageVector
                     horizontalLineTo(18.5f)
                     close()
                 }
-            }.build()
-        return _addsticker!!
+            }
+                .build()
+        return _addoverlay!!
     }
 
-private var _addsticker: ImageVector? = null
+private var _addoverlay: ImageVector? = null

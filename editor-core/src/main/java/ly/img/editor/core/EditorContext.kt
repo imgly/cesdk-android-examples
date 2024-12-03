@@ -2,7 +2,6 @@ package ly.img.editor.core
 
 import android.app.Activity
 import android.net.Uri
-import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
@@ -53,14 +52,9 @@ interface EditorContext {
     val assetLibrary: AssetLibrary
 
     /**
-     * The overlay provided via [ly.img.editor.EditorConfiguration.overlay].
-     */
-    val overlay: (@Composable (EditorScope.(Parcelable) -> Unit))?
-
-    /**
      * The dock provided via [ly.img.editor.EditorConfiguration.dock].
      */
-    val dock: (@Composable (EditorScope.() -> Dock))?
+    val dock: @Composable EditorScope.() -> Dock
 
     /**
      * The engine of the current editor.

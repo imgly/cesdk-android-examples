@@ -20,7 +20,6 @@ import ly.img.editor.base.ui.EditorPagesDock
 import ly.img.editor.base.ui.EditorPagesUi
 import ly.img.editor.base.ui.EditorUi
 import ly.img.editor.core.EditorScope
-import ly.img.editor.core.component.EditorComponent
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.library.data.UploadAssetSourceType
@@ -40,6 +39,7 @@ fun DesignUi(
     onClose: suspend EditorScope.(Boolean) -> Unit,
     onError: suspend EditorScope.(Throwable) -> Unit,
     onEvent: EditorScope.(Parcelable, EditorEvent) -> Parcelable,
+    overlay: @Composable (EditorScope.(Parcelable) -> Unit),
     close: (Throwable?) -> Unit,
 ) {
     val activity = requireNotNull(LocalContext.current.activity)
@@ -75,12 +75,13 @@ fun DesignUi(
         uiState = uiState,
         editorScope = editorScope,
         editorContext = editorContext,
+        overlay = overlay,
         onEvent = onEvent,
         close = close,
         topBar = {
             DesignUiToolbar(
                 navigationIcon = editorContext.navigationIcon,
-                onEvent = viewModel::send,
+                onEvent = viewModel::onEvent,
                 pageCount = uiState.pageCount,
                 isPagesScreenActive = uiState.pagesState != null,
                 isUndoEnabled = uiState.isUndoEnabled,
@@ -89,10 +90,8 @@ fun DesignUi(
         },
         canvasOverlay = {
             if (uiState.isDockVisible) {
-                editorContext.dock?.let {
-                    Box(modifier = Modifier.align(Alignment.BottomStart)) {
-                        EditorComponent(component = it(editorScope))
-                    }
+                Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                    editorContext.dock(editorScope).Content()
                 }
             }
         },
@@ -104,7 +103,7 @@ fun DesignUi(
                         .padding(top = it.calculateTopPadding(), bottom = it.calculateBottomPadding() + 84.dp)
                         .fillMaxSize(),
                 state = uiState.pagesState,
-                onEvent = viewModel::send,
+                onEvent = viewModel::onEvent,
             )
             EditorPagesDock(
                 modifier =
@@ -113,7 +112,7 @@ fun DesignUi(
                         .padding(bottom = it.calculateBottomPadding())
                         .height(84.dp),
                 state = uiState.pagesState,
-                onEvent = viewModel::send,
+                onEvent = viewModel::onEvent,
             )
         },
         viewModel = viewModel,

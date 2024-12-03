@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-val IconPack.AddGalleryForeground: ImageVector
+val IconPack.Addgalleryforeground: ImageVector
     get() {
         if (_addgalleryforeground != null) {
             return _addgalleryforeground!!

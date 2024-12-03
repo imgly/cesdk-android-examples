@@ -5,7 +5,6 @@ import androidx.navigation.NavHostController
 import ly.img.editor.EditorConfiguration
 import ly.img.editor.EngineConfiguration
 import ly.img.editor.PhotoEditor
-import ly.img.editor.rememberForPhoto
 
 // Add this composable to your NavHost
 @Composable

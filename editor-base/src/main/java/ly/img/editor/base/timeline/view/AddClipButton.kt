@@ -16,13 +16,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.base.R
-import ly.img.editor.base.sheet.LibraryAddToBackgroundTrackSheetType
 import ly.img.editor.base.ui.Event
-import ly.img.editor.core.event.EditorEvent
-import ly.img.editor.core.iconpack.AddCameraBackground
-import ly.img.editor.core.iconpack.AddGalleryBackground
+import ly.img.editor.core.iconpack.Addcamerabackground
+import ly.img.editor.core.iconpack.Addgallerybackground
 import ly.img.editor.core.iconpack.IconPack
-import ly.img.editor.core.iconpack.LibraryElements
+import ly.img.editor.core.iconpack.Libraryelements
 import ly.img.editor.core.theme.surface3
 import ly.img.editor.core.ui.library.LibraryViewModel
 import ly.img.editor.core.ui.library.components.ClipMenuItem
@@ -32,7 +30,7 @@ import ly.img.editor.core.ui.library.resultcontract.rememberGalleryLauncherForAc
 @Composable
 fun AddClipButton(
     modifier: Modifier,
-    onEvent: (EditorEvent) -> Unit,
+    onEvent: (Event) -> Unit,
 ) {
     var showClipMenu by remember { mutableStateOf(false) }
     val libraryViewModel = viewModel<LibraryViewModel>()
@@ -52,17 +50,12 @@ fun AddClipButton(
                 showClipMenu = false
             },
         ) {
-            // todo get rid of this in the future with mobile configuration extension
-            var callback by remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
-            callback?.invoke()
-            callback = null
-
             ClipMenuItem(
                 textResourceId = ly.img.editor.core.R.string.ly_img_editor_camera,
-                icon = IconPack.AddCameraBackground,
+                icon = IconPack.Addcamerabackground,
             ) {
                 showClipMenu = false
-                onEvent(Event.OnVideoCameraClick { callback = it })
+                onEvent(Event.OnVideoCameraClick)
             }
 
             val galleryLauncher =
@@ -72,7 +65,7 @@ fun AddClipButton(
                 }
             ClipMenuItem(
                 textResourceId = ly.img.editor.core.R.string.ly_img_editor_gallery,
-                icon = IconPack.AddGalleryBackground,
+                icon = IconPack.Addgallerybackground,
             ) {
                 galleryLauncher.launch(GalleryMimeType.All)
             }
@@ -83,15 +76,11 @@ fun AddClipButton(
 
             ClipMenuItem(
                 textResourceId = R.string.ly_img_editor_library,
-                icon = IconPack.LibraryElements,
+                icon = IconPack.Libraryelements,
             ) {
                 showClipMenu = false
                 onEvent(
-                    EditorEvent.Sheet.Open(
-                        LibraryAddToBackgroundTrackSheetType(
-                            libraryCategory = libraryViewModel.assetLibrary.clips,
-                        ),
-                    ),
+                    Event.OnAddClipCategoryClick(addToBackgroundTrack = true),
                 )
             }
         }

@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-val IconPack.AddText: ImageVector
+val IconPack.Addtext: ImageVector
     get() {
         if (_addtext != null) {
             return _addtext!!

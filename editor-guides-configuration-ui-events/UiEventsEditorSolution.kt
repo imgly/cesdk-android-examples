@@ -20,7 +20,7 @@ fun UiEventsEditorSolution(navController: NavHostController) {
         EngineConfiguration.remember(
             license = "<your license here>",
             // highlight-configuration-engine-callback
-            onCreate = {
+            onCreate = { ->
                 EditorDefaults.onCreate(
                     engine = editorContext.engine,
                     sceneUri = EngineConfiguration.defaultDesignSceneUri,

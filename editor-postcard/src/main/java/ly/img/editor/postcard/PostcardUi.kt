@@ -53,6 +53,7 @@ fun PostcardUi(
     onClose: suspend EditorScope.(Boolean) -> Unit,
     onError: suspend EditorScope.(Throwable) -> Unit,
     onEvent: EditorScope.(Parcelable, EditorEvent) -> Parcelable,
+    overlay: @Composable (EditorScope.(Parcelable) -> Unit),
     close: (Throwable?) -> Unit,
 ) {
     val activity = requireNotNull(LocalContext.current.activity)
@@ -88,11 +89,12 @@ fun PostcardUi(
         uiState = uiState.editorUiViewState,
         editorScope = editorScope,
         editorContext = editorContext,
+        overlay = overlay,
         onEvent = onEvent,
         topBar = {
             PostcardUiToolbar(
                 navigationIcon = editorContext.navigationIcon,
-                onEvent = viewModel::send,
+                onEvent = viewModel::onEvent,
                 postcardMode = uiState.postcardMode,
                 isInPreviewMode = uiState.editorUiViewState.isInPreviewMode,
                 isUndoEnabled = uiState.editorUiViewState.isUndoEnabled,
@@ -112,7 +114,7 @@ fun PostcardUi(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             LibraryButton(
                                 modifier = Modifier.padding(top = 12.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
-                                onEvent = viewModel::send,
+                                onEvent = viewModel::onEvent,
                             )
 
                             Divider(
@@ -125,7 +127,7 @@ fun PostcardUi(
                             Spacer(modifier = Modifier.width(4.dp))
 
                             uiState.rootBarItems.forEach {
-                                RootBarItem(data = it, onEvent = viewModel::send)
+                                RootBarItem(data = it, onEvent = viewModel::onEvent)
                             }
                         }
                     } else {
@@ -134,7 +136,7 @@ fun PostcardUi(
                             horizontalArrangement = Arrangement.Center,
                         ) {
                             uiState.rootBarItems.forEach {
-                                RootBarItem(data = it, onEvent = viewModel::send)
+                                RootBarItem(data = it, onEvent = viewModel::onEvent)
                             }
                         }
                     }
@@ -142,30 +144,12 @@ fun PostcardUi(
             }
         },
         viewModel = viewModel,
-        bottomSheetLayout = { content, onColorPickerActiveChanged ->
-            when (content) {
-                is MessageFontBottomSheetContent ->
-                    MessageFontSheet(
-                        uiState = content.uiState,
-                        onEvent = viewModel::send,
-                    )
-                is MessageSizeBottomSheetContent ->
-                    MessageSizeSheet(
-                        messageSize = content.messageSize,
-                        onEvent = viewModel::send,
-                    )
-                is MessageColorBottomSheetContent ->
-                    MessageColorSheet(
-                        color = content.color,
-                        onColorPickerActiveChanged = onColorPickerActiveChanged,
-                        onEvent = viewModel::send,
-                    )
-                is TemplateColorsBottomSheetContent ->
-                    TemplateColorsSheet(
-                        uiState = content.uiState,
-                        onColorPickerActiveChanged = onColorPickerActiveChanged,
-                        onEvent = viewModel::send,
-                    )
+        bottomSheetLayout = {
+            when (it) {
+                is MessageFontBottomSheetContent -> MessageFontSheet(uiState = it.uiState, onEvent = viewModel::onEvent)
+                is MessageSizeBottomSheetContent -> MessageSizeSheet(messageSize = it.messageSize, onEvent = viewModel::onEvent)
+                is MessageColorBottomSheetContent -> MessageColorSheet(color = it.color, onEvent = viewModel::onEvent)
+                is TemplateColorsBottomSheetContent -> TemplateColorsSheet(uiState = it.uiState, onEvent = viewModel::onEvent)
             }
         },
         close = close,

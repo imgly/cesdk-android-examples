@@ -7,7 +7,7 @@ import ly.img.editor.EditorDefaults
 import ly.img.editor.EngineConfiguration
 import ly.img.editor.core.R
 import ly.img.editor.core.iconpack.IconPack
-import ly.img.editor.core.iconpack.LibraryElements
+import ly.img.editor.core.iconpack.Libraryelements
 import ly.img.editor.core.library.AssetLibrary
 import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.library.LibraryCategory
@@ -15,7 +15,6 @@ import ly.img.editor.core.library.LibraryCategory.Companion.sourceTypes
 import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.addSection
 import ly.img.editor.core.library.data.AssetSourceType
-import ly.img.editor.rememberForDesign
 import ly.img.editor.showcase.Secrets
 import ly.img.editor.showcase.R as ShowcaseR
 
@@ -29,7 +28,7 @@ fun CustomAssetLibraryEditorSolution(navController: NavHostController) {
     val engineConfiguration =
         EngineConfiguration.remember(
             license = "<your license here>",
-            onCreate = {
+            onCreate = { ->
                 EditorDefaults.onCreate(
                     engine = editorContext.engine,
                     sceneUri = EngineConfiguration.defaultDesignSceneUri,
@@ -48,8 +47,8 @@ fun CustomAssetLibraryEditorSolution(navController: NavHostController) {
             val myAssetsCategory =
                 LibraryCategory(
                     tabTitleRes = ShowcaseR.string.my_assets,
-                    tabSelectedIcon = IconPack.LibraryElements,
-                    tabUnselectedIcon = IconPack.LibraryElements,
+                    tabSelectedIcon = IconPack.Libraryelements,
+                    tabUnselectedIcon = IconPack.Libraryelements,
                     content =
                         LibraryContent.Sections(
                             titleRes = ShowcaseR.string.my_assets,

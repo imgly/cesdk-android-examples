@@ -53,7 +53,7 @@ import ly.img.editor.compose.material3.TextFieldDefaults
 import ly.img.editor.compose.material3.TextFieldDefaults.indicatorLine
 import ly.img.editor.compose.material3.TopAppBar
 import ly.img.editor.core.R
-import ly.img.editor.core.iconpack.ArrowBack
+import ly.img.editor.core.iconpack.Arrowback
 import ly.img.editor.core.theme.surface3
 import ly.img.editor.core.ui.iconpack.Close
 import ly.img.editor.core.ui.iconpack.Expandmore
@@ -128,7 +128,7 @@ internal fun LibrarySearchHeader(
                         IconButton(onClick = {
                             onLibraryEvent(LibraryEvent.OnEnterSearchMode(enter = false, uiState.libraryCategory))
                         }) {
-                            Icon(CoreIconPack.ArrowBack, contentDescription = stringResource(R.string.ly_img_editor_back))
+                            Icon(CoreIconPack.Arrowback, contentDescription = stringResource(R.string.ly_img_editor_back))
                         }
                     },
                     trailingIcon = {
@@ -160,7 +160,7 @@ internal fun LibrarySearchHeader(
                                 onLibraryEvent(LibraryEvent.OnPopStack(uiState.libraryCategory))
                             }) {
                                 Icon(
-                                    CoreIconPack.ArrowBack,
+                                    CoreIconPack.Arrowback,
                                     contentDescription = stringResource(R.string.ly_img_editor_back),
                                 )
                             }

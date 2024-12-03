@@ -1,15 +1,15 @@
 package ly.img.editor.core.ui.library.util
 
 import android.net.Uri
-import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.data.UploadAssetSourceType
+import ly.img.editor.core.ui.BaseEvent
 import ly.img.editor.core.ui.library.state.WrappedAsset
 import ly.img.engine.DesignBlock
 import kotlin.time.Duration
 
-sealed interface LibraryEvent : EditorEvent {
+sealed interface LibraryEvent : BaseEvent {
     data class OnEnterSearchMode(val enter: Boolean, val libraryCategory: LibraryCategory) : LibraryEvent
 
     data class OnSearchTextChange(val value: String, val libraryCategory: LibraryCategory, val debounce: Boolean = false) : LibraryEvent

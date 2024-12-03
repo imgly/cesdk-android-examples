@@ -100,7 +100,6 @@ class EngineConfiguration private constructor(
             ")"
     }
 
-    @OptIn(UnstableEditorApi::class)
     companion object {
         /**
          * The default baseUri value used in [EngineConfiguration].
@@ -110,7 +109,7 @@ class EngineConfiguration private constructor(
         }
 
         /**
-         * The default sceneUri value used in [rememberForDesign].
+         * The default sceneUri value used in [EngineConfiguration.rememberForDesign].
          */
         @UnstableEditorApi
         val defaultDesignSceneUri: Uri by lazy {
@@ -118,7 +117,7 @@ class EngineConfiguration private constructor(
         }
 
         /**
-         * The default sceneUri value used in [rememberForApparel].
+         * The default sceneUri value used in [EngineConfiguration.rememberForApparel].
          */
         @UnstableEditorApi
         val defaultApparelSceneUri: Uri by lazy {
@@ -126,7 +125,7 @@ class EngineConfiguration private constructor(
         }
 
         /**
-         * The default sceneUri value used in [rememberForPostcard].
+         * The default sceneUri value used in [EngineConfiguration.rememberForPostcard].
          */
         @UnstableEditorApi
         val defaultPostcardSceneUri: Uri by lazy {
@@ -134,7 +133,7 @@ class EngineConfiguration private constructor(
         }
 
         /**
-         * The default sceneUri value used in [rememberForVideo].
+         * The default sceneUri value used in [EngineConfiguration.rememberForVideo].
          */
         @UnstableEditorApi
         val defaultVideoSceneUri: Uri by lazy {
@@ -213,8 +212,6 @@ class EngineConfiguration private constructor(
             },
             `_`: Nothing = nothing,
         ): EngineConfiguration =
-            // todo consider adding all parameters as keys. If we add now it crashes.
-            // todo https://console.firebase.google.com/project/cesdk-staging/crashlytics/app/android:ly.img.cesdk.catalog.internal/issues/36a035a4cf1c6c472ba005f7a8b2b854?time=last-seven-days&types=crash&sessionEventKey=673E417703A6000117603B895C0593F9_2017901230288394945
             androidx.compose.runtime.remember {
                 EngineConfiguration(
                     license = license,
@@ -230,114 +227,211 @@ class EngineConfiguration private constructor(
                 )
             }
 
-        @Deprecated("Use EngineConfiguration.Companion.rememberForDesign instead.")
-        fun getForDesign(
+        /**
+         * A composable helper function that creates and remembers an [EngineConfiguration] instance when launching [DesignEditor].
+         * This function simplifies the initialization process, offering a default configuration ideal for a wide range of
+         * applications. The essential requirement is the [license], with available extra parameters for further customization.
+         *
+         * @param license the license required to activate the [ly.img.engine.Engine].
+         * @param userId an optional identifier for the application's user, enhancing the accuracy of monthly active users (MAU) calculations.
+         * This is particularly beneficial for tracking users across multiple devices when they sign in, ensuring they are counted uniquely.
+         * @param baseUri the foundational uri for constructing absolute paths from relative ones. For example, setting it to
+         * the Android assets directory allows loading resources directly from there: file:///android_asset/.
+         * This base uri enables the loading of specific scenes or assets using their relative paths.
+         * @param sceneUri the specific scene uri to load content within the [DesignEditor]. This uri is passed to
+         * [EditorDefaults.onCreate] to facilitate scene and asset loading at initialization.
+         * @param renderTarget the target which should be used by the [ly.img.engine.Engine] to render.
+         * Default value is [EngineRenderTarget.SURFACE_VIEW].
+         */
+        @UnstableEditorApi
+        @Composable
+        fun rememberForDesign(
             license: String,
             userId: String? = null,
             baseUri: Uri = defaultBaseUri,
             sceneUri: Uri = defaultDesignSceneUri,
             renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
-        ) = EngineConfiguration(
-            license = license,
-            userId = userId,
-            baseUri = baseUri,
-            renderTarget = renderTarget,
-            onCreate = { engine, eventHandler ->
-                EditorDefaults.onCreate(engine, sceneUri, eventHandler)
-            },
-        )
+        ): EngineConfiguration =
+            remember(
+                license = license,
+                userId = userId,
+                baseUri = baseUri,
+                renderTarget = renderTarget,
+                onCreate = { ->
+                    EditorDefaults.onCreate(editorContext.engine, sceneUri, editorContext.eventHandler)
+                },
+            )
 
-        @Deprecated("Use EngineConfiguration.Companion.rememberForPhoto instead.")
-        fun getForPhoto(
+        /**
+         * A composable helper function that creates and remembers an [EngineConfiguration] instance when launching [PhotoEditor].
+         * This function simplifies the initialization process, offering a default configuration ideal for a wide range of
+         * applications. The essential requirement is the [license], with available extra parameters for further customization.
+         *
+         * @param license the license required to activate the [ly.img.engine.Engine].
+         * @param imageUri the uri of the image that is used to create a scene using [ly.img.engine.SceneApi.createFromImage] API.
+         * @param imageSize the size that should be used to load the image. If null, original size of the image will be used.
+         * @param userId an optional identifier for the application's user, enhancing the accuracy of monthly active users (MAU) calculations.
+         * This is particularly beneficial for tracking users across multiple devices when they sign in, ensuring they are counted uniquely.
+         * @param baseUri the foundational uri for constructing absolute paths from relative ones. For example, setting it to
+         * the Android assets directory allows loading resources directly from there: file:///android_asset/.
+         * This base uri enables the loading of specific scenes or assets using their relative paths.
+         * [EditorDefaults.onCreate] to facilitate scene and asset loading at initialization.
+         * @param renderTarget the target which should be used by the [ly.img.engine.Engine] to render.
+         * Default value is [EngineRenderTarget.SURFACE_VIEW].
+         */
+        @UnstableEditorApi
+        @Composable
+        fun rememberForPhoto(
             license: String,
             imageUri: Uri,
             imageSize: SizeF? = null,
             userId: String? = null,
             baseUri: Uri = defaultBaseUri,
             renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
-        ) = EngineConfiguration(
-            license = license,
-            userId = userId,
-            baseUri = baseUri,
-            renderTarget = renderTarget,
-            onCreate = { engine, eventHandler ->
-                EditorDefaults.onCreateFromImage(engine, imageUri, eventHandler, imageSize)
-            },
-            onExport = { engine, eventHandler ->
-                EditorDefaults.run {
-                    eventHandler.send(ShowLoading)
-                    val blob =
-                        engine.block.export(
-                            block = requireNotNull(engine.scene.get()),
-                            mimeType = MimeType.PNG,
+        ): EngineConfiguration =
+            remember(
+                license = license,
+                userId = userId,
+                baseUri = baseUri,
+                renderTarget = renderTarget,
+                onCreate = { ->
+                    EditorDefaults.onCreateFromImage(editorContext.engine, imageUri, editorContext.eventHandler, imageSize)
+                },
+                onExport = {
+                    EditorDefaults.run {
+                        val engine = editorContext.engine
+                        val eventHandler = editorContext.eventHandler
+                        eventHandler.send(ShowLoading)
+                        val blob =
+                            engine.block.export(
+                                block = requireNotNull(engine.scene.get()),
+                                mimeType = MimeType.PNG,
+                            )
+                        val tempFile = writeToTempFile(blob, mimeType = MimeType.PNG)
+                        eventHandler.send(HideLoading)
+                        eventHandler.send(
+                            ShareFileEvent(
+                                file = tempFile,
+                                mimeType = MimeType.PNG.key,
+                            ),
                         )
-                    val tempFile = writeToTempFile(blob, mimeType = MimeType.PNG)
-                    eventHandler.send(HideLoading)
-                    eventHandler.send(
-                        ShareFileEvent(
-                            file = tempFile,
-                            mimeType = MimeType.PNG.key,
-                        ),
-                    )
-                }
-            },
-        )
+                    }
+                },
+            )
 
-        @Deprecated("Use EngineConfiguration.Companion.rememberForApparel instead.")
-        fun getForApparel(
+        /**
+         * A composable helper function that creates and remembers an [EngineConfiguration] instance when launching [ApparelEditor].
+         * This function simplifies the initialization process, offering a default configuration ideal for a wide range of
+         * applications. The essential requirement is the [license], with available extra parameters for further customization.
+         *
+         * @param license the license to activate the [ly.img.engine.Engine] with.
+         * @param userId an optional unique ID tied to your application's user. This helps us accurately calculate monthly active users (MAU).
+         * Especially useful when one person uses the app on multiple devices with a sign-in feature, ensuring they're counted once.
+         * Providing this aids in better data accuracy.
+         * @param baseUri the base uri that is used to construct absolute paths from relative paths.
+         * absolutePath = baseUri + relativePath.
+         * For instance, baseUri can be set to android assets: file:///android_asset/.
+         * After setting this path you can, for instance, load example.scene from assets/scenes folder using relative path:
+         *      engine.scene.load(sceneUri = Uri.parse("scenes/example.scene"))
+         * @param sceneUri the scene Uri that is used to load the content of the [ApparelEditor]. This Uri is delegated to
+         * [EditorDefaults.onCreate] in order to load the scene and asset sources.
+         * @param renderTarget the target which should be used by the [ly.img.engine.Engine] to render.
+         * Default value is [EngineRenderTarget.SURFACE_VIEW].
+         */
+        @UnstableEditorApi
+        @Composable
+        fun rememberForApparel(
             license: String,
             userId: String? = null,
             baseUri: Uri = defaultBaseUri,
             sceneUri: Uri = defaultApparelSceneUri,
             renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
-        ) = EngineConfiguration(
-            license = license,
-            userId = userId,
-            baseUri = baseUri,
-            renderTarget = renderTarget,
-            onCreate = { engine, eventHandler ->
-                EditorDefaults.onCreate(engine, sceneUri, eventHandler)
-            },
-        )
+        ): EngineConfiguration =
+            EngineConfiguration(
+                license = license,
+                userId = userId,
+                baseUri = baseUri,
+                renderTarget = renderTarget,
+                onCreate = { ->
+                    EditorDefaults.onCreate(editorContext.engine, sceneUri, editorContext.eventHandler)
+                },
+            )
 
-        @Deprecated("Use EngineConfiguration.Companion.rememberForPostcard instead.")
-        fun getForPostcard(
+        /**
+         * A composable helper function that creates and remembers an [EngineConfiguration] instance when launching [PostcardEditor].
+         * This function simplifies the initialization process, offering a default configuration ideal for a wide range of
+         * applications. The essential requirement is the [license], with available extra parameters for further customization.
+         *
+         * @param license the license to activate the [ly.img.engine.Engine] with.
+         * @param userId an optional unique ID tied to your application's user. This helps us accurately calculate monthly active users (MAU).
+         * Especially useful when one person uses the app on multiple devices with a sign-in feature, ensuring they're counted once.
+         * Providing this aids in better data accuracy.
+         * @param baseUri the base uri that is used to construct absolute paths from relative paths.
+         * absolutePath = baseUri + relativePath.
+         * For instance, baseUri can be set to android assets: file:///android_asset/.
+         * After setting this path you can, for instance, load example.scene from assets/scenes folder using relative path:
+         *      engine.scene.load(sceneUri = Uri.parse("scenes/example.scene"))
+         * @param sceneUri the scene Uri that is used to load the content of the [PostcardEditor]. This Uri is delegated to
+         * [EditorDefaults.onCreate] in order to load the scene and asset sources.
+         * @param renderTarget the target which should be used by the [ly.img.engine.Engine] to render.
+         * Default value is [EngineRenderTarget.SURFACE_VIEW].
+         */
+        @UnstableEditorApi
+        @Composable
+        fun rememberForPostcard(
             license: String,
             userId: String? = null,
             baseUri: Uri = defaultBaseUri,
             sceneUri: Uri = defaultPostcardSceneUri,
             renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
-        ) = EngineConfiguration(
-            license = license,
-            userId = userId,
-            baseUri = baseUri,
-            renderTarget = renderTarget,
-            onCreate = { engine, eventHandler ->
-                EditorDefaults.onCreate(engine, sceneUri, eventHandler)
-            },
-        )
+        ): EngineConfiguration =
+            EngineConfiguration(
+                license = license,
+                userId = userId,
+                baseUri = baseUri,
+                renderTarget = renderTarget,
+                onCreate = { ->
+                    EditorDefaults.onCreate(editorContext.engine, sceneUri, editorContext.eventHandler)
+                },
+            )
 
-        @Deprecated("Use EngineConfiguration.Companion.rememberForVideo instead.")
-        fun getForVideo(
+        /**
+         * A composable helper function that creates and remembers an [EngineConfiguration] instance when launching [VideoEditor].
+         * This function simplifies the initialization process, offering a default configuration ideal for a wide range of
+         * applications. The essential requirement is the [license], with available extra parameters for further customization.
+         *
+         * @param license the license to activate the [ly.img.engine.Engine] with.
+         * @param userId an optional unique ID tied to your application's user. This helps us accurately calculate monthly active users (MAU).
+         * This is particularly beneficial for tracking users across multiple devices when they sign in, ensuring they are counted uniquely.
+         * @param baseUri the foundational uri for constructing absolute paths from relative ones. For example, setting it to
+         * the Android assets directory allows loading resources directly from there: file:///android_asset/.
+         * This base uri enables the loading of specific scenes or assets using their relative paths.
+         * @param sceneUri the specific scene uri to load content within the [VideoEditor]. This uri is passed to
+         * [EditorDefaults.onCreate] to facilitate scene and asset loading at initialization.
+         * @param renderTarget the target which should be used by the [ly.img.engine.Engine] to render.
+         * Default value is [EngineRenderTarget.SURFACE_VIEW].
+         */
+        @UnstableEditorApi
+        @Composable
+        fun rememberForVideo(
             license: String,
             userId: String? = null,
             baseUri: Uri = defaultBaseUri,
             sceneUri: Uri = defaultVideoSceneUri,
             renderTarget: EngineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
-        ) = EngineConfiguration(
-            license = license,
-            userId = userId,
-            baseUri = baseUri,
-            renderTarget = renderTarget,
-            onCreate = { engine, eventHandler ->
-                EditorDefaults.onCreate(engine, sceneUri, eventHandler)
-            },
-        )
+        ): EngineConfiguration =
+            EngineConfiguration(
+                license = license,
+                userId = userId,
+                baseUri = baseUri,
+                renderTarget = renderTarget,
+                onCreate = { ->
+                    EditorDefaults.onCreate(editorContext.engine, sceneUri, editorContext.eventHandler)
+                },
+            )
     }
 
-    @Deprecated(
-        "Use EngineConfiguration.Companion.remember function instead. This constructor will be removed soon.",
-    )
+    @Deprecated("Use remember functions constructor instead. This constructor will be removed soon.")
     @UnstableEditorApi
     constructor(
         license: String,
