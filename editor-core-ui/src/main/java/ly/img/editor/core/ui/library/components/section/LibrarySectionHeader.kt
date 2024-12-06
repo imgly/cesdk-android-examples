@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ly.img.editor.core.R
-import ly.img.editor.core.iconpack.AddCameraBackground
+import ly.img.editor.core.iconpack.Addcamerabackground
 import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.data.UploadAssetSourceType
 import ly.img.editor.core.ui.iconpack.Add
@@ -133,7 +133,7 @@ private fun UploadButton(
                 }
                 ClipMenuItem(
                     textResourceId = if (isVideoMimeType) R.string.ly_img_editor_take_video else R.string.ly_img_editor_take_photo,
-                    icon = CoreIconPack.AddCameraBackground,
+                    icon = CoreIconPack.Addcamerabackground,
                     onClick = {
                         showUploadMenu = false
                         launchCamera(isVideoMimeType)

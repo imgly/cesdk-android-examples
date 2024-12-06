@@ -3,7 +3,6 @@ import androidx.navigation.NavHostController
 import ly.img.editor.ApparelEditor
 import ly.img.editor.EditorConfiguration
 import ly.img.editor.EngineConfiguration
-import ly.img.editor.rememberForApparel
 
 // Add this composable to your NavHost
 @Composable

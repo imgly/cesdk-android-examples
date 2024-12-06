@@ -45,7 +45,7 @@ fun ColorPicker(
         }
     }
     Column(modifier = modifier) {
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(8.dp))
         SaturationValueArea(
             currentColor = hsvColor,
             onSaturationValueChanged = { saturation, value ->

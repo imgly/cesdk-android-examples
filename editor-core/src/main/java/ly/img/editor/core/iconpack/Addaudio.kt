@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-val IconPack.AddAudio: ImageVector
+val IconPack.Addaudio: ImageVector
     get() {
         if (_addaudio != null) {
             return _addaudio!!

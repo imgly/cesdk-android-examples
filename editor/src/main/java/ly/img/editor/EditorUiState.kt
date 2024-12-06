@@ -2,7 +2,6 @@ package ly.img.editor
 
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.core.os.ParcelCompat
 import java.io.File
 
 /**
@@ -25,12 +24,7 @@ data class EditorUiState(
         showLoading = true, // showLoading should never be stored
         showCloseConfirmationDialog = parcel.readByte() != 0.toByte(),
         error = null, // error should never be stored
-        videoExportStatus =
-            ParcelCompat.readParcelable(
-                parcel,
-                VideoExportStatus::class.java.classLoader,
-                VideoExportStatus::class.java,
-            )!!,
+        videoExportStatus = parcel.readParcelableCompat(VideoExportStatus::class.java)!!,
         sceneIsLoaded = false, // sceneIsLoaded should never be stored
     )
 
@@ -123,3 +117,10 @@ sealed class VideoExportStatus : Parcelable {
         }
     }
 }
+
+private fun <T> Parcel.readParcelableCompat(clazz: Class<T>): T? =
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+        this.readParcelable(clazz.classLoader, clazz)
+    } else {
+        this.readParcelable(clazz.classLoader)
+    }

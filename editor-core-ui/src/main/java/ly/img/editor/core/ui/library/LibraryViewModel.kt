@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ly.img.editor.core.EditorScope
+import ly.img.editor.core.engine.getBackgroundTrack
 import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.library.LibraryContent
@@ -30,7 +31,6 @@ import ly.img.editor.core.ui.engine.ROLE_ADOPTER
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.awaitEngineAndSceneLoad
 import ly.img.editor.core.ui.engine.dpToCanvasUnit
-import ly.img.editor.core.ui.engine.getBackgroundTrack
 import ly.img.editor.core.ui.engine.getCamera
 import ly.img.editor.core.ui.engine.getCurrentPage
 import ly.img.editor.core.ui.engine.isSceneModeVideo
@@ -90,10 +90,10 @@ class LibraryViewModel(
     private val _uiEvent = Channel<LibraryUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    val sceneMode: SceneMode
+    private val sceneMode: SceneMode
         get() = engine.scene.getMode()
 
-    val assetLibrary
+    private val assetLibrary
         get() = editor.assetLibrary
 
     val navBarItems

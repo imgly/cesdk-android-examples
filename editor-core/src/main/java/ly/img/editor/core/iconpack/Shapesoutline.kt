@@ -10,11 +10,7 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-@Deprecated("Use IconPack.ShapesOutline instead.", ReplaceWith("IconPack.ShapesOutline"))
 val IconPack.Shapesoutline: ImageVector
-    get() = ShapesOutline
-
-val IconPack.ShapesOutline: ImageVector
     get() {
         if (_shapesoutline != null) {
             return _shapesoutline!!

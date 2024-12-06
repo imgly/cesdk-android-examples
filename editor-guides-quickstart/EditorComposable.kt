@@ -2,7 +2,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import ly.img.editor.DesignEditor
 import ly.img.editor.EngineConfiguration
-import ly.img.editor.rememberForDesign
 
 // Add this composable to your NavHost
 @Composable

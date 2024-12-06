@@ -3,7 +3,6 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import ly.img.editor.DesignEditor
 import ly.img.editor.EngineConfiguration
-import ly.img.editor.rememberForDesign
 
 // Launch this activity via intent
 class EditorActivity : AppCompatActivity() {

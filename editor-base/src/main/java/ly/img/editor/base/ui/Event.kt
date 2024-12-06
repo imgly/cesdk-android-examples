@@ -1,7 +1,6 @@
 package ly.img.editor.base.ui
 
 import android.net.Uri
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import ly.img.editor.base.dock.OptionType
@@ -10,9 +9,9 @@ import ly.img.editor.base.dock.options.format.VerticalAlignment
 import ly.img.editor.base.engine.AdjustmentState
 import ly.img.editor.base.engine.EffectAndBlurOptions
 import ly.img.editor.core.EditorScope
-import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.data.UploadAssetSourceType
+import ly.img.editor.core.ui.BaseEvent
 import ly.img.engine.Asset
 import ly.img.engine.BlendMode
 import ly.img.engine.BlurType
@@ -25,7 +24,7 @@ import kotlin.time.Duration
 /**
  * To communicate events from the UI to the ViewModel.
  */
-interface Event : EditorEvent {
+interface Event : BaseEvent {
     data class OnError(val throwable: Throwable) : Event
 
     object OnBack : Event
@@ -35,15 +34,27 @@ interface Event : EditorEvent {
         val bottomSheetMaxOffset: Float,
     ) : Event
 
-    object OnCloseInspectorBar : Event
+    object OnCloseDock : Event
+
+    object OnHideSheet : Event
+
+    object OnSheetDismissed : Event
+
+    object OnExpandSheet : Event
 
     object OnHideScrimSheet : Event
 
-    data class OnOptionClick(val optionType: OptionType) : Event
+    data class OnOptionClick(val optionType: OptionType, val floating: Boolean = false) : Event
 
-    data class OnVideoCameraClick(
-        val callback: (@Composable () -> Unit) -> Unit, // todo get rid of this in the future with mobile configuration extension
+    object OnAddLibraryClick : Event
+
+    data class OnAddClipCategoryClick(
+        val addToBackgroundTrack: Boolean,
     ) : Event
+
+    object OnAddAudioCategoryClick : Event
+
+    object OnVideoCameraClick : Event
 
     data class OnLaunchContractResult(
         val onResult: EditorScope.(Any?) -> Unit,

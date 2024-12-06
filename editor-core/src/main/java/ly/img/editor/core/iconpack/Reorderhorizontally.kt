@@ -9,11 +9,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-@Deprecated("Use IconPack.ReorderHorizontally instead.", ReplaceWith("IconPack.ReorderHorizontally"))
-val IconPack.Reorderhorizontally: ImageVector
-    get() = ReorderHorizontally
+private var _Reorderhorizontally: ImageVector? = null
 
-val IconPack.ReorderHorizontally: ImageVector
+val IconPack.Reorderhorizontally: ImageVector
     get() {
         if (_Reorderhorizontally != null) {
             return _Reorderhorizontally!!
@@ -75,5 +73,3 @@ val IconPack.ReorderHorizontally: ImageVector
             }.build()
         return _Reorderhorizontally!!
     }
-
-private var _Reorderhorizontally: ImageVector? = null

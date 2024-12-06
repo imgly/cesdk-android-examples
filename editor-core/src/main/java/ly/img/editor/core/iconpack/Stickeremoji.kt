@@ -10,11 +10,7 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-@Deprecated("Use IconPack.StickerEmoji instead.", ReplaceWith("IconPack.StickerEmoji"))
 val IconPack.Stickeremoji: ImageVector
-    get() = StickerEmoji
-
-val IconPack.StickerEmoji: ImageVector
     get() {
         if (_stickeremoji != null) {
             return _stickeremoji!!

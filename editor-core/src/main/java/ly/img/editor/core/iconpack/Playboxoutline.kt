@@ -10,11 +10,7 @@ import androidx.compose.ui.graphics.vector.ImageVector.Builder
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-@Deprecated("Use IconPack.PlayBoxOutline instead.", ReplaceWith("IconPack.PlayBoxOutline"))
 val IconPack.Playboxoutline: ImageVector
-    get() = PlayBoxOutline
-
-val IconPack.PlayBoxOutline: ImageVector
     get() {
         if (`_play-box-outline` != null) {
             return `_play-box-outline`!!

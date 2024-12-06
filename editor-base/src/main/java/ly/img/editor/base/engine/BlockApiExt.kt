@@ -1,7 +1,7 @@
 package ly.img.editor.base.engine
 
-import ly.img.editor.core.ui.engine.getFillType
-import ly.img.editor.core.ui.engine.isBackgroundTrack
+import ly.img.editor.core.engine.getFillType
+import ly.img.editor.core.engine.isBackgroundTrack
 import ly.img.engine.BlockApi
 import ly.img.engine.BlurType
 import ly.img.engine.DesignBlock

@@ -13,7 +13,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ly.img.editor.base.ui.EditorUi
 import ly.img.editor.core.EditorScope
-import ly.img.editor.core.component.EditorComponent
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.library.data.UploadAssetSourceType
@@ -33,6 +32,7 @@ fun PhotoUi(
     onClose: suspend EditorScope.(Boolean) -> Unit,
     onError: suspend EditorScope.(Throwable) -> Unit,
     onEvent: EditorScope.(Parcelable, EditorEvent) -> Parcelable,
+    overlay: @Composable (EditorScope.(Parcelable) -> Unit),
     close: (Throwable?) -> Unit,
 ) {
     val activity = requireNotNull(LocalContext.current.activity)
@@ -68,12 +68,13 @@ fun PhotoUi(
         uiState = uiState,
         editorScope = editorScope,
         editorContext = editorContext,
+        overlay = overlay,
         onEvent = onEvent,
         close = close,
         topBar = {
             PhotoUiToolbar(
                 navigationIcon = editorContext.navigationIcon,
-                onEvent = viewModel::send,
+                onEvent = viewModel::onEvent,
                 isInPreviewMode = uiState.isInPreviewMode,
                 isUndoEnabled = uiState.isUndoEnabled,
                 isRedoEnabled = uiState.isRedoEnabled,
@@ -81,10 +82,8 @@ fun PhotoUi(
         },
         canvasOverlay = {
             if (uiState.isDockVisible && !uiState.isInPreviewMode) {
-                editorContext.dock?.let {
-                    Box(modifier = Modifier.align(Alignment.BottomStart)) {
-                        EditorComponent(component = it(editorScope))
-                    }
+                Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                    editorContext.dock(editorScope).Content()
                 }
             }
         },

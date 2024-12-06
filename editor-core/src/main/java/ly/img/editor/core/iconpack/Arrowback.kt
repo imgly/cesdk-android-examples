@@ -12,11 +12,7 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-@Deprecated("Use IconPack.ArrowBack instead.", ReplaceWith("IconPack.ArrowBack"))
 val IconPack.Arrowback: ImageVector
-    get() = ArrowBack
-
-val IconPack.ArrowBack: ImageVector
     get() {
         if (_arrowback != null) {
             return _arrowback!!
@@ -58,4 +54,4 @@ private var _arrowback: ImageVector? = null
 
 @Preview
 @Composable
-private fun Preview() = IconPack.ArrowBack.IconPreview()
+private fun Preview() = IconPack.Arrowback.IconPreview()

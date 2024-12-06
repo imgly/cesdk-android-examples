@@ -15,8 +15,8 @@ import ly.img.editor.base.ui.BlockEvent.OnChangeLinearGradientParams
 import ly.img.editor.base.ui.BlockEvent.OnChangeRadialGradientParams
 import ly.img.editor.base.ui.BlockEvent.OnDisableFill
 import ly.img.editor.base.ui.BlockEvent.OnEnableFill
+import ly.img.editor.core.engine.getFillType
 import ly.img.editor.core.ui.EventsHandler
-import ly.img.editor.core.ui.engine.getFillType
 import ly.img.editor.core.ui.inject
 import ly.img.editor.core.ui.register
 import ly.img.engine.DesignBlock

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -14,51 +15,54 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.editor.base.dock.BottomSheetContent
-import ly.img.editor.core.event.EditorEvent
-import ly.img.editor.core.sheet.SheetType
+import ly.img.editor.base.dock.ConfigurableHeightContainer
+import ly.img.editor.base.ui.Event
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
-import ly.img.editor.core.ui.sheetScrollableContentModifier
+import ly.img.editor.core.ui.halfSheetScrollableContentModifier
 import ly.img.editor.postcard.PostcardEvent
 import ly.img.editor.postcard.R
 
 @Composable
 fun MessageSizeSheet(
     messageSize: MessageSize,
-    onEvent: (EditorEvent) -> Unit,
+    onEvent: (Event) -> Unit,
 ) {
-    Column {
-        SheetHeader(
-            title = stringResource(id = R.string.ly_img_editor_size),
-            onClose = { onEvent(EditorEvent.Sheet.Close(animate = true)) },
-        )
+    ConfigurableHeightContainer {
+        Column {
+            SheetHeader(
+                title = stringResource(id = R.string.ly_img_editor_size),
+                onClose = { onEvent(Event.OnHideSheet) },
+            )
 
-        Card(
-            Modifier.sheetScrollableContentModifier(),
-            colors = UiDefaults.cardColors,
-        ) {
-            Row(
+            Card(
                 Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+                    .halfSheetScrollableContentModifier(rememberScrollState()),
+                colors = UiDefaults.cardColors,
             ) {
-                Text(
-                    stringResource(R.string.ly_img_editor_message),
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Row {
-                    MessageSize.values().forEach {
-                        MessageSizeButton(
-                            messageSize = it,
-                            currentMessageSize = messageSize,
-                            changeMessageSize = {
-                                onEvent(
-                                    PostcardEvent.OnChangeMessageSize(it),
-                                )
-                            },
-                        )
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        stringResource(R.string.ly_img_editor_message),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Row {
+                        MessageSize.values().forEach {
+                            MessageSizeButton(
+                                messageSize = it,
+                                currentMessageSize = messageSize,
+                                changeMessageSize = {
+                                    onEvent(
+                                        PostcardEvent.OnChangeMessageSize(it),
+                                    )
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -67,6 +71,6 @@ fun MessageSizeSheet(
 }
 
 class MessageSizeBottomSheetContent(
-    override val type: SheetType,
+    override val isFloating: Boolean,
     val messageSize: MessageSize,
 ) : BottomSheetContent

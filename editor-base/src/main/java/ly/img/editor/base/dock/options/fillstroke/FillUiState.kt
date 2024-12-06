@@ -4,9 +4,9 @@ import androidx.compose.ui.graphics.Color
 import ly.img.editor.base.R
 import ly.img.editor.base.ui.Block
 import ly.img.editor.core.component.data.Fill
+import ly.img.editor.core.engine.getFill
+import ly.img.editor.core.engine.getFillType
 import ly.img.editor.core.ui.engine.BlockType
-import ly.img.editor.core.ui.engine.getFill
-import ly.img.editor.core.ui.engine.getFillType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
 

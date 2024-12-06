@@ -31,11 +31,6 @@ import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.replaceSection
 import ly.img.editor.core.theme.EditorTheme
-import ly.img.editor.rememberForApparel
-import ly.img.editor.rememberForDesign
-import ly.img.editor.rememberForPhoto
-import ly.img.editor.rememberForPostcard
-import ly.img.editor.rememberForVideo
 import ly.img.engine.SceneMode
 import ly.img.engine.populateAssetSource
 
@@ -213,7 +208,7 @@ class ShowcaseActivity : ComponentActivity() {
         fun rememberEngineConfiguration(sceneUri: Uri) =
             EngineConfiguration.remember(
                 license = Secrets.license,
-                onCreate = {
+                onCreate = { ->
                     val engine = editorContext.engine
                     EditorDefaults.onCreate(engine, sceneUri, editorContext.eventHandler) { _, scope ->
                         if (unsplashSupported) {

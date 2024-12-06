@@ -6,7 +6,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
 import ly.img.editor.DesignEditor
 import ly.img.editor.EngineConfiguration
-import ly.img.editor.rememberForDesign
 
 // Add this fragment via fragmentManager API
 class EditorFragment : Fragment() {

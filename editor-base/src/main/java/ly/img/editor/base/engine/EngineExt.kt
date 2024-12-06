@@ -2,6 +2,7 @@ package ly.img.editor.base.engine
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import ly.img.editor.core.engine.toRGBColor
 import ly.img.editor.core.ui.engine.BlockKind
 import ly.img.editor.core.ui.engine.Scope
 import ly.img.editor.core.ui.engine.deselectAllBlocks
@@ -12,7 +13,6 @@ import ly.img.editor.core.ui.engine.getPage
 import ly.img.editor.core.ui.engine.getScene
 import ly.img.editor.core.ui.engine.getStackOrNull
 import ly.img.editor.core.ui.engine.overrideAndRestore
-import ly.img.editor.core.ui.engine.toRGBColor
 import ly.img.engine.BlendMode
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock

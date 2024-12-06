@@ -13,7 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ly.img.editor.core.iconpack.ArrowBack
+import ly.img.editor.core.iconpack.Arrowback
 import ly.img.editor.core.ui.UiDefaults
 import ly.img.editor.core.ui.iconpack.Expandmore
 import ly.img.editor.core.ui.iconpack.IconPack
@@ -36,7 +36,7 @@ fun NestedSheetHeader(
             modifier = Modifier.padding(horizontal = 4.dp),
             onClick = onBack,
         ) {
-            Icon(CoreIconPack.ArrowBack, contentDescription = stringResource(coreR.string.ly_img_editor_back))
+            Icon(CoreIconPack.Arrowback, contentDescription = stringResource(coreR.string.ly_img_editor_back))
         }
         Text(
             text = title,

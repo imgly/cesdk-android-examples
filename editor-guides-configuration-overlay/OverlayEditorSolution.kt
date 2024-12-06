@@ -11,7 +11,6 @@ import ly.img.editor.EngineConfiguration
 import ly.img.editor.HideLoading
 import ly.img.editor.ShowLoading
 import ly.img.editor.core.event.EditorEvent
-import ly.img.editor.rememberForDesign
 
 // Add this composable to your NavHost
 @Composable

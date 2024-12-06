@@ -2,8 +2,8 @@ package ly.img.editor.core.ui.library
 
 import ly.img.editor.core.R
 import ly.img.editor.core.iconpack.IconPack
-import ly.img.editor.core.iconpack.LibraryElements
-import ly.img.editor.core.iconpack.LibraryElementsOutline
+import ly.img.editor.core.iconpack.Libraryelements
+import ly.img.editor.core.iconpack.Libraryelementsoutline
 import ly.img.editor.core.library.AssetType
 import ly.img.editor.core.library.LibraryCategory
 import ly.img.editor.core.library.LibraryContent
@@ -12,8 +12,8 @@ object AppearanceLibraryCategory {
     val Filters by lazy {
         LibraryCategory(
             tabTitleRes = R.string.ly_img_editor_filters,
-            tabSelectedIcon = IconPack.LibraryElements,
-            tabUnselectedIcon = IconPack.LibraryElementsOutline,
+            tabSelectedIcon = IconPack.Libraryelements,
+            tabUnselectedIcon = IconPack.Libraryelementsoutline,
             content =
                 LibraryContent.Sections(
                     titleRes = R.string.ly_img_editor_filters,
@@ -40,8 +40,8 @@ object AppearanceLibraryCategory {
     val FxEffects by lazy {
         LibraryCategory(
             tabTitleRes = R.string.ly_img_editor_effects,
-            tabSelectedIcon = IconPack.LibraryElements,
-            tabUnselectedIcon = IconPack.LibraryElementsOutline,
+            tabSelectedIcon = IconPack.Libraryelements,
+            tabUnselectedIcon = IconPack.Libraryelementsoutline,
             content =
                 LibraryContent.Sections(
                     titleRes = R.string.ly_img_editor_effects,
@@ -61,8 +61,8 @@ object AppearanceLibraryCategory {
     val Blur by lazy {
         LibraryCategory(
             tabTitleRes = R.string.ly_img_editor_blur,
-            tabSelectedIcon = IconPack.LibraryElements,
-            tabUnselectedIcon = IconPack.LibraryElementsOutline,
+            tabSelectedIcon = IconPack.Libraryelements,
+            tabUnselectedIcon = IconPack.Libraryelementsoutline,
             content =
                 LibraryContent.Sections(
                     titleRes = R.string.ly_img_editor_blur,
