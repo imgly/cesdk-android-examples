@@ -35,11 +35,11 @@ import ly.img.editor.base.components.PropertySlider
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.iconpack.Delete
+import ly.img.editor.core.iconpack.Duplicate
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
 import ly.img.editor.core.ui.iconpack.Bringforward
 import ly.img.editor.core.ui.iconpack.Bringtofront
-import ly.img.editor.core.ui.iconpack.Duplicate
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Sendbackward
 import ly.img.editor.core.ui.iconpack.Sendtoback
@@ -92,7 +92,7 @@ fun LayerOptionsSheet(
     } else {
         Column {
             SheetHeader(
-                title = stringResource(id = R.string.ly_img_editor_layer),
+                title = stringResource(id = CoreR.string.ly_img_editor_layer),
                 onClose = { onEvent(EditorEvent.Sheet.Close(animate = true)) },
             )
 
@@ -169,8 +169,8 @@ fun LayerOptionsSheet(
                     ) {
                         if (isDuplicateAllowed) {
                             ActionRow(
-                                text = stringResource(R.string.ly_img_editor_duplicate),
-                                icon = IconPack.Duplicate,
+                                text = stringResource(CoreR.string.ly_img_editor_duplicate),
+                                icon = CoreIconPack.Duplicate,
                                 onClick = { onEvent(BlockEvent.OnDuplicate) },
                             )
                         }

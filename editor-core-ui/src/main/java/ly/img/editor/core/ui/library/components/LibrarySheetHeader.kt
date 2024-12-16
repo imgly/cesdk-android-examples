@@ -54,8 +54,8 @@ import ly.img.editor.compose.material3.TextFieldDefaults.indicatorLine
 import ly.img.editor.compose.material3.TopAppBar
 import ly.img.editor.core.R
 import ly.img.editor.core.iconpack.ArrowBack
+import ly.img.editor.core.iconpack.Close
 import ly.img.editor.core.theme.surface3
-import ly.img.editor.core.ui.iconpack.Close
 import ly.img.editor.core.ui.iconpack.Expandmore
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Search
@@ -137,7 +137,7 @@ internal fun LibrarySearchHeader(
                                 textFieldValue = textFieldValue.copy(text = "", selection = TextRange(0))
                                 onLibraryEvent(LibraryEvent.OnSearchTextChange("", uiState.libraryCategory))
                             }) {
-                                Icon(IconPack.Close, contentDescription = stringResource(R.string.ly_img_editor_search_clear))
+                                Icon(CoreIconPack.Close, contentDescription = stringResource(R.string.ly_img_editor_search_clear))
                             }
                         }
                     },
@@ -187,7 +187,7 @@ internal fun LibrarySearchHeader(
                                         onLibraryEvent(LibraryEvent.OnSearchTextChange("", uiState.libraryCategory))
                                     }, Modifier.size(InputChipDefaults.IconSize)) {
                                         Icon(
-                                            IconPack.Close,
+                                            CoreIconPack.Close,
                                             contentDescription = stringResource(R.string.ly_img_editor_search_clear),
                                         )
                                     }

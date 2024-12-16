@@ -34,11 +34,22 @@
     <string name="ly_img_editor_filter">Filter</string>
     <string name="ly_img_editor_effect">Effect</string>
     <string name="ly_img_editor_blur">Blur</string>
+    <string name="ly_img_editor_volume">Volume</string>
     <string name="ly_img_editor_crop">Crop</string>
     <string name="ly_img_editor_reorder">Reorder</string>
     <string name="ly_img_editor_fill_and_stroke"><![CDATA[Fill & Stroke]]></string>
     <string name="ly_img_editor_fill">Fill</string>
     <string name="ly_img_editor_stroke">Stroke</string>
+    <string name="ly_img_editor_duplicate">Duplicate</string>
+    <string name="ly_img_editor_layer">Layer</string>
+    <string name="ly_img_editor_split">Split</string>
+    <string name="ly_img_editor_attach_background">As Clip</string>
+    <string name="ly_img_editor_detach_background">As Overlay</string>
+    <string name="ly_img_editor_replace">Replace</string>
+    <string name="ly_img_editor_enter_group">Enter Group</string>
+    <string name="ly_img_editor_select_group">Select Group</string>
+    <string name="ly_img_editor_edit">Edit</string>
+    <string name="ly_img_editor_format">Format</string>
 
     <string name="ly_img_editor_choose_video">Choose Video</string>
     <string name="ly_img_editor_take_video">Take Video</string>

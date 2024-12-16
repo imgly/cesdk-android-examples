@@ -1,4 +1,4 @@
-package ly.img.editor.core.ui.iconpack
+package ly.img.editor.core.iconpack
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType.Companion.NonZero

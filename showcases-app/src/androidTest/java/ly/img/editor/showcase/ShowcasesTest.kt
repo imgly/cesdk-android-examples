@@ -93,6 +93,7 @@ class ShowcasesTest {
     }
 
     @Test
+    @Ignore("This test is unreliable when run on an emulator that uses OpenGL emulation on a CPU.")
     fun snapVideoUi() {
         IdlingPolicies.setIdlingResourceTimeout(5, TimeUnit.MINUTES)
         IdlingPolicies.setMasterPolicyTimeout(5, TimeUnit.MINUTES)

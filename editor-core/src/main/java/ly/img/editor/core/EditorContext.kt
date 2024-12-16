@@ -8,6 +8,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import ly.img.editor.core.component.Dock
+import ly.img.editor.core.component.InspectorBar
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.AssetLibrary
 import ly.img.engine.Engine
@@ -61,6 +62,11 @@ interface EditorContext {
      * The dock provided via [ly.img.editor.EditorConfiguration.dock].
      */
     val dock: (@Composable (EditorScope.() -> Dock))?
+
+    /**
+     * The inspector bar provided via [ly.img.editor.EditorConfiguration.inspectorBar].
+     */
+    val inspectorBar: @Composable ((EditorScope.() -> InspectorBar))?
 
     /**
      * The engine of the current editor.

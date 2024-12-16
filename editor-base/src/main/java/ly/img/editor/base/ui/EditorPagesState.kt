@@ -8,8 +8,8 @@ import ly.img.editor.base.engine.isDeleteAllowed
 import ly.img.editor.base.engine.isDuplicateAllowed
 import ly.img.editor.core.component.data.EditorIcon
 import ly.img.editor.core.iconpack.Delete
+import ly.img.editor.core.iconpack.Duplicate
 import ly.img.editor.core.ui.iconpack.Addpage
-import ly.img.editor.core.ui.iconpack.Duplicate
 import ly.img.editor.core.ui.iconpack.Edit
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.Movedown
@@ -126,7 +126,7 @@ private fun createEditorPagesState(
     val dockOptions =
         buildList {
             EditorPagesState.DockOption(
-                titleRes = R.string.ly_img_editor_edit,
+                titleRes = CoreR.string.ly_img_editor_edit,
                 icon = EditorIcon.Vector(IconPack.Edit),
                 enabled = true,
                 actions =
@@ -155,8 +155,8 @@ private fun createEditorPagesState(
             ).let(::add)
             if (engine.isDuplicateAllowed(selectedPageBlock)) {
                 EditorPagesState.DockOption(
-                    titleRes = R.string.ly_img_editor_duplicate,
-                    icon = EditorIcon.Vector(IconPack.Duplicate),
+                    titleRes = CoreR.string.ly_img_editor_duplicate,
+                    icon = EditorIcon.Vector(CoreIconPack.Duplicate),
                     enabled = true,
                     actions = listOf(BlockEvent.OnDuplicateNonSelected(selectedPageBlock)),
                 ).let(::add)
