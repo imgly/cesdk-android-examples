@@ -268,7 +268,7 @@ internal class LazyListItemPlacementAnimator(
     ) {
         // first we make sure our item info is up to date (has the item placeables count)
         while (itemInfo.placeables.size > item.placeablesCount) {
-            itemInfo.placeables.removeLast()
+            itemInfo.placeables.removeAt(itemInfo.placeables.lastIndex)
         }
         while (itemInfo.placeables.size < item.placeablesCount) {
             val newPlaceableInfoIndex = itemInfo.placeables.size
