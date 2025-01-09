@@ -18,8 +18,8 @@ import androidx.compose.ui.unit.dp
 import ly.img.editor.base.R
 import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.core.iconpack.Delete
+import ly.img.editor.core.iconpack.Duplicate
 import ly.img.editor.core.ui.iconpack.Bringforward
-import ly.img.editor.core.ui.iconpack.Duplicate
 import ly.img.editor.core.ui.iconpack.IconPack
 import ly.img.editor.core.ui.iconpack.NavigateBefore
 import ly.img.editor.core.ui.iconpack.NavigateNext
@@ -102,8 +102,8 @@ fun CanvasActionMenu(
                 if (uiState.isDuplicateAllowed) {
                     IconButton(onClick = { onEvent(BlockEvent.OnDuplicate) }) {
                         Icon(
-                            IconPack.Duplicate,
-                            contentDescription = stringResource(R.string.ly_img_editor_duplicate),
+                            CoreIconPack.Duplicate,
+                            contentDescription = stringResource(CoreR.string.ly_img_editor_duplicate),
                         )
                     }
                 }

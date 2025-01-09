@@ -145,6 +145,13 @@ fun BlockApi.removeEffectByType(
     }
 }
 
+/**
+ * An extension function for checking whether the parent of the [designBlock] is a background track.
+ * IMPORTANT! When modifying this function also modify similar function in InspectorBarExt.kt.
+ *
+ * @param designBlock the design block that is being queried.
+ * @return true if the parent is a background track, false otherwise.
+ */
 fun BlockApi.isParentBackgroundTrack(designBlock: DesignBlock): Boolean {
     val parent = getParent(designBlock)
     return parent != null && isBackgroundTrack(parent)

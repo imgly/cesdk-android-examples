@@ -66,7 +66,6 @@ import ly.img.editor.base.dock.CustomBottomSheetContent
 import ly.img.editor.base.dock.EffectSheetContent
 import ly.img.editor.base.dock.FillStrokeBottomSheetContent
 import ly.img.editor.base.dock.FormatBottomSheetContent
-import ly.img.editor.base.dock.InspectorBar
 import ly.img.editor.base.dock.LayerBottomSheetContent
 import ly.img.editor.base.dock.LibraryAddBottomSheetContent
 import ly.img.editor.base.dock.LibraryReplaceBottomSheetContent
@@ -94,6 +93,7 @@ import ly.img.editor.compose.bottomsheet.rememberModalBottomSheetState
 import ly.img.editor.core.EditorContext
 import ly.img.editor.core.EditorScope
 import ly.img.editor.core.R
+import ly.img.editor.core.component.EditorComponent
 import ly.img.editor.core.engine.EngineRenderTarget
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.navbar.SystemNavBar
@@ -658,12 +658,13 @@ fun EditorUi(
                                 onClose = { viewModel.send(Event.OnKeyboardClose) },
                             )
                         }
-                        InspectorBar(
-                            selectedBlock = uiState.selectedBlock,
-                            modifier = Modifier.align(Alignment.BottomStart),
-                            onClose = { viewModel.send(Event.OnCloseInspectorBar) },
-                            onClick = { viewModel.send(Event.OnOptionClick(it)) },
-                        )
+                        if (uiState.isCanvasVisible) {
+                            editorContext.inspectorBar?.let {
+                                Box(modifier = Modifier.align(Alignment.BottomStart)) {
+                                    EditorComponent(component = it(editorScope))
+                                }
+                            }
+                        }
                     }
                 }
             }

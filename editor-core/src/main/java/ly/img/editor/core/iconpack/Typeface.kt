@@ -1,4 +1,4 @@
-package ly.img.editor.core.ui.iconpack
+package ly.img.editor.core.iconpack
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color

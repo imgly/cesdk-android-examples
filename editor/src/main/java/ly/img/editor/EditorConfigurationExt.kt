@@ -7,6 +7,7 @@ import ly.img.editor.base.components.color_picker.fillAndStrokeColors
 import ly.img.editor.core.EditorScope
 import ly.img.editor.core.UnstableEditorApi
 import ly.img.editor.core.component.Dock
+import ly.img.editor.core.component.InspectorBar
 import ly.img.editor.core.component.data.Nothing
 import ly.img.editor.core.component.data.nothing
 import ly.img.editor.core.component.rememberForDesign
@@ -44,9 +45,15 @@ import ly.img.editor.core.library.AssetLibrary
  * [onEvent], update your internal state and render in the overlay based on the state change. Check the implementation in
  * {solution_name}.get methods below for the sample usage of the composable callback.
  * Note that the overlay is edge-to-edge, therefore it is your responsibility to draw over system bars too.
+ * If null, then the overlay will not be rendered.
  * By default [EditorDefaults.Overlay] is used to handle the composable callback.
  * @param dock the configuration object of the dock that is displayed as horizontal list of items at the bottom of the editor.
+ * If null, then the dock will not be rendered.
  * By default [ly.img.editor.core.component.Dock.Companion.rememberForDesign] is used to handle the composable callback.
+ * @param inspectorBar the configuration object of the inspector bar that is displayed as horizontal list of items at the
+ * bottom of the editor when a design block is selected.
+ * If null, then the inspector bar will not be rendered.
+ * By default [InspectorBar.remember] is returned with default values.
  * @return an [EditorConfiguration] that should be used to launch a [DesignEditor].
  */
 @UnstableEditorApi
@@ -63,6 +70,7 @@ fun EditorConfiguration.Companion.rememberForDesign(
         EditorDefaults.Overlay(state = state, eventHandler = editorContext.eventHandler)
     },
     dock: (@Composable EditorScope.() -> Dock)? = { Dock.rememberForDesign() },
+    inspectorBar: (@Composable EditorScope.() -> InspectorBar)? = { InspectorBar.remember() },
     `_`: Nothing = nothing,
 ): EditorConfiguration<EditorUiState> =
     remember(
@@ -74,6 +82,7 @@ fun EditorConfiguration.Companion.rememberForDesign(
         onEvent = onEvent,
         overlay = overlay,
         dock = dock,
+        inspectorBar = inspectorBar,
         `_` = `_`,
     )
 
@@ -104,9 +113,15 @@ fun EditorConfiguration.Companion.rememberForDesign(
  * [onEvent], update your internal state and render in the overlay based on the state change. Check the implementation in
  * {solution_name}.get methods below for the sample usage of the composable callback.
  * Note that the overlay is edge-to-edge, therefore it is your responsibility to draw over system bars too.
+ * If null, then the overlay will not be rendered.
  * By default [EditorDefaults.Overlay] is used to handle the composable callback.
  * @param dock the configuration object of the dock that is displayed as horizontal list of items at the bottom of the editor.
+ * If null, then dock will not be rendered.
  * By default [ly.img.editor.core.component.Dock.Companion.rememberForPhoto] is used to handle the composable callback.
+ * @param inspectorBar the configuration object of the inspector bar that is displayed as horizontal list of items at the
+ * bottom of the editor when a design block is selected.
+ * If null, then the inspector bar will not be rendered.
+ * By default [InspectorBar.remember] is returned with default values.
  * @return an [EditorConfiguration] that should be used to launch a [PhotoEditor].
  */
 @UnstableEditorApi
@@ -123,6 +138,7 @@ fun EditorConfiguration.Companion.rememberForPhoto(
         EditorDefaults.Overlay(state = state, eventHandler = editorContext.eventHandler)
     },
     dock: (@Composable EditorScope.() -> Dock)? = { Dock.rememberForPhoto() },
+    inspectorBar: (@Composable EditorScope.() -> InspectorBar)? = { InspectorBar.remember() },
     `_`: Nothing = nothing,
 ): EditorConfiguration<EditorUiState> =
     remember(
@@ -134,6 +150,7 @@ fun EditorConfiguration.Companion.rememberForPhoto(
         onEvent = onEvent,
         overlay = overlay,
         dock = dock,
+        inspectorBar = inspectorBar,
         `_` = `_`,
     )
 
@@ -164,7 +181,12 @@ fun EditorConfiguration.Companion.rememberForPhoto(
  * [onEvent], update your internal state and render in the overlay based on the state change. Check the implementation in
  * {solution_name}.get methods below for the sample usage of the composable callback.
  * Note that the overlay is edge-to-edge, therefore it is your responsibility to draw over system bars too.
+ * If null, then the overlay will not be rendered.
  * By default [EditorDefaults.Overlay] is used to handle the composable callback.
+ * @param inspectorBar the configuration object of the inspector bar that is displayed as horizontal list of items at the
+ * bottom of the editor when a design block is selected.
+ * If null, then the inspector bar will not be rendered.
+ * By default [InspectorBar.remember] is returned with default values.
  * @return an [EditorConfiguration] that should be used to launch a [ApparelEditor].
  */
 @UnstableEditorApi
@@ -180,6 +202,7 @@ fun EditorConfiguration.Companion.rememberForApparel(
     overlay: (@Composable (EditorScope.(EditorUiState) -> Unit))? = { state ->
         EditorDefaults.Overlay(state = state, eventHandler = editorContext.eventHandler)
     },
+    inspectorBar: (@Composable EditorScope.() -> InspectorBar)? = { InspectorBar.remember() },
     `_`: Nothing = nothing,
 ): EditorConfiguration<EditorUiState> =
     remember(
@@ -190,6 +213,7 @@ fun EditorConfiguration.Companion.rememberForApparel(
         colorPalette = colorPalette,
         onEvent = onEvent,
         overlay = overlay,
+        inspectorBar = inspectorBar,
         `_` = `_`,
     )
 
@@ -220,7 +244,12 @@ fun EditorConfiguration.Companion.rememberForApparel(
  * [onEvent], update your internal state and render in the overlay based on the state change. Check the implementation in
  * {solution_name}.get methods below for the sample usage of the composable callback.
  * Note that the overlay is edge-to-edge, therefore it is your responsibility to draw over system bars too.
+ * If null, then the overlay will not be rendered.
  * By default [EditorDefaults.Overlay] is used to handle the composable callback.
+ * @param inspectorBar the configuration object of the inspector bar that is displayed as horizontal list of items at the
+ * bottom of the editor when a design block is selected.
+ * If null, then the inspector bar will not be rendered.
+ * By default [InspectorBar.remember] is returned with default values.
  * @return an [EditorConfiguration] that should be used to launch a [PostcardEditor].
  */
 @UnstableEditorApi
@@ -236,6 +265,7 @@ fun EditorConfiguration.Companion.rememberForPostcard(
     overlay: (@Composable (EditorScope.(EditorUiState) -> Unit))? = { state ->
         EditorDefaults.Overlay(state = state, eventHandler = editorContext.eventHandler)
     },
+    inspectorBar: (@Composable EditorScope.() -> InspectorBar)? = { InspectorBar.remember() },
     `_`: Nothing = nothing,
 ): EditorConfiguration<EditorUiState> =
     remember(
@@ -246,6 +276,7 @@ fun EditorConfiguration.Companion.rememberForPostcard(
         colorPalette = colorPalette,
         onEvent = onEvent,
         overlay = overlay,
+        inspectorBar = inspectorBar,
         `_` = `_`,
     )
 
@@ -279,6 +310,11 @@ fun EditorConfiguration.Companion.rememberForPostcard(
  * By default [EditorDefaults.Overlay] is used to handle the composable callback.
  * @param dock the configuration object of the dock that is displayed as horizontal list of items at the bottom of the editor.
  * By default [ly.img.editor.core.component.Dock.Companion.rememberForVideo] is used to handle the composable callback.
+ * If null, then the dock will not be rendered.
+ * @param inspectorBar the configuration object of the inspector bar that is displayed as horizontal list of items at the
+ * bottom of the editor when a design block is selected.
+ * By default [InspectorBar.remember] is returned with default values.
+ * If null, then the inspector bar will not be rendered.
  * @return an [EditorConfiguration] that should be used to launch a [VideoEditor].
  */
 @UnstableEditorApi
@@ -295,6 +331,7 @@ fun EditorConfiguration.Companion.rememberForVideo(
         EditorDefaults.Overlay(state = state, eventHandler = editorContext.eventHandler)
     },
     dock: (@Composable EditorScope.() -> Dock)? = { Dock.rememberForVideo() },
+    inspectorBar: (@Composable EditorScope.() -> InspectorBar)? = { InspectorBar.remember() },
     `_`: Nothing = nothing,
 ): EditorConfiguration<EditorUiState> =
     remember(
@@ -306,5 +343,6 @@ fun EditorConfiguration.Companion.rememberForVideo(
         onEvent = onEvent,
         overlay = overlay,
         dock = dock,
+        inspectorBar = inspectorBar,
         `_` = `_`,
     )

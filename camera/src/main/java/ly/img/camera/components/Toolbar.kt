@@ -14,9 +14,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.camera.record.components.TimecodeView
 import ly.img.editor.core.R
+import ly.img.editor.core.iconpack.Close
+import ly.img.editor.core.iconpack.IconPack
 import ly.img.editor.core.theme.LocalExtendedColorScheme
-import ly.img.editor.core.ui.iconpack.Close
-import ly.img.editor.core.ui.iconpack.IconPack
 import kotlin.time.Duration
 
 internal val TOOLBAR_HEIGHT = 64.dp

@@ -4,7 +4,6 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
-import ly.img.editor.base.dock.OptionType
 import ly.img.editor.base.dock.options.format.HorizontalAlignment
 import ly.img.editor.base.dock.options.format.VerticalAlignment
 import ly.img.editor.base.engine.AdjustmentState
@@ -38,8 +37,6 @@ interface Event : EditorEvent {
     object OnCloseInspectorBar : Event
 
     object OnHideScrimSheet : Event
-
-    data class OnOptionClick(val optionType: OptionType) : Event
 
     data class OnVideoCameraClick(
         val callback: (@Composable () -> Unit) -> Unit, // todo get rid of this in the future with mobile configuration extension

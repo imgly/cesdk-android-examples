@@ -13,6 +13,7 @@ import ly.img.editor.base.ui.BlockEvent
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.sheetScrollableContentModifier
+import ly.img.editor.core.R as CoreR
 
 @Composable
 fun ShapeOptionsSheet(
@@ -21,7 +22,7 @@ fun ShapeOptionsSheet(
 ) {
     Column {
         SheetHeader(
-            title = stringResource(R.string.ly_img_editor_shape_options),
+            title = stringResource(CoreR.string.ly_img_editor_shape),
             onClose = { onEvent(EditorEvent.Sheet.Close(animate = true)) },
         )
 
