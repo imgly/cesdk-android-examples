@@ -7,6 +7,7 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -14,7 +15,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -134,8 +134,8 @@ import java.io.File
  *  - 1. replace the icon of Dock.Button.rememberElementsLibrary,
  *  - 2. drop Dock.Button.rememberSystemCamera and Dock.Button.rememberShapesLibrary,
  *  - 3. swap Dock.Button.rememberTextLibrary and Dock.Button.rememberStickersLibrary,
- *  - 4. add one custom button to the front and another in the middle
- *  - 5. update first custom button text when second custom button is clicked with an incremented value
+ *  - 4. add one custom button to the front and another in the middle,
+ *  - 5. update first custom button text when second custom button is clicked with an incremented value,
  *  - 6. show Dock.Button.rememberStickersLibrary when the counter is even,
  *  - 7. force update all items on any engine event (that will be obvious from first custom button random icon).
  * you should invoke [ly.img.editor.core.component.Dock.Companion.rememberForDesign] with [listBuilder] looking like this:
@@ -195,6 +195,12 @@ import java.io.File
  * Default value is always no enter transition.
  * @param exitTransition transition of the dock when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
+ * @param itemDecoration decoration of the items in the dock. Useful when you want to add custom background, foreground, shadow,
+ * paddings etc to the items. Prefer using this decoration when you want to apply the same decoration to all the items, otherwise
+ * set decoration to individual items.
+ * Default value is always no decoration.
  * @return a dock that will be displayed when launching a [ly.img.editor.DesignEditor].
  */
 @UnstableEditorApi
@@ -204,11 +210,13 @@ fun Dock.Companion.rememberForDesign(
     horizontalArrangement: @Composable Scope.() -> Arrangement.Horizontal = { Arrangement.SpaceEvenly },
     scope: Scope =
         LocalEditorScope.current.run {
-            remember { Scope(parentScope = this) }
+            remember(this) { Scope(parentScope = this) }
         },
     visible: @Composable Scope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable Scope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable Scope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable Scope.(@Composable () -> Unit) -> Unit = { it() },
+    itemDecoration: @Composable Scope.(content: @Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Dock =
     remember(
@@ -218,6 +226,8 @@ fun Dock.Companion.rememberForDesign(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
+        itemDecoration = itemDecoration,
         `_` = `_`,
     )
 
@@ -272,6 +282,12 @@ fun Dock.ListBuilder.Companion.rememberForDesign(): ListBuilder<Item<*>> {
  * Default value is always no enter transition.
  * @param exitTransition transition of the dock when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
+ * @param itemDecoration decoration of the items in the dock. Useful when you want to add custom background, foreground, shadow,
+ * paddings etc to the items. Prefer using this decoration when you want to apply the same decoration to all the items, otherwise
+ * set decoration to individual items.
+ * Default value is always no decoration.
  * @return a dock that will be displayed when launching a [ly.img.editor.PhotoEditor].
  */
 @UnstableEditorApi
@@ -281,11 +297,13 @@ fun Dock.Companion.rememberForPhoto(
     horizontalArrangement: @Composable Scope.() -> Arrangement.Horizontal = { Arrangement.SpaceEvenly },
     scope: Scope =
         LocalEditorScope.current.run {
-            remember { Scope(parentScope = this) }
+            remember(this) { Scope(parentScope = this) }
         },
     visible: @Composable Scope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable Scope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable Scope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable Scope.(@Composable () -> Unit) -> Unit = { it() },
+    itemDecoration: @Composable Scope.(content: @Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Dock =
     remember(
@@ -295,6 +313,8 @@ fun Dock.Companion.rememberForPhoto(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
+        itemDecoration = itemDecoration,
         `_` = `_`,
     )
 
@@ -352,8 +372,15 @@ fun Dock.ListBuilder.Companion.rememberForPhoto(): ListBuilder<Item<*>> {
  * Default value is always no enter transition.
  * @param exitTransition transition of the dock when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
+ * @param itemDecoration decoration of the items in the dock. Useful when you want to add custom background, foreground, shadow,
+ * paddings etc to the items. Prefer using this decoration when you want to apply the same decoration to all the items, otherwise
+ * set decoration to individual items.
+ * Default value is always no decoration.
  * @return a dock that will be displayed when launching a [ly.img.editor.VideoEditor].
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @UnstableEditorApi
 @Composable
 fun Dock.Companion.rememberForVideo(
@@ -361,11 +388,38 @@ fun Dock.Companion.rememberForVideo(
     horizontalArrangement: @Composable Scope.() -> Arrangement.Horizontal = { Arrangement.SpaceEvenly },
     scope: Scope =
         LocalEditorScope.current.run {
-            remember { Scope(parentScope = this) }
+            val engine = editorContext.engine
+
+            fun getBackgroundTrack(): DesignBlock? {
+                return engine.block.findByType(DesignBlockType.Track).firstOrNull {
+                    DesignBlockType.get(engine.block.getType(it)) == DesignBlockType.Track &&
+                        engine.block.isAlwaysOnBottom(it)
+                }
+            }
+            val reorderButtonVisible by remember(this) {
+                engine.event.subscribe(engine.scene.getPages())
+                    .map { getBackgroundTrack() }
+                    .onStart { emit(getBackgroundTrack()) }
+                    .distinctUntilChanged()
+                    .flatMapLatest { backgroundTrack ->
+                        if (backgroundTrack == null) {
+                            flowOf(false)
+                        } else {
+                            engine.event.subscribe(listOf(backgroundTrack))
+                                .map { engine.block.getChildren(backgroundTrack).size >= 2 }
+                                .onStart { emit(engine.block.getChildren(backgroundTrack).size >= 2) }
+                        }
+                    }
+            }.collectAsState(
+                initial = remember { getBackgroundTrack()?.let { engine.block.getChildren(it).size >= 2 } ?: false },
+            )
+            remember(this, reorderButtonVisible) { Scope(parentScope = this) }
         },
     visible: @Composable Scope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable Scope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable Scope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable Scope.(@Composable () -> Unit) -> Unit = { it() },
+    itemDecoration: @Composable Scope.(content: @Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Dock =
     remember(
@@ -375,6 +429,8 @@ fun Dock.Companion.rememberForVideo(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
+        itemDecoration = itemDecoration,
         `_` = `_`,
     )
 
@@ -437,6 +493,8 @@ val Button.Id.Companion.elementsLibrary by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -462,6 +520,7 @@ fun Button.Companion.rememberElementsLibrary(
     visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -475,6 +534,7 @@ fun Button.Companion.rememberElementsLibrary(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -509,6 +569,8 @@ val Button.Id.Companion.overlaysLibrary by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -534,6 +596,7 @@ fun Button.Companion.rememberOverlaysLibrary(
     visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -547,6 +610,7 @@ fun Button.Companion.rememberOverlaysLibrary(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -581,6 +645,8 @@ val Button.Id.Companion.imagesLibrary by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -606,6 +672,7 @@ fun Button.Companion.rememberImagesLibrary(
     visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -619,6 +686,7 @@ fun Button.Companion.rememberImagesLibrary(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -653,6 +721,8 @@ val Button.Id.Companion.textLibrary by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -685,6 +755,7 @@ fun Button.Companion.rememberTextLibrary(
     visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -698,6 +769,7 @@ fun Button.Companion.rememberTextLibrary(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -732,6 +804,8 @@ val Button.Id.Companion.shapesLibrary by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -757,6 +831,7 @@ fun Button.Companion.rememberShapesLibrary(
     visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -770,6 +845,7 @@ fun Button.Companion.rememberShapesLibrary(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -804,6 +880,8 @@ val Button.Id.Companion.stickersLibrary by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -829,6 +907,7 @@ fun Button.Companion.rememberStickersLibrary(
     visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -842,6 +921,7 @@ fun Button.Companion.rememberStickersLibrary(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -876,6 +956,8 @@ val Button.Id.Companion.audiosLibrary by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -901,6 +983,7 @@ fun Button.Companion.rememberAudiosLibrary(
     visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -914,6 +997,7 @@ fun Button.Companion.rememberAudiosLibrary(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -947,6 +1031,8 @@ val Button.Id.Companion.systemGallery by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -992,6 +1078,7 @@ fun Button.Companion.rememberSystemGallery(
     visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -1005,6 +1092,7 @@ fun Button.Companion.rememberSystemGallery(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -1041,6 +1129,8 @@ val Button.Id.Companion.systemCamera by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -1089,6 +1179,7 @@ fun Button.Companion.rememberSystemCamera(
     visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -1102,6 +1193,7 @@ fun Button.Companion.rememberSystemCamera(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -1136,6 +1228,8 @@ val Button.Id.Companion.imglyCamera by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -1178,6 +1272,7 @@ fun Button.Companion.rememberImglyCamera(
     visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -1191,6 +1286,7 @@ fun Button.Companion.rememberImglyCamera(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     ).run {
         // This will throw NoClassDefFoundError if img.ly camera is not available
@@ -1229,9 +1325,10 @@ val Button.Id.Companion.reorder by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun Button.Companion.rememberReorder(
     vectorIcon: (@Composable ButtonScope.() -> ImageVector)? = { IconPack.ReorderHorizontally },
@@ -1243,51 +1340,21 @@ fun Button.Companion.rememberReorder(
     },
     scope: ButtonScope =
         LocalEditorScope.current.run {
-            val engine = editorContext.engine
-
-            fun getBackgroundTrack(): DesignBlock? {
-                return engine.block.findByType(DesignBlockType.Track).firstOrNull {
-                    DesignBlockType.get(engine.block.getType(it)) == DesignBlockType.Track &&
-                        engine.block.isAlwaysOnBottom(it)
-                }
-            }
-            val initial =
-                remember {
-                    Dock.ReorderButtonScope(
-                        parentScope = this,
-                        visible = getBackgroundTrack()?.let { engine.block.getChildren(it).size >= 2 } ?: false,
-                    )
-                }
-            remember {
-                // Background track might not be immediately available
-                var lastFlowValue: Boolean? = null
-                engine.event.subscribe(engine.scene.getPages())
-                    .map { getBackgroundTrack() }
-                    .onStart { emit(getBackgroundTrack()) }
-                    .distinctUntilChanged()
-                    .flatMapLatest { backgroundTrack ->
-                        if (backgroundTrack == null) {
-                            flowOf(false)
-                        } else {
-                            engine.event.subscribe(listOf(backgroundTrack))
-                                .map { engine.block.getChildren(backgroundTrack).size >= 2 }
-                        }
-                    }
-                    .filter {
-                        val filter = it != (lastFlowValue ?: initial)
-                        lastFlowValue = it
-                        filter
-                    }
-                    .map { Dock.ReorderButtonScope(parentScope = this, visible = it) }
-            }.collectAsState(
-                initial = initial,
-            ).value
+            remember(this) { ButtonScope(parentScope = this) }
         },
     visible: @Composable ButtonScope.() -> Boolean = {
-        (this as Dock.ReorderButtonScope).editorContext.visible
+        remember(this) {
+            val backgroundTrack =
+                editorContext.engine.block.findByType(DesignBlockType.Track).firstOrNull {
+                    DesignBlockType.get(editorContext.engine.block.getType(it)) == DesignBlockType.Track &&
+                        editorContext.engine.block.isAlwaysOnBottom(it)
+                }
+            backgroundTrack?.let { editorContext.engine.block.getChildren(it).size >= 2 } ?: false
+        }
     },
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -1301,6 +1368,7 @@ fun Button.Companion.rememberReorder(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -1334,6 +1402,8 @@ val Button.Id.Companion.adjustments by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -1357,6 +1427,7 @@ fun Button.Companion.rememberAdjustments(
     },
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -1370,6 +1441,7 @@ fun Button.Companion.rememberAdjustments(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -1403,6 +1475,8 @@ val Button.Id.Companion.filter by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -1426,6 +1500,7 @@ fun Button.Companion.rememberFilter(
     },
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -1439,6 +1514,7 @@ fun Button.Companion.rememberFilter(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -1472,6 +1548,8 @@ val Button.Id.Companion.effect by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -1495,6 +1573,7 @@ fun Button.Companion.rememberEffect(
     },
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -1508,6 +1587,7 @@ fun Button.Companion.rememberEffect(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -1541,6 +1621,8 @@ val Button.Id.Companion.blur by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -1564,6 +1646,7 @@ fun Button.Companion.rememberBlur(
     },
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -1577,6 +1660,7 @@ fun Button.Companion.rememberBlur(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )
 
@@ -1611,6 +1695,8 @@ val Button.Id.Companion.crop by unsafeLazy {
  * Default value is always no enter transition.
  * @param exitTransition transition of the button when it exits the parent composable.
  * Default value is always no exit transition.
+ * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * Default value is always no decoration.
  * @return a button that will be displayed in the dock.
  */
 @Composable
@@ -1635,6 +1721,7 @@ fun Button.Companion.rememberCrop(
     },
     enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
     exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+    decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
     `_`: Nothing = nothing,
 ): Button =
     remember(
@@ -1648,5 +1735,6 @@ fun Button.Companion.rememberCrop(
         visible = visible,
         enterTransition = enterTransition,
         exitTransition = exitTransition,
+        decoration = decoration,
         `_` = `_`,
     )

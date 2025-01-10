@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.Color
 import ly.img.editor.base.engine.getFillColor
 import ly.img.editor.base.engine.toComposeColor
 import ly.img.editor.core.component.data.EditorIcon
+import ly.img.editor.core.iconpack.IconPack
+import ly.img.editor.core.iconpack.Typeface
 import ly.img.editor.core.sheet.SheetType
-import ly.img.editor.core.ui.iconpack.IconPack
-import ly.img.editor.core.ui.iconpack.Typeface
 import ly.img.editor.postcard.R
 import ly.img.editor.postcard.bottomsheet.PostcardSheetType
 import ly.img.editor.postcard.bottomsheet.message_size.MessageSize

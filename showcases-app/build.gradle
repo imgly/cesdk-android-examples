@@ -102,12 +102,12 @@ tasks.register('validateDropshotsRecordIsDisabled') {
     doLast {
         def propertiesFile = new File(rootDir, "gradle.properties")
         if (!propertiesFile.exists()) {
-            throw GradleException("Internal error. Please report to the android engine members!")
+            throw new GradleException("Internal error. Please report to the android engine members!")
         }
         def properties = new Properties()
         properties.load(propertiesFile.newDataInputStream())
         if (properties.containsKey("dropshots.record")) {
-            throw GradleException("dropshots.record should be commented out in apps/cesdk_android_examples/gradle.properties file!")
+            throw new GradleException("dropshots.record should be commented out in apps/cesdk_android_examples/gradle.properties file!")
         }
     }
 }
@@ -116,12 +116,12 @@ tasks.register('validateDropshotsRecordIsEnabled') {
     doLast {
         def propertiesFile = new File(rootDir, "gradle.properties")
         if (!propertiesFile.exists()) {
-            throw GradleException("Internal error. Please report to the android engine members!")
+            throw new GradleException("Internal error. Please report to the android engine members!")
         }
         def properties = new Properties()
         properties.load(propertiesFile.newDataInputStream())
         if (!properties.containsKey("dropshots.record")) {
-            throw GradleException("Screenshots need update. Enable dropshots.record in apps/cesdk_android_examples/gradle.properties.")
+            throw new GradleException("Screenshots need update. Enable dropshots.record in apps/cesdk_android_examples/gradle.properties.")
         }
     }
 }

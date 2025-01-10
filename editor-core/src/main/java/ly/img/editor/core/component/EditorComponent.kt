@@ -58,6 +58,11 @@ abstract class EditorComponent<Scope : EditorScope> {
     abstract val exitTransition: @Composable Scope.() -> ExitTransition
 
     /**
+     * The decoration of this component. Useful when you want to add custom background, foreground, shadow, paddings etc.
+     */
+    abstract val decoration: @Composable Scope.(@Composable () -> Unit) -> Unit
+
+    /**
      * The main content of the component that should be provided.
      *
      * @param animatedVisibilityScope the animated visibility scope of this component. This scope can be used to
@@ -398,11 +403,15 @@ private fun <Scope : EditorScope> EditorComponent(
         // It is best to avoid it unless enterTransition and exitTransition are provided.
         if (enterTransition == EnterTransition.None && exitTransition == ExitTransition.None) {
             if (visible) {
-                scope.ContentInternal(null)
+                component.decoration(scope) {
+                    scope.ContentInternal(null)
+                }
             }
         } else {
             animatedVisibility(visible, enterTransition, exitTransition) {
-                scope.ContentInternal(this)
+                component.decoration(scope) {
+                    scope.ContentInternal(this)
+                }
             }
         }
     }

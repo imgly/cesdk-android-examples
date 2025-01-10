@@ -1,4 +1,4 @@
-package ly.img.editor.core.ui.iconpack
+package ly.img.editor.core.iconpack
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-val IconPack.Groupenter: ImageVector
+val IconPack.GroupEnter: ImageVector
     get() {
         if (_groupenter != null) {
             return _groupenter!!
@@ -193,4 +193,4 @@ private var _groupenter: ImageVector? = null
 
 @Preview
 @Composable
-private fun Preview() = IconPack.Groupenter.IconPreview()
+private fun Preview() = IconPack.GroupEnter.IconPreview()

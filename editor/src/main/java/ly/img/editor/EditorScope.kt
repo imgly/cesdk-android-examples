@@ -23,6 +23,7 @@ internal fun rememberEditorScope(
                     colorPalette = editorConfiguration.colorPalette,
                     assetLibrary = editorConfiguration.assetLibrary,
                     dock = editorConfiguration.dock,
+                    inspectorBar = editorConfiguration.inspectorBar,
                     overlay = (editorConfiguration as EditorConfiguration<Parcelable>).overlay,
                 )
         }

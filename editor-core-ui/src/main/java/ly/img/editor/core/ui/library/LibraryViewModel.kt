@@ -99,18 +99,6 @@ class LibraryViewModel(
     val navBarItems
         get() = assetLibrary.tabs(sceneMode)
 
-    val replaceImageCategory
-        get() = assetLibrary.images(sceneMode)
-
-    val replaceStickerCategory
-        get() = assetLibrary.stickers(sceneMode)
-
-    val replaceVideoCategory
-        get() = assetLibrary.videos(sceneMode)
-
-    val replaceAudioCategory
-        get() = assetLibrary.audios(sceneMode)
-
     private val libraryStackDataMapping by lazy {
         hashMapOf<LibraryCategory, LibraryCategoryStackData>()
     }

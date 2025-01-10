@@ -38,7 +38,6 @@ import ly.img.editor.base.dock.LayerBottomSheetContent
 import ly.img.editor.base.dock.LibraryAddBottomSheetContent
 import ly.img.editor.base.dock.LibraryReplaceBottomSheetContent
 import ly.img.editor.base.dock.LibraryTabsBottomSheetContent
-import ly.img.editor.base.dock.OptionType
 import ly.img.editor.base.dock.OptionsBottomSheetContent
 import ly.img.editor.base.dock.options.adjustment.AdjustmentUiState
 import ly.img.editor.base.dock.options.crop.CropBottomSheetContent
@@ -140,7 +139,6 @@ abstract class EditorUiViewModel(
     private val _isExporting = MutableStateFlow(false)
     private val _enableHistory = MutableStateFlow(true)
 
-    private val _updateBlock = MutableStateFlow(false)
     private val selectedBlock = MutableStateFlow<Block?>(null)
     private val isKeyboardShowing = MutableStateFlow(false)
     protected val pageIndex = MutableStateFlow(0)
@@ -240,7 +238,6 @@ abstract class EditorUiViewModel(
         register<Event.OnRedoClick> { engine.editor.redo() }
         register<Event.OnUndoClick> { engine.editor.undo() }
         register<Event.OnTogglePreviewMode> { togglePreviewMode(it.isChecked) }
-        register<Event.OnOptionClick> { setOptionType(it.optionType) }
         register<Event.OnCanvasMove> { onCanvasMove(it.move) }
         register<Event.OnCanvasTouch> { updateZoomState() }
         register<Event.OnResetZoom> {
@@ -305,6 +302,39 @@ abstract class EditorUiViewModel(
         register<EditorEvent.AddCameraRecordingsToScene> {
             libraryViewModel.onEvent(LibraryEvent.OnAddCameraRecordings(it.uploadAssetSourceType, it.recordings))
         }
+        register<EditorEvent.Selection.EnterTextEditMode> {
+            timelineState?.playerState?.pause()
+            timelineState?.clampPlayheadPositionToSelectedClip()
+            engine.editor.setEditMode(TEXT_EDIT_MODE)
+        }
+        register<EditorEvent.Selection.Duplicate> {
+            timelineState?.playerState?.pause()
+            getBlockForEvents()?.designBlock?.let(engine::duplicate)
+        }
+        register<EditorEvent.Selection.Split> {
+            timelineState?.playerState?.pause()
+            send(BlockEvent.OnSplit)
+        }
+        register<EditorEvent.Selection.MoveAsClip> {
+            timelineState?.playerState?.pause()
+            send(BlockEvent.OnToggleBackgroundTrackAttach)
+        }
+        register<EditorEvent.Selection.MoveAsOverlay> {
+            timelineState?.playerState?.pause()
+            send(BlockEvent.OnToggleBackgroundTrackAttach)
+        }
+        register<EditorEvent.Selection.EnterGroup> {
+            timelineState?.playerState?.pause()
+            getBlockForEvents()?.designBlock?.let(engine.block::enterGroup)
+        }
+        register<EditorEvent.Selection.SelectGroup> {
+            timelineState?.playerState?.pause()
+            getBlockForEvents()?.designBlock?.let(engine.block::exitGroup)
+        }
+        register<EditorEvent.Selection.Delete> {
+            timelineState?.playerState?.pause()
+            getBlockForEvents()?.designBlock?.let(engine::delete)
+        }
     }
 
     private fun closeSheet(animate: Boolean) {
@@ -320,11 +350,11 @@ abstract class EditorUiViewModel(
         val designBlock by lazy {
             block.designBlock
         }
+        timelineState?.playerState?.pause()
         setBottomSheetContent {
             when (type) {
                 // Cannot be invoked by customers
                 is LibraryAddToBackgroundTrackSheetType -> {
-                    timelineState?.playerState?.pause()
                     LibraryAddBottomSheetContent(
                         type = type,
                         libraryCategory = type.libraryCategory,
@@ -340,7 +370,6 @@ abstract class EditorUiViewModel(
                 // This sheet triggered only from dock for now.
                 // addToBackgroundTrack is always false for now as we do not want to expose it to customers due to unknown future.
                 is SheetType.LibraryAdd -> {
-                    timelineState?.playerState?.pause()
                     LibraryAddBottomSheetContent(
                         type = type,
                         libraryCategory = type.libraryCategory,
@@ -348,7 +377,7 @@ abstract class EditorUiViewModel(
                     )
                 }
                 is SheetType.LibraryReplace -> {
-                    timelineState?.playerState?.pause()
+                    timelineState?.clampPlayheadPositionToSelectedClip()
                     LibraryReplaceBottomSheetContent(
                         type = type,
                         libraryCategory = type.libraryCategory,
@@ -362,30 +391,35 @@ abstract class EditorUiViewModel(
                     )
                 }
                 is SheetType.Layer -> {
+                    timelineState?.clampPlayheadPositionToSelectedClip()
                     LayerBottomSheetContent(
                         type = type,
                         uiState = createLayerUiState(designBlock, engine),
                     )
                 }
                 is SheetType.FormatText -> {
+                    timelineState?.clampPlayheadPositionToSelectedClip()
                     FormatBottomSheetContent(
                         type = type,
                         uiState = createFormatUiState(designBlock, engine),
                     )
                 }
                 is SheetType.Shape -> {
+                    timelineState?.clampPlayheadPositionToSelectedClip()
                     OptionsBottomSheetContent(
                         type = type,
                         uiState = createShapeOptionsUiState(designBlock, engine),
                     )
                 }
                 is SheetType.FillStroke -> {
+                    timelineState?.clampPlayheadPositionToSelectedClip()
                     FillStrokeBottomSheetContent(
                         type = type,
                         uiState = FillStrokeUiState.create(block, engine, editor.colorPalette),
                     )
                 }
                 is SheetType.Crop -> {
+                    timelineState?.clampPlayheadPositionToSelectedClip()
                     cachedCropSheetType = type
                     engine.block.setScopeEnabled(designBlock, Scope.EditorSelect, enabled = true)
                     engine.block.setSelected(designBlock, selected = true)
@@ -393,37 +427,41 @@ abstract class EditorUiViewModel(
                     null
                 }
                 is SheetType.Reorder -> {
-                    timelineState?.playerState?.pause()
                     ReorderBottomSheetContent(
                         type = type,
                         timelineState = checkNotNull(timelineState),
                     )
                 }
                 is SheetType.Adjustments -> {
+                    timelineState?.clampPlayheadPositionToSelectedClip()
                     AdjustmentSheetContent(
                         type = type,
                         uiState = AdjustmentUiState.create(block, engine),
                     )
                 }
                 is SheetType.Filter -> {
+                    timelineState?.clampPlayheadPositionToSelectedClip()
                     EffectSheetContent(
                         type = type,
                         uiState = EffectUiState.create(block, engine, AppearanceLibraryCategory.Filters),
                     )
                 }
                 is SheetType.Effect -> {
+                    timelineState?.clampPlayheadPositionToSelectedClip()
                     EffectSheetContent(
                         type = type,
                         uiState = EffectUiState.create(block, engine, AppearanceLibraryCategory.FxEffects),
                     )
                 }
                 is SheetType.Blur -> {
+                    timelineState?.clampPlayheadPositionToSelectedClip()
                     EffectSheetContent(
                         type = type,
                         uiState = EffectUiState.create(block, engine, AppearanceLibraryCategory.Blur),
                     )
                 }
                 is SheetType.Volume -> {
+                    timelineState?.clampPlayheadPositionToSelectedClip()
                     VolumeBottomSheetContent(
                         type = type,
                         uiState = VolumeUiState.create(designBlock, engine),
@@ -497,7 +535,6 @@ abstract class EditorUiViewModel(
                     )
 
                 is FillStrokeBottomSheetContent -> {
-                    _updateBlock.update { !it }
                     FillStrokeBottomSheetContent(
                         type = content.type,
                         uiState = FillStrokeUiState.create(block, engine, editor.colorPalette),
@@ -505,7 +542,6 @@ abstract class EditorUiViewModel(
                 }
 
                 is AdjustmentSheetContent -> {
-                    _updateBlock.update { !it }
                     AdjustmentSheetContent(
                         type = content.type,
                         uiState = AdjustmentUiState.create(block, engine),
@@ -513,7 +549,6 @@ abstract class EditorUiViewModel(
                 }
 
                 is EffectSheetContent -> {
-                    _updateBlock.update { !it }
                     EffectSheetContent(
                         type = content.type,
                         uiState = EffectUiState.create(block, engine, content.uiState.libraryCategory),
@@ -1047,66 +1082,6 @@ abstract class EditorUiViewModel(
         engine.zoomToSelectedText(insets, canvasHeight)
     }
 
-    // This will never get initialised for non video scenes.
-    private val clampPlayheadExclusionSet by lazy {
-        setOf(
-            OptionType.EnterGroup,
-            OptionType.Split,
-            OptionType.Reorder,
-            OptionType.Delete,
-            OptionType.AttachBackground,
-            OptionType.DetachBackground,
-        )
-    }
-
-    private fun setOptionType(optionType: OptionType) {
-        timelineState?.playerState?.pause()
-
-        if (engine.isSceneModeVideo && optionType !in clampPlayheadExclusionSet) {
-            timelineState?.clampPlayheadPositionToSelectedClip()
-        }
-
-        val block = getBlockForEvents() ?: return
-        val designBlock = block.designBlock
-        when (optionType) {
-            OptionType.Replace -> {
-                val libraryCategory =
-                    when (block.type) {
-                        BlockType.Sticker -> libraryViewModel.replaceStickerCategory
-                        BlockType.Image -> libraryViewModel.replaceImageCategory
-                        BlockType.Audio -> libraryViewModel.replaceAudioCategory
-                        BlockType.Video -> libraryViewModel.replaceVideoCategory
-                        else -> throw IllegalArgumentException(
-                            "Replace is not supported for ${block.type.name}.",
-                        )
-                    }
-                openSheet(SheetType.LibraryReplace(libraryCategory = libraryCategory))
-            }
-            OptionType.Layer -> openSheet(SheetType.Layer())
-            OptionType.Edit -> engine.editor.setEditMode(TEXT_EDIT_MODE)
-            OptionType.Format -> openSheet(SheetType.FormatText())
-            OptionType.ShapeOptions -> openSheet(SheetType.Shape())
-            OptionType.FillStroke -> openSheet(SheetType.FillStroke())
-            OptionType.EnterGroup -> engine.block.enterGroup(designBlock)
-            OptionType.SelectGroup -> engine.block.exitGroup(designBlock)
-            OptionType.Crop -> openSheet(SheetType.Crop())
-            OptionType.Reorder -> openSheet(SheetType.Reorder())
-            OptionType.Adjustments -> openSheet(SheetType.Adjustments())
-            OptionType.Filter -> openSheet(SheetType.Filter())
-            OptionType.Effect -> openSheet(SheetType.Effect())
-            OptionType.Blur -> openSheet(SheetType.Blur())
-            OptionType.Volume -> openSheet(SheetType.Volume())
-            OptionType.Split -> eventHandler.handleEvent(BlockEvent.OnSplit)
-            OptionType.Delete -> engine.delete(designBlock)
-            OptionType.Duplicate -> engine.duplicate(designBlock)
-            OptionType.AttachBackground, OptionType.DetachBackground -> {
-                eventHandler.handleEvent(BlockEvent.OnToggleBackgroundTrackAttach)
-                // We need to update the option items of the selected block to change from attach BG to detach BG or vice-versa
-                _updateBlock.update { !it }
-            }
-        }
-    }
-
     private fun observeUiStateChanges() {
         viewModelScope.launch {
             merge(
@@ -1244,7 +1219,7 @@ abstract class EditorUiViewModel(
     private fun observeSelectedBlock() {
         viewModelScope.launch {
             // filter is added, because page dock becomes visible while postcard UI is still loading
-            merge(engine.block.onSelectionChanged(), _updateBlock).filter { _isSceneLoaded.value }.collect {
+            merge(engine.block.onSelectionChanged()).filter { _isSceneLoaded.value }.collect {
                 val block = getSelectedBlock()?.let { createBlock(it, engine) }
                 val oldBlock = getBlockForEvents()?.designBlock
                 if (oldBlock != null && block == null) {
@@ -1254,7 +1229,17 @@ abstract class EditorUiViewModel(
                 setSelectedBlock(block)
                 if (oldBlock != block?.designBlock) {
                     if (block != null && engine.isPlaceholder(block.designBlock)) {
-                        setOptionType(OptionType.Replace)
+                        val libraryCategory =
+                            when (block.type) {
+                                BlockType.Sticker -> libraryViewModel.assetLibrary.stickers(libraryViewModel.sceneMode)
+                                BlockType.Image -> libraryViewModel.assetLibrary.images(libraryViewModel.sceneMode)
+                                BlockType.Audio -> libraryViewModel.assetLibrary.audios(libraryViewModel.sceneMode)
+                                BlockType.Video -> libraryViewModel.assetLibrary.videos(libraryViewModel.sceneMode)
+                                else -> throw IllegalArgumentException(
+                                    "Replace is not supported for ${block.type.name}.",
+                                )
+                            }
+                        send(EditorEvent.Sheet.Open(SheetType.LibraryReplace(libraryCategory = libraryCategory)))
                     } else if (block == null || bottomSheetContent.value != null) {
                         send(EditorEvent.Sheet.Close(animate = false))
                     } else {

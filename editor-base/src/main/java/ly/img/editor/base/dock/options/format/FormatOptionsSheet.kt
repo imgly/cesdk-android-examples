@@ -41,6 +41,7 @@ import ly.img.editor.core.ui.sheetScrollableContentModifier
 import ly.img.engine.FontStyle
 import ly.img.engine.FontWeight
 import ly.img.engine.TextCase
+import ly.img.editor.core.R as CoreR
 
 @Composable
 fun FormatOptionsSheet(
@@ -57,7 +58,7 @@ fun FormatOptionsSheet(
         ScreenState.Main -> {
             Column {
                 SheetHeader(
-                    title = stringResource(id = R.string.ly_img_editor_format),
+                    title = stringResource(id = CoreR.string.ly_img_editor_format),
                     onClose = { onEvent(EditorEvent.Sheet.Close(animate = true)) },
                 )
 

@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import ly.img.editor.base.components.color_picker.fillAndStrokeColors
 import ly.img.editor.core.EditorScope
 import ly.img.editor.core.component.Dock
+import ly.img.editor.core.component.InspectorBar
 import ly.img.editor.core.component.data.Nothing
 import ly.img.editor.core.component.data.nothing
 import ly.img.editor.core.event.EditorEvent
@@ -37,6 +38,8 @@ import ly.img.editor.core.library.AssetLibrary
  * {solution_name}.get methods below for the sample usage of the composable callback.
  * Note that the overlay is edge-to-edge, therefore it is your responsibility to draw over system bars too.
  * @param dock the configuration object of the dock that is displayed as horizontal list of items at the bottom of the editor.
+ * @param inspectorBar the configuration object of the inspector bar that is displayed as horizontal list of items at the
+ * bottom of the editor when a design block is selected.
  */
 class EditorConfiguration<STATE : Parcelable> private constructor(
     val initialState: STATE,
@@ -47,6 +50,7 @@ class EditorConfiguration<STATE : Parcelable> private constructor(
     val onEvent: EditorScope.(STATE, EditorEvent) -> STATE,
     val overlay: (@Composable (EditorScope.(STATE) -> Unit))?,
     val dock: (@Composable EditorScope.() -> Dock)?,
+    val inspectorBar: (@Composable EditorScope.() -> InspectorBar)?,
     private val `_`: Nothing,
 ) {
     override fun toString(): String {
@@ -86,9 +90,15 @@ class EditorConfiguration<STATE : Parcelable> private constructor(
          * [onEvent], update your internal [STATE] and render in the overlay based on the state change. Check the implementation in
          * {solution_name}.get methods below for the sample usage of the composable callback.
          * Note that the overlay is edge-to-edge, therefore it is your responsibility to draw over system bars too.
+         * If null, then the overlay will not be rendered.
          * By default, the overlay is null.
          * @param dock the configuration object of the dock that is displayed as horizontal list of items at the bottom of the editor.
+         * If null, then the dock will not be rendered.
          * By default, the dock is null.
+         * @param inspectorBar the configuration object of the inspector bar that is displayed as horizontal list of items at the
+         * bottom of the editor when a design block is selected.
+         * If null, then the inspector bar will not be rendered.
+         * By default [InspectorBar.remember] is returned with default values.
          * @return an [EditorConfiguration] that should be used to launch an editor.
          */
         @Composable
@@ -101,6 +111,7 @@ class EditorConfiguration<STATE : Parcelable> private constructor(
             onEvent: EditorScope.(STATE, EditorEvent) -> STATE = { state, _ -> state },
             overlay: (@Composable (EditorScope.(STATE) -> Unit))? = null,
             dock: (@Composable EditorScope.() -> Dock)? = null,
+            inspectorBar: (@Composable EditorScope.() -> InspectorBar)? = { InspectorBar.remember() },
             `_`: Nothing = nothing,
         ): EditorConfiguration<STATE> =
             // todo consider adding all parameters as keys. If we add now it crashes.
@@ -114,6 +125,7 @@ class EditorConfiguration<STATE : Parcelable> private constructor(
                     onEvent = onEvent,
                     overlay = overlay,
                     dock = dock,
+                    inspectorBar = inspectorBar,
                     `_` = `_`,
                 )
             }
@@ -140,6 +152,7 @@ class EditorConfiguration<STATE : Parcelable> private constructor(
                 EditorDefaults.Overlay(state = state, eventHandler = editorContext.eventHandler)
             },
             dock = null,
+            inspectorBar = { InspectorBar.remember() },
             `_` = `_`,
         )
     }
@@ -163,6 +176,7 @@ class EditorConfiguration<STATE : Parcelable> private constructor(
         onEvent = { state, event -> onEvent(editorContext.activity, state, event) },
         overlay = { state -> overlay(state, editorContext.eventHandler) },
         dock = null,
+        inspectorBar = { InspectorBar.remember() },
         `_` = `_`,
     )
 }

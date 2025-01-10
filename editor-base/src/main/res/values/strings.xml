@@ -34,15 +34,9 @@
     <string name="ly_img_editor_library">Library</string>
 
     <string name="ly_img_editor_replace_sticker">Replace Sticker</string>
-    <string name="ly_img_editor_replace">Replace</string>
-    <string name="ly_img_editor_edit">Edit</string>
-    <string name="ly_img_editor_format">Format</string>
-    <string name="ly_img_editor_options">Shape</string>
     <string name="ly_img_editor_move_up">Move Up</string>
     <string name="ly_img_editor_move_down">Move Down</string>
     <string name="ly_img_editor_add_page">Add Page</string>
-    <string name="ly_img_editor_volume">Volume</string>
-    <string name="ly_img_editor_split">Split</string>
 
     <string name="ly_img_editor_reorder_label">Press and hold to reorder</string>
 
@@ -57,10 +51,7 @@
     <string name="ly_img_editor_fill_type_gradient_conical">Conical</string>
 
     <string name="ly_img_editor_layer">Layer</string>
-    <string name="ly_img_editor_enter_group">Enter Group</string>
-    <string name="ly_img_editor_select_group">Select Group</string>
 
-    <string name="ly_img_editor_duplicate">Duplicate</string>
     <string name="ly_img_editor_next_page">Next Page</string>
     <string name="ly_img_editor_previous_page">Previous</string>
     <string name="ly_img_editor_opacity">Opacity</string>
@@ -68,9 +59,6 @@
     <string name="ly_img_editor_to_back">Send to Back</string>
     <string name="ly_img_editor_forward">Bring Forward</string>
     <string name="ly_img_editor_backward">Send Backward</string>
-
-    <string name="ly_img_editor_attach_background">As Clip</string>
-    <string name="ly_img_editor_detach_background">As Overlay</string>
 
     <string name="ly_img_editor_blendmode">Blendmode</string>
     <string name="ly_img_editor_blendmode_pass_through">Pass Through</string>
@@ -158,7 +146,6 @@
     <string name="ly_img_editor_weight_W800_italic">ExtraBold Italic</string>
     <string name="ly_img_editor_weight_W900_italic">Black Italic</string>
 
-    <string name="ly_img_editor_shape_options">Shape Options</string>
     <string name="ly_img_editor_sides">Sides</string>
     <string name="ly_img_editor_round_corners">Round Corners</string>
     <string name="ly_img_editor_line_width">Line Width</string>

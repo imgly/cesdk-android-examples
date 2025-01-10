@@ -16,6 +16,7 @@ import ly.img.editor.core.EditorContext
 import ly.img.editor.core.EditorScope
 import ly.img.editor.core.LocalEditorScope
 import ly.img.editor.core.component.Dock
+import ly.img.editor.core.component.InspectorBar
 import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.AssetLibrary
 import ly.img.editor.core.ui.utils.activity
@@ -60,6 +61,7 @@ class EditorContextImpl(
     override val assetLibrary: AssetLibrary,
     override val overlay: (@Composable (EditorScope.(Parcelable) -> Unit)?),
     override val dock: (@Composable (EditorScope.() -> Dock))?,
+    override val inspectorBar: (@Composable (EditorScope.() -> InspectorBar))?,
 ) : EditorContext {
     @OptIn(UnstableEngineApi::class)
     override val engine: Engine by lazy {

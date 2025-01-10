@@ -54,7 +54,6 @@ import ly.img.editor.core.event.EditorEventHandler
 import ly.img.editor.core.library.data.TextAssetSource
 import ly.img.editor.core.library.data.TypefaceProvider
 import ly.img.editor.core.theme.LocalExtendedColorScheme
-import ly.img.editor.core.ui.engine.getCurrentPage
 import ly.img.editor.core.ui.engine.isSceneModeVideo
 import ly.img.editor.core.ui.iconpack.Checkcircleoutline
 import ly.img.editor.core.ui.iconpack.Cloudalertoutline
@@ -239,7 +238,7 @@ object EditorDefaults {
             val mimeType: MimeType
             if (engine.isSceneModeVideo) {
                 mimeType = MimeType.MP4
-                val page = engine.getCurrentPage()
+                val page = engine.scene.getCurrentPage() ?: engine.scene.getPages()[0]
                 eventHandler.send(ShowVideoExportProgressEvent(0f))
                 runCatching {
                     val buffer =

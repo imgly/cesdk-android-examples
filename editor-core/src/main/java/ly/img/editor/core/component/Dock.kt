@@ -50,6 +50,10 @@ import ly.img.engine.Engine
  * @param visible whether the dock should be visible based on the [Engine]'s current state.
  * @param enterTransition transition of the dock when it enters the parent composable.
  * @param exitTransition transition of the dock when it exits the parent composable.
+ * @param decoration decoration of the dock. Useful when you want to add custom background, foreground, shadow, paddings etc.
+ * @param itemDecoration decoration of the items in the dock. Useful when you want to add custom background, foreground, shadow,
+ * paddings etc to the items. Prefer using this decoration when you want to apply the same decoration to all the items, otherwise
+ * set decoration to individual items.
  */
 @Stable
 class Dock private constructor(
@@ -59,6 +63,8 @@ class Dock private constructor(
     override val visible: @Composable Scope.() -> Boolean,
     override val enterTransition: @Composable Scope.() -> EnterTransition,
     override val exitTransition: @Composable Scope.() -> ExitTransition,
+    override val decoration: @Composable Scope.(content: @Composable () -> Unit) -> Unit,
+    val itemDecoration: @Composable Scope.(content: @Composable () -> Unit) -> Unit,
     private val `_`: Nothing,
 ) : EditorComponent<Scope>() {
     override val id: EditorComponentId = EditorComponentId("ly.img.component.dock")
@@ -73,8 +79,9 @@ class Dock private constructor(
              * @return a new [ListBuilder] instance.
              */
             @Composable
-            fun remember(block: @DisallowComposableCalls EditorComponent.ListBuilder.Scope.New<Item<*>>.() -> Unit) =
-                EditorComponent.ListBuilder.remember(block)
+            fun remember(
+                block: @DisallowComposableCalls EditorComponent.ListBuilder.Scope.New<Item<*>>.() -> Unit,
+            ): EditorComponent.ListBuilder<Item<*>> = EditorComponent.ListBuilder.remember(block)
         }
     }
 
@@ -93,7 +100,9 @@ class Dock private constructor(
                 horizontalArrangement = horizontalArrangement(),
             ) {
                 listBuilder.scope.items.forEach {
-                    EditorComponent(component = it)
+                    itemDecoration {
+                        EditorComponent(component = it)
+                    }
                 }
             }
         }
@@ -152,6 +161,11 @@ class Dock private constructor(
      * @param scope the scope of this component. Every new value will trigger recomposition of all functions with
      * signature @Composable Scope.() -> {}.
      * If you need to access [EditorScope] to construct the scope, use [LocalEditorScope].
+     * Consider using [ItemScope] as the scope which will be updated when the parent component scope
+     * ([Dock.scope], accessed via [LocalEditorScope]) is updated:
+     *     scope = LocalEditorScope.current.run {
+     *         remember(this) { ItemScope(parentScope = this) }
+     *     }
      * @param visible whether the custom item should be visible.
      * @param enterTransition transition of the custom item when it enters the parent composable.
      * @param exitTransition transition of the custom item when it exits the parent composable.
@@ -166,6 +180,8 @@ class Dock private constructor(
         override val exitTransition: @Composable Scope.() -> ExitTransition,
         val content: @Composable Scope.() -> Unit,
     ) : Item<Scope>() {
+        override val decoration: @Composable Scope.(@Composable () -> Unit) -> Unit = { it() }
+
         @Composable
         override fun Scope.ItemContent() {
             content()
@@ -224,20 +240,12 @@ class Dock private constructor(
         parentScope: EditorScope,
     ) : ItemScope(parentScope)
 
-    /**
-     * The scope of the [rememberReorder] button in the dock.
-     *
-     * @param parentScope the scope of the parent component.
-     * @param visible whether reorder button is visible.
-     */
     @Stable
+    @Deprecated("Class is deprecated and unused.")
     open class ReorderButtonScope(
         parentScope: EditorScope,
         private val visible: Boolean,
     ) : ButtonScope(parentScope) {
-        /**
-         * Whether reorder button is visible.
-         */
         val EditorContext.visible: Boolean
             get() = this@ReorderButtonScope.visible
     }
@@ -257,6 +265,7 @@ class Dock private constructor(
      * @param visible whether the button should be visible.
      * @param enterTransition transition of the button when it enters the parent composable.
      * @param exitTransition transition of the button when it exits the parent composable.
+     * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
      */
     @Stable
     class Button private constructor(
@@ -269,6 +278,7 @@ class Dock private constructor(
         override val visible: @Composable ButtonScope.() -> Boolean,
         override val enterTransition: @Composable ButtonScope.() -> EnterTransition,
         override val exitTransition: @Composable ButtonScope.() -> ExitTransition,
+        override val decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit,
         private val `_`: Nothing,
     ) : Item<ButtonScope>() {
         @Composable
@@ -316,6 +326,8 @@ class Dock private constructor(
              * Default value is always no enter transition.
              * @param exitTransition transition of the button when it exits the parent composable.
              * Default value is always no exit transition.
+             * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+             * Default value is always no decoration.
              * @return a button that will be displayed in the dock.
              */
             @Composable
@@ -332,9 +344,10 @@ class Dock private constructor(
                 visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
                 enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
                 exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+                decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
                 `_`: Nothing = nothing,
             ): Button {
-                return remember(onClick, icon, text, enabled, scope, visible, enterTransition, exitTransition) {
+                return remember(onClick, icon, text, enabled, scope, visible, enterTransition, exitTransition, decoration) {
                     Button(
                         id = id,
                         onClick = onClick,
@@ -345,6 +358,7 @@ class Dock private constructor(
                         visible = visible,
                         enterTransition = enterTransition,
                         exitTransition = exitTransition,
+                        decoration = decoration,
                         `_` = `_`,
                     )
                 }
@@ -375,6 +389,8 @@ class Dock private constructor(
              * Default value is always no enter transition.
              * @param exitTransition transition of the button when it exits the parent composable.
              * Default value is always no exit transition.
+             * @param decoration decoration of the button. Useful when you want to add custom background, foreground, shadow, paddings etc.
+             * Default value is always no decoration.
              * @return a button that will be displayed in the dock.
              */
             @Composable
@@ -392,6 +408,7 @@ class Dock private constructor(
                 visible: @Composable ButtonScope.() -> Boolean = alwaysVisible,
                 enterTransition: @Composable ButtonScope.() -> EnterTransition = noneEnterTransition,
                 exitTransition: @Composable ButtonScope.() -> ExitTransition = noneExitTransition,
+                decoration: @Composable ButtonScope.(@Composable () -> Unit) -> Unit = { it() },
                 `_`: Nothing = nothing,
             ): Button =
                 remember(
@@ -423,6 +440,7 @@ class Dock private constructor(
                     visible = visible,
                     enterTransition = enterTransition,
                     exitTransition = exitTransition,
+                    decoration = decoration,
                     `_` = `_`,
                 )
         }
@@ -450,6 +468,12 @@ class Dock private constructor(
          * Default value is always no enter transition.
          * @param exitTransition transition of the button when it exits the parent composable.
          * Default value is always no exit transition.
+         * @param decoration decoration of the dock. Useful when you want to add custom background, foreground, shadow, paddings etc.
+         * Default value is always no decoration.
+         * @param itemDecoration decoration of the items in the dock. Useful when you want to add custom background, foreground, shadow,
+         * paddings etc to the items. Prefer using this decoration when you want to apply the same decoration to all the items, otherwise
+         * set decoration to individual items.
+         * Default value is always no decoration.
          * @return a dock that will be displayed when launching an editor.
          */
         @Composable
@@ -463,9 +487,20 @@ class Dock private constructor(
             visible: @Composable Scope.() -> Boolean = alwaysVisible,
             enterTransition: @Composable Scope.() -> EnterTransition = noneEnterTransition,
             exitTransition: @Composable Scope.() -> ExitTransition = noneExitTransition,
+            decoration: @Composable Scope.(@Composable () -> Unit) -> Unit = { it() },
+            itemDecoration: @Composable Scope.(content: @Composable () -> Unit) -> Unit = { it() },
             `_`: Nothing = nothing,
         ): Dock {
-            return remember(listBuilder, horizontalArrangement, scope, visible, enterTransition, exitTransition) {
+            return remember(
+                listBuilder,
+                horizontalArrangement,
+                scope,
+                visible,
+                enterTransition,
+                exitTransition,
+                decoration,
+                itemDecoration,
+            ) {
                 Dock(
                     listBuilder = listBuilder,
                     horizontalArrangement = horizontalArrangement,
@@ -473,6 +508,8 @@ class Dock private constructor(
                     visible = visible,
                     enterTransition = enterTransition,
                     exitTransition = exitTransition,
+                    decoration = decoration,
+                    itemDecoration = itemDecoration,
                     `_` = `_`,
                 )
             }

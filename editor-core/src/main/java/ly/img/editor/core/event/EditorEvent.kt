@@ -76,6 +76,52 @@ interface EditorEvent {
     }
 
     /**
+     * All events related to design block selection.
+     */
+    class Selection {
+        /**
+         * An event for entering text editing mode for the selected design block.
+         */
+        class EnterTextEditMode : Internal
+
+        /**
+         * An event for duplicating currently selected design block.
+         */
+        class Duplicate : Internal
+
+        /**
+         * An event for splitting currently selected design block in a video scene.
+         */
+        class Split : Internal
+
+        /**
+         * An event for moving currently selected design block into the background track as clip in a video scene.
+         */
+        class MoveAsClip : Internal
+
+        /**
+         * An event for moving currently selected design block from the background track to an overlay in a video scene.
+         */
+        class MoveAsOverlay : Internal
+
+        /**
+         * An event for changing selection from a selected group to the first block within that group.
+         */
+        class EnterGroup : Internal
+
+        /**
+         * An event for changing selection from currently selected design block to the group design block
+         * that contains the selected design block.
+         */
+        class SelectGroup : Internal
+
+        /**
+         * An event for deleting currently selected design block.
+         */
+        class Delete : Internal
+    }
+
+    /**
      * An event for closing the editor. This force closes the editor without entering the
      * [ly.img.editor.EngineConfiguration.onClose] callback.
      *

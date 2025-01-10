@@ -23,6 +23,12 @@ suspend fun Engine.awaitEngineAndSceneLoad() {
     }
 }
 
+/**
+ * An extension function that tells whether the engine scene mode is a [ly.img.engine.SceneMode.VIDEO].
+ * Note that the function returns false if there is no active scene.
+ *
+ * @return true if there is an active scene and it has scene mode [ly.img.engine.SceneMode.VIDEO], false otherwise.
+ */
 val Engine.isSceneModeVideo: Boolean
     get() =
         try {
@@ -38,10 +44,22 @@ fun Engine.deselectAllBlocks() {
     }
 }
 
+/**
+ * An extension function for getting the page design block based on the index.
+ *
+ * @return the page at [index].
+ */
 fun Engine.getPage(index: Int): DesignBlock {
     return scene.getPages()[index]
 }
 
+/**
+ * An extension function for getting the current page of the scene. The definition of current is defined
+ * in the documentation of [ly.img.engine.SceneApi.getCurrentPage]. In case [ly.img.engine.SceneApi.getCurrentPage]
+ * returns null, the first page is returned.
+ *
+ * @return the current page in the scene.
+ */
 fun Engine.getCurrentPage(): DesignBlock {
     return scene.getCurrentPage() ?: getPage(0)
 }
@@ -131,6 +149,7 @@ fun RGBAColor.toComposeColor(): Color {
 
 /**
  * An extension function for converting any [Engine] color into an Engine RGBA color.
+ * IMPORTANT! When modifying this function also modify similar function in InspectorBarExt.kt.
  *
  * @return the converted color.
  */
@@ -139,20 +158,8 @@ fun ly.img.engine.Color.toRGBColor(engine: Engine): RGBAColor {
 }
 
 /**
- * An extension function for checking whether the block has a color or gradient fill.
- *
- * @return true if the [designBlock] has a color or gradient fill, false otherwise.
- */
-fun BlockApi.hasColorOrGradientFill(designBlock: DesignBlock): Boolean {
-    val fillType = getFillType(designBlock)
-    return fillType == FillType.Color ||
-        fillType == FillType.LinearGradient ||
-        fillType == FillType.RadialGradient ||
-        fillType == FillType.ConicalGradient
-}
-
-/**
  * An extension function for getting the [FillType] of the [designBlock]. Check the documentation of [FillType] for more information.
+ * IMPORTANT! When modifying this function also modify similar function in InspectorBarExt.kt.
  *
  * @return the [FillType] of the [designBlock].
  */
@@ -167,6 +174,7 @@ fun BlockApi.getFillType(designBlock: DesignBlock): FillType? =
  * An extension function for getting the [Fill] of the [designBlock]. Check the documentation of [Fill] for more information.
  * Note that [Fill] (defined in the editor) does not support all the types defined in [FillType] (defined in the [Engine]).
  * More types will be added over time.
+ * IMPORTANT! When modifying this function also modify similar function in InspectorBarExt.kt.
  *
  * @return the [Fill] of the [designBlock] based on its [FillType] and engine's current state.
  */
@@ -223,6 +231,7 @@ fun Engine.getFill(designBlock: DesignBlock): Fill? {
 
 /**
  * An extension function that returns the stroke color of the [designBlock] if it is present.
+ * IMPORTANT! When modifying this function also modify similar function in InspectorBarExt.kt.
  *
  * @param designBlock the design block that is being queried.
  * @return the stroke color of the [designBlock] if it is present, null otherwise.

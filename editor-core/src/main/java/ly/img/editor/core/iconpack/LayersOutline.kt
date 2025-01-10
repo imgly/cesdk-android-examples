@@ -1,4 +1,4 @@
-package ly.img.editor.core.ui.iconpack
+package ly.img.editor.core.iconpack
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-val IconPack.Layersoutline: ImageVector
+val IconPack.LayersOutline: ImageVector
     get() {
         if (_layersoutline != null) {
             return _layersoutline!!
@@ -64,4 +64,4 @@ private var _layersoutline: ImageVector? = null
 
 @Preview
 @Composable
-private fun Preview() = IconPack.Layersoutline.IconPreview()
+private fun Preview() = IconPack.LayersOutline.IconPreview()

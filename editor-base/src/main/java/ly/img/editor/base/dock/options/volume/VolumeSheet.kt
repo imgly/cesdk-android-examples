@@ -17,19 +17,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import ly.img.editor.base.R
 import ly.img.editor.base.dock.BottomSheetContent
 import ly.img.editor.base.ui.BlockEvent
+import ly.img.editor.core.R
 import ly.img.editor.core.event.EditorEvent
+import ly.img.editor.core.iconpack.VolumeHigh
 import ly.img.editor.core.sheet.SheetType
 import ly.img.editor.core.ui.SheetHeader
 import ly.img.editor.core.ui.UiDefaults
 import ly.img.editor.core.ui.iconpack.IconPack
-import ly.img.editor.core.ui.iconpack.Volumehigh
 import ly.img.editor.core.ui.iconpack.Volumelow
 import ly.img.editor.core.ui.iconpack.Volumemedium
 import ly.img.editor.core.ui.iconpack.Volumeoff
 import ly.img.editor.core.ui.sheetScrollableContentModifier
+import ly.img.editor.core.iconpack.IconPack as CoreIconPack
 
 @Composable
 fun VolumeSheet(
@@ -63,7 +64,7 @@ fun VolumeSheet(
                             0f -> IconPack.Volumeoff
                             in 0f..0.4f -> IconPack.Volumelow
                             in 0.4f..0.7f -> IconPack.Volumemedium
-                            in 0.7f..1f -> IconPack.Volumehigh
+                            in 0.7f..1f -> CoreIconPack.VolumeHigh
                             else -> throw IllegalStateException()
                         }
 
