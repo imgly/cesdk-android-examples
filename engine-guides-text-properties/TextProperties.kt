@@ -59,6 +59,29 @@ fun textProperties(
     val colorsInRange = engine.block.getTextColors(text, from = 2, to = 5)
     // highlight-getTextColors-range
 
+    // highlight-backgroundColor-enabled
+    engine.block.setBoolean(text, property = "backgroundColor/enabled", value = true)
+
+    // highlight-backgroundColor-get-set
+    val color = engine.block.getColor(text, property = "backgroundColor/color")
+    engine.block.setColor(text, property = "backgroundColor/color", value = Color.fromRGBA(r = 0, g = 0, b = 1, a = 1))
+
+    // highlight-backgroundColor-padding
+    engine.block.setFloat(text, property = "backgroundColor/paddingLeft", value = 1.0F)
+    engine.block.setFloat(text, property = "backgroundColor/paddingTop", value = 2.0F)
+    engine.block.setFloat(text, property = "backgroundColor/paddingRight", value = 3.0F)
+    engine.block.setFloat(text, property = "backgroundColor/paddingBottom", value = 4.0F)
+
+    // highlight-backgroundColor-cornerRadius
+    engine.block.setFloat(text, property = "backgroundColor/cornerRadius", value = 4.0F)
+
+    // highlight-backgroundColor-animation
+    val animation = engine.block.createAnimation(AnimationType.Slide)
+    engine.block.setEnum(animation, property = "textAnimationWritingStyle", value = "Block")
+
+    engine.block.setInAnimation(text, animation = animation)
+    engine.block.setOutAnimation(text, animation = animation)
+
     // highlight-setTextCase
     engine.block.setTextCase(text, textCase = TextCase.TITLE_CASE)
     // highlight-setTextCase

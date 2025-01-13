@@ -14,8 +14,8 @@ import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.dropSection
 import ly.img.editor.core.library.replaceSection
 import ly.img.editor.rememberForDesign
-import ly.img.editor.showcase.R
-import ly.img.editor.showcase.Secrets
+import ly.img.editor.smoketests.R
+import ly.img.editor.smoketests.Secrets
 
 // Add this composable to your NavHost
 @Composable
