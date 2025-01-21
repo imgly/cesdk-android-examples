@@ -16,8 +16,8 @@ import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.addSection
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.rememberForDesign
-import ly.img.editor.showcase.Secrets
-import ly.img.editor.showcase.R as ShowcaseR
+import ly.img.editor.smoketests.Secrets
+import ly.img.editor.smoketests.R as SmokeTestR
 
 // Add this composable to your NavHost
 @Composable
@@ -47,12 +47,12 @@ fun CustomAssetLibraryEditorSolution(navController: NavHostController) {
             // 2. Text - expanding it opens the default text content. Note that the title is skipped.
             val myAssetsCategory =
                 LibraryCategory(
-                    tabTitleRes = ShowcaseR.string.my_assets,
+                    tabTitleRes = SmokeTestR.string.my_assets,
                     tabSelectedIcon = IconPack.LibraryElements,
                     tabUnselectedIcon = IconPack.LibraryElements,
                     content =
                         LibraryContent.Sections(
-                            titleRes = ShowcaseR.string.my_assets,
+                            titleRes = SmokeTestR.string.my_assets,
                             sections =
                                 listOf(
                                     LibraryContent.Section(
@@ -79,7 +79,7 @@ fun CustomAssetLibraryEditorSolution(navController: NavHostController) {
                 images = {
                     val unsplashSection =
                         LibraryContent.Section(
-                            titleRes = ShowcaseR.string.unsplash,
+                            titleRes = SmokeTestR.string.unsplash,
                             sourceTypes = listOf(AssetSourceType(sourceId = unsplashAssetSource.sourceId)),
                             assetType = AssetType.Image,
                         )

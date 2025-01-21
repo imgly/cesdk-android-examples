@@ -1,9 +1,0 @@
-apply from: "$projectDir/../release/editor-library.gradle"
-
-android {
-    namespace 'ly.img.editor.apparel'
-}
-
-dependencies {
-    api project(':editor-base')
-}
