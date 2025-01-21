@@ -27,3 +27,5 @@ license=...
 ```
 
 Note that failing to provide the license key-value pairing will display an error when opening any of the showcases.
+
+Source code of the mobile editor and camera can be found [here](https://github.com/imgly/cesdk-android).

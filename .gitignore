@@ -1,8 +1,8 @@
 *.iml
 local.properties
 /.gradle
-!.idea
-.idea/*
-!.idea/codeStyles
+.idea
 build
 android-release.keystore
+showcases-app/build
+editor-version-details-dummy/build
