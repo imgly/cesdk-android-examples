@@ -16,6 +16,7 @@ import ly.img.editor.DesignEditor
 import ly.img.editor.EditorConfiguration
 import ly.img.editor.EngineConfiguration
 import ly.img.editor.core.component.InspectorBar
+import ly.img.editor.core.component.InspectorBar.Companion.DefaultDecoration
 import ly.img.editor.rememberForDesign
 
 // Add this composable to your NavHost
@@ -35,25 +36,6 @@ fun SimpleInspectorBarSolution(navController: NavHostController) {
                     // Implementation is too large, check the implementation of InspectorBar.defaultScope
                     scope = InspectorBar.defaultScope,
                     // highlight-inspectorBarConfiguration-scope
-                    // highlight-inspectorBarConfiguration-listBuilder
-                    listBuilder = InspectorBar.ListBuilder.remember(),
-                    // highlight-inspectorBarConfiguration-horizontalArrangement
-                    horizontalArrangement = { Arrangement.Start },
-                    // highlight-inspectorBarConfiguration-itemsRowEnterTransition
-                    // Also available via InspectorBar.defaultItemsRowEnterTransition
-                    itemsRowEnterTransition = {
-                        remember {
-                            slideInHorizontally(
-                                animationSpec = tween(400, easing = CubicBezierEasing(0.05F, 0.7F, 0.1F, 1F)),
-                                initialOffsetX = { it / 3 },
-                            )
-                        }
-                    },
-                    // highlight-inspectorBarConfiguration-itemsRowEnterTransition
-                    // highlight-inspectorBarConfiguration-itemsRowExitTransition
-                    // Also available via InspectorBar.defaultItemsRowExitTransition
-                    itemsRowExitTransition = { ExitTransition.None },
-                    // highlight-inspectorBarConfiguration-itemsRowExitTransition
                     // highlight-inspectorBarConfiguration-visible
                     visible = { editorContext.safeSelection != null },
                     // highlight-inspectorBarConfiguration-enterTransition
@@ -87,9 +69,28 @@ fun SimpleInspectorBarSolution(navController: NavHostController) {
                     },
                     // highlight-inspectorBarConfiguration-exitTransition
                     // highlight-inspectorBarConfiguration-decoration
-                    // Implementation is too large, check the implementation of InspectorBar.defaultDecoration
-                    decoration = { InspectorBar.defaultDecoration },
+                    // Implementation is too large, check the implementation of InspectorBar.DefaultDecoration
+                    decoration = { DefaultDecoration { it() } },
                     // highlight-inspectorBarConfiguration-decoration
+                    // highlight-inspectorBarConfiguration-listBuilder
+                    listBuilder = InspectorBar.ListBuilder.remember(),
+                    // highlight-inspectorBarConfiguration-horizontalArrangement
+                    horizontalArrangement = { Arrangement.Start },
+                    // highlight-inspectorBarConfiguration-itemsRowEnterTransition
+                    // Also available via InspectorBar.defaultItemsRowEnterTransition
+                    itemsRowEnterTransition = {
+                        remember {
+                            slideInHorizontally(
+                                animationSpec = tween(400, easing = CubicBezierEasing(0.05F, 0.7F, 0.1F, 1F)),
+                                initialOffsetX = { it / 3 },
+                            )
+                        }
+                    },
+                    // highlight-inspectorBarConfiguration-itemsRowEnterTransition
+                    // highlight-inspectorBarConfiguration-itemsRowExitTransition
+                    // Also available via InspectorBar.defaultItemsRowExitTransition
+                    itemsRowExitTransition = { ExitTransition.None },
+                    // highlight-inspectorBarConfiguration-itemsRowExitTransition
                     // highlight-inspectorBarConfiguration-itemDecoration
                     // default value is { it() }
                     itemDecoration = {
