@@ -3,25 +3,20 @@ import ly.img.engine.*
 import java.io.ByteArrayOutputStream
 import java.net.URL
 
-fun loadSceneFromBlob(
-    license: String,
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
+fun loadSceneFromBlob() = CoroutineScope(Dispatchers.Main).launch {
+    val engine = Engine(id = "ly.img.engine.example")
+    engine.start()
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-fetch-blob
-    val sceneUrl =
-        URL("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
-    val sceneBlob =
-        withContext(Dispatchers.IO) {
-            val outputStream = ByteArrayOutputStream()
-            sceneUrl.openStream().use { inputStream ->
-                outputStream.use(inputStream::copyTo)
-            }
-            outputStream.toByteArray()
+    val sceneUrl = URL("https://cdn.img.ly/packages/imgly/cesdk-js/latest/assets/templates/cesdk_postcard_1.scene")
+    val sceneBlob = withContext(Dispatchers.IO) {
+        val outputStream = ByteArrayOutputStream()
+        sceneUrl.openStream().use { inputStream ->
+            outputStream.use(inputStream::copyTo)
         }
+        outputStream.toByteArray()
+    }
     // highlight-fetch-blob
 
     // highlight-read-blob
@@ -33,7 +28,7 @@ fun loadSceneFromBlob(
     // highlight-load
 
     // highlight-set-text-dropshadow
-    val text = engine.block.findByType(DesignBlockType.Text).first()
+    val text = engine.block.findByType(DesignBlockType.TEXT).first()
     engine.block.setDropShadowEnabled(text, enabled = true)
     // highlight-set-text-dropshadow
 

@@ -1,0 +1,94 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+android {
+    namespace "ly.img.cesdk.showcase"
+    compileSdk 33
+
+    defaultConfig {
+        applicationId "ly.img.cesdk.showcase"
+        minSdk 23
+        targetSdk 33
+        versionCode 1
+        versionName "1.10.0"
+        ndk {
+            abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
+        }
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs = [
+                "../engine-guides-create-scene-from-image-blob",
+                "../engine-guides-create-scene-from-image-url",
+                "../engine-guides-create-scene-from-scratch",
+                "../engine-guides-load-scene-from-blob",
+                "../engine-guides-load-scene-from-remote",
+                "../engine-guides-load-scene-from-string",
+                "../engine-guides-save-scene-to-archive",
+                "../engine-guides-save-scene-to-blob",
+                "../engine-guides-save-scene-to-string",
+                "../engine-guides-spot-colors",
+                "../engine-guides-text-with-emojis",
+                "../guides-engine-custom-asset-source",
+                "../guides-engine-exporting-blocks",
+                "../guides-engine-modifying-scenes",
+                "../guides-scopes",
+                "../guides-store-metadata",
+                "../guides-uri-resolver",
+                "../guides-using-effects",
+                "../guides-using-fills",
+            ]
+        }
+    }
+
+    signingConfigs {
+        release {
+            storeFile rootProject.file("android-release.keystore")
+            storePassword System.getenv("CESDK_AND_KEYSTORE_PWD")
+            keyAlias "cesdk-dev"
+            keyPassword System.getenv("CESDK_AND_KEYSTORE_PWD")
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.3.2"
+    }
+}
+
+dependencies {
+    implementation project(":showcase-apparel-ui")
+    implementation findProject(":ubq-android-engine") ?: libs.cesdk.engine
+
+    implementation platform(libs.compose.bom)
+    implementation libs.compose.material3
+    implementation libs.compose.activity
+    implementation libs.compose.navigation
+
+    implementation(libs.material) {
+        because "MaterialComponents DayNight theme"
+    }
+}
