@@ -3,20 +3,21 @@ import androidx.navigation.NavHostController
 import ly.img.editor.DesignEditor
 import ly.img.editor.EditorConfiguration
 import ly.img.editor.EngineConfiguration
-import ly.img.editor.core.component.Dock
+import ly.img.editor.core.component.CanvasMenu
 import ly.img.editor.core.component.EditorComponent.ListBuilder.Companion.modify
 import ly.img.editor.core.component.EditorComponentId
-import ly.img.editor.core.component.rememberElementsLibrary
-import ly.img.editor.core.component.rememberForDesign
-import ly.img.editor.core.component.shapesLibrary
-import ly.img.editor.core.component.systemCamera
-import ly.img.editor.core.component.systemGallery
-import ly.img.editor.core.component.textLibrary
+import ly.img.editor.core.component.bringForward
+import ly.img.editor.core.component.delete
+import ly.img.editor.core.component.duplicate
+import ly.img.editor.core.component.rememberDuplicate
+import ly.img.editor.core.component.sendBackward
+import ly.img.editor.core.iconpack.IconPack
+import ly.img.editor.core.iconpack.Music
 import ly.img.editor.rememberForDesign
 
 // Add this composable to your NavHost
 @Composable
-fun ModifyListBuilderDockSolution(navController: NavHostController) {
+fun ModifyListBuilderCanvasMenuSolution(navController: NavHostController) {
     val engineConfiguration =
         EngineConfiguration.rememberForDesign(
             license = "<your license here>",
@@ -24,15 +25,15 @@ fun ModifyListBuilderDockSolution(navController: NavHostController) {
 
     val editorConfiguration =
         EditorConfiguration.rememberForDesign(
-            dock = {
-                Dock.remember(
+            canvasMenu = {
+                CanvasMenu.remember(
                     // highlight-modifyListBuilder
                     listBuilder =
-                        Dock.ListBuilder.rememberForDesign().modify {
+                        CanvasMenu.ListBuilder.remember().modify {
                             // highlight-modifyListBuilder-addFirst
                             addFirst {
-                                Dock.Button.remember(
-                                    id = EditorComponentId("my.package.dock.button.first"),
+                                CanvasMenu.Button.remember(
+                                    id = EditorComponentId("my.package.canvasMenu.button.first"),
                                     vectorIcon = null,
                                     text = { "First Button" },
                                     onClick = {},
@@ -41,8 +42,8 @@ fun ModifyListBuilderDockSolution(navController: NavHostController) {
                             // highlight-modifyListBuilder-addFirst
                             // highlight-modifyListBuilder-addLast
                             addLast {
-                                Dock.Button.remember(
-                                    id = EditorComponentId("my.package.dock.button.last"),
+                                CanvasMenu.Button.remember(
+                                    id = EditorComponentId("my.package.canvasMenu.button.last"),
                                     vectorIcon = null,
                                     text = { "Last Button" },
                                     onClick = {},
@@ -50,33 +51,35 @@ fun ModifyListBuilderDockSolution(navController: NavHostController) {
                             }
                             // highlight-modifyListBuilder-addLast
                             // highlight-modifyListBuilder-addAfter
-                            addAfter(id = Dock.Button.Id.systemGallery) {
-                                Dock.Button.remember(
-                                    id = EditorComponentId("my.package.dock.button.afterSystemGallery"),
+                            addAfter(id = CanvasMenu.Button.Id.bringForward) {
+                                CanvasMenu.Button.remember(
+                                    id = EditorComponentId("my.package.canvasMenu.button.afterBringForward"),
                                     vectorIcon = null,
-                                    text = { "After System Gallery" },
+                                    text = { "After Bring Forward" },
                                     onClick = {},
                                 )
                             }
                             // highlight-modifyListBuilder-addAfter
                             // highlight-modifyListBuilder-addBefore
-                            addBefore(id = Dock.Button.Id.systemCamera) {
-                                Dock.Button.remember(
-                                    id = EditorComponentId("my.package.dock.button.beforeSystemCamera"),
+                            addBefore(id = CanvasMenu.Button.Id.sendBackward) {
+                                CanvasMenu.Button.remember(
+                                    id = EditorComponentId("my.package.canvasMenu.button.beforeSendBackward"),
                                     vectorIcon = null,
-                                    text = { "Before System Camera" },
+                                    text = { "Before Send Backward" },
                                     onClick = {},
                                 )
                             }
                             // highlight-modifyListBuilder-addBefore
                             // highlight-modifyListBuilder-replace
-                            replace(id = Dock.Button.Id.textLibrary) {
+                            replace(id = CanvasMenu.Button.Id.duplicate) {
                                 // Note that it can be replaced with a component that has a different id.
-                                Dock.Button.rememberElementsLibrary()
+                                CanvasMenu.Button.rememberDuplicate(
+                                    vectorIcon = { IconPack.Music },
+                                )
                             }
                             // highlight-modifyListBuilder-replace
                             // highlight-modifyListBuilder-remove
-                            remove(id = Dock.Button.Id.shapesLibrary)
+                            remove(id = CanvasMenu.Button.Id.delete)
                             // highlight-modifyListBuilder-remove
                         },
                     // highlight-modifyListBuilder
