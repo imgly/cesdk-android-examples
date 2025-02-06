@@ -1,8 +1,0 @@
-*.iml
-local.properties
-/.gradle
-.idea
-build
-android-release.keystore
-showcases-app/build
-editor-version-details-dummy/build
