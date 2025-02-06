@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <drawable name="design_ui_booklet">@drawable/design_ui_booklet_dark</drawable>
+    <drawable name="design_ui_business_card">@drawable/design_ui_business_card_dark</drawable>
+    <drawable name="design_ui_instagram_post">@drawable/design_ui_instagram_post_dark</drawable>
+    <drawable name="design_ui_instagram_story">@drawable/design_ui_instagram_story_dark</drawable>
+    <drawable name="design_ui_open_design">@drawable/design_ui_open_design_dark</drawable>
+    <drawable name="design_ui_video_full_hd">@drawable/design_ui_video_full_hd_dark</drawable>
+    <drawable name="design_ui_x_header">@drawable/design_ui_x_header_dark</drawable>
+    <drawable name="design_ui_x_profile_picture">@drawable/design_ui_x_profile_picture_dark</drawable>
+
+    <drawable name="apparel_ui_blank">@drawable/apparel_ui_blank_dark</drawable>
+    <drawable name="postcard_ui_blank">@drawable/postcard_ui_blank_dark</drawable>
+    <drawable name="video_ui_blank">@drawable/video_ui_blank_dark</drawable>
+
+    <drawable name="photo_ui_choose_from_gallery">@drawable/photo_ui_choose_from_gallery_dark</drawable>
+    <drawable name="photo_ui_1_1">@drawable/photo_ui_1_1_dark</drawable>
+    <drawable name="photo_ui_9_16">@drawable/photo_ui_9_16_dark</drawable>
+    <drawable name="photo_ui_16_9">@drawable/photo_ui_16_9_dark</drawable>
+    <drawable name="photo_ui_2_3">@drawable/photo_ui_2_3_dark</drawable>
+    <drawable name="photo_ui_3_2">@drawable/photo_ui_3_2_dark</drawable>
+    <drawable name="photo_ui_3_4">@drawable/photo_ui_3_4_dark</drawable>
+    <drawable name="photo_ui_4_3">@drawable/photo_ui_4_3_dark</drawable>
+</resources>

@@ -1,0 +1,36 @@
+pluginManagement {
+    repositories {
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+          name "IMG.LY Artifactory"
+          url "https://artifactory.img.ly/artifactory/maven"
+          mavenContent {
+            includeGroup("ly.img")
+          }
+        }
+    }
+}
+
+rootProject.name = "cesdk_android_showcases"
+include ':showcases-app'
+if (file("editor-version-details").exists()) {
+  include ':editor-version-details'
+}
+include ':editor-version-details-dummy'
+include ':solutions:photo-editor'
+include ':solutions:solution-template'
