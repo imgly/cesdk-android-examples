@@ -7,6 +7,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
 import ly.img.camera.core.CameraConfiguration
+import ly.img.camera.core.CameraMode
 import ly.img.camera.core.CaptureVideo
 import ly.img.camera.core.EngineConfiguration
 import kotlin.time.Duration.Companion.seconds
@@ -39,6 +40,9 @@ class ConfiguredCameraActivity : AppCompatActivity() {
                         allowExceedingMaxDuration = false,
                     ),
                 // highlight-camera-configuration
+                // highlight-camera-mode
+                cameraMode = CameraMode.Standard(),
+                // highlight-camera-mode
             )
 
         setContent {

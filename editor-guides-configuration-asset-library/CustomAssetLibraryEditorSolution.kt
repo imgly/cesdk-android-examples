@@ -16,7 +16,6 @@ import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.addSection
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.rememberForDesign
-import ly.img.editor.smoketests.Secrets
 import ly.img.editor.smoketests.R as SmokeTestR
 
 // Add this composable to your NavHost
@@ -24,7 +23,7 @@ import ly.img.editor.smoketests.R as SmokeTestR
 fun CustomAssetLibraryEditorSolution(navController: NavHostController) {
     val unsplashAssetSource =
         remember {
-            UnsplashAssetSource(Secrets.unsplashHost)
+            UnsplashAssetSource("<your Unsplash API host endpoint here>")
         }
     val engineConfiguration =
         EngineConfiguration.remember(

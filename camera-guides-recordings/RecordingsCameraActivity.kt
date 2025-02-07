@@ -40,11 +40,22 @@ class RecordingsCameraActivity : AppCompatActivity() {
                             for (recording in result.recordings) {
                                 Log.d(TAG, "Duration: ${recording.duration}")
                                 for (video in recording.videos) {
-                                    Log.d(TAG, "Video Uri: ${video.uri}")
+                                    Log.d(TAG, "Video Uri: ${video.uri} Video Rect: ${video.rect}")
                                 }
                             }
                         }
                         // highlight-standard
+                        // highlight-reaction
+                        is CameraResult.Reaction -> {
+                            Log.d(TAG, "Video uri: ${result.video.uri}")
+                            for (reaction in result.reaction) {
+                                Log.d(TAG, "Duration: ${reaction.duration}")
+                                for (video in reaction.videos) {
+                                    Log.d(TAG, "Video Uri: ${video.uri} Video Rect: ${video.rect}")
+                                }
+                            }
+                        }
+                        // highlight-reaction
 
                         else -> {
                             Log.d(TAG, "Unhandled result")

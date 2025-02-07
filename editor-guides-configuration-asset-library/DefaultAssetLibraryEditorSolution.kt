@@ -15,7 +15,6 @@ import ly.img.editor.core.library.dropSection
 import ly.img.editor.core.library.replaceSection
 import ly.img.editor.rememberForDesign
 import ly.img.editor.smoketests.R
-import ly.img.editor.smoketests.Secrets
 
 // Add this composable to your NavHost
 @Composable
@@ -23,7 +22,7 @@ fun DefaultAssetLibraryEditorSolution(navController: NavHostController) {
     // highlight-configuration-custom-asset-source
     val unsplashAssetSource =
         remember {
-            UnsplashAssetSource(Secrets.unsplashHost)
+            UnsplashAssetSource("<your Unsplash API host endpoint here>")
         }
     val engineConfiguration =
         EngineConfiguration.remember(
