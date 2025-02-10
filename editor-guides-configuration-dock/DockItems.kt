@@ -33,6 +33,20 @@ fun rememberDockButton(): Dock.Button {
                 remember(this) { Dock.ButtonScope(parentScope = this) }
             },
         // highlight-dockItems-newButton-scope
+        // highlight-dockItems-newButton-visible
+        visible = { true },
+        // highlight-dockItems-newButton-enterTransition
+        enterTransition = { EnterTransition.None },
+        // highlight-dockItems-newButton-exitTransition
+        exitTransition = { ExitTransition.None },
+        // highlight-dockItems-newButton-decoration
+        // default value is { it() }
+        decoration = {
+            Surface(color = MaterialTheme.colorScheme.background) {
+                it()
+            }
+        },
+        // highlight-dockItems-newButton-decoration
         // highlight-dockItems-newButton-onClick
         onClick = { editorContext.eventHandler.send(EditorEvent.Sheet.Open(SheetType.Volume())) },
         // highlight-dockItems-newButton-icon
@@ -54,20 +68,6 @@ fun rememberDockButton(): Dock.Button {
         // highlight-dockItems-newButton-text
         // highlight-dockItems-newButton-enabled
         enabled = { true },
-        // highlight-dockItems-newButton-visible
-        visible = { true },
-        // highlight-dockItems-newButton-enterTransition
-        enterTransition = { EnterTransition.None },
-        // highlight-dockItems-newButton-exitTransition
-        exitTransition = { ExitTransition.None },
-        // highlight-dockItems-newButton-decoration
-        // default value is { it() }
-        decoration = {
-            Surface(color = MaterialTheme.colorScheme.background) {
-                it()
-            }
-        },
-        // highlight-dockItems-newButton-decoration
     )
 }
 // highlight-dockItems-newButton
@@ -81,11 +81,6 @@ fun rememberDockButtonSimpleOverload(): Dock.Button {
             LocalEditorScope.current.run {
                 remember(this) { Dock.ButtonScope(parentScope = this) }
             },
-        onClick = { editorContext.eventHandler.send(ShowLoading) },
-        vectorIcon = { IconPack.Music }, // default value is null
-        text = { "Hello World" }, // default value is null
-        tint = null,
-        enabled = { true },
         visible = { true },
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None },
@@ -94,6 +89,11 @@ fun rememberDockButtonSimpleOverload(): Dock.Button {
                 it()
             }
         },
+        onClick = { editorContext.eventHandler.send(ShowLoading) },
+        vectorIcon = { IconPack.Music }, // default value is null
+        text = { "Hello World" }, // default value is null
+        tint = null,
+        enabled = { true },
     )
 }
 // highlight-dockItems-newButton-simpleOverload
@@ -103,7 +103,7 @@ fun rememberDockButtonSimpleOverload(): Dock.Button {
 fun rememberCustomItem(): Dock.Item<Dock.ItemScope> {
     return Dock.Custom.remember(
         // highlight-dockItems-newCustomItem-id
-        id = EditorComponentId("my.package.dock.button.newCustomItem"),
+        id = EditorComponentId("my.package.dock.newCustomItem"),
         // highlight-dockItems-newCustomItem-scope
         scope =
             LocalEditorScope.current.run {

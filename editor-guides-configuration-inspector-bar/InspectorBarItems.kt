@@ -33,6 +33,20 @@ fun rememberInspectorBarButton(): InspectorBar.Button {
                 remember(this) { InspectorBar.ButtonScope(parentScope = this) }
             },
         // highlight-inspectorBarItems-newButton-scope
+        // highlight-inspectorBarItems-newButton-visible
+        visible = { true },
+        // highlight-inspectorBarItems-newButton-enterTransition
+        enterTransition = { EnterTransition.None },
+        // highlight-inspectorBarItems-newButton-exitTransition
+        exitTransition = { ExitTransition.None },
+        // highlight-inspectorBarItems-newButton-decoration
+        // default value is { it() }
+        decoration = {
+            Surface(color = MaterialTheme.colorScheme.background) {
+                it()
+            }
+        },
+        // highlight-inspectorBarItems-newButton-decoration
         // highlight-inspectorBarItems-newButton-onClick
         onClick = { editorContext.eventHandler.send(EditorEvent.Sheet.Open(SheetType.Volume())) },
         // highlight-inspectorBarItems-newButton-icon
@@ -54,20 +68,6 @@ fun rememberInspectorBarButton(): InspectorBar.Button {
         // highlight-inspectorBarItems-newButton-text
         // highlight-inspectorBarItems-newButton-enabled
         enabled = { true },
-        // highlight-inspectorBarItems-newButton-visible
-        visible = { true },
-        // highlight-inspectorBarItems-newButton-enterTransition
-        enterTransition = { EnterTransition.None },
-        // highlight-inspectorBarItems-newButton-exitTransition
-        exitTransition = { ExitTransition.None },
-        // highlight-inspectorBarItems-newButton-decoration
-        // default value is { it() }
-        decoration = {
-            Surface(color = MaterialTheme.colorScheme.background) {
-                it()
-            }
-        },
-        // highlight-inspectorBarItems-newButton-decoration
     )
 }
 // highlight-inspectorBarItems-newButton
@@ -82,10 +82,6 @@ fun rememberInspectorBarButtonSimpleOverload(): InspectorBar.Button {
                 remember(this) { InspectorBar.ButtonScope(parentScope = this) }
             },
         onClick = { editorContext.eventHandler.send(ShowLoading) },
-        vectorIcon = { IconPack.Music }, // default value is null
-        text = { "Hello World" }, // default value is null
-        tint = null,
-        enabled = { true },
         visible = { true },
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None },
@@ -94,6 +90,10 @@ fun rememberInspectorBarButtonSimpleOverload(): InspectorBar.Button {
                 it()
             }
         },
+        vectorIcon = { IconPack.Music }, // default value is null
+        text = { "Hello World" }, // default value is null
+        tint = null,
+        enabled = { true },
     )
 }
 // highlight-inspectorBarItems-newButton-simpleOverload
@@ -103,7 +103,7 @@ fun rememberInspectorBarButtonSimpleOverload(): InspectorBar.Button {
 fun rememberInspectorBarCustomItem(): InspectorBar.Item<InspectorBar.ItemScope> {
     return InspectorBar.Custom.remember(
         // highlight-inspectorBarItems-newCustomItem-id
-        id = EditorComponentId("my.package.inspectorBar.button.newCustomItem"),
+        id = EditorComponentId("my.package.inspectorBar.newCustomItem"),
         // highlight-inspectorBarItems-newCustomItem-scope
         scope =
             LocalEditorScope.current.run {
