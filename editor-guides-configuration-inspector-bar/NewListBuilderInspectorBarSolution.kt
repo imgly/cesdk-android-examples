@@ -1,10 +1,8 @@
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import ly.img.editor.DesignEditor
 import ly.img.editor.EditorConfiguration
 import ly.img.editor.EngineConfiguration
-import ly.img.editor.core.LocalEditorScope
 import ly.img.editor.core.component.EditorComponentId
 import ly.img.editor.core.component.InspectorBar
 import ly.img.editor.core.component.rememberAdjustments
@@ -41,16 +39,11 @@ fun NewListBuilderInspectorBarSolution(navController: NavHostController) {
                     listBuilder =
                         InspectorBar.ListBuilder.remember {
                             add {
-                                val buttonScope =
-                                    LocalEditorScope.current.run {
-                                        remember(this) { InspectorBar.ButtonScope(parentScope = this) }
-                                    }
                                 InspectorBar.Button.remember(
                                     id = EditorComponentId("my.package.inspectorBar.button.custom"),
+                                    onClick = {},
                                     vectorIcon = null,
                                     text = { "Custom Button" },
-                                    onClick = {},
-                                    scope = buttonScope,
                                 )
                             }
                             add { InspectorBar.Button.rememberDuplicate() }

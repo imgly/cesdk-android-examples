@@ -38,10 +38,6 @@ fun SimpleDockSolution(navController: NavHostController) {
                             remember(this) { Dock.Scope(parentScope = this) }
                         },
                     // highlight-dockConfiguration-scope
-                    // highlight-dockConfiguration-listBuilder
-                    listBuilder = Dock.ListBuilder.remember { },
-                    // highlight-dockConfiguration-horizontalArrangement
-                    horizontalArrangement = { Arrangement.SpaceEvenly },
                     // highlight-dockConfiguration-visible
                     visible = { true },
                     // highlight-dockConfiguration-enterTransition
@@ -50,7 +46,7 @@ fun SimpleDockSolution(navController: NavHostController) {
                     exitTransition = { ExitTransition.None },
                     // highlight-dockConfiguration-decoration
                     decoration = {
-                        // Also available via Dock.defaultDecoration
+                        // Also available via Dock.DefaultDecoration
                         Box(
                             modifier =
                                 Modifier
@@ -62,6 +58,10 @@ fun SimpleDockSolution(navController: NavHostController) {
                         }
                     },
                     // highlight-dockConfiguration-decoration
+                    // highlight-dockConfiguration-listBuilder
+                    listBuilder = Dock.ListBuilder.remember { },
+                    // highlight-dockConfiguration-horizontalArrangement
+                    horizontalArrangement = { Arrangement.SpaceEvenly },
                     // highlight-dockConfiguration-itemDecoration
                     // default value is { it() }
                     itemDecoration = {
