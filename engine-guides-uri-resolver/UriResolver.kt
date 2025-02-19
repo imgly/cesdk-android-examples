@@ -44,7 +44,7 @@ fun uriResolver(
     // Removes the previously set resolver.
     engine.editor.setUriResolver(null)
 
-    // Since we"ve removed the custom resolver, this will return
+    // Since we've removed the custom resolver, this will return
     // Uri.Asset("banana.jpg") like before.
     engine.editor.getAbsoluteUri(uri = Uri.parse("banana.jpg"))
     // highlight-remove-resolver
