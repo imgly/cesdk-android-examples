@@ -1,36 +1,35 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
         gradlePluginPortal()
+        google()
+        mavenCentral()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        maven {
-          name "IMG.LY Artifactory"
-          url "https://artifactory.img.ly/artifactory/maven"
-          mavenContent {
-            includeGroup("ly.img")
-          }
-        }
+        maven { url "https://artifactory.img.ly/artifactory/maven" }
     }
 }
 
-rootProject.name = "cesdk_android_showcases"
-include ':showcases-app'
-if (file("editor-version-details").exists()) {
-  include ':editor-version-details'
+rootProject.name = "CE.SDK Showcases"
+include ':app'
+include ':showcase-apparel-ui'
+
+// Internal use only
+def useLocalEngine = {
+    def propertiesFile = new File(rootDir, "local.properties")
+    if (!propertiesFile.exists()) return false
+    def properties = new Properties()
+    properties.load(propertiesFile.newDataInputStream())
+    properties.containsKey("useLocalEngine") && properties.getProperty("useLocalEngine").toBoolean()
 }
-include ':editor-version-details-dummy'
-include ':solutions:photo-editor'
-include ':solutions:solution-template'
+
+if (System.getenv("UBQ_USE_LOCAL_ENGINE") == "true" || useLocalEngine()) {
+    include ':ubq-android-engine'
+    project(':ubq-android-engine').projectDir = new File('../../bindings/android')
+}
+// Internal use only

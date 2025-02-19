@@ -3,20 +3,13 @@ import kotlinx.coroutines.*
 import ly.img.engine.*
 import java.net.HttpURLConnection
 import java.net.URL
-import java.nio.channels.Channels
 
-fun saveSceneToArchive(
-    license: String,
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
+fun saveSceneToArchive() = CoroutineScope(Dispatchers.Main).launch {
+    val engine = Engine(id = "ly.img.engine.example")
+    engine.start()
     engine.bindOffscreen(width = 100, height = 100)
 
-    val sceneUri =
-        Uri.parse(
-            "https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene",
-        )
+    val sceneUri = Uri.parse("https://cdn.img.ly/packages/imgly/cesdk-js/latest/assets/templates/cesdk_postcard_1.scene")
     val scene = engine.scene.load(sceneUri = sceneUri)
 
     // highlight-save
@@ -25,10 +18,10 @@ fun saveSceneToArchive(
 
     // highlight-create-form-data
     withContext(Dispatchers.IO) {
-        val connection = URL("https://example.com/upload/").openConnection() as HttpURLConnection
+        val connection = URL("https://upload.com").openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.doOutput = true
-        connection.outputStream.use { Channels.newChannel(it).write(blob) }
+        connection.outputStream.use { it.write(blob) }
         connection.connect()
     }
     // highlight-create-form-data
