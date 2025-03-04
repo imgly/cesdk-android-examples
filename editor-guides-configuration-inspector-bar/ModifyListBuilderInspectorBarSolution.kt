@@ -10,9 +10,6 @@ import ly.img.editor.core.component.crop
 import ly.img.editor.core.component.delete
 import ly.img.editor.core.component.formatText
 import ly.img.editor.core.component.layer
-import ly.img.editor.core.component.rememberFormatText
-import ly.img.editor.core.iconpack.IconPack
-import ly.img.editor.core.iconpack.Music
 import ly.img.editor.rememberForDesign
 
 // Add this composable to your NavHost
@@ -72,9 +69,11 @@ fun ModifyListBuilderInspectorBarSolution(navController: NavHostController) {
                             // highlight-modifyListBuilder-addBefore
                             // highlight-modifyListBuilder-replace
                             replace(id = InspectorBar.Button.Id.formatText) {
-                                // Note that it can be replaced with a component that has a different id.
-                                InspectorBar.Button.rememberFormatText(
-                                    vectorIcon = { IconPack.Music },
+                                InspectorBar.Button.remember(
+                                    id = EditorComponentId("my.package.inspectorBar.button.replacedFormatText"),
+                                    vectorIcon = null,
+                                    text = { "Replaced Format Text" },
+                                    onClick = {},
                                 )
                             }
                             // highlight-modifyListBuilder-replace
