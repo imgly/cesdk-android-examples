@@ -6,7 +6,6 @@ import ly.img.editor.EngineConfiguration
 import ly.img.editor.core.component.Dock
 import ly.img.editor.core.component.EditorComponent.ListBuilder.Companion.modify
 import ly.img.editor.core.component.EditorComponentId
-import ly.img.editor.core.component.rememberElementsLibrary
 import ly.img.editor.core.component.rememberForDesign
 import ly.img.editor.core.component.shapesLibrary
 import ly.img.editor.core.component.systemCamera
@@ -71,8 +70,12 @@ fun ModifyListBuilderDockSolution(navController: NavHostController) {
                             // highlight-modifyListBuilder-addBefore
                             // highlight-modifyListBuilder-replace
                             replace(id = Dock.Button.Id.textLibrary) {
-                                // Note that it can be replaced with a component that has a different id.
-                                Dock.Button.rememberElementsLibrary()
+                                Dock.Button.remember(
+                                    id = EditorComponentId("my.package.dock.button.replacedTextLibrary"),
+                                    vectorIcon = null,
+                                    text = { "Replaced Text Library" },
+                                    onClick = {},
+                                )
                             }
                             // highlight-modifyListBuilder-replace
                             // highlight-modifyListBuilder-remove
