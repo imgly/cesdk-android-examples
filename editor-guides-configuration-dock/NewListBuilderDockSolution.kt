@@ -16,37 +16,34 @@ import ly.img.editor.rememberForDesign
 // Add this composable to your NavHost
 @Composable
 fun NewListBuilderDockSolution(navController: NavHostController) {
-    val engineConfiguration =
-        EngineConfiguration.rememberForDesign(
-            license = "<your license here>",
-        )
+    val engineConfiguration = EngineConfiguration.rememberForDesign(
+        license = "<your license here>",
+    )
 
-    val editorConfiguration =
-        EditorConfiguration.rememberForDesign(
-            dock = {
-                Dock.remember(
-                    // highlight-newListBuilder
-                    listBuilder =
-                        Dock.ListBuilder.remember {
-                            add {
-                                Dock.Button.remember(
-                                    id = EditorComponentId("my.package.dock.button.custom"),
-                                    vectorIcon = null,
-                                    text = { "Custom Button" },
-                                    onClick = {},
-                                )
-                            }
-                            add { Dock.Button.rememberSystemGallery() }
-                            add { Dock.Button.rememberSystemCamera() }
-                            add { Dock.Button.rememberElementsLibrary() }
-                            add { Dock.Button.rememberStickersLibrary() }
-                            add { Dock.Button.rememberImagesLibrary() }
-                            add { Dock.Button.rememberTextLibrary() }
-                        },
-                    // highlight-newListBuilder
-                )
-            },
-        )
+    val editorConfiguration = EditorConfiguration.rememberForDesign(
+        dock = {
+            Dock.remember(
+                // highlight-newListBuilder
+                listBuilder = Dock.ListBuilder.remember {
+                    add {
+                        Dock.Button.remember(
+                            id = EditorComponentId("my.package.dock.button.custom"),
+                            vectorIcon = null,
+                            text = { "Custom Button" },
+                            onClick = {},
+                        )
+                    }
+                    add { Dock.Button.rememberSystemGallery() }
+                    add { Dock.Button.rememberSystemCamera() }
+                    add { Dock.Button.rememberElementsLibrary() }
+                    add { Dock.Button.rememberStickersLibrary() }
+                    add { Dock.Button.rememberImagesLibrary() }
+                    add { Dock.Button.rememberTextLibrary() }
+                },
+                // highlight-newListBuilder
+            )
+        },
+    )
     DesignEditor(
         engineConfiguration = engineConfiguration,
         editorConfiguration = editorConfiguration,

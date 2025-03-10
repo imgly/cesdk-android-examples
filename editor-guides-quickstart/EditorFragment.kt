@@ -14,23 +14,20 @@ class EditorFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                // highlight-engine-configuration
-                val engineConfiguration =
-                    EngineConfiguration.rememberForDesign(
-                        license = "<your license here>",
-                        userId = "<your unique user id>",
-                    )
-                // highlight-engine-configuration
-                // highlight-editor-invoke
-                DesignEditor(engineConfiguration = engineConfiguration) {
-                    // You can set result here
-                    parentFragmentManager.popBackStack()
-                }
-                // highlight-editor-invoke
+    ): View = ComposeView(requireContext()).apply {
+        setContent {
+            // highlight-engine-configuration
+            val engineConfiguration = EngineConfiguration.rememberForDesign(
+                license = "<your license here>",
+                userId = "<your unique user id>",
+            )
+            // highlight-engine-configuration
+            // highlight-editor-invoke
+            DesignEditor(engineConfiguration = engineConfiguration) {
+                // You can set result here
+                parentFragmentManager.popBackStack()
             }
+            // highlight-editor-invoke
         }
     }
 }

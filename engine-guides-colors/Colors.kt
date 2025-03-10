@@ -1,5 +1,12 @@
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.Color
+import ly.img.engine.ColorSpace
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
+import ly.img.engine.FillType
+import ly.img.engine.ShapeType
 
 fun colors(
     license: String,
@@ -38,12 +45,11 @@ fun colors(
         Color.fromRGBA(r = 0.988F, g = 0.455F, b = 0.992F),
     )
     engine.editor.setSpotColor(name = "Yellow", Color.fromCMYK(c = 0F, m = 0F, y = 1F, k = 0F))
-    val spotPinkFlamingo =
-        Color.fromSpotColor(
-            name = "Pink-Flamingo",
-            tint = 1F,
-            externalReference = "Crayola",
-        )
+    val spotPinkFlamingo = Color.fromSpotColor(
+        name = "Pink-Flamingo",
+        tint = 1F,
+        externalReference = "Crayola",
+    )
     val spotPartialYellow = Color.fromSpotColor(name = "Yellow", tint = 0.3F)
     // highlight-create-colors
 
@@ -56,16 +62,14 @@ fun colors(
     // highlight-apply-colors
 
     // highlight-convert-color
-    val cmykBlueConverted =
-        engine.editor.convertColorToColorSpace(
-            rgbaBlue,
-            colorSpace = ColorSpace.CMYK,
-        )
-    val rgbaPinkFlamingoConverted =
-        engine.editor.convertColorToColorSpace(
-            spotPinkFlamingo,
-            colorSpace = ColorSpace.SRGB,
-        )
+    val cmykBlueConverted = engine.editor.convertColorToColorSpace(
+        rgbaBlue,
+        colorSpace = ColorSpace.CMYK,
+    )
+    val rgbaPinkFlamingoConverted = engine.editor.convertColorToColorSpace(
+        spotPinkFlamingo,
+        colorSpace = ColorSpace.SRGB,
+    )
     // highlight-convert-color
 
     // highlight-find-spot
