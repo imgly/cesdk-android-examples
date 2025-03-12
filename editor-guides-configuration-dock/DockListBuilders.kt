@@ -22,62 +22,55 @@ import ly.img.editor.core.component.rememberTextLibrary
 // highlight-listBuilders
 // highlight-listBuilders-design
 @Composable
-fun Dock.ListBuilder.rememberForDesign(): ListBuilder<Dock.Item<*>> {
-    return Dock.ListBuilder.remember {
-        add { Dock.Button.rememberElementsLibrary() }
-        add { Dock.Button.rememberSystemGallery() }
-        add { Dock.Button.rememberSystemCamera() }
-        add { Dock.Button.rememberImagesLibrary() }
-        add { Dock.Button.rememberTextLibrary() }
-        add { Dock.Button.rememberShapesLibrary() }
-        add { Dock.Button.rememberStickersLibrary() }
-    }
+fun Dock.ListBuilder.rememberForDesign(): ListBuilder<Dock.Item<*>> = Dock.ListBuilder.remember {
+    add { Dock.Button.rememberElementsLibrary() }
+    add { Dock.Button.rememberSystemGallery() }
+    add { Dock.Button.rememberSystemCamera() }
+    add { Dock.Button.rememberImagesLibrary() }
+    add { Dock.Button.rememberTextLibrary() }
+    add { Dock.Button.rememberShapesLibrary() }
+    add { Dock.Button.rememberStickersLibrary() }
 }
 // highlight-listBuilders-design
 
 // highlight-listBuilders-photo
 @Composable
-fun Dock.ListBuilder.rememberForPhoto(): ListBuilder<Dock.Item<*>> {
-    return Dock.ListBuilder.remember {
-        add { Dock.Button.rememberAdjustments() }
-        add { Dock.Button.rememberFilter() }
-        add { Dock.Button.rememberEffect() }
-        add { Dock.Button.rememberBlur() }
-        add { Dock.Button.rememberCrop() }
-        add { Dock.Button.rememberTextLibrary() }
-        add { Dock.Button.rememberShapesLibrary() }
-        add { Dock.Button.rememberStickersLibrary() }
-    }
+fun Dock.ListBuilder.rememberForPhoto(): ListBuilder<Dock.Item<*>> = Dock.ListBuilder.remember {
+    add { Dock.Button.rememberAdjustments() }
+    add { Dock.Button.rememberFilter() }
+    add { Dock.Button.rememberEffect() }
+    add { Dock.Button.rememberBlur() }
+    add { Dock.Button.rememberCrop() }
+    add { Dock.Button.rememberTextLibrary() }
+    add { Dock.Button.rememberShapesLibrary() }
+    add { Dock.Button.rememberStickersLibrary() }
 }
 // highlight-listBuilders-photo
 
 // highlight-listBuilders-video
 @Composable
-fun Dock.ListBuilder.rememberForVideo(): ListBuilder<Dock.Item<*>> {
-    return Dock.ListBuilder.remember {
-        add { Dock.Button.rememberSystemGallery() }
-        add {
+fun Dock.ListBuilder.rememberForVideo(): ListBuilder<Dock.Item<*>> = Dock.ListBuilder.remember {
+    add { Dock.Button.rememberSystemGallery() }
+    add {
             /*
             Make sure to add the gradle dependency of our camera library if you want to use the [rememberImglyCamera] button:
             implementation "ly.img:camera:<same version as editor>".
             If the dependency is missing, then [rememberSystemCamera] is used.
              */
-            val isImglyCameraAvailable =
-                androidx.compose.runtime.remember {
-                    runCatching { CaptureVideo() }.isSuccess
-                }
-            if (isImglyCameraAvailable) {
-                Dock.Button.rememberImglyCamera()
-            } else {
-                Dock.Button.rememberSystemCamera()
-            }
+        val isImglyCameraAvailable = androidx.compose.runtime.remember {
+            runCatching { CaptureVideo() }.isSuccess
         }
-        add { Dock.Button.rememberOverlaysLibrary() }
-        add { Dock.Button.rememberTextLibrary() }
-        add { Dock.Button.rememberStickersLibrary() }
-        add { Dock.Button.rememberAudiosLibrary() }
-        add { Dock.Button.rememberReorder() }
+        if (isImglyCameraAvailable) {
+            Dock.Button.rememberImglyCamera()
+        } else {
+            Dock.Button.rememberSystemCamera()
+        }
     }
+    add { Dock.Button.rememberOverlaysLibrary() }
+    add { Dock.Button.rememberTextLibrary() }
+    add { Dock.Button.rememberStickersLibrary() }
+    add { Dock.Button.rememberAudiosLibrary() }
+    add { Dock.Button.rememberReorder() }
 }
 // highlight-listBuilders-video
 // highlight-listBuilders

@@ -1,5 +1,8 @@
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
 
 fun textWithEmojis(
     license: String,
@@ -14,7 +17,7 @@ fun textWithEmojis(
     // From a bundle
     engine.editor.setSettingString(
         keypath = "ubq://defaultEmojiFontFileUri",
-        value =	"file:///android_asset/ly.img.cesdk/fonts/NotoColorEmoji.ttf",
+        value = "file:///android_asset/ly.img.cesdk/fonts/NotoColorEmoji.ttf",
     )
     // From a URL
     engine.editor.setSettingString(

@@ -11,13 +11,12 @@ import ly.img.editor.rememberForPhoto
 @Composable
 fun PhotoEditorSolution(navController: NavHostController) {
     // highlight-engine-configuration
-    val engineConfiguration =
-        EngineConfiguration.rememberForPhoto(
-            license = "<your license here>",
-            imageUri = Uri.parse("https://img.ly/static/ubq_samples/sample_4.jpg"),
-            imageSize = SizeF(1080F, 1920F),
-            userId = "<your unique user id>",
-        )
+    val engineConfiguration = EngineConfiguration.rememberForPhoto(
+        license = "<your license here>",
+        imageUri = Uri.parse("https://img.ly/static/ubq_samples/sample_4.jpg"),
+        imageSize = SizeF(1080F, 1920F),
+        userId = "<your unique user id>",
+    )
     // highlight-engine-configuration
     // highlight-editor-configuration
     val editorConfiguration = EditorConfiguration.rememberForPhoto()

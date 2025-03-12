@@ -9,11 +9,10 @@ import ly.img.editor.rememberForApparel
 @Composable
 fun ApparelEditorSolution(navController: NavHostController) {
     // highlight-engine-configuration
-    val engineConfiguration =
-        EngineConfiguration.rememberForApparel(
-            license = "<your license here>",
-            userId = "<your unique user id>",
-        )
+    val engineConfiguration = EngineConfiguration.rememberForApparel(
+        license = "<your license here>",
+        userId = "<your unique user id>",
+    )
     // highlight-engine-configuration
     // highlight-editor-configuration
     val editorConfiguration = EditorConfiguration.rememberForApparel()

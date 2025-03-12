@@ -24,28 +24,26 @@ import ly.img.editor.core.component.rememberVolume
 
 // highlight-listBuilders
 @Composable
-fun InspectorBar.ListBuilder.remember(): ListBuilder<InspectorBar.Item<*>> {
-    return InspectorBar.ListBuilder.remember {
-        add { InspectorBar.Button.rememberReplace() } // Video, Image, Sticker, Audio
-        add { InspectorBar.Button.rememberEditText() } // Text
-        add { InspectorBar.Button.rememberFormatText() } // Text
-        add { InspectorBar.Button.rememberFillStroke() } // Page, Video, Image, Shape, Text
-        add { InspectorBar.Button.rememberVolume() } // Video, Audio
-        add { InspectorBar.Button.rememberCrop() } // Video, Image
-        add { InspectorBar.Button.rememberAdjustments() } // Video, Image
-        add { InspectorBar.Button.rememberFilter() } // Video, Image
-        add { InspectorBar.Button.rememberEffect() } // Video, Image
-        add { InspectorBar.Button.rememberBlur() } // Video, Image
-        add { InspectorBar.Button.rememberShape() } // Video, Image, Shape
-        add { InspectorBar.Button.rememberSelectGroup() } // Video, Image, Sticker, Shape, Text
-        add { InspectorBar.Button.rememberEnterGroup() } // Group
-        add { InspectorBar.Button.rememberLayer() } // Video, Image, Sticker, Shape, Text
-        add { InspectorBar.Button.rememberSplit() } // Video, Image, Sticker, Shape, Text, Audio
-        add { InspectorBar.Button.rememberMoveAsClip() } // Video, Image, Sticker, Shape, Text
-        add { InspectorBar.Button.rememberMoveAsOverlay() } // Video, Image, Sticker, Shape, Text
-        add { InspectorBar.Button.rememberReorder() } // Video, Image, Sticker, Shape, Text
-        add { InspectorBar.Button.rememberDuplicate() } // Video, Image, Sticker, Shape, Text, Audio
-        add { InspectorBar.Button.rememberDelete() } // Video, Image, Sticker, Shape, Text, Audio
-    }
+fun InspectorBar.ListBuilder.remember(): ListBuilder<InspectorBar.Item<*>> = InspectorBar.ListBuilder.remember {
+    add { InspectorBar.Button.rememberReplace() } // Video, Image, Sticker, Audio
+    add { InspectorBar.Button.rememberEditText() } // Text
+    add { InspectorBar.Button.rememberFormatText() } // Text
+    add { InspectorBar.Button.rememberFillStroke() } // Page, Video, Image, Shape, Text
+    add { InspectorBar.Button.rememberVolume() } // Video, Audio
+    add { InspectorBar.Button.rememberCrop() } // Video, Image
+    add { InspectorBar.Button.rememberAdjustments() } // Video, Image
+    add { InspectorBar.Button.rememberFilter() } // Video, Image
+    add { InspectorBar.Button.rememberEffect() } // Video, Image
+    add { InspectorBar.Button.rememberBlur() } // Video, Image
+    add { InspectorBar.Button.rememberShape() } // Video, Image, Shape
+    add { InspectorBar.Button.rememberSelectGroup() } // Video, Image, Sticker, Shape, Text
+    add { InspectorBar.Button.rememberEnterGroup() } // Group
+    add { InspectorBar.Button.rememberLayer() } // Video, Image, Sticker, Shape, Text
+    add { InspectorBar.Button.rememberSplit() } // Video, Image, Sticker, Shape, Text, Audio
+    add { InspectorBar.Button.rememberMoveAsClip() } // Video, Image, Sticker, Shape, Text
+    add { InspectorBar.Button.rememberMoveAsOverlay() } // Video, Image, Sticker, Shape, Text
+    add { InspectorBar.Button.rememberReorder() } // Video, Image, Sticker, Shape, Text
+    add { InspectorBar.Button.rememberDuplicate() } // Video, Image, Sticker, Shape, Text, Audio
+    add { InspectorBar.Button.rememberDelete() } // Video, Image, Sticker, Shape, Text, Audio
 }
 // highlight-listBuilders

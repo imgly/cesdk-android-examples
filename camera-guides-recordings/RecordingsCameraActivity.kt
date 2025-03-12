@@ -15,58 +15,57 @@ class RecordingsCameraActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val cameraInput =
-            CaptureVideo.Input(
-                engineConfiguration =
-                    EngineConfiguration(
-                        license = "<your license here>",
-                        userId = "<your unique user id>",
-                    ),
-            )
+        val cameraInput = CaptureVideo.Input(
+            engineConfiguration = EngineConfiguration(
+                license = "<your license here>",
+                userId = "<your unique user id>",
+            ),
+        )
 
         setContent {
-            val cameraLauncher =
-                rememberLauncherForActivityResult(contract = CaptureVideo()) { result ->
-                    // highlight-failure
-                    result ?: run {
-                        Log.d(TAG, "Camera dismissed")
-                        return@rememberLauncherForActivityResult
-                    }
-                    // highlight-failure
-                    // highlight-success
-                    when (result) {
-                        // highlight-standard
-                        is CameraResult.Record -> {
-                            for (recording in result.recordings) {
-                                Log.d(TAG, "Duration: ${recording.duration}")
-                                for (video in recording.videos) {
-                                    Log.d(TAG, "Video Uri: ${video.uri} Video Rect: ${video.rect}")
-                                }
-                            }
-                        }
-                        // highlight-standard
-                        // highlight-reaction
-                        is CameraResult.Reaction -> {
-                            Log.d(TAG, "Video uri: ${result.video.uri}")
-                            for (reaction in result.reaction) {
-                                Log.d(TAG, "Duration: ${reaction.duration}")
-                                for (video in reaction.videos) {
-                                    Log.d(TAG, "Video Uri: ${video.uri} Video Rect: ${video.rect}")
-                                }
-                            }
-                        }
-                        // highlight-reaction
-
-                        else -> {
-                            Log.d(TAG, "Unhandled result")
-                        }
-                    }
-                    // highlight-success
+            val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureVideo()) { result ->
+                // highlight-failure
+                result ?: run {
+                    Log.d(TAG, "Camera dismissed")
+                    return@rememberLauncherForActivityResult
                 }
+                // highlight-failure
+                // highlight-success
+                when (result) {
+                    // highlight-standard
+                    is CameraResult.Record -> {
+                        for (recording in result.recordings) {
+                            Log.d(TAG, "Duration: ${recording.duration}")
+                            for (video in recording.videos) {
+                                Log.d(TAG, "Video Uri: ${video.uri} Video Rect: ${video.rect}")
+                            }
+                        }
+                    }
+                    // highlight-standard
+                    // highlight-reaction
+                    is CameraResult.Reaction -> {
+                        Log.d(TAG, "Video uri: ${result.video.uri}")
+                        for (reaction in result.reaction) {
+                            Log.d(TAG, "Duration: ${reaction.duration}")
+                            for (video in reaction.videos) {
+                                Log.d(TAG, "Video Uri: ${video.uri} Video Rect: ${video.rect}")
+                            }
+                        }
+                    }
+                    // highlight-reaction
 
-            Button(onClick = {
-                cameraLauncher.launch(cameraInput)
-            }) {
+                    else -> {
+                        Log.d(TAG, "Unhandled result")
+                    }
+                }
+                // highlight-success
+            }
+
+            Button(
+                onClick = {
+                    cameraLauncher.launch(cameraInput)
+                },
+            ) {
                 Text(text = "Open Camera")
             }
         }

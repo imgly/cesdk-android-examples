@@ -16,49 +16,47 @@ data object OnCreateCustomEvent : EditorEvent
 // Add this composable to your NavHost
 @Composable
 fun UiEventsEditorSolution(navController: NavHostController) {
-    val engineConfiguration =
-        EngineConfiguration.remember(
-            license = "<your license here>",
-            // highlight-configuration-engine-callback
-            onCreate = {
-                EditorDefaults.onCreate(
-                    engine = editorContext.engine,
-                    sceneUri = EngineConfiguration.defaultDesignSceneUri,
-                    eventHandler = editorContext.eventHandler,
-                )
-                // highlight-configuration-send-event
-                editorContext.eventHandler.send(OnCreateCustomEvent)
-                // highlight-configuration-send-event
-            },
-            // highlight-configuration-engine-callback
-        )
-    val editorConfiguration =
-        EditorConfiguration.remember(
-            initialState = EditorUiState(),
-            // highlight-configuration-on-event
-            onEvent = { state, event ->
-                when (event) {
-                    // highlight-configuration-on-event-new
-                    OnCreateCustomEvent -> {
-                        Toast.makeText(editorContext.activity, "Editor is created!", Toast.LENGTH_SHORT).show()
-                        state
-                    }
-                    // highlight-configuration-on-event-new
-                    // highlight-configuration-on-event-default-override
-                    ShowLoading -> {
-                        state.copy(showLoading = true)
-                    }
-                    // highlight-configuration-on-event-default-override
-                    // highlight-configuration-on-event-default-remaining
-                    else -> {
-                        // handle other default events
-                        EditorDefaults.onEvent(editorContext.activity, state, event)
-                    }
-                    // highlight-configuration-on-event-default-remaining
+    val engineConfiguration = EngineConfiguration.remember(
+        license = "<your license here>",
+        // highlight-configuration-engine-callback
+        onCreate = {
+            EditorDefaults.onCreate(
+                engine = editorContext.engine,
+                sceneUri = EngineConfiguration.defaultDesignSceneUri,
+                eventHandler = editorContext.eventHandler,
+            )
+            // highlight-configuration-send-event
+            editorContext.eventHandler.send(OnCreateCustomEvent)
+            // highlight-configuration-send-event
+        },
+        // highlight-configuration-engine-callback
+    )
+    val editorConfiguration = EditorConfiguration.remember(
+        initialState = EditorUiState(),
+        // highlight-configuration-on-event
+        onEvent = { state, event ->
+            when (event) {
+                // highlight-configuration-on-event-new
+                OnCreateCustomEvent -> {
+                    Toast.makeText(editorContext.activity, "Editor is created!", Toast.LENGTH_SHORT).show()
+                    state
                 }
-            },
-            // highlight-configuration-on-event
-        )
+                // highlight-configuration-on-event-new
+                // highlight-configuration-on-event-default-override
+                ShowLoading -> {
+                    state.copy(showLoading = true)
+                }
+                // highlight-configuration-on-event-default-override
+                // highlight-configuration-on-event-default-remaining
+                else -> {
+                    // handle other default events
+                    EditorDefaults.onEvent(editorContext.activity, state, event)
+                }
+                // highlight-configuration-on-event-default-remaining
+            }
+        },
+        // highlight-configuration-on-event
+    )
     DesignEditor(
         engineConfiguration = engineConfiguration,
         editorConfiguration = editorConfiguration,

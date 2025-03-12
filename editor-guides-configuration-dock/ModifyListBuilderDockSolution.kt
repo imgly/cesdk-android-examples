@@ -16,76 +16,73 @@ import ly.img.editor.rememberForDesign
 // Add this composable to your NavHost
 @Composable
 fun ModifyListBuilderDockSolution(navController: NavHostController) {
-    val engineConfiguration =
-        EngineConfiguration.rememberForDesign(
-            license = "<your license here>",
-        )
+    val engineConfiguration = EngineConfiguration.rememberForDesign(
+        license = "<your license here>",
+    )
 
-    val editorConfiguration =
-        EditorConfiguration.rememberForDesign(
-            dock = {
-                Dock.remember(
-                    // highlight-modifyListBuilder
-                    listBuilder =
-                        Dock.ListBuilder.rememberForDesign().modify {
-                            // highlight-modifyListBuilder-addFirst
-                            addFirst {
-                                Dock.Button.remember(
-                                    id = EditorComponentId("my.package.dock.button.first"),
-                                    vectorIcon = null,
-                                    text = { "First Button" },
-                                    onClick = {},
-                                )
-                            }
-                            // highlight-modifyListBuilder-addFirst
-                            // highlight-modifyListBuilder-addLast
-                            addLast {
-                                Dock.Button.remember(
-                                    id = EditorComponentId("my.package.dock.button.last"),
-                                    vectorIcon = null,
-                                    text = { "Last Button" },
-                                    onClick = {},
-                                )
-                            }
-                            // highlight-modifyListBuilder-addLast
-                            // highlight-modifyListBuilder-addAfter
-                            addAfter(id = Dock.Button.Id.systemGallery) {
-                                Dock.Button.remember(
-                                    id = EditorComponentId("my.package.dock.button.afterSystemGallery"),
-                                    vectorIcon = null,
-                                    text = { "After System Gallery" },
-                                    onClick = {},
-                                )
-                            }
-                            // highlight-modifyListBuilder-addAfter
-                            // highlight-modifyListBuilder-addBefore
-                            addBefore(id = Dock.Button.Id.systemCamera) {
-                                Dock.Button.remember(
-                                    id = EditorComponentId("my.package.dock.button.beforeSystemCamera"),
-                                    vectorIcon = null,
-                                    text = { "Before System Camera" },
-                                    onClick = {},
-                                )
-                            }
-                            // highlight-modifyListBuilder-addBefore
-                            // highlight-modifyListBuilder-replace
-                            replace(id = Dock.Button.Id.textLibrary) {
-                                Dock.Button.remember(
-                                    id = EditorComponentId("my.package.dock.button.replacedTextLibrary"),
-                                    vectorIcon = null,
-                                    text = { "Replaced Text Library" },
-                                    onClick = {},
-                                )
-                            }
-                            // highlight-modifyListBuilder-replace
-                            // highlight-modifyListBuilder-remove
-                            remove(id = Dock.Button.Id.shapesLibrary)
-                            // highlight-modifyListBuilder-remove
-                        },
-                    // highlight-modifyListBuilder
-                )
-            },
-        )
+    val editorConfiguration = EditorConfiguration.rememberForDesign(
+        dock = {
+            Dock.remember(
+                // highlight-modifyListBuilder
+                listBuilder = Dock.ListBuilder.rememberForDesign().modify {
+                    // highlight-modifyListBuilder-addFirst
+                    addFirst {
+                        Dock.Button.remember(
+                            id = EditorComponentId("my.package.dock.button.first"),
+                            vectorIcon = null,
+                            text = { "First Button" },
+                            onClick = {},
+                        )
+                    }
+                    // highlight-modifyListBuilder-addFirst
+                    // highlight-modifyListBuilder-addLast
+                    addLast {
+                        Dock.Button.remember(
+                            id = EditorComponentId("my.package.dock.button.last"),
+                            vectorIcon = null,
+                            text = { "Last Button" },
+                            onClick = {},
+                        )
+                    }
+                    // highlight-modifyListBuilder-addLast
+                    // highlight-modifyListBuilder-addAfter
+                    addAfter(id = Dock.Button.Id.systemGallery) {
+                        Dock.Button.remember(
+                            id = EditorComponentId("my.package.dock.button.afterSystemGallery"),
+                            vectorIcon = null,
+                            text = { "After System Gallery" },
+                            onClick = {},
+                        )
+                    }
+                    // highlight-modifyListBuilder-addAfter
+                    // highlight-modifyListBuilder-addBefore
+                    addBefore(id = Dock.Button.Id.systemCamera) {
+                        Dock.Button.remember(
+                            id = EditorComponentId("my.package.dock.button.beforeSystemCamera"),
+                            vectorIcon = null,
+                            text = { "Before System Camera" },
+                            onClick = {},
+                        )
+                    }
+                    // highlight-modifyListBuilder-addBefore
+                    // highlight-modifyListBuilder-replace
+                    replace(id = Dock.Button.Id.textLibrary) {
+                        Dock.Button.remember(
+                            id = EditorComponentId("my.package.dock.button.replacedTextLibrary"),
+                            vectorIcon = null,
+                            text = { "Replaced Text Library" },
+                            onClick = {},
+                        )
+                    }
+                    // highlight-modifyListBuilder-replace
+                    // highlight-modifyListBuilder-remove
+                    remove(id = Dock.Button.Id.shapesLibrary)
+                    // highlight-modifyListBuilder-remove
+                },
+                // highlight-modifyListBuilder
+            )
+        },
+    )
     DesignEditor(
         engineConfiguration = engineConfiguration,
         editorConfiguration = editorConfiguration,

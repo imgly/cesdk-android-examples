@@ -1,6 +1,8 @@
 import android.net.Uri
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.Engine
 
 fun saveSceneToString(
     license: String,
@@ -10,10 +12,9 @@ fun saveSceneToString(
     engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 100, height = 100)
 
-    val sceneUri =
-        Uri.parse(
-            "https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene",
-        )
+    val sceneUri = Uri.parse(
+        "https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene",
+    )
     val scene = engine.scene.load(sceneUri = sceneUri)
 
     // highlight-save

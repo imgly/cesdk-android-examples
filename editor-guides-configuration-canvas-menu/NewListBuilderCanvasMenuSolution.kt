@@ -13,35 +13,32 @@ import ly.img.editor.rememberForDesign
 // Add this composable to your NavHost
 @Composable
 fun NewListBuilderCanvasMenuSolution(navController: NavHostController) {
-    val engineConfiguration =
-        EngineConfiguration.rememberForDesign(
-            license = "<your license here>",
-        )
+    val engineConfiguration = EngineConfiguration.rememberForDesign(
+        license = "<your license here>",
+    )
 
-    val editorConfiguration =
-        EditorConfiguration.rememberForDesign(
-            canvasMenu = {
-                CanvasMenu.remember(
-                    // highlight-newListBuilder
-                    listBuilder =
-                        CanvasMenu.ListBuilder.remember {
-                            add {
-                                CanvasMenu.Button.remember(
-                                    id = EditorComponentId("my.package.canvasMenu.button.custom"),
-                                    onClick = {},
-                                    vectorIcon = null,
-                                    text = { "Custom Button" },
-                                )
-                            }
-                            add { CanvasMenu.Button.rememberSendBackward() }
-                            add { CanvasMenu.Button.rememberBringForward() }
-                            add { CanvasMenu.Divider.remember(visible = { editorContext.canSelectionMove }) }
-                            add { CanvasMenu.Button.rememberDuplicate() }
-                        },
-                    // highlight-newListBuilder
-                )
-            },
-        )
+    val editorConfiguration = EditorConfiguration.rememberForDesign(
+        canvasMenu = {
+            CanvasMenu.remember(
+                // highlight-newListBuilder
+                listBuilder = CanvasMenu.ListBuilder.remember {
+                    add {
+                        CanvasMenu.Button.remember(
+                            id = EditorComponentId("my.package.canvasMenu.button.custom"),
+                            onClick = {},
+                            vectorIcon = null,
+                            text = { "Custom Button" },
+                        )
+                    }
+                    add { CanvasMenu.Button.rememberSendBackward() }
+                    add { CanvasMenu.Button.rememberBringForward() }
+                    add { CanvasMenu.Divider.remember(visible = { editorContext.canSelectionMove }) }
+                    add { CanvasMenu.Button.rememberDuplicate() }
+                },
+                // highlight-newListBuilder
+            )
+        },
+    )
     DesignEditor(
         engineConfiguration = engineConfiguration,
         editorConfiguration = editorConfiguration,

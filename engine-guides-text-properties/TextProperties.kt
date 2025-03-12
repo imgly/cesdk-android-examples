@@ -1,6 +1,17 @@
 import android.net.Uri
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.AnimationType
+import ly.img.engine.Color
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
+import ly.img.engine.Font
+import ly.img.engine.FontStyle
+import ly.img.engine.FontWeight
+import ly.img.engine.SizeMode
+import ly.img.engine.TextCase
+import ly.img.engine.Typeface
 
 fun textProperties(
     license: String,
@@ -91,37 +102,35 @@ fun textProperties(
     // highlight-getTextCases
 
     // highlight-setFont
-    val typeface =
-        Typeface(
-            name = "Roboto",
-            fonts =
-                listOf(
-                    Font(
-                        uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Bold.ttf"),
-                        subFamily = "Bold",
-                        weight = FontWeight.BOLD,
-                        style = FontStyle.NORMAL,
-                    ),
-                    Font(
-                        uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-BoldItalic.ttf"),
-                        subFamily = "Bold Italic",
-                        weight = FontWeight.BOLD,
-                        style = FontStyle.ITALIC,
-                    ),
-                    Font(
-                        uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Italic.ttf"),
-                        subFamily = "Italic",
-                        weight = FontWeight.BOLD,
-                        style = FontStyle.NORMAL,
-                    ),
-                    Font(
-                        uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Regular.ttf"),
-                        subFamily = "Regular",
-                        weight = FontWeight.NORMAL,
-                        style = FontStyle.NORMAL,
-                    ),
-                ),
-        )
+    val typeface = Typeface(
+        name = "Roboto",
+        fonts = listOf(
+            Font(
+                uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Bold.ttf"),
+                subFamily = "Bold",
+                weight = FontWeight.BOLD,
+                style = FontStyle.NORMAL,
+            ),
+            Font(
+                uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-BoldItalic.ttf"),
+                subFamily = "Bold Italic",
+                weight = FontWeight.BOLD,
+                style = FontStyle.ITALIC,
+            ),
+            Font(
+                uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Italic.ttf"),
+                subFamily = "Italic",
+                weight = FontWeight.BOLD,
+                style = FontStyle.NORMAL,
+            ),
+            Font(
+                uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Regular.ttf"),
+                subFamily = "Regular",
+                weight = FontWeight.NORMAL,
+                style = FontStyle.NORMAL,
+            ),
+        ),
+    )
     engine.block.setFont(text, typeface.fonts[3].uri, typeface)
     // highlight-setFont
 

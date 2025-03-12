@@ -26,47 +26,44 @@ import ly.img.editor.rememberForDesign
 // Add this composable to your NavHost
 @Composable
 fun NewListBuilderInspectorBarSolution(navController: NavHostController) {
-    val engineConfiguration =
-        EngineConfiguration.rememberForDesign(
-            license = "<your license here>",
-        )
+    val engineConfiguration = EngineConfiguration.rememberForDesign(
+        license = "<your license here>",
+    )
 
-    val editorConfiguration =
-        EditorConfiguration.rememberForDesign(
-            inspectorBar = {
-                InspectorBar.remember(
-                    // highlight-newListBuilder
-                    listBuilder =
-                        InspectorBar.ListBuilder.remember {
-                            add {
-                                InspectorBar.Button.remember(
-                                    id = EditorComponentId("my.package.inspectorBar.button.custom"),
-                                    onClick = {},
-                                    vectorIcon = null,
-                                    text = { "Custom Button" },
-                                )
-                            }
-                            add { InspectorBar.Button.rememberDuplicate() }
-                            add { InspectorBar.Button.rememberDelete() }
-                            add { InspectorBar.Button.rememberAdjustments() }
-                            add { InspectorBar.Button.rememberEffect() }
-                            add { InspectorBar.Button.rememberBlur() }
-                            add { InspectorBar.Button.rememberReplace() }
-                            add { InspectorBar.Button.rememberEditText() }
-                            add { InspectorBar.Button.rememberFormatText() }
-                            add { InspectorBar.Button.rememberFillStroke() }
-                            add { InspectorBar.Button.rememberVolume() }
-                            add { InspectorBar.Button.rememberCrop() }
-                            add { InspectorBar.Button.rememberShape() }
-                            add { InspectorBar.Button.rememberLayer() }
-                            add { InspectorBar.Button.rememberSplit() }
-                            add { InspectorBar.Button.rememberMoveAsClip() }
-                            add { InspectorBar.Button.rememberMoveAsOverlay() }
-                        },
-                    // highlight-newListBuilder
-                )
-            },
-        )
+    val editorConfiguration = EditorConfiguration.rememberForDesign(
+        inspectorBar = {
+            InspectorBar.remember(
+                // highlight-newListBuilder
+                listBuilder = InspectorBar.ListBuilder.remember {
+                    add {
+                        InspectorBar.Button.remember(
+                            id = EditorComponentId("my.package.inspectorBar.button.custom"),
+                            onClick = {},
+                            vectorIcon = null,
+                            text = { "Custom Button" },
+                        )
+                    }
+                    add { InspectorBar.Button.rememberDuplicate() }
+                    add { InspectorBar.Button.rememberDelete() }
+                    add { InspectorBar.Button.rememberAdjustments() }
+                    add { InspectorBar.Button.rememberEffect() }
+                    add { InspectorBar.Button.rememberBlur() }
+                    add { InspectorBar.Button.rememberReplace() }
+                    add { InspectorBar.Button.rememberEditText() }
+                    add { InspectorBar.Button.rememberFormatText() }
+                    add { InspectorBar.Button.rememberFillStroke() }
+                    add { InspectorBar.Button.rememberVolume() }
+                    add { InspectorBar.Button.rememberCrop() }
+                    add { InspectorBar.Button.rememberShape() }
+                    add { InspectorBar.Button.rememberLayer() }
+                    add { InspectorBar.Button.rememberSplit() }
+                    add { InspectorBar.Button.rememberMoveAsClip() }
+                    add { InspectorBar.Button.rememberMoveAsOverlay() }
+                },
+                // highlight-newListBuilder
+            )
+        },
+    )
     DesignEditor(
         engineConfiguration = engineConfiguration,
         editorConfiguration = editorConfiguration,

@@ -1,5 +1,11 @@
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.Color
+import ly.img.engine.CutoutOperation
+import ly.img.engine.CutoutType
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
 
 fun cutouts(
     license: String,
@@ -19,10 +25,9 @@ fun cutouts(
     // highlight-setup
 
     // highlight-create-cutouts
-    val circle =
-        engine.block.createCutoutFromPath(
-            "M 0,25 a 25,25 0 1,1 50,0 a 25,25 0 1,1 -50,0 Z",
-        )
+    val circle = engine.block.createCutoutFromPath(
+        "M 0,25 a 25,25 0 1,1 50,0 a 25,25 0 1,1 -50,0 Z",
+    )
     engine.block.setFloat(circle, "cutout/offset", 3F)
     engine.block.setEnum(circle, "cutout/type", CutoutType.DASHED.key)
 
@@ -31,11 +36,10 @@ fun cutouts(
     // highlight-create-cutouts
 
     // highlight-cutout-union
-    val union =
-        engine.block.createCutoutFromOperation(
-            listOf(circle, square),
-            op = CutoutOperation.UNION,
-        )
+    val union = engine.block.createCutoutFromOperation(
+        listOf(circle, square),
+        op = CutoutOperation.UNION,
+    )
     engine.block.destroy(circle)
     engine.block.destroy(square)
     // highlight-cutout-union
