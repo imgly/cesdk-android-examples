@@ -1,5 +1,11 @@
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.Color
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
+import ly.img.engine.FillType
+import ly.img.engine.ShapeType
 
 fun usingFills(
     license: String,
@@ -71,10 +77,11 @@ fun usingFills(
     engine.block.destroy(colorFill)
     engine.block.setFill(block, fill = imageFill)
 
-	/*
-	// The following line would also destroy imageFill
-	engine.block.destroy(circle)
-	 */
+    /*
+    // The following line would also destroy imageFill
+    engine.block.destroy(circle)
+     */
+
     // highlight-replaceFill
 
     // highlight-duplicateFill
@@ -87,11 +94,12 @@ fun usingFills(
         value = "https://img.ly/static/ubq_samples/sample_2.jpg",
     )
 
-	/*
-	// We could now assign this fill to another block.
-	val manualDuplicateFill = engine.block.duplicate(autoDuplicateFill)
-	engine.block.destroy(manualDuplicateFill)
-	 */
+    /*
+    // We could now assign this fill to another block.
+    val manualDuplicateFill = engine.block.duplicate(autoDuplicateFill)
+    engine.block.destroy(manualDuplicateFill)
+     */
+
     // highlight-duplicateFill
 
     // highlight-sharedFill

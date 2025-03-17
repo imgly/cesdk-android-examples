@@ -25,13 +25,9 @@ data class OverlayCustomState(
     override fun describeContents() = 0
 
     companion object CREATOR : Parcelable.Creator<OverlayCustomState> {
-        override fun createFromParcel(parcel: Parcel): OverlayCustomState {
-            return OverlayCustomState(parcel)
-        }
+        override fun createFromParcel(parcel: Parcel): OverlayCustomState = OverlayCustomState(parcel)
 
-        override fun newArray(size: Int): Array<OverlayCustomState?> {
-            return arrayOfNulls(size)
-        }
+        override fun newArray(size: Int): Array<OverlayCustomState?> = arrayOfNulls(size)
     }
 }
 // highlight-configuration-custom-state
