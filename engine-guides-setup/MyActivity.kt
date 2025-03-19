@@ -2,8 +2,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.TextureView
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.Engine
 
 class MyActivity : AppCompatActivity() {
     // highlight-setup
@@ -24,11 +26,12 @@ class MyActivity : AppCompatActivity() {
             // highlight-start
             // highlight-bind
             engine.bindTextureView(textureView)
-			/*
+            /*
             // Or any of the following
             engine.bindSurfaceView(SurfaceView(this@MyActivity))
             engine.bindOffscreen(100, 100)
-			 */
+             */
+
             // highlight-bind
             // highlight-work
             // Check whether scene already exists before loading it again as it might have been restored in engine.start).

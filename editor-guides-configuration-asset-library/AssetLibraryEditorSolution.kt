@@ -9,15 +9,13 @@ import ly.img.editor.rememberForDesign
 // Add this composable to your NavHost
 @Composable
 fun AssetLibraryEditorSolution(navController: NavHostController) {
-    val engineConfiguration =
-        EngineConfiguration.rememberForDesign(
-            license = "<your license here>",
-        )
+    val engineConfiguration = EngineConfiguration.rememberForDesign(
+        license = "<your license here>",
+    )
     // highlight-configuration-asset-library
-    val editorConfiguration =
-        EditorConfiguration.rememberForDesign(
-            assetLibrary = AssetLibrary.getDefault(),
-        )
+    val editorConfiguration = EditorConfiguration.rememberForDesign(
+        assetLibrary = AssetLibrary.getDefault(),
+    )
     // highlight-configuration-asset-library
     DesignEditor(
         engineConfiguration = engineConfiguration,

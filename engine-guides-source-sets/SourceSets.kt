@@ -1,6 +1,16 @@
 import android.net.Uri
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.Asset
+import ly.img.engine.AssetContext
+import ly.img.engine.AssetDefinition
+import ly.img.engine.AssetPayload
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
+import ly.img.engine.FillType
+import ly.img.engine.ShapeType
+import ly.img.engine.Source
 
 fun sourceSets(
     license: String,
@@ -33,8 +43,37 @@ fun sourceSets(
     engine.block.setSourceSet(
         block = imageFill,
         property = "fill/image/sourceSet",
-        sourceSet =
-            listOf(
+        sourceSet = listOf(
+            Source(
+                uri = Uri.parse("https://img.ly/static/ubq_samples/sample_1_512x341.jpg"),
+                width = 512,
+                height = 341,
+            ),
+            Source(
+                uri = Uri.parse("https://img.ly/static/ubq_samples/sample_1_1024x683.jpg"),
+                width = 1024,
+                height = 683,
+            ),
+            Source(
+                uri = Uri.parse("https://img.ly/static/ubq_samples/sample_1_2048x1366.jpg"),
+                width = 2048,
+                height = 1366,
+            ),
+        ),
+    )
+    engine.block.setFill(block = block, fill = imageFill)
+    engine.block.appendChild(parent = page, child = block)
+    // highlight-set-source-set
+
+    // highlight-asset-definition
+    val assetWithSourceSet = AssetDefinition(
+        id = "my-image",
+        meta = mapOf(
+            "kind" to "image",
+            "fillType" to "//ly.img.ubq/fill/image",
+        ),
+        payload = AssetPayload(
+            sourceSet = listOf(
                 Source(
                     uri = Uri.parse("https://img.ly/static/ubq_samples/sample_1_512x341.jpg"),
                     width = 512,
@@ -51,42 +90,8 @@ fun sourceSets(
                     height = 1366,
                 ),
             ),
+        ),
     )
-    engine.block.setFill(block = block, fill = imageFill)
-    engine.block.appendChild(parent = page, child = block)
-    // highlight-set-source-set
-
-    // highlight-asset-definition
-    val assetWithSourceSet =
-        AssetDefinition(
-            id = "my-image",
-            meta =
-                mapOf(
-                    "kind" to "image",
-                    "fillType" to "//ly.img.ubq/fill/image",
-                ),
-            payload =
-                AssetPayload(
-                    sourceSet =
-                        listOf(
-                            Source(
-                                uri = Uri.parse("https://img.ly/static/ubq_samples/sample_1_512x341.jpg"),
-                                width = 512,
-                                height = 341,
-                            ),
-                            Source(
-                                uri = Uri.parse("https://img.ly/static/ubq_samples/sample_1_1024x683.jpg"),
-                                width = 1024,
-                                height = 683,
-                            ),
-                            Source(
-                                uri = Uri.parse("https://img.ly/static/ubq_samples/sample_1_2048x1366.jpg"),
-                                width = 2048,
-                                height = 1366,
-                            ),
-                        ),
-                ),
-        )
     // highlight-asset-definition
 
     // highlight-asset-source
@@ -99,12 +104,11 @@ fun sourceSets(
 
     // highlight-apply-asset
     // Could also acquire the asset using `findAssets` on the source
-    val asset =
-        Asset(
-            id = assetWithSourceSet.id,
-            meta = assetWithSourceSet.meta?.toMap(),
-            context = AssetContext(sourceId = "my-dynamic-images"),
-        )
+    val asset = Asset(
+        id = assetWithSourceSet.id,
+        meta = assetWithSourceSet.meta?.toMap(),
+        context = AssetContext(sourceId = "my-dynamic-images"),
+    )
     val result = engine.asset.defaultApplyAsset(asset)
     // highlight-apply-asset
 
@@ -113,14 +117,13 @@ fun sourceSets(
     engine.block.setSourceSet(
         block = videoFill,
         property = "fill/video/sourceSet",
-        sourceSet =
-            listOf(
-                Source(
-                    uri = Uri.parse("https://img.ly/static/example-assets/sourceset/1x.mp4"),
-                    width = 720,
-                    height = 1280,
-                ),
+        sourceSet = listOf(
+            Source(
+                uri = Uri.parse("https://img.ly/static/example-assets/sourceset/1x.mp4"),
+                width = 720,
+                height = 1280,
             ),
+        ),
     )
 
     engine.block.addVideoFileUriToSourceSet(
@@ -128,7 +131,7 @@ fun sourceSets(
         property = "fill/video/sourceSet",
         uri = "https://img.ly/static/example-assets/sourceset/2x.mp4",
     )
-	
+
     // highlight-video-source-sets
 
     engine.stop()

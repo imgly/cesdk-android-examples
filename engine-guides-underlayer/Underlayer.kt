@@ -1,5 +1,14 @@
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import ly.img.engine.Color
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
+import ly.img.engine.ExportOptions
+import ly.img.engine.FillType
+import ly.img.engine.MimeType
+import ly.img.engine.ShapeType
 import java.io.File
 
 fun underlayer(
@@ -37,12 +46,11 @@ fun underlayer(
 
     // highlight-export-pdf-underlayer
     val mimeType = MimeType.PDF
-    val options =
-        ExportOptions(
-            exportPdfWithUnderlayer = true,
-            underlayerSpotColorName = "RDG_WHITE",
-            underlayerOffset = -2.0F,
-        )
+    val options = ExportOptions(
+        exportPdfWithUnderlayer = true,
+        underlayerSpotColorName = "RDG_WHITE",
+        underlayerOffset = -2.0F,
+    )
     val blob = engine.block.export(scene, mimeType = mimeType, options = options)
     withContext(Dispatchers.IO) {
         File.createTempFile("underlayer_example", ".pdf").apply {

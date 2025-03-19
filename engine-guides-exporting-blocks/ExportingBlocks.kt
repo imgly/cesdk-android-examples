@@ -1,8 +1,14 @@
 import android.net.Uri
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import ly.img.engine.Engine
+import ly.img.engine.ExportOptions
+import ly.img.engine.MimeType
+import ly.img.engine.addDefaultAssetSources
 import java.io.File
-import java.util.*
+import java.util.UUID
 
 fun exportingBlocks(
     license: String,
@@ -17,10 +23,9 @@ fun exportingBlocks(
     )
     engine.addDefaultAssetSources()
 
-    val sceneUri =
-        Uri.parse(
-            "https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene",
-        )
+    val sceneUri = Uri.parse(
+        "https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene",
+    )
     val scene = engine.scene.load(sceneUri = sceneUri)
 
     // Export scene as PNG image.

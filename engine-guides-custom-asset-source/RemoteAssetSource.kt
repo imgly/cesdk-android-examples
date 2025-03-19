@@ -39,7 +39,9 @@ class RemoteAssetSource(
     private val host: String,
     private val path: Path,
 ) {
-    enum class Path(val pathString: String) {
+    enum class Path(
+        val pathString: String,
+    ) {
         ImagePexels("/api/assets/v1/image-pexels"),
         ImageUnsplash("/api/assets/v1/image-unsplash"),
         VideoPexels("/api/assets/v1/video-pexels"),
@@ -47,27 +49,23 @@ class RemoteAssetSource(
     }
 
     suspend fun create(): AssetSource {
-        val manifestData =
-            withContext(Dispatchers.IO) {
-                val manifestString = getResponseAsString("$host${path.pathString}")
-                JSONObject(manifestString).getJSONObject("data").toData()
-            }
+        val manifestData = withContext(Dispatchers.IO) {
+            val manifestString = getResponseAsString("$host${path.pathString}")
+            JSONObject(manifestString).getJSONObject("data").toData()
+        }
         return object : AssetSource(manifestData.id) {
-            override suspend fun findAssets(query: FindAssetsQuery): FindAssetsResult {
-                return withContext(Dispatchers.IO) {
-                    val queryParams =
-                        listOf(
-                            "query" to query.query,
-                            "page" to query.page,
-                            "per_page" to query.perPage,
-                            "locale" to query.locale,
-                            "tags" to query.tags?.joinToString(","),
-                            "groups" to query.groups?.joinToString(","),
-                            "excludeGroups" to query.excludeGroups?.joinToString(","),
-                        ).filter { it.second != null }.joinToString(separator = "&") { (key, value) -> "$key=$value" }
-                    val response = getResponseAsString("$host${path.pathString}$assetsPath?$queryParams").let(::JSONObject)
-                    response.toFindAssetsResult(manifestData)
-                }
+            override suspend fun findAssets(query: FindAssetsQuery): FindAssetsResult = withContext(Dispatchers.IO) {
+                val queryParams = listOf(
+                    "query" to query.query,
+                    "page" to query.page,
+                    "per_page" to query.perPage,
+                    "locale" to query.locale,
+                    "tags" to query.tags?.joinToString(","),
+                    "groups" to query.groups?.joinToString(","),
+                    "excludeGroups" to query.excludeGroups?.joinToString(","),
+                ).filter { it.second != null }.joinToString(separator = "&") { (key, value) -> "$key=$value" }
+                val response = getResponseAsString("$host${path.pathString}$assetsPath?$queryParams").let(::JSONObject)
+                response.toFindAssetsResult(manifestData)
             }
 
             override suspend fun getGroups() = null
@@ -116,14 +114,13 @@ class RemoteAssetSource(
         setDuration(designBlock, duration)
     }
 
-    private suspend fun getResponseAsString(url: String) =
-        withContext(Dispatchers.IO) {
-            val connection = URL(url).openConnection() as HttpURLConnection
-            require(connection.responseCode in 200 until 300) {
-                connection.errorStream.bufferedReader().use { it.readText() }
-            }
-            connection.inputStream.bufferedReader().use { it.readText() }
+    private suspend fun getResponseAsString(url: String) = withContext(Dispatchers.IO) {
+        val connection = URL(url).openConnection() as HttpURLConnection
+        require(connection.responseCode in 200 until 300) {
+            connection.errorStream.bufferedReader().use { it.readText() }
         }
+        connection.inputStream.bufferedReader().use { it.readText() }
+    }
 
     private data class Data(
         val id: String,
@@ -136,17 +133,16 @@ class RemoteAssetSource(
         val supportedMimeTypes: List<String> = emptyList(),
     )
 
-    private fun JSONObject.toData() =
-        Data(
-            id = getString("id"),
-            name = optJSONObject("name")?.toMapping()?.takeIf { it.isNotEmpty() },
-            canGetGroups = optBoolean("canGetGroups"),
-            credits = optJSONObject("credits")?.toCredits(),
-            license = optJSONObject("license")?.toLicense(),
-            canAddAsset = optBoolean("canAddAsset"),
-            canRemoveAsset = optBoolean("canRemoveAsset"),
-            supportedMimeTypes = optJSONArray("supportedMimeTypes")?.toList() ?: emptyList(),
-        )
+    private fun JSONObject.toData() = Data(
+        id = getString("id"),
+        name = optJSONObject("name")?.toMapping()?.takeIf { it.isNotEmpty() },
+        canGetGroups = optBoolean("canGetGroups"),
+        credits = optJSONObject("credits")?.toCredits(),
+        license = optJSONObject("license")?.toLicense(),
+        canAddAsset = optBoolean("canAddAsset"),
+        canRemoveAsset = optBoolean("canRemoveAsset"),
+        supportedMimeTypes = optJSONArray("supportedMimeTypes")?.toList() ?: emptyList(),
+    )
 
     private fun JSONObject.toMapping(): Map<String, String> {
         val mapping = mutableMapOf<String, String>()
@@ -164,17 +160,15 @@ class RemoteAssetSource(
         return mapping
     }
 
-    private fun JSONObject.toCredits() =
-        AssetCredits(
-            name = getString("name"),
-            uri = (opt("url") as? String)?.let(Uri::parse),
-        )
+    private fun JSONObject.toCredits() = AssetCredits(
+        name = getString("name"),
+        uri = (opt("url") as? String)?.let(Uri::parse),
+    )
 
-    private fun JSONObject.toLicense() =
-        AssetLicense(
-            name = getString("name"),
-            uri = (opt("url") as? String)?.let(Uri::parse),
-        )
+    private fun JSONObject.toLicense() = AssetLicense(
+        name = getString("name"),
+        uri = (opt("url") as? String)?.let(Uri::parse),
+    )
 
     private fun JSONObject.toFindAssetsResult(manifestData: Data): FindAssetsResult {
         val responseData = getJSONObject("data")
@@ -187,77 +181,67 @@ class RemoteAssetSource(
         )
     }
 
-    private fun JSONObject.toAsset(manifestData: Data) =
-        Asset(
-            id = getString("id"),
-            context = AssetContext(manifestData.id),
-            label = optString("label"),
-            locale = optString("locale"),
-            tags = optJSONArray("tags")?.toList()?.takeIf { it.isNotEmpty() },
-            groups = optJSONArray("groups")?.toList()?.takeIf { it.isNotEmpty() },
-            meta = optJSONObject("meta")?.toMapping()?.takeIf { it.isNotEmpty() },
-            payload = optJSONObject("payload")?.toPayload() ?: AssetPayload(),
-            credits = optJSONObject("credits")?.toCredits(),
-            license = optJSONObject("license")?.toLicense(),
-            utm = optJSONObject("utm")?.toUtm(),
-        )
+    private fun JSONObject.toAsset(manifestData: Data) = Asset(
+        id = getString("id"),
+        context = AssetContext(manifestData.id),
+        label = optString("label"),
+        locale = optString("locale"),
+        tags = optJSONArray("tags")?.toList()?.takeIf { it.isNotEmpty() },
+        groups = optJSONArray("groups")?.toList()?.takeIf { it.isNotEmpty() },
+        meta = optJSONObject("meta")?.toMapping()?.takeIf { it.isNotEmpty() },
+        payload = optJSONObject("payload")?.toPayload() ?: AssetPayload(),
+        credits = optJSONObject("credits")?.toCredits(),
+        license = optJSONObject("license")?.toLicense(),
+        utm = optJSONObject("utm")?.toUtm(),
+    )
 
-    private fun JSONObject.toPayload() =
-        AssetPayload(
-            color = optJSONObject("color")?.toColor(),
-            sourceSet =
-                optJSONArray("sourceSet")?.run {
-                    val sourceSet = mutableListOf<Source>()
-                    (0 until length()).forEach { index ->
-                        runCatching { getJSONObject(index).toSource() }.getOrNull()?.let {
-                            sourceSet.add(it)
-                        }
-                    }
-                    sourceSet
-                },
-        )
+    private fun JSONObject.toPayload() = AssetPayload(
+        color = optJSONObject("color")?.toColor(),
+        sourceSet = optJSONArray("sourceSet")?.run {
+            val sourceSet = mutableListOf<Source>()
+            (0 until length()).forEach { index ->
+                runCatching { getJSONObject(index).toSource() }.getOrNull()?.let {
+                    sourceSet.add(it)
+                }
+            }
+            sourceSet
+        },
+    )
 
-    private fun JSONObject.toColor(): AssetColor? {
-        return when (opt("colorSpace")) {
-            "sRGB" -> toRGBColor()
-            "CMYK" -> toCMYKColor()
-            "SpotColor" -> toSpotColor()
-            else -> null
-        }
+    private fun JSONObject.toColor(): AssetColor? = when (opt("colorSpace")) {
+        "sRGB" -> toRGBColor()
+        "CMYK" -> toCMYKColor()
+        "SpotColor" -> toSpotColor()
+        else -> null
     }
 
-    private fun JSONObject.toRGBColor() =
-        AssetColor.RGB(
-            r = getDouble("r").toFloat(),
-            g = getDouble("g").toFloat(),
-            b = getDouble("b").toFloat(),
-        )
+    private fun JSONObject.toRGBColor() = AssetColor.RGB(
+        r = getDouble("r").toFloat(),
+        g = getDouble("g").toFloat(),
+        b = getDouble("b").toFloat(),
+    )
 
-    private fun JSONObject.toCMYKColor() =
-        AssetColor.CMYK(
-            c = getDouble("c").toFloat(),
-            m = getDouble("m").toFloat(),
-            y = getDouble("y").toFloat(),
-            k = getDouble("k").toFloat(),
-        )
+    private fun JSONObject.toCMYKColor() = AssetColor.CMYK(
+        c = getDouble("c").toFloat(),
+        m = getDouble("m").toFloat(),
+        y = getDouble("y").toFloat(),
+        k = getDouble("k").toFloat(),
+    )
 
-    private fun JSONObject.toSpotColor() =
-        AssetColor.SpotColor(
-            name = getString("name"),
-            representation = optJSONObject("representation")?.toColor() as AssetColor.Representation,
-            externalReference = opt("externalReference") as? String?,
-        )
+    private fun JSONObject.toSpotColor() = AssetColor.SpotColor(
+        name = getString("name"),
+        representation = optJSONObject("representation")?.toColor() as AssetColor.Representation,
+        externalReference = opt("externalReference") as? String?,
+    )
 
-    private fun JSONObject.toSource() =
-        Source(
-            uri = getString("uri").let(Uri::parse),
-            width = getInt("width"),
-            height = getInt("height"),
-        )
+    private fun JSONObject.toSource() = Source(
+        uri = getString("uri").let(Uri::parse),
+        width = getInt("width"),
+        height = getInt("height"),
+    )
 
-    private fun JSONObject.toUtm() =
-        AssetUTM(
-            source = opt("source") as? String,
-            medium = opt("medium") as? String,
-        )
+    private fun JSONObject.toUtm() = AssetUTM(
+        source = opt("source") as? String,
+        medium = opt("medium") as? String,
+    )
 }

@@ -1,5 +1,9 @@
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
 import java.io.ByteArrayOutputStream
 import java.net.URL
 
@@ -12,16 +16,14 @@ fun loadSceneFromString(
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-fetch-string
-    val sceneUrl =
-        URL("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
-    val sceneBlob =
-        withContext(Dispatchers.IO) {
-            val outputStream = ByteArrayOutputStream()
-            sceneUrl.openStream().use { inputStream ->
-                outputStream.use(inputStream::copyTo)
-            }
-            outputStream.toByteArray()
+    val sceneUrl = URL("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
+    val sceneBlob = withContext(Dispatchers.IO) {
+        val outputStream = ByteArrayOutputStream()
+        sceneUrl.openStream().use { inputStream ->
+            outputStream.use(inputStream::copyTo)
         }
+        outputStream.toByteArray()
+    }
     val blobString = String(sceneBlob, Charsets.UTF_8)
     // highlight-fetch-string
 

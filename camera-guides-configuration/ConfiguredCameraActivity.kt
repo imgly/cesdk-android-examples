@@ -18,46 +18,44 @@ class ConfiguredCameraActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val cameraInput =
-            CaptureVideo.Input(
-                // highlight-engine-configuration
-                engineConfiguration =
-                    EngineConfiguration(
-                        // highlight-license
-                        license = "<your license here>",
-                        // highlight-userId
-                        userId = "<your unique user id>",
-                    ),
-                // highlight-engine-configuration
-                // highlight-camera-configuration
-                cameraConfiguration =
-                    CameraConfiguration(
-                        // highlight-recording-color
-                        recordingColor = Color.Blue,
-                        // highlight-max-duration
-                        maxTotalDuration = 30.seconds,
-                        // highlight-allow-exceeding-max-duration
-                        allowExceedingMaxDuration = false,
-                    ),
-                // highlight-camera-configuration
-                // highlight-camera-mode
-                cameraMode = CameraMode.Standard(),
-                // highlight-camera-mode
-            )
+        val cameraInput = CaptureVideo.Input(
+            // highlight-engine-configuration
+            engineConfiguration = EngineConfiguration(
+                // highlight-license
+                license = "<your license here>",
+                // highlight-userId
+                userId = "<your unique user id>",
+            ),
+            // highlight-engine-configuration
+            // highlight-camera-configuration
+            cameraConfiguration = CameraConfiguration(
+                // highlight-recording-color
+                recordingColor = Color.Blue,
+                // highlight-max-duration
+                maxTotalDuration = 30.seconds,
+                // highlight-allow-exceeding-max-duration
+                allowExceedingMaxDuration = false,
+            ),
+            // highlight-camera-configuration
+            // highlight-camera-mode
+            cameraMode = CameraMode.Standard(),
+            // highlight-camera-mode
+        )
 
         setContent {
-            val cameraLauncher =
-                rememberLauncherForActivityResult(contract = CaptureVideo()) { result ->
-                    result ?: run {
-                        Log.d(TAG, "Camera dismissed")
-                        return@rememberLauncherForActivityResult
-                    }
-                    Log.d(TAG, "Result: $result")
+            val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureVideo()) { result ->
+                result ?: run {
+                    Log.d(TAG, "Camera dismissed")
+                    return@rememberLauncherForActivityResult
                 }
+                Log.d(TAG, "Result: $result")
+            }
 
-            Button(onClick = {
-                cameraLauncher.launch(cameraInput)
-            }) {
+            Button(
+                onClick = {
+                    cameraLauncher.launch(cameraInput)
+                },
+            ) {
                 Text(text = "Open Camera")
             }
         }

@@ -18,74 +18,71 @@ import ly.img.editor.rememberForDesign
 // Add this composable to your NavHost
 @Composable
 fun ModifyListBuilderCanvasMenuSolution(navController: NavHostController) {
-    val engineConfiguration =
-        EngineConfiguration.rememberForDesign(
-            license = "<your license here>",
-        )
+    val engineConfiguration = EngineConfiguration.rememberForDesign(
+        license = "<your license here>",
+    )
 
-    val editorConfiguration =
-        EditorConfiguration.rememberForDesign(
-            canvasMenu = {
-                CanvasMenu.remember(
-                    // highlight-modifyListBuilder
-                    listBuilder =
-                        CanvasMenu.ListBuilder.remember().modify {
-                            // highlight-modifyListBuilder-addFirst
-                            addFirst {
-                                CanvasMenu.Button.remember(
-                                    id = EditorComponentId("my.package.canvasMenu.button.first"),
-                                    vectorIcon = null,
-                                    text = { "First Button" },
-                                    onClick = {},
-                                )
-                            }
-                            // highlight-modifyListBuilder-addFirst
-                            // highlight-modifyListBuilder-addLast
-                            addLast {
-                                CanvasMenu.Button.remember(
-                                    id = EditorComponentId("my.package.canvasMenu.button.last"),
-                                    vectorIcon = null,
-                                    text = { "Last Button" },
-                                    onClick = {},
-                                )
-                            }
-                            // highlight-modifyListBuilder-addLast
-                            // highlight-modifyListBuilder-addAfter
-                            addAfter(id = CanvasMenu.Button.Id.bringForward) {
-                                CanvasMenu.Button.remember(
-                                    id = EditorComponentId("my.package.canvasMenu.button.afterBringForward"),
-                                    vectorIcon = null,
-                                    text = { "After Bring Forward" },
-                                    onClick = {},
-                                )
-                            }
-                            // highlight-modifyListBuilder-addAfter
-                            // highlight-modifyListBuilder-addBefore
-                            addBefore(id = CanvasMenu.Button.Id.sendBackward) {
-                                CanvasMenu.Button.remember(
-                                    id = EditorComponentId("my.package.canvasMenu.button.beforeSendBackward"),
-                                    vectorIcon = null,
-                                    text = { "Before Send Backward" },
-                                    onClick = {},
-                                )
-                            }
-                            // highlight-modifyListBuilder-addBefore
-                            // highlight-modifyListBuilder-replace
-                            replace(id = CanvasMenu.Button.Id.duplicate) {
-                                // Note that it can be replaced with a component that has a different id.
-                                CanvasMenu.Button.rememberDuplicate(
-                                    vectorIcon = { IconPack.Music },
-                                )
-                            }
-                            // highlight-modifyListBuilder-replace
-                            // highlight-modifyListBuilder-remove
-                            remove(id = CanvasMenu.Button.Id.delete)
-                            // highlight-modifyListBuilder-remove
-                        },
-                    // highlight-modifyListBuilder
-                )
-            },
-        )
+    val editorConfiguration = EditorConfiguration.rememberForDesign(
+        canvasMenu = {
+            CanvasMenu.remember(
+                // highlight-modifyListBuilder
+                listBuilder = CanvasMenu.ListBuilder.remember().modify {
+                    // highlight-modifyListBuilder-addFirst
+                    addFirst {
+                        CanvasMenu.Button.remember(
+                            id = EditorComponentId("my.package.canvasMenu.button.first"),
+                            vectorIcon = null,
+                            text = { "First Button" },
+                            onClick = {},
+                        )
+                    }
+                    // highlight-modifyListBuilder-addFirst
+                    // highlight-modifyListBuilder-addLast
+                    addLast {
+                        CanvasMenu.Button.remember(
+                            id = EditorComponentId("my.package.canvasMenu.button.last"),
+                            vectorIcon = null,
+                            text = { "Last Button" },
+                            onClick = {},
+                        )
+                    }
+                    // highlight-modifyListBuilder-addLast
+                    // highlight-modifyListBuilder-addAfter
+                    addAfter(id = CanvasMenu.Button.Id.bringForward) {
+                        CanvasMenu.Button.remember(
+                            id = EditorComponentId("my.package.canvasMenu.button.afterBringForward"),
+                            vectorIcon = null,
+                            text = { "After Bring Forward" },
+                            onClick = {},
+                        )
+                    }
+                    // highlight-modifyListBuilder-addAfter
+                    // highlight-modifyListBuilder-addBefore
+                    addBefore(id = CanvasMenu.Button.Id.sendBackward) {
+                        CanvasMenu.Button.remember(
+                            id = EditorComponentId("my.package.canvasMenu.button.beforeSendBackward"),
+                            vectorIcon = null,
+                            text = { "Before Send Backward" },
+                            onClick = {},
+                        )
+                    }
+                    // highlight-modifyListBuilder-addBefore
+                    // highlight-modifyListBuilder-replace
+                    replace(id = CanvasMenu.Button.Id.duplicate) {
+                        // Note that it can be replaced with a component that has a different id.
+                        CanvasMenu.Button.rememberDuplicate(
+                            vectorIcon = { IconPack.Music },
+                        )
+                    }
+                    // highlight-modifyListBuilder-replace
+                    // highlight-modifyListBuilder-remove
+                    remove(id = CanvasMenu.Button.Id.delete)
+                    // highlight-modifyListBuilder-remove
+                },
+                // highlight-modifyListBuilder
+            )
+        },
+    )
     DesignEditor(
         engineConfiguration = engineConfiguration,
         editorConfiguration = editorConfiguration,

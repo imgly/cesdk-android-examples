@@ -1,6 +1,9 @@
 import android.net.Uri
-import kotlinx.coroutines.*
-import ly.img.engine.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
 
 fun storeMetadata(
     license: String,
@@ -11,10 +14,9 @@ fun storeMetadata(
     engine.bindOffscreen(width = 100, height = 100)
 
     // highlight-setup
-    var scene =
-        engine.scene.createFromImage(
-            Uri.parse("https://img.ly/static/ubq_samples/imgly_logo.jpg"),
-        )
+    var scene = engine.scene.createFromImage(
+        Uri.parse("https://img.ly/static/ubq_samples/imgly_logo.jpg"),
+    )
     val block = engine.block.findByType(DesignBlockType.Graphic).first()
     // highlight-setup
 

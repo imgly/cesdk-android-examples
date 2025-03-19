@@ -8,11 +8,10 @@ import ly.img.editor.rememberForDesign
 @Composable
 fun EditorComposable(navController: NavHostController) {
     // highlight-engine-configuration
-    val engineConfiguration =
-        EngineConfiguration.rememberForDesign(
-            license = "<your license here>",
-            userId = "<your unique user id>",
-        )
+    val engineConfiguration = EngineConfiguration.rememberForDesign(
+        license = "<your license here>",
+        userId = "<your unique user id>",
+    )
     // highlight-engine-configuration
     // highlight-editor-invoke
     DesignEditor(engineConfiguration = engineConfiguration) {

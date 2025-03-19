@@ -9,11 +9,10 @@ import ly.img.editor.rememberForVideo
 @Composable
 fun VideoEditorSolution(navController: NavHostController) {
     // highlight-engine-configuration
-    val engineConfiguration =
-        EngineConfiguration.rememberForVideo(
-            license = "<your license here>",
-            userId = "<your unique user id>",
-        )
+    val engineConfiguration = EngineConfiguration.rememberForVideo(
+        license = "<your license here>",
+        userId = "<your unique user id>",
+    )
     // highlight-engine-configuration
     // highlight-editor-configuration
     val editorConfiguration = EditorConfiguration.rememberForVideo()
