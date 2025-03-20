@@ -10,25 +10,22 @@ import ly.img.editor.rememberForDesign
 // Add this composable to your NavHost
 @Composable
 fun ColorPaletteEditorSolution(navController: NavHostController) {
-    val engineConfiguration =
-        EngineConfiguration.rememberForDesign(
-            license = "<your license here>",
-        )
-    val editorConfiguration =
-        EditorConfiguration.rememberForDesign(
-            // highlight-configuration-colorPalette
-            colorPalette =
-                remember {
-                    listOf(
-                        Color(0xFF4A67FF),
-                        Color(0xFFFFD333),
-                        Color(0xFFC41230),
-                        Color(0xFF000000),
-                        Color(0xFFFFFFFF),
-                    )
-                },
-            // highlight-configuration-colorPalette
-        )
+    val engineConfiguration = EngineConfiguration.rememberForDesign(
+        license = "<your license here>",
+    )
+    val editorConfiguration = EditorConfiguration.rememberForDesign(
+        // highlight-configuration-colorPalette
+        colorPalette = remember {
+            listOf(
+                Color(0xFF4A67FF),
+                Color(0xFFFFD333),
+                Color(0xFFC41230),
+                Color(0xFF000000),
+                Color(0xFFFFFFFF),
+            )
+        },
+        // highlight-configuration-colorPalette
+    )
     DesignEditor(
         engineConfiguration = engineConfiguration,
         editorConfiguration = editorConfiguration,

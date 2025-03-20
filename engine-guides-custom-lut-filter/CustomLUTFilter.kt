@@ -53,10 +53,14 @@ fun customLUTFilter(
     val lutFilter = engine.block.createEffect(EffectType.LutFilter)
     engine.block.setBoolean(lutFilter, property = "effect/enabled", value = true)
     engine.block.setFloat(lutFilter, property = "effect/lut_filter/intensity", value = 0.9F)
+
+    @Suppress("ktlint:standard:max-line-length")
+    val lutUri = "https://cdn.img.ly/packages/imgly/cesdk-js/1.26.0/assets/extensions/ly.img.cesdk.filters.lut/LUTs/imgly_lut_ad1920_5_5_128.png"
+
     engine.block.setString(
         lutFilter,
         property = "effect/lut_filter/lutFileURI",
-        value = "https://cdn.img.ly/packages/imgly/cesdk-js/1.26.0/assets/extensions/ly.img.cesdk.filters.lut/LUTs/imgly_lut_ad1920_5_5_128.png",
+        value = lutUri,
     )
     engine.block.setInt(lutFilter, property = "effect/lut_filter/verticalTileCount", value = 5)
     engine.block.setInt(lutFilter, property = "effect/lut_filter/horizontalTileCount", value = 5)

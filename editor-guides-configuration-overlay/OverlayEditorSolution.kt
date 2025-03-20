@@ -16,54 +16,52 @@ import ly.img.editor.rememberForDesign
 // Add this composable to your NavHost
 @Composable
 fun OverlayEditorSolution(navController: NavHostController) {
-    val engineConfiguration =
-        EngineConfiguration.rememberForDesign(
-            license = "<your license here>",
-        )
-    val editorConfiguration =
-        EditorConfiguration.remember(
-            initialState = OverlayCustomState(),
-            // highlight-configuration-on-event
-            onEvent = { state, event ->
-                when (event) {
-                    is ShowLoading -> {
-                        state.copy(showCustomLoading = true)
-                    }
-                    is HideLoading -> {
-                        state.copy(showCustomLoading = false)
-                    }
-                    else -> {
-                        // handle other default events
-                        state.copy(baseState = EditorDefaults.onEvent(editorContext.activity, state.baseState, event))
-                    }
+    val engineConfiguration = EngineConfiguration.rememberForDesign(
+        license = "<your license here>",
+    )
+    val editorConfiguration = EditorConfiguration.remember(
+        initialState = OverlayCustomState(),
+        // highlight-configuration-on-event
+        onEvent = { state, event ->
+            when (event) {
+                is ShowLoading -> {
+                    state.copy(showCustomLoading = true)
                 }
-            },
-            // highlight-configuration-on-event
-            // highlight-configuration-overlay
-            overlay = { state ->
-                if (state.showCustomLoading) {
-                    AlertDialog(
-                        onDismissRequest = { },
-                        title = {
-                            Text(text = "Please wait. If you want to close the editor, click the button.")
-                        },
-                        confirmButton = {
-                            TextButton(
-                                onClick = {
-                                    editorContext.eventHandler.send(HideLoading)
-                                    editorContext.eventHandler.send(EditorEvent.CloseEditor())
-                                },
-                            ) {
-                                Text(text = "Close")
-                            }
-                        },
-                        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
-                    )
+                is HideLoading -> {
+                    state.copy(showCustomLoading = false)
                 }
-                EditorDefaults.Overlay(state = state.baseState, eventHandler = editorContext.eventHandler)
-            },
-            // highlight-configuration-overlay
-        )
+                else -> {
+                    // handle other default events
+                    state.copy(baseState = EditorDefaults.onEvent(editorContext.activity, state.baseState, event))
+                }
+            }
+        },
+        // highlight-configuration-on-event
+        // highlight-configuration-overlay
+        overlay = { state ->
+            if (state.showCustomLoading) {
+                AlertDialog(
+                    onDismissRequest = { },
+                    title = {
+                        Text(text = "Please wait. If you want to close the editor, click the button.")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                editorContext.eventHandler.send(HideLoading)
+                                editorContext.eventHandler.send(EditorEvent.CloseEditor())
+                            },
+                        ) {
+                            Text(text = "Close")
+                        }
+                    },
+                    properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
+                )
+            }
+            EditorDefaults.Overlay(state = state.baseState, eventHandler = editorContext.eventHandler)
+        },
+        // highlight-configuration-overlay
+    )
     DesignEditor(
         engineConfiguration = engineConfiguration,
         editorConfiguration = editorConfiguration,

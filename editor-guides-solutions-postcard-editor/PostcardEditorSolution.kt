@@ -9,11 +9,10 @@ import ly.img.editor.rememberForPostcard
 @Composable
 fun PostcardEditorSolution(navController: NavHostController) {
     // highlight-engine-configuration
-    val engineConfiguration =
-        EngineConfiguration.rememberForPostcard(
-            license = "<your license here>",
-            userId = "<your unique user id>",
-        )
+    val engineConfiguration = EngineConfiguration.rememberForPostcard(
+        license = "<your license here>",
+        userId = "<your unique user id>",
+    )
     // highlight-engine-configuration
     // highlight-editor-configuration
     val editorConfiguration = EditorConfiguration.rememberForPostcard()

@@ -91,18 +91,17 @@ fun editVideo(
     // highlight-audioDuration
     // highlight-exportVideo
     // Export page as mp4 video.
-    val blob =
-        engine.block.exportVideo(
-            block = page,
-            timeOffset = 0.0,
-            duration = engine.block.getDuration(page),
-            mimeType = MimeType.MP4,
-            progressCallback = {
-                println(
-                    "Rendered ${it.renderedFrames} frames and encoded ${it.encodedFrames} frames out of ${it.totalFrames} frames",
-                )
-            },
-        )
+    val blob = engine.block.exportVideo(
+        block = page,
+        timeOffset = 0.0,
+        duration = engine.block.getDuration(page),
+        mimeType = MimeType.MP4,
+        progressCallback = {
+            println(
+                "Rendered ${it.renderedFrames} frames and encoded ${it.encodedFrames} frames out of ${it.totalFrames} frames",
+            )
+        },
+    )
     // highlight-exportVideo
 
     engine.stop()

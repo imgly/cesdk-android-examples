@@ -9,16 +9,14 @@ import ly.img.editor.rememberForDesign
 // Add this composable to your NavHost
 @Composable
 fun ThemingEditorSolution(navController: NavHostController) {
-    val engineConfiguration =
-        EngineConfiguration.rememberForDesign(
-            license = "<your license here>",
-        )
-    val editorConfiguration =
-        EditorConfiguration.rememberForDesign(
-            // highlight-configuration-uiMode
-            uiMode = EditorUiMode.DARK,
-            // highlight-configuration-uiMode
-        )
+    val engineConfiguration = EngineConfiguration.rememberForDesign(
+        license = "<your license here>",
+    )
+    val editorConfiguration = EditorConfiguration.rememberForDesign(
+        // highlight-configuration-uiMode
+        uiMode = EditorUiMode.DARK,
+        // highlight-configuration-uiMode
+    )
     DesignEditor(
         engineConfiguration = engineConfiguration,
         editorConfiguration = editorConfiguration,

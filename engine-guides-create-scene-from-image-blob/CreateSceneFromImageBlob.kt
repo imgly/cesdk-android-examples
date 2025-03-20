@@ -1,9 +1,14 @@
 import android.net.Uri
-import kotlinx.coroutines.*
-import ly.img.engine.*
-import java.io.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import ly.img.engine.DesignBlockType
+import ly.img.engine.Engine
+import java.io.ByteArrayOutputStream
+import java.io.File
 import java.net.URL
-import java.util.*
+import java.util.UUID
 
 fun createSceneFromImageBlob(
     license: String,
@@ -17,23 +22,21 @@ fun createSceneFromImageBlob(
 
     // highlight-blob
     val blobUrl = URL("https://img.ly/static/ubq_samples/sample_4.jpg")
-    val blob =
-        withContext(Dispatchers.IO) {
-            val outputStream = ByteArrayOutputStream()
-            blobUrl.openStream().use { inputStream ->
-                outputStream.use(inputStream::copyTo)
-            }
-            outputStream.toByteArray()
+    val blob = withContext(Dispatchers.IO) {
+        val outputStream = ByteArrayOutputStream()
+        blobUrl.openStream().use { inputStream ->
+            outputStream.use(inputStream::copyTo)
         }
+        outputStream.toByteArray()
+    }
     // highlight-blob
 
     // highlight-objectURL
-    val blobFile =
-        withContext(Dispatchers.IO) {
-            File.createTempFile(UUID.randomUUID().toString(), ".tmp").apply {
-                outputStream().use { it.write(blob) }
-            }
+    val blobFile = withContext(Dispatchers.IO) {
+        File.createTempFile(UUID.randomUUID().toString(), ".tmp").apply {
+            outputStream().use { it.write(blob) }
         }
+    }
     val blobUri = Uri.fromFile(blobFile)
     // highlight-objectURL
 
