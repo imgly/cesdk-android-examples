@@ -23,7 +23,7 @@ import ly.img.editor.core.sheet.SheetType
 
 // highlight-inspectorBarItems-newButton
 @Composable
-fun rememberInspectorBarButton(): InspectorBar.Button = InspectorBar.Button.remember(
+fun rememberInspectorBarButton() = InspectorBar.Button.remember(
     // highlight-inspectorBarItems-newButton-id
     id = EditorComponentId("my.package.inspectorBar.button.newButton"),
     // highlight-inspectorBarItems-newButton-scope
@@ -71,7 +71,7 @@ fun rememberInspectorBarButton(): InspectorBar.Button = InspectorBar.Button.reme
 
 // highlight-inspectorBarItems-newButton-simpleOverload
 @Composable
-fun rememberInspectorBarButtonSimpleOverload(): InspectorBar.Button = InspectorBar.Button.remember(
+fun rememberInspectorBarButtonSimpleOverload() = InspectorBar.Button.remember(
     id = EditorComponentId("my.package.inspectorBar.button.newButton"),
     scope = LocalEditorScope.current.run {
         remember(this) { InspectorBar.ButtonScope(parentScope = this) }
@@ -89,12 +89,13 @@ fun rememberInspectorBarButtonSimpleOverload(): InspectorBar.Button = InspectorB
     text = { "Hello World" }, // default value is null
     tint = null,
     enabled = { true },
+    contentDescription = null,
 )
 // highlight-inspectorBarItems-newButton-simpleOverload
 
 // highlight-inspectorBarItems-newCustomItem
 @Composable
-fun rememberInspectorBarCustomItem(): InspectorBar.Item<InspectorBar.ItemScope> = InspectorBar.Custom.remember(
+fun rememberInspectorBarCustomItem() = InspectorBar.Custom.remember(
     // highlight-inspectorBarItems-newCustomItem-id
     id = EditorComponentId("my.package.inspectorBar.newCustomItem"),
     // highlight-inspectorBarItems-newCustomItem-scope
