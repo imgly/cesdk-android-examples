@@ -1,5 +1,4 @@
 import androidx.compose.runtime.Composable
-import ly.img.editor.core.component.EditorComponent.ListBuilder
 import ly.img.editor.core.component.InspectorBar
 import ly.img.editor.core.component.rememberAdjustments
 import ly.img.editor.core.component.rememberBlur
@@ -24,7 +23,7 @@ import ly.img.editor.core.component.rememberVolume
 
 // highlight-listBuilders
 @Composable
-fun InspectorBar.ListBuilder.remember(): ListBuilder<InspectorBar.Item<*>> = InspectorBar.ListBuilder.remember {
+fun InspectorBar.ListBuilder.remember() = InspectorBar.ListBuilder.remember {
     add { InspectorBar.Button.rememberReplace() } // Video, Image, Sticker, Audio
     add { InspectorBar.Button.rememberEditText() } // Text
     add { InspectorBar.Button.rememberFormatText() } // Text
