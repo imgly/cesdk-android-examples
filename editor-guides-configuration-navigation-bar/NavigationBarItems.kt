@@ -14,40 +14,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import ly.img.editor.ShowLoading
 import ly.img.editor.core.LocalEditorScope
-import ly.img.editor.core.component.Dock
 import ly.img.editor.core.component.EditorComponentId
+import ly.img.editor.core.component.NavigationBar
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.iconpack.IconPack
 import ly.img.editor.core.iconpack.Music
 import ly.img.editor.core.sheet.SheetType
 
-// highlight-dockItems-newButton
+// highlight-navigationBarItems-newButton
 @Composable
-fun rememberDockButton() = Dock.Button.remember(
-    // highlight-dockItems-newButton-id
-    id = EditorComponentId("my.package.dock.button.newButton"),
-    // highlight-dockItems-newButton-scope
+fun rememberNavigationBarButton() = NavigationBar.Button.remember(
+    // highlight-navigationBarItems-newButton-id
+    id = EditorComponentId("my.package.navigationBar.button.newButton"),
+    // highlight-navigationBarItems-newButton-scope
     scope = LocalEditorScope.current.run {
-        remember(this) { Dock.ButtonScope(parentScope = this) }
+        remember(this) { NavigationBar.ButtonScope(parentScope = this) }
     },
-    // highlight-dockItems-newButton-scope
-    // highlight-dockItems-newButton-visible
+    // highlight-navigationBarItems-newButton-scope
+    // highlight-navigationBarItems-newButton-visible
     visible = { true },
-    // highlight-dockItems-newButton-enterTransition
+    // highlight-navigationBarItems-newButton-enterTransition
     enterTransition = { EnterTransition.None },
-    // highlight-dockItems-newButton-exitTransition
+    // highlight-navigationBarItems-newButton-exitTransition
     exitTransition = { ExitTransition.None },
-    // highlight-dockItems-newButton-decoration
+    // highlight-navigationBarItems-newButton-decoration
     // default value is { it() }
     decoration = {
         Surface(color = MaterialTheme.colorScheme.background) {
             it()
         }
     },
-    // highlight-dockItems-newButton-decoration
-    // highlight-dockItems-newButton-onClick
+    // highlight-navigationBarItems-newButton-decoration
+    // highlight-navigationBarItems-newButton-onClick
     onClick = { editorContext.eventHandler.send(EditorEvent.Sheet.Open(SheetType.Volume())) },
-    // highlight-dockItems-newButton-icon
+    // highlight-navigationBarItems-newButton-icon
     // default value is null
     icon = {
         Icon(
@@ -55,26 +55,26 @@ fun rememberDockButton() = Dock.Button.remember(
             contentDescription = null,
         )
     },
-    // highlight-dockItems-newButton-icon
-    // highlight-dockItems-newButton-text
+    // highlight-navigationBarItems-newButton-icon
+    // highlight-navigationBarItems-newButton-text
     // default value is null
     text = {
         Text(
             text = "Hello World",
         )
     },
-    // highlight-dockItems-newButton-text
-    // highlight-dockItems-newButton-enabled
+    // highlight-navigationBarItems-newButton-text
+    // highlight-navigationBarItems-newButton-enabled
     enabled = { true },
 )
-// highlight-dockItems-newButton
+// highlight-navigationBarItems-newButton
 
-// highlight-dockItems-newButton-simpleOverload
+// highlight-navigationBarItems-newButton-simpleOverload
 @Composable
-fun rememberDockButtonSimpleOverload() = Dock.Button.remember(
-    id = EditorComponentId("my.package.dock.button.newButton"),
+fun rememberNavigationBarButtonSimpleOverload() = NavigationBar.Button.remember(
+    id = EditorComponentId("my.package.navigationBar.button.newButton"),
     scope = LocalEditorScope.current.run {
-        remember(this) { Dock.ButtonScope(parentScope = this) }
+        remember(this) { NavigationBar.ButtonScope(parentScope = this) }
     },
     visible = { true },
     enterTransition = { EnterTransition.None },
@@ -91,26 +91,26 @@ fun rememberDockButtonSimpleOverload() = Dock.Button.remember(
     enabled = { true },
     contentDescription = null,
 )
-// highlight-dockItems-newButton-simpleOverload
+// highlight-navigationBarItems-newButton-simpleOverload
 
-// highlight-dockItems-newCustomItem
+// highlight-navigationBarItems-newCustomItem
 @Composable
-fun rememberCustomItem() = Dock.Custom.remember(
-    // highlight-dockItems-newCustomItem-id
-    id = EditorComponentId("my.package.dock.newCustomItem"),
-    // highlight-dockItems-newCustomItem-scope
+fun rememberNavigationBarCustomItem() = NavigationBar.Custom.remember(
+    // highlight-navigationBarItems-newCustomItem-id
+    id = EditorComponentId("my.package.navigationBar.newCustomItem"),
+    // highlight-navigationBarItems-newCustomItem-scope
     scope = LocalEditorScope.current.run {
-        remember(this) { Dock.ItemScope(parentScope = this) }
+        remember(this) { NavigationBar.ItemScope(parentScope = this) }
     },
-    // highlight-dockItems-newCustomItem-scope
-    // highlight-dockItems-newCustomItem-visible
+    // highlight-navigationBarItems-newCustomItem-scope
+    // highlight-navigationBarItems-newCustomItem-visible
     visible = { true },
-    // highlight-dockItems-newCustomItem-enterTransition
+    // highlight-navigationBarItems-newCustomItem-enterTransition
     enterTransition = { EnterTransition.None },
-    // highlight-dockItems-newCustomItem-exitTransition
+    // highlight-navigationBarItems-newCustomItem-exitTransition
     exitTransition = { ExitTransition.None },
 ) {
-    // highlight-dockItems-newCustomItem-content
+    // highlight-navigationBarItems-newCustomItem-content
     Box(
         modifier = Modifier
             .fillMaxHeight()
@@ -125,6 +125,6 @@ fun rememberCustomItem() = Dock.Custom.remember(
             text = "Hello World",
         )
     }
-    // highlight-dockItems-newCustomItem-content
+    // highlight-navigationBarItems-newCustomItem-content
 }
-// highlight-dockItems-newCustomItem
+// highlight-navigationBarItems-newCustomItem

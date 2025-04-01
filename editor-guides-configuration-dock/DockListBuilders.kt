@@ -1,7 +1,6 @@
 import androidx.compose.runtime.Composable
 import ly.img.camera.core.CaptureVideo
 import ly.img.editor.core.component.Dock
-import ly.img.editor.core.component.EditorComponent.ListBuilder
 import ly.img.editor.core.component.rememberAdjustments
 import ly.img.editor.core.component.rememberAudiosLibrary
 import ly.img.editor.core.component.rememberBlur
@@ -22,7 +21,7 @@ import ly.img.editor.core.component.rememberTextLibrary
 // highlight-listBuilders
 // highlight-listBuilders-design
 @Composable
-fun Dock.ListBuilder.rememberForDesign(): ListBuilder<Dock.Item<*>> = Dock.ListBuilder.remember {
+fun Dock.ListBuilder.rememberForDesign() = Dock.ListBuilder.remember {
     add { Dock.Button.rememberElementsLibrary() }
     add { Dock.Button.rememberSystemGallery() }
     add { Dock.Button.rememberSystemCamera() }
@@ -35,7 +34,7 @@ fun Dock.ListBuilder.rememberForDesign(): ListBuilder<Dock.Item<*>> = Dock.ListB
 
 // highlight-listBuilders-photo
 @Composable
-fun Dock.ListBuilder.rememberForPhoto(): ListBuilder<Dock.Item<*>> = Dock.ListBuilder.remember {
+fun Dock.ListBuilder.rememberForPhoto() = Dock.ListBuilder.remember {
     add { Dock.Button.rememberAdjustments() }
     add { Dock.Button.rememberFilter() }
     add { Dock.Button.rememberEffect() }
@@ -49,7 +48,7 @@ fun Dock.ListBuilder.rememberForPhoto(): ListBuilder<Dock.Item<*>> = Dock.ListBu
 
 // highlight-listBuilders-video
 @Composable
-fun Dock.ListBuilder.rememberForVideo(): ListBuilder<Dock.Item<*>> = Dock.ListBuilder.remember {
+fun Dock.ListBuilder.rememberForVideo() = Dock.ListBuilder.remember {
     add { Dock.Button.rememberSystemGallery() }
     add {
             /*
