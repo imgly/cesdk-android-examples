@@ -26,7 +26,7 @@ import ly.img.editor.core.sheet.SheetType
 
 // highlight-canvasMenuItems-newButton
 @Composable
-fun rememberCanvasMenuButton(): CanvasMenu.Button = CanvasMenu.Button.remember(
+fun rememberCanvasMenuButton() = CanvasMenu.Button.remember(
     // highlight-canvasMenuItems-newButton-id
     id = EditorComponentId("my.package.canvasMenu.button.newButton"),
     // highlight-canvasMenuItems-newButton-scope
@@ -74,7 +74,7 @@ fun rememberCanvasMenuButton(): CanvasMenu.Button = CanvasMenu.Button.remember(
 
 // highlight-canvasMenuItems-newButton-simpleOverload
 @Composable
-fun rememberCanvasMenuButtonSimpleOverload(): CanvasMenu.Button = CanvasMenu.Button.remember(
+fun rememberCanvasMenuButtonSimpleOverload() = CanvasMenu.Button.remember(
     id = EditorComponentId("my.package.canvasMenu.button.newButton"),
     scope = LocalEditorScope.current.run {
         remember(this) { CanvasMenu.ButtonScope(parentScope = this) }
@@ -92,12 +92,13 @@ fun rememberCanvasMenuButtonSimpleOverload(): CanvasMenu.Button = CanvasMenu.But
     text = { "Hello World" }, // default value is null
     tint = null,
     enabled = { true },
+    contentDescription = null,
 )
 // highlight-canvasMenuItems-newButton-simpleOverload
 
 // highlight-canvasMenuItems-newDivider
 @Composable
-fun rememberCanvasMenuDivider(): CanvasMenu.Divider = CanvasMenu.Divider.remember(
+fun rememberCanvasMenuDivider() = CanvasMenu.Divider.remember(
     // highlight-canvasMenuItems-newDivider-scope
     scope = LocalEditorScope.current.run {
         remember(this) { CanvasMenu.DividerScope(parentScope = this) }
@@ -125,7 +126,7 @@ fun rememberCanvasMenuDivider(): CanvasMenu.Divider = CanvasMenu.Divider.remembe
 
 // highlight-canvasMenuItems-newCustomItem
 @Composable
-fun rememberCanvasMenuCustomItem(): CanvasMenu.Item<CanvasMenu.ItemScope> = CanvasMenu.Custom.remember(
+fun rememberCanvasMenuCustomItem() = CanvasMenu.Custom.remember(
     // highlight-canvasMenuItems-newCustomItem-id
     id = EditorComponentId("my.package.canvasMenu.newCustomItem"),
     // highlight-canvasMenuItems-newCustomItem-scope
