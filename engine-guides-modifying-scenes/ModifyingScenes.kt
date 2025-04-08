@@ -12,7 +12,7 @@ fun modifyingScenes(
 ) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 100, height = 100)
+    engine.bindOffscreen(width = 1080, height = 1920)
 
     // highlight-scene-get-create
     // In engine only mode we have to create our own scene and page.

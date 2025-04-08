@@ -10,7 +10,7 @@ fun uriResolver(
 ) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 100, height = 100)
+    engine.bindOffscreen(width = 1080, height = 1920)
 
     // highlight-get-absolute-base-path
     // This will return uri to "banana.jpg" asset file

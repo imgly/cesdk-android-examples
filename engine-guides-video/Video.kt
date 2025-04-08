@@ -13,7 +13,7 @@ fun editVideo(
 ) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 100, height = 100)
+    engine.bindOffscreen(width = 1280, height = 720)
 
     // highlight-setupScene
     val scene = engine.scene.createForVideo()
