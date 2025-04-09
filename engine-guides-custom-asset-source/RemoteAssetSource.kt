@@ -46,6 +46,7 @@ class RemoteAssetSource(
         ImageUnsplash("/api/assets/v1/image-unsplash"),
         VideoPexels("/api/assets/v1/video-pexels"),
         VideoGiphy("/api/assets/v1/video-giphy"),
+        VideoGiphySicker("/api/assets/v1/video-giphy-sticker"),
     }
 
     suspend fun create(): AssetSource {
