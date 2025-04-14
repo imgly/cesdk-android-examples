@@ -16,7 +16,7 @@ fun exportingBlocks(
 ) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 100, height = 100)
+    engine.bindOffscreen(width = 1080, height = 1920)
     engine.editor.setSettingString(
         "basePath",
         value = "https://cdn.img.ly/packages/imgly/cesdk-engine/1.23.0/assets",
