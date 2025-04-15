@@ -13,7 +13,7 @@ fun createSceneFromImageURL(
 ).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 100, height = 100)
+    engine.bindOffscreen(width = 1080, height = 1920)
 
     // highlight-createFromImage
     val imageRemoteUri = Uri.parse("https://img.ly/static/ubq_samples/sample_4.jpg")

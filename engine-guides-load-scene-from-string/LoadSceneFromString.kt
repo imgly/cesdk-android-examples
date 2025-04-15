@@ -13,7 +13,7 @@ fun loadSceneFromString(
 ) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 100, height = 100)
+    engine.bindOffscreen(width = 1080, height = 1920)
 
     // highlight-fetch-string
     val sceneUrl = URL("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
