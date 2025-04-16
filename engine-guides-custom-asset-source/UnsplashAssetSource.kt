@@ -32,7 +32,7 @@ fun customAssetSource(
 ).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")
     engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 100, height = 100)
+    engine.bindOffscreen(width = 1080, height = 1920)
 
     // highlight-unsplash-definition
     val source = UnsplashAssetSource(unsplashBaseUrl) // INSERT YOUR UNSPLASH PROXY URL HERE
