@@ -177,7 +177,7 @@ class RemoteAssetSource(
         return FindAssetsResult(
             assets = (0 until assetsArray.length()).map { assetsArray.getJSONObject(it).toAsset(manifestData) },
             currentPage = responseData.getInt("currentPage"),
-            nextPage = responseData.getInt("nextPage"),
+            nextPage = responseData.optInt("nextPage", -1),
             total = responseData.getInt("total"),
         )
     }
