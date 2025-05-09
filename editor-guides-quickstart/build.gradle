@@ -46,10 +46,10 @@ android {
 
 dependencies {
     // highlight-dependency
-    implementation "ly.img:editor:1.50.0"
+    implementation "ly.img:editor:1.50.1"
     // Add this as well if you want to use img.ly camera's powerful features.
     // If not, then system camera will be used everywhere.
-    implementation "ly.img:camera:1.50.0"
+    implementation "ly.img:camera:1.50.1"
     // highlight-dependency
     // highlight-bom-version
     implementation(platform("androidx.compose:compose-bom:2023.05.01"))
