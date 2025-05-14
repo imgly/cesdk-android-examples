@@ -30,9 +30,9 @@ fun loadSceneFromBlob(
     val blobString = String(sceneBlob, Charsets.UTF_8)
     // highlight-read-blob
 
-    // highlight-load
+    // highlight-load-blob
     val scene = engine.scene.load(scene = blobString)
-    // highlight-load
+    // highlight-load-blob
 
     // highlight-set-text-dropshadow
     val text = engine.block.findByType(DesignBlockType.Text).first()
