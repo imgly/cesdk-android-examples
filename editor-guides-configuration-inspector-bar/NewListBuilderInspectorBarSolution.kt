@@ -20,6 +20,7 @@ import ly.img.editor.core.component.rememberMoveAsOverlay
 import ly.img.editor.core.component.rememberReplace
 import ly.img.editor.core.component.rememberShape
 import ly.img.editor.core.component.rememberSplit
+import ly.img.editor.core.component.rememberTextBackground
 import ly.img.editor.core.component.rememberVolume
 import ly.img.editor.rememberForDesign
 
@@ -52,6 +53,7 @@ fun NewListBuilderInspectorBarSolution(navController: NavHostController) {
                     add { InspectorBar.Button.rememberEditText() }
                     add { InspectorBar.Button.rememberFormatText() }
                     add { InspectorBar.Button.rememberFillStroke() }
+                    add { InspectorBar.Button.rememberTextBackground() }
                     add { InspectorBar.Button.rememberVolume() }
                     add { InspectorBar.Button.rememberCrop() }
                     add { InspectorBar.Button.rememberShape() }
