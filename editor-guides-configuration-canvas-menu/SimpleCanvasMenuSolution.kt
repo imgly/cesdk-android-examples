@@ -39,7 +39,6 @@ fun SimpleCanvasMenuSolution(navController: NavHostController) {
                         editorState.isTouchActive.not() &&
                             editorState.activeSheet == null &&
                             editorContext.safeSelection != null &&
-                            editorContext.isSelectionInGroup.not() &&
                             editorContext.selection.type != DesignBlockType.Page &&
                             editorContext.selection.type != DesignBlockType.Audio &&
                             editorContext.engine.editor.getEditMode() != "Text" &&
