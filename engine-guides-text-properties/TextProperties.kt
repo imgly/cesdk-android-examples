@@ -170,6 +170,10 @@ fun textProperties(
     val fontWeights = engine.block.getTextFontWeights(text)
     // highlight-getTextFontWeights
 
+    // highlight-setTextFontStyle
+    engine.block.setTextFontStyle(text, FontStyle.NORMAL)
+    // highlight-setTextFontStyle
+
     // highlight-getTextFontStyles
     val fontStyles = engine.block.getTextFontStyles(text)
     // highlight-getTextFontStyles
