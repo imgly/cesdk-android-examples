@@ -19,6 +19,7 @@ import ly.img.editor.core.component.rememberReplace
 import ly.img.editor.core.component.rememberSelectGroup
 import ly.img.editor.core.component.rememberShape
 import ly.img.editor.core.component.rememberSplit
+import ly.img.editor.core.component.rememberTextBackground
 import ly.img.editor.core.component.rememberVolume
 
 // highlight-listBuilders
@@ -28,6 +29,7 @@ fun InspectorBar.ListBuilder.remember() = InspectorBar.ListBuilder.remember {
     add { InspectorBar.Button.rememberEditText() } // Text
     add { InspectorBar.Button.rememberFormatText() } // Text
     add { InspectorBar.Button.rememberFillStroke() } // Page, Video, Image, Shape, Text
+    add { InspectorBar.Button.rememberTextBackground() } // Text
     add { InspectorBar.Button.rememberVolume() } // Video, Audio
     add { InspectorBar.Button.rememberCrop() } // Video, Image
     add { InspectorBar.Button.rememberAdjustments() } // Video, Image

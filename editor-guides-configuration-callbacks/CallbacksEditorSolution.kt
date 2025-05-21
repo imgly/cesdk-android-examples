@@ -5,6 +5,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import ly.img.editor.DesignEditor
+import ly.img.editor.DismissVideoExportEvent
 import ly.img.editor.EditorDefaults
 import ly.img.editor.EngineConfiguration
 import ly.img.editor.HideLoading
@@ -12,12 +13,17 @@ import ly.img.editor.ShareFileEvent
 import ly.img.editor.ShowCloseConfirmationDialogEvent
 import ly.img.editor.ShowErrorDialogEvent
 import ly.img.editor.ShowLoading
+import ly.img.editor.ShowVideoExportErrorEvent
+import ly.img.editor.ShowVideoExportProgressEvent
+import ly.img.editor.ShowVideoExportSuccessEvent
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.library.data.TextAssetSource
 import ly.img.editor.core.library.data.TypefaceProvider
 import ly.img.engine.MimeType
+import ly.img.engine.SceneMode
 import ly.img.engine.addDefaultAssetSources
 import ly.img.engine.addDemoAssetSources
+import kotlin.coroutines.cancellation.CancellationException
 
 // Add this composable to your NavHost
 @Composable
@@ -54,20 +60,58 @@ fun CallbacksEditorSolution(navController: NavHostController) {
         // highlight-configuration-onCreate
         // highlight-configuration-onExport
         onExport = {
+            val engine = editorContext.engine
+            val eventHandler = editorContext.eventHandler
             EditorDefaults.run {
-                editorContext.eventHandler.send(ShowLoading)
-                val blob = editorContext.engine.block.export(
-                    block = requireNotNull(editorContext.engine.scene.get()),
-                    mimeType = MimeType.PDF,
-                ) {
-                    scene.getPages().forEach {
-                        block.setScopeEnabled(it, key = "layer/visibility", enabled = true)
-                        block.setVisible(it, visible = true)
+                if (engine.scene.getMode() == SceneMode.VIDEO) {
+                    val page = engine.scene.getCurrentPage() ?: engine.scene.getPages()[0]
+                    var exportProgress = 0f
+                    eventHandler.send(ShowVideoExportProgressEvent(exportProgress))
+                    runCatching {
+                        val buffer = engine.block.exportVideo(
+                            block = page,
+                            timeOffset = 0.0,
+                            duration = engine.block.getDuration(page),
+                            mimeType = MimeType.MP4,
+                            progressCallback = { progress ->
+                                val newProgress = progress.encodedFrames.toFloat() / progress.totalFrames
+                                if (newProgress >= exportProgress + 0.01f) {
+                                    exportProgress = newProgress
+                                    eventHandler.send(ShowVideoExportProgressEvent(exportProgress))
+                                }
+                            },
+                        )
+                        writeToTempFile(buffer, MimeType.MP4)
+                    }.onSuccess { file ->
+                        eventHandler.send(ShowVideoExportSuccessEvent(file, MimeType.MP4.key))
+                    }.onFailure {
+                        if (it is CancellationException) {
+                            eventHandler.send(DismissVideoExportEvent)
+                        } else {
+                            eventHandler.send(ShowVideoExportErrorEvent)
+                        }
+                    }
+                } else {
+                    eventHandler.send(ShowLoading)
+                    runCatching {
+                        val buffer = engine.block.export(
+                            block = requireNotNull(engine.scene.get()),
+                            mimeType = MimeType.PDF,
+                        ) {
+                            scene.getPages().forEach {
+                                block.setScopeEnabled(it, key = "layer/visibility", enabled = true)
+                                block.setVisible(it, visible = true)
+                            }
+                        }
+                        writeToTempFile(buffer, MimeType.PDF)
+                    }.onSuccess { file ->
+                        eventHandler.send(HideLoading)
+                        eventHandler.send(ShareFileEvent(file, MimeType.PDF.key))
+                    }.onFailure {
+                        eventHandler.send(HideLoading)
+                        eventHandler.send(ShowErrorDialogEvent(error = it))
                     }
                 }
-                val tempFile = writeToTempFile(blob)
-                editorContext.eventHandler.send(HideLoading)
-                editorContext.eventHandler.send(ShareFileEvent(tempFile, MimeType.PDF.key))
             }
         },
         // highlight-configuration-onExport
