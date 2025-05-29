@@ -22,7 +22,9 @@ fun editVideoCaptions(
     engine.block.appendChild(parent = scene, child = page)
     engine.block.setWidth(page, value = 1280F)
     engine.block.setHeight(page, value = 720F)
+    engine.editor.setSettingBoolean(keypath = "features/videoCaptionsEnabled", value = true)
     // highlight-setupScene
+
     // highlight-setPageDuration
     engine.block.setDuration(page, duration = 20.0)
     // highlight-setPageDuration
