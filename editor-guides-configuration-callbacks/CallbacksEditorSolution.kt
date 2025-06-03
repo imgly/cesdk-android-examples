@@ -39,8 +39,7 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                     editorContext.engine.scene.load(EngineConfiguration.defaultDesignSceneUri)
                 }
                 launch {
-                    val baseUri = Uri.parse("https://cdn.img.ly/assets/v3")
-                    editorContext.engine.addDefaultAssetSources(baseUri = baseUri)
+                    editorContext.engine.addDefaultAssetSources()
                     val defaultTypeface = TypefaceProvider().provideTypeface(editorContext.engine, "Roboto")
                     requireNotNull(defaultTypeface)
                     editorContext.engine.asset.addSource(TextAssetSource(editorContext.engine, defaultTypeface))
@@ -49,7 +48,6 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                     editorContext.engine.addDemoAssetSources(
                         sceneMode = editorContext.engine.scene.getMode(),
                         withUploadAssetSources = true,
-                        baseUri = Uri.parse("https://cdn.img.ly/assets/demo/v2"),
                     )
                 }
                 coroutineContext[Job]?.invokeOnCompletion {
