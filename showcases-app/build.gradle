@@ -1,0 +1,250 @@
+import java.time.LocalDate
+
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.github.gmazzo.buildconfig'
+    alias(libs.plugins.compose.compiler)
+}
+
+def firebaseEnabled = file("$projectDir/src/internal/google-services.json").exists() &&
+    file("$projectDir/src/store/google-services.json").exists()
+def storeVariantEnabled = file("$projectDir/src/store").exists()
+
+if (firebaseEnabled) {
+    apply plugin: 'com.google.gms.google-services'
+    apply plugin: 'com.google.firebase.crashlytics'
+    apply plugin: 'com.google.firebase.appdistribution'
+}
+
+String getLocalProperty(String property) {
+    def propertiesFile = new File(rootDir, "local.properties")
+    if (!propertiesFile.exists()) return null
+    def properties = new Properties()
+    properties.load(propertiesFile.newDataInputStream())
+    return properties.getProperty(property)
+}
+
+Integer getVersionCode() {
+    def versionPropsFile = file('.version')
+    def versionProps = new Properties()
+    versionProps.load(new FileInputStream(versionPropsFile))
+
+    return versionProps.getProperty("code", "0").toInteger()
+}
+
+String getVersionName() {
+    def versionPropsFile = file('.version')
+    def versionProps = new Properties()
+    versionProps.load(new FileInputStream(versionPropsFile))
+
+    def year = versionProps.getProperty("year", "0").toInteger()
+    def iteration = versionProps.getProperty("iteration", "0").toInteger()
+    def currentVersion = "${year}.${iteration}"
+    return currentVersion
+}
+
+android {
+    def unsafeIsAppDistributionBuild = System.getenv("UBQ_APP_DISTRIBUTION_BUILD")
+    def isLocalBuild = unsafeIsAppDistributionBuild == null
+    def isAppDistributionBuild = unsafeIsAppDistributionBuild?.toBoolean() ?: false
+    def versionCodeValue = (isAppDistributionBuild || isLocalBuild) ? 1 : getVersionCode()
+    def versionNameValue
+    if (isLocalBuild) {
+        versionNameValue = "local"
+    } else if (isAppDistributionBuild) {
+        versionNameValue = "${System.getenv("CESDK_AND_BRANCH_NAME")} - ${System.getenv("CESDK_AND_COMMIT_ID")}"
+    } else {
+        versionNameValue = getVersionName()
+    }
+    namespace 'ly.img.editor.showcases'
+    compileSdk libs.versions.androidCompileSdk.get().toInteger()
+
+    defaultConfig {
+        applicationId "ly.img.cesdk.catalog"
+        minSdk libs.versions.androidMinSdk.get().toInteger()
+        targetSdk libs.versions.androidTargetSdk.get().toInteger()
+        versionCode versionCodeValue
+        versionName versionNameValue
+        ndk {
+            abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
+        }
+        resourceConfigurations += ['en']
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        release {
+            storeFile rootProject.file("android-release.keystore")
+            storePassword System.getenv("CESDK_AND_KEYSTORE_PWD") ?: getLocalProperty("release_key_password")
+            keyAlias "cesdk-dev"
+            keyPassword System.getenv("CESDK_AND_KEYSTORE_PWD") ?: getLocalProperty("release_key_password")
+        }
+    }
+
+    flavorDimensions += "version"
+    productFlavors {
+        if (storeVariantEnabled) {
+            store {
+                dimension "version"
+            }
+        }
+        internal {
+            dimension "version"
+            applicationIdSuffix ".internal"
+            if (firebaseEnabled) {
+                firebaseAppDistribution {
+                    artifactType = "APK"
+                    releaseNotes = System.getenv("CESDK_AND_BRANCH_NAME")
+                    groups = "internal"
+                }
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (firebaseEnabled) {
+                firebaseCrashlytics {
+                    // Enable processing and uploading of native symbols to Firebase servers.
+                    // By default, this is disabled to improve build speeds.
+                    // This flag must be enabled to see properly-symbolicated native
+                    // stack traces in the Crashlytics dashboard.
+                    nativeSymbolUploadEnabled true
+                }
+            }
+            def shrinkAndMinifyEnabled = System.getenv("CESDK_SHRINK_AND_MINIFY_ENABLED") == null
+                || System.getenv("CESDK_SHRINK_AND_MINIFY_ENABLED") == "true"
+            signingConfig signingConfigs.release
+            minifyEnabled shrinkAndMinifyEnabled
+            shrinkResources shrinkAndMinifyEnabled
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        compose true
+    }
+}
+
+buildConfig {
+    className "ShowcasesBuildConfig"
+    packageName "ly.img.editor.showcases"
+
+    buildConfigField String, "BRANCH_NAME", System.getenv("CESDK_AND_BRANCH_NAME") ?: ""
+    buildConfigField String, "BUILD_NAME", System.getenv("CESDK_AND_BUILD_NAME") ?: ""
+    buildConfigField String, "COMMIT_ID", System.getenv("CESDK_AND_COMMIT_ID") ?: ""
+    buildConfigField String, "LICENSE", System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""
+    buildConfigField String, "REMOTE_ASSET_SOURCE_HOST", System.env.CESDK_AND_REMOTE_ASSET_SOURCE_HOST ?: getLocalProperty("remote_asset_source_host") ?: ""
+    buildConfigField int, "VERSION_CODE", android.defaultConfig.versionCode ?: 0
+    buildConfigField String, "VERSION_NAME", android.defaultConfig.versionName
+    buildConfigField String, "ENGINE_VERSION", libs.versions.imgly.get()
+}
+
+dependencies {
+    implementation(libs.imgly.editor) {
+        exclude group: 'ly.img', module: 'editor-debug-menu'
+    }
+    implementation(libs.imgly.camera) {
+        exclude group: 'ly.img', module: 'editor-debug-menu'
+    }
+
+    implementation platform(libs.firebase.bom)
+    implementation libs.firebase.dynamicLinks
+    implementation libs.firebase.analytics
+    implementation libs.firebase.crashlytics
+    implementation libs.firebase.crashlytics.ndk
+
+    implementation platform(libs.compose.bom)
+    implementation libs.compose.material3
+    debugImplementation libs.compose.tooling
+    implementation libs.compose.preview
+    implementation libs.compose.navigation
+
+    implementation libs.coil.compose
+
+    implementation(libs.material) {
+        because "MaterialComponents DayNight theme"
+    }
+
+    internalImplementation(libs.editor.debug.menu)
+    if (storeVariantEnabled) {
+        storeImplementation(libs.editor.debug.menu.dummy)
+    }
+}
+
+tasks.register('incrementVersion') {
+    doLast {
+        def versionPropsFile = file('.version')
+        def versionProps = new Properties()
+        versionProps.load(new FileInputStream(versionPropsFile))
+
+        def currentYear = LocalDate.now().year
+
+        def lastYear = versionProps.getProperty("year", "0").toInteger()
+        def lastIteration = versionProps.getProperty("iteration", "0").toInteger()
+        def lastCode = versionProps.getProperty("code", "0").toInteger()
+
+        def newIteration = (currentYear == lastYear) ? (lastIteration + 1) : 1
+        def newCode = lastCode + 1
+
+        versionProps.setProperty("year", currentYear.toString())
+        versionProps.setProperty("iteration", newIteration.toString())
+        versionProps.setProperty("code", newCode.toString())
+        versionProps.store(new FileOutputStream(versionPropsFile), null)
+        println("${currentYear}.${newIteration} (${newCode})")
+    }
+}
+
+tasks.register('getVersionName') {
+    doLast {
+        println(getVersionName())
+    }
+}
+
+tasks.register('getIMGLYSDKVersion') {
+    doLast {
+        println(libs.versions.imgly.get())
+    }
+}
+
+android.applicationVariants.configureEach { variant ->
+    if (variant.buildType.name == 'release') {
+        def variantName = variant.name.capitalize()
+        def tasks = [
+            "assemble$variantName",
+            "bundle$variantName"
+        ]
+        def uploadSymbolsTaskName = "uploadCrashlyticsSymbolFile${variant.name.capitalize()}"
+
+        tasks.each { taskName ->
+            project.tasks.named(taskName).configure { task ->
+                task.finalizedBy(uploadSymbolsTaskName)
+            }
+        }
+    }
+}
+
+def debugMenuVersion = project.extensions.getByType(VersionCatalogsExtension)
+    .named("libs")
+    .findVersion("imgly")
+    .get()
+    .requiredVersion
+
+configurations.matching { config ->
+    config.name.toLowerCase().contains("internal")
+}.configureEach {
+    resolutionStrategy.dependencySubstitution {
+        substitute module("ly.img:editor-debug-menu-dummy") using module("ly.img:editor-debug-menu:$debugMenuVersion") because "we want the real debug menu in the showcases app for internal flavor"
+    }
+}
