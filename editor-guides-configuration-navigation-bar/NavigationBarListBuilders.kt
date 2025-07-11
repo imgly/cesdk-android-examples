@@ -79,7 +79,7 @@ fun NavigationBar.ListBuilder.rememberForPostcard() = NavigationBar.ListBuilder.
         add { NavigationBar.Button.rememberCloseEditor() }
         add {
             NavigationBar.Button.rememberPreviousPage(
-                text = { stringResource(R.string.ly_img_editor_design) },
+                text = { stringResource(R.string.ly_img_editor_navigation_bar_button_design) },
             )
         }
     }
@@ -93,7 +93,7 @@ fun NavigationBar.ListBuilder.rememberForPostcard() = NavigationBar.ListBuilder.
     aligned(alignment = Alignment.End) {
         add {
             NavigationBar.Button.rememberNextPage(
-                text = { stringResource(R.string.ly_img_editor_write) },
+                text = { stringResource(R.string.ly_img_editor_navigation_bar_button_write) },
             )
         }
         add { NavigationBar.Button.rememberExport() }
