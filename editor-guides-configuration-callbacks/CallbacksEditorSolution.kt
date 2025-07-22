@@ -1,14 +1,17 @@
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ly.img.editor.DesignEditor
 import ly.img.editor.DismissVideoExportEvent
 import ly.img.editor.EditorDefaults
 import ly.img.editor.EngineConfiguration
 import ly.img.editor.HideLoading
+import ly.img.editor.OnSceneLoaded
 import ly.img.editor.ShareFileEvent
 import ly.img.editor.ShowCloseConfirmationDialogEvent
 import ly.img.editor.ShowErrorDialogEvent
@@ -50,12 +53,30 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                         withUploadAssetSources = true,
                     )
                 }
-                coroutineContext[Job]?.invokeOnCompletion {
-                    editorContext.eventHandler.send(HideLoading)
+            }
+            editorContext.eventHandler.send(HideLoading)
+            editorContext.eventHandler.send(OnSceneLoaded())
+        },
+        // highlight-configuration-onCreate
+        // highlight-configuration-onLoaded
+        onLoaded = {
+            editorContext.engine.editor.setSettingEnum("touch/pinchAction", "Scale")
+            coroutineScope {
+                launch {
+                    editorContext.engine.editor
+                        .onHistoryUpdated()
+                        .collect { Toast.makeText(editorContext.activity, "History is updated!", Toast.LENGTH_SHORT).show() }
+                }
+                launch {
+                    editorContext.engine.editor
+                        .onStateChanged()
+                        .map { editorContext.engine.editor.getEditMode() }
+                        .distinctUntilChanged()
+                        .collect { Toast.makeText(editorContext.activity, "Edit mode is updated to $it!", Toast.LENGTH_SHORT).show() }
                 }
             }
         },
-        // highlight-configuration-onCreate
+        // highlight-configuration-onLoaded
         // highlight-configuration-onExport
         onExport = {
             val engine = editorContext.engine

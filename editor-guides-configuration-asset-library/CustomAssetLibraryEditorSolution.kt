@@ -49,7 +49,7 @@ fun CustomAssetLibraryEditorSolution(navController: NavHostController) {
                 titleRes = SmokeTestR.string.my_assets,
                 sections = listOf(
                     LibraryContent.Section(
-                        titleRes = R.string.ly_img_editor_stickers,
+                        titleRes = R.string.ly_img_editor_asset_library_title_stickers,
                         sourceTypes = LibraryContent.Stickers.sourceTypes,
                         assetType = AssetType.Sticker,
                         expandContent = LibraryContent.Stickers,
