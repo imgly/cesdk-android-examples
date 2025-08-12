@@ -17,7 +17,7 @@ fun storeMetadata(
     var scene = engine.scene.createFromImage(
         Uri.parse("https://img.ly/static/ubq_samples/imgly_logo.jpg"),
     )
-    val block = engine.block.findByType(DesignBlockType.Graphic).first()
+    val block = engine.block.findByType(DesignBlockType.Page).first()
     // highlight-setup
 
     // highlight-setMetadata
