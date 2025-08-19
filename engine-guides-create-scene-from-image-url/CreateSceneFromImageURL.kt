@@ -21,14 +21,14 @@ fun createSceneFromImageURL(
     // highlight-createFromImage
 
     // highlight-findByType
-    // Find the automatically added graphic block in the scene that contains the image fill.
-    val block = engine.block.findByType(DesignBlockType.Graphic).first()
+    val page = engine.block.findByType(DesignBlockType.Page).first()
     // highlight-findByType
 
-    // highlight-setOpacity
-    // Change its opacity.
-    engine.block.setOpacity(block, value = 0.5F)
-    // highlight-setOpacity
+    // highlight-check-fill
+    // Get the fill from the page and verify it's an image fill
+    val pageFill = engine.block.getFill(page)
+    val imageFillType = engine.block.getType(pageFill)
+    // highlight-check-fill
 
     engine.stop()
 }
