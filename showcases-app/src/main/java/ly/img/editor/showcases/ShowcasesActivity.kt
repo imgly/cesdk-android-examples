@@ -185,7 +185,7 @@ fun NavGraphBuilder.composable(
 ) {
     composable(
         route = screen.routeScheme,
-        deepLinks = listOf(navDeepLink { uriPattern = screen.deeplinkScheme }),
+        deepLinks = listOf(navDeepLink { uriPattern = screen.oldDeeplinkScheme }, navDeepLink { uriPattern = screen.deeplinkScheme }),
         arguments = screen.arguments,
         content = content,
     )
@@ -195,6 +195,7 @@ sealed class Screen(
     val routeScheme: String,
     val arguments: List<NamedNavArgument>,
 ) {
+    val oldDeeplinkScheme = "$OLD_BASE_URL/$routeScheme"
     val deeplinkScheme = "$BASE_URL/$routeScheme"
 
     fun getRoute(vararg args: Pair<String, Any?>): String = args.fold(routeScheme) { acc, arg ->
@@ -282,7 +283,8 @@ sealed class Screen(
     )
 
     companion object {
-        private const val BASE_URL = "https://ubq.page.link"
+        private const val OLD_BASE_URL = "https://ubq.page.link"
+        private const val BASE_URL = "https://applink.img.ly"
         const val BASE_64_URL_PREFIX = "data:text/plain;base64,"
     }
 }

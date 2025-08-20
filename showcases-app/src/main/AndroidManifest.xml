@@ -31,6 +31,17 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
+                    android:host="applink.img.ly"
+                    android:scheme="https" />
+            </intent-filter>
+            <!-- TODO: Remove later: OLD Firebase links code -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
                     android:host="ubq.page.link"
                     android:scheme="https" />
             </intent-filter>
@@ -48,6 +59,7 @@
                     android:pathPrefix="/showcases/cesdk"
                     android:scheme="https" />
             </intent-filter>
+            <!-- TODO: Remove later: OLD Firebase links code -->
         </activity>
     </application>
 </manifest>
