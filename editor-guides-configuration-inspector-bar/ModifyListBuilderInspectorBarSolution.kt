@@ -23,7 +23,9 @@ fun ModifyListBuilderInspectorBarSolution(navController: NavHostController) {
         inspectorBar = {
             InspectorBar.remember(
                 // highlight-modifyListBuilder
+                // highlight-modifyListBuilderSignature
                 listBuilder = InspectorBar.ListBuilder.remember().modify {
+                    // highlight-modifyListBuilderSignature
                     // highlight-modifyListBuilder-addFirst
                     addFirst {
                         InspectorBar.Button.remember(
