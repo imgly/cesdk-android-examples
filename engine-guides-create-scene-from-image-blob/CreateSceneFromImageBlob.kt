@@ -44,14 +44,14 @@ fun createSceneFromImageBlob(
     val scene = engine.scene.createFromImage(blobUri)
     // highlight-initialImageURL
 
-    // highlight-findByType
+    // highlight-findByType-blob
     val page = engine.block.findByType(DesignBlockType.Page).first()
-    // highlight-findByType
+    // highlight-findByType-blob
 
-    // highlight-check-fill
+    // highlight-check-fill-blob
     val pageFill = engine.block.getFill(page)
     val imageFillType = engine.block.getType(pageFill)
-    // highlight-check-fill
+    // highlight-check-fill-blob
 
     engine.stop()
 }

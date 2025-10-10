@@ -17,13 +17,13 @@ fun saveSceneToString(
     )
     val scene = engine.scene.load(sceneUri = sceneUri)
 
-    // highlight-save
+    // highlight-saveToString
     val savedSceneString = engine.scene.saveToString(scene = scene)
-    // highlight-save
+    // highlight-saveToString
 
-    // highlight-result
+    // highlight-result-string
     println(savedSceneString)
-    // highlight-result
+    // highlight-result-string
 
     engine.stop()
 }
