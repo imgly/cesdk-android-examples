@@ -26,7 +26,9 @@ fun ModifyListBuilderCanvasMenuSolution(navController: NavHostController) {
         canvasMenu = {
             CanvasMenu.remember(
                 // highlight-modifyListBuilder
+                // highlight-modifyListBuilderSignature
                 listBuilder = CanvasMenu.ListBuilder.remember().modify {
+                    // highlight-modifyListBuilderSignature
                     // highlight-modifyListBuilder-addFirst
                     addFirst {
                         CanvasMenu.Button.remember(

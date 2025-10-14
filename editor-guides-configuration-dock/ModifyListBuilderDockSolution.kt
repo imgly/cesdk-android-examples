@@ -24,7 +24,9 @@ fun ModifyListBuilderDockSolution(navController: NavHostController) {
         dock = {
             Dock.remember(
                 // highlight-modifyListBuilder
+                // highlight-modifyListBuilderSignature
                 listBuilder = Dock.ListBuilder.rememberForDesign().modify {
+                    // highlight-modifyListBuilderSignature
                     // highlight-modifyListBuilder-addFirst
                     addFirst {
                         Dock.Button.remember(

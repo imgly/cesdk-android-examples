@@ -27,7 +27,9 @@ fun ModifyListBuilderNavigationBarSolution(navController: NavHostController) {
         navigationBar = {
             NavigationBar.remember(
                 // highlight-modifyListBuilder
+                // highlight-modifyListBuilderSignature
                 listBuilder = NavigationBar.ListBuilder.rememberForDesign().modify {
+                    // highlight-modifyListBuilderSignature
                     // highlight-modifyListBuilder-addFirst
                     addFirst(alignment = Alignment.End) {
                         NavigationBar.Button.remember(
