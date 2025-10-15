@@ -1,0 +1,53 @@
+[versions]
+androidMinSdk = "24"
+androidCompileSdk = "35"
+androidTargetSdk = "35"
+kotlin = "2.1.10"
+imgly = "1.60.0"
+buildConfig = "5.3.5"
+dropshots = "0.4.1"
+gradleAndroid = "8.6.1"
+googleServices = "4.4.2"
+gradleCrashlytics = "3.0.2"
+appDistributionPlugin = "5.0.0"
+agp = "8.4.2"
+coreKtx = "1.15.0"
+appcompat = "1.7.0"
+installer = "0.7.6"
+
+[libraries]
+imgly-editor = { module = "ly.img:editor", version.ref = "imgly" }
+imgly-camera = { module = "ly.img:camera", version.ref = "imgly" }
+editor-debug-menu = { module = "ly.img:editor-debug-menu", version.ref = "imgly" }
+editor-debug-menu-dummy = { module = "ly.img:editor-debug-menu-dummy", version.ref = "imgly" }
+
+compose-bom = "androidx.compose:compose-bom:2023.05.01"
+compose-material3 = { module = "androidx.compose.material3:material3" }
+compose-tooling = "androidx.compose.ui:ui-tooling:1.7.5"
+compose-preview = "androidx.compose.ui:ui-tooling-preview:1.7.5"
+compose-activity = "androidx.activity:activity-compose:1.6.1"
+compose-navigation = "androidx.navigation:navigation-compose:2.5.3"
+compose-viewmodel = "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7"
+
+firebase-bom = "com.google.firebase:firebase-bom:33.6.0"
+firebase-dynamicLinks = { module = "com.google.firebase:firebase-dynamic-links" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
+firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-crashlytics-ndk = { module = "com.google.firebase:firebase-crashlytics-ndk" }
+
+coil-compose = "io.coil-kt:coil-compose:2.2.2"
+
+play-services-auth = "com.google.android.gms:play-services-auth:21.2.0"
+
+material = "com.google.android.material:material:1.12.0"
+
+installer = { module = "ru.solrudev.ackpine:ackpine-core", version.ref = "installer" }
+installer-ktx = { module = "ru.solrudev.ackpine:ackpine-ktx", version.ref = "installer" }
+
+core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+
+[plugins]
+android-library = { id = "com.android.library", version.ref = "agp" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
