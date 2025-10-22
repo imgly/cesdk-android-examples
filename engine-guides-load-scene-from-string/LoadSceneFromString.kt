@@ -31,10 +31,10 @@ fun loadSceneFromString(
     val scene = engine.scene.load(scene = blobString)
     // highlight-load-string
 
-    // highlight-set-text-dropshadow
+    // highlight-modify-text-string
     val text = engine.block.findByType(DesignBlockType.Text).first()
     engine.block.setDropShadowEnabled(text, enabled = true)
-    // highlight-set-text-dropshadow
+    // highlight-modify-text-string
 
     engine.stop()
 }
