@@ -21,11 +21,11 @@ fun saveSceneToArchive(
     )
     val scene = engine.scene.load(sceneUri = sceneUri)
 
-    // highlight-save
+    // highlight-saveToArchive
     val blob = engine.scene.saveToArchive(scene = scene)
-    // highlight-save
+    // highlight-saveToArchive
 
-    // highlight-create-form-data
+    // highlight-create-form-data-archive
     withContext(Dispatchers.IO) {
         val connection = URL("https://example.com/upload/").openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
@@ -33,7 +33,7 @@ fun saveSceneToArchive(
         connection.outputStream.use { Channels.newChannel(it).write(blob) }
         connection.connect()
     }
-    // highlight-create-form-data
+    // highlight-create-form-data-archive
 
     engine.stop()
 }

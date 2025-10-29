@@ -19,14 +19,14 @@ fun loadSceneFromRemote(
     )
     // highlight-url
 
-    // highlight-load
+    // highlight-load-remote
     val scene = engine.scene.load(sceneUri = sceneUri)
-    // highlight-load
+    // highlight-load-remote
 
-    // highlight-set-text-dropshadow
+    // highlight-modify-text-remote
     val text = engine.block.findByType(DesignBlockType.Text).first()
     engine.block.setDropShadowEnabled(text, enabled = true)
-    // highlight-set-text-dropshadow
+    // highlight-modify-text-remote
 
     engine.stop()
 }
