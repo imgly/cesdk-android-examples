@@ -10,7 +10,7 @@ import ly.img.editor.rememberForApparel
 fun ApparelEditorSolution(navController: NavHostController) {
     // highlight-engine-configuration
     val engineConfiguration = EngineConfiguration.rememberForApparel(
-        license = "<your license here>",
+        license = "<your license here>", // pass null or empty for evaluation mode with watermark
         userId = "<your unique user id>",
     )
     // highlight-engine-configuration

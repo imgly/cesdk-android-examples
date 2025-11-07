@@ -24,8 +24,14 @@ There you will learn how to integrate and configure them for your use case.
 The `Engine` is a commercial product. To use it you need to unlock the SDK with a license file. You
 can purchase a license at https://img.ly/pricing.
 
+### Evaluation Mode
+
+You can run the SDK in evaluation mode by passing `null` or an empty string as the license key. This will add a watermark to all exports but allows you to try out the SDK without a license.
+
+### Using a License Key
+
 In order to run the `Showcases` application that lives in the `showcases-app` module of this
-repository use the instructions below:
+repository with a license key, use the instructions below:
 
 1. Get a free trial license at https://img.ly/forms/free-trial.
 2. Copy the license key.
@@ -34,9 +40,6 @@ repository use the instructions below:
 ```
 license=...
 ```
-
-Note that failing to provide the license key-value pairing will display an error when opening any of
-the showcases.
 
 Source code of the mobile editor and camera can be
 found [here](https://github.com/imgly/cesdk-android).

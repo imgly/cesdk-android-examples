@@ -19,7 +19,7 @@ class MyActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             // highlight-start
             engine.start(
-                license = "<your license here>",
+                license = "<your license here>", // pass null or empty for evaluation mode with watermark
                 userId = "<your unique user id>",
                 savedStateRegistryOwner = this@MyActivity,
             )

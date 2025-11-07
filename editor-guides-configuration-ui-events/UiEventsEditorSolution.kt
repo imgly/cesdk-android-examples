@@ -17,7 +17,7 @@ data object OnCreateCustomEvent : EditorEvent
 @Composable
 fun UiEventsEditorSolution(navController: NavHostController) {
     val engineConfiguration = EngineConfiguration.remember(
-        license = "<your license here>",
+        license = "<your license here>", // pass null or empty for evaluation mode with watermark
         // highlight-configuration-engine-callback
         onCreate = {
             EditorDefaults.onCreate(

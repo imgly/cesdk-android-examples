@@ -27,7 +27,7 @@ fun usingCamera(
     activity: AppCompatActivity,
     surfaceView: SurfaceView,
     cameraProvider: ProcessCameraProvider,
-    license: String,
+    license: String?, // pass null or empty for evaluation mode with watermark
     userId: String,
 ) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")

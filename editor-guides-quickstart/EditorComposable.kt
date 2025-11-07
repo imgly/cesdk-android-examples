@@ -1,22 +1,22 @@
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
 import ly.img.editor.DesignEditor
 import ly.img.editor.EngineConfiguration
 import ly.img.editor.rememberForDesign
 
-// Add this composable to your NavHost
 @Composable
-fun EditorComposable(navController: NavHostController) {
-    // highlight-engine-configuration
+fun EditorComposable() {
     val engineConfiguration = EngineConfiguration.rememberForDesign(
+        // Get your license from https://img.ly/forms/free-trial
+        // pass null or empty for evaluation mode with watermark
         license = "<your license here>",
-        userId = "<your unique user id>",
+        userId = "<your unique user id>", // A unique string to identify your user/session
     )
-    // highlight-engine-configuration
-    // highlight-editor-invoke
-    DesignEditor(engineConfiguration = engineConfiguration) {
-        // You can set result here
-        navController.popBackStack()
-    }
-    // highlight-editor-invoke
+
+    DesignEditor(
+        engineConfiguration = engineConfiguration,
+        onClose = {
+            // Close the editor here
+            // If using a navigation library, call pop() or navigateUp() here
+        },
+    )
 }
