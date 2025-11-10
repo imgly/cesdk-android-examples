@@ -12,7 +12,7 @@ import ly.img.editor.rememberForPhoto
 fun PhotoEditorSolution(navController: NavHostController) {
     // highlight-engine-configuration
     val engineConfiguration = EngineConfiguration.rememberForPhoto(
-        license = "<your license here>",
+        license = "<your license here>", // pass null or empty for evaluation mode with watermark
         imageUri = Uri.parse("https://img.ly/static/ubq_samples/sample_4.jpg"),
         imageSize = SizeF(1080F, 1920F),
         userId = "<your unique user id>",

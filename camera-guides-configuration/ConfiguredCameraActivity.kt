@@ -22,7 +22,7 @@ class ConfiguredCameraActivity : AppCompatActivity() {
             // highlight-engine-configuration
             engineConfiguration = EngineConfiguration(
                 // highlight-license
-                license = "<your license here>",
+                license = "<your license here>", // pass null or empty for evaluation mode with watermark
                 // highlight-userId
                 userId = "<your unique user id>",
             ),

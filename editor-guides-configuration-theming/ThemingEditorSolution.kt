@@ -10,7 +10,7 @@ import ly.img.editor.rememberForDesign
 @Composable
 fun ThemingEditorSolution(navController: NavHostController) {
     val engineConfiguration = EngineConfiguration.rememberForDesign(
-        license = "<your license here>",
+        license = "<your license here>", // pass null or empty for evaluation mode with watermark
     )
     val editorConfiguration = EditorConfiguration.rememberForDesign(
         // highlight-configuration-uiMode
