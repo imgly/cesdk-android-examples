@@ -11,7 +11,7 @@ import ly.img.editor.rememberForDesign
 fun BasicEditorSolution(navController: NavHostController) {
     val engineConfiguration = EngineConfiguration.rememberForDesign(
         // highlight-configuration-license
-        license = "<your license here>",
+        license = "<your license here>", // pass null or empty for evaluation mode with watermark
         // highlight-configuration-license
         // highlight-configuration-userId
         userId = "<your unique user id>",
