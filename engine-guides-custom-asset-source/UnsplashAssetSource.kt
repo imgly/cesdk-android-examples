@@ -24,7 +24,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 fun customAssetSource(
-    license: String,
+    license: String?, // pass null or empty for evaluation mode with watermark
     userId: String,
     unsplashBaseUrl: String,
 ) = CoroutineScope(

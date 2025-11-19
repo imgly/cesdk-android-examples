@@ -26,7 +26,7 @@ fun MyComposable() {
     LaunchedEffect(Unit) {
         // highlight-start
         engine.start(
-            license = "<your license here>",
+            license = "<your license here>", // pass null or empty for evaluation mode with watermark
             userId = "<your unique user id>",
             savedStateRegistryOwner = savedStateRegistryOwner,
         )

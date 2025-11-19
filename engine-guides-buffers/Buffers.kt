@@ -8,7 +8,7 @@ import kotlin.math.PI
 import kotlin.math.sin
 
 fun buffers(
-    license: String,
+    license: String?, // pass null or empty for evaluation mode with watermark
     userId: String,
 ) = CoroutineScope(Dispatchers.Main).launch {
     val engine = Engine.getInstance(id = "ly.img.engine.example")

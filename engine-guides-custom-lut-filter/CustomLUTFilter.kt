@@ -8,7 +8,7 @@ import ly.img.engine.FillType
 import ly.img.engine.ShapeType
 
 fun customLUTFilter(
-    license: String,
+    license: String?, // pass null or empty for evaluation mode with watermark
     userId: String,
 ) = CoroutineScope(
     Dispatchers.Main,
