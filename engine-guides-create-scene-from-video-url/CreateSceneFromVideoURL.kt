@@ -6,7 +6,7 @@ import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 
 fun createSceneFromVideoURL(
-    license: String,
+    license: String?, // pass null or empty for evaluation mode with watermark
     userId: String,
 ) = CoroutineScope(
     Dispatchers.Main,

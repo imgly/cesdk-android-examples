@@ -24,7 +24,7 @@ fun DefaultAssetLibraryEditorSolution(navController: NavHostController) {
         UnsplashAssetSource("<your Unsplash API host endpoint here>")
     }
     val engineConfiguration = EngineConfiguration.remember(
-        license = "<your license here>",
+        license = "<your license here>", // pass null or empty for evaluation mode with watermark
         onCreate = {
             EditorDefaults.onCreate(
                 engine = editorContext.engine,
