@@ -11,7 +11,7 @@ import java.net.URL
 import java.util.UUID
 
 fun createSceneFromImageBlob(
-    license: String,
+    license: String?, // pass null or empty for evaluation mode with watermark
     userId: String,
 ) = CoroutineScope(
     Dispatchers.Main,

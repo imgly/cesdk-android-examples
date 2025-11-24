@@ -18,7 +18,7 @@ class CameraActivity : AppCompatActivity() {
         // highlight-initialization
         val cameraInput = CaptureVideo.Input(
             engineConfiguration = EngineConfiguration(
-                license = "<your license here>",
+                license = "<your license here>", // pass null or empty for evaluation mode with watermark
                 userId = "<your unique user id>",
             ),
         )

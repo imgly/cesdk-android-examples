@@ -32,7 +32,7 @@ import kotlin.coroutines.cancellation.CancellationException
 @Composable
 fun CallbacksEditorSolution(navController: NavHostController) {
     val engineConfiguration = EngineConfiguration.remember(
-        license = "<your license here>",
+        license = "<your license here>", // pass null or empty for evaluation mode with watermark
         // highlight-configuration-onCreate
         onCreate = {
             // Note that lambda is copied from EditorDefaults.onCreate
