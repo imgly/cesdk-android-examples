@@ -1,18 +1,21 @@
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.core.content.FileProvider
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ly.img.editor.DesignEditor
 import ly.img.editor.DismissVideoExportEvent
 import ly.img.editor.EditorDefaults
 import ly.img.editor.EngineConfiguration
 import ly.img.editor.HideLoading
 import ly.img.editor.OnSceneLoaded
-import ly.img.editor.ShareFileEvent
+import ly.img.editor.ShareUriEvent
 import ly.img.editor.ShowCloseConfirmationDialogEvent
 import ly.img.editor.ShowErrorDialogEvent
 import ly.img.editor.ShowLoading
@@ -81,6 +84,7 @@ fun CallbacksEditorSolution(navController: NavHostController) {
         onExport = {
             val engine = editorContext.engine
             val eventHandler = editorContext.eventHandler
+            val context = engine.applicationContext
             EditorDefaults.run {
                 if (engine.scene.getMode() == SceneMode.VIDEO) {
                     val page = engine.scene.getCurrentPage() ?: engine.scene.getPages()[0]
@@ -100,9 +104,16 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                                 }
                             },
                         )
-                        writeToTempFile(buffer, MimeType.MP4)
-                    }.onSuccess { file ->
-                        eventHandler.send(ShowVideoExportSuccessEvent(file, MimeType.MP4.key))
+                        val file = writeToTempFile(buffer, MimeType.MP4)
+                        withContext(Dispatchers.IO) {
+                            FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.ly.img.editor.fileprovider",
+                                file,
+                            )
+                        }
+                    }.onSuccess { uri ->
+                        eventHandler.send(ShowVideoExportSuccessEvent(uri, MimeType.MP4.key))
                     }.onFailure {
                         if (it is CancellationException) {
                             eventHandler.send(DismissVideoExportEvent)
@@ -122,10 +133,17 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                                 block.setVisible(it, visible = true)
                             }
                         }
-                        writeToTempFile(buffer, MimeType.PDF)
-                    }.onSuccess { file ->
+                        val file = writeToTempFile(buffer, MimeType.PDF)
+                        withContext(Dispatchers.IO) {
+                            FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.ly.img.editor.fileprovider",
+                                file,
+                            )
+                        }
+                    }.onSuccess { uri ->
                         eventHandler.send(HideLoading)
-                        eventHandler.send(ShareFileEvent(file, MimeType.PDF.key))
+                        eventHandler.send(ShareUriEvent(uri, MimeType.PDF.key))
                     }.onFailure {
                         eventHandler.send(HideLoading)
                         eventHandler.send(ShowErrorDialogEvent(error = it))
