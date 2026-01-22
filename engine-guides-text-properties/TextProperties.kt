@@ -106,25 +106,25 @@ fun textProperties(
         name = "Roboto",
         fonts = listOf(
             Font(
-                uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Bold.ttf"),
+                uri = Uri.parse("https://cdn.img.ly/assets/v3/ly.img.typeface/fonts/Roboto/Roboto-Bold.ttf"),
                 subFamily = "Bold",
                 weight = FontWeight.BOLD,
                 style = FontStyle.NORMAL,
             ),
             Font(
-                uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-BoldItalic.ttf"),
+                uri = Uri.parse("https://cdn.img.ly/assets/v3/ly.img.typeface/fonts/Roboto/Roboto-BoldItalic.ttf"),
                 subFamily = "Bold Italic",
                 weight = FontWeight.BOLD,
                 style = FontStyle.ITALIC,
             ),
             Font(
-                uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Italic.ttf"),
+                uri = Uri.parse("https://cdn.img.ly/assets/v3/ly.img.typeface/fonts/Roboto/Roboto-Italic.ttf"),
                 subFamily = "Italic",
                 weight = FontWeight.BOLD,
                 style = FontStyle.NORMAL,
             ),
             Font(
-                uri = Uri.parse("https://cdn.img.ly/assets/v2/ly.img.typeface/fonts/Roboto/Roboto-Regular.ttf"),
+                uri = Uri.parse("https://cdn.img.ly/assets/v3/ly.img.typeface/fonts/Roboto/Roboto-Regular.ttf"),
                 subFamily = "Regular",
                 weight = FontWeight.NORMAL,
                 style = FontStyle.NORMAL,

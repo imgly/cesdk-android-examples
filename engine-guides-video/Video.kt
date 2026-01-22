@@ -42,7 +42,7 @@ fun editVideo(
     engine.block.setString(
         block = videoFill,
         property = "fill/video/fileURI",
-        value = "https://cdn.img.ly/assets/demo/v2/ly.img.video/videos/pexels-kampus-production-8154913.mp4",
+        value = "https://cdn.img.ly/assets/demo/v3/ly.img.video/videos/pexels-kampus-production-8154913.mp4",
     )
     engine.block.setFill(video2, fill = videoFill2)
     // highlight-assignVideoFill
