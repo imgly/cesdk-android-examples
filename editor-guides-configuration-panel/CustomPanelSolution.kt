@@ -23,7 +23,7 @@ import ly.img.editor.rememberForDesign
 @Composable
 fun CustomPanelSolution(navController: NavHostController) {
     val engineConfig = EngineConfiguration.rememberForDesign(
-        license = "<your license here>", // pass null or empty for evaluation mode with watermark
+        license = null, // evaluation mode with watermark
     )
 
     val editorConfig = EditorConfiguration.rememberForDesign(
@@ -46,6 +46,7 @@ fun CustomPanelSolution(navController: NavHostController) {
     }
 }
 
+// highlight-open-panel-button
 val openCustomPanelDockButton
     @Composable get() = Dock.Button.remember(
         // highlight-open-panel-button
@@ -61,6 +62,7 @@ val openCustomPanelDockButton
         },
         // highlight-open-panel-button
     )
+// highlight-open-panel-button
 
 val customSheetType: SheetType
     get() =

@@ -122,7 +122,7 @@ private suspend fun Engine.addAssetSources() = coroutineScope {
         addDemoAssetSources(
             sceneMode = scene.getMode(),
             withUploadAssetSources = true,
-            baseUri = Uri.parse("https://cdn.img.ly/assets/demo/v2"),
+            baseUri = Uri.parse("https://cdn.img.ly/assets/demo/v3"),
         )
     }
 }
