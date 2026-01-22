@@ -18,7 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ly.img.editor.showcases.ShowcasesBuildConfig
 import ly.img.editor.showcases.ui.preview.PreviewTheme
@@ -61,7 +61,8 @@ fun VersionFooter(
     }
 }
 
-@PreviewLightDark
+@Preview(name = "Light")
+@Preview(name = "Dark", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun VersionFooterPreview() {
     PreviewTheme {
@@ -72,7 +73,8 @@ private fun VersionFooterPreview() {
     }
 }
 
-@PreviewLightDark
+@Preview(name = "Light")
+@Preview(name = "Dark", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun VersionFooterWithMarqueePreview() {
     PreviewTheme {

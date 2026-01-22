@@ -63,10 +63,12 @@ fun NavigationBar.ListBuilder.rememberForApparel() = NavigationBar.ListBuilder.r
     aligned(alignment = Alignment.Start) {
         add { NavigationBar.Button.rememberCloseEditor() }
     }
-    aligned(alignment = Alignment.End) {
+    aligned(alignment = Alignment.CenterHorizontally) {
         add { NavigationBar.Button.rememberUndo() }
         add { NavigationBar.Button.rememberRedo() }
         add { NavigationBar.Button.rememberTogglePreviewMode() }
+    }
+    aligned(alignment = Alignment.End) {
         add { NavigationBar.Button.rememberExport() }
     }
 }
