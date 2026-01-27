@@ -49,7 +49,6 @@ fun CustomPanelSolution(navController: NavHostController) {
 // highlight-open-panel-button
 val openCustomPanelDockButton
     @Composable get() = Dock.Button.remember(
-        // highlight-open-panel-button
         id = EditorComponentId("open_panel"),
         text = { Text("Open Panel") },
         icon = { Icon(Icons.Rounded.KeyboardArrowUp, null) },
@@ -60,7 +59,6 @@ val openCustomPanelDockButton
                 ),
             )
         },
-        // highlight-open-panel-button
     )
 // highlight-open-panel-button
 
