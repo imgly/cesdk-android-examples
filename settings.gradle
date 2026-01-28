@@ -23,6 +23,23 @@ dependencyResolutionManagement {
                 includeGroup("ly.img")
             }
         }
+        exclusiveContent {
+            forRepository {
+                ivy {
+                    name = 'BundleTool releases'
+                    url = 'https://github.com/google/bundletool/releases/download/'
+                    patternLayout {
+                        artifact '[revision]/[module](-[classifier])-[revision](.[ext])'
+                    }
+                    metadataSources {
+                        artifact()
+                    }
+                }
+            }
+            filter {
+                includeGroup('bundletool-github')
+            }
+        }
     }
 }
 
