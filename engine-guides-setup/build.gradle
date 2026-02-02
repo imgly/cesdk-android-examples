@@ -32,8 +32,8 @@ android {
 
 dependencies {
     // highlight-dependency
-    implementation "ly.img:engine:1.67.0"
+    implementation "ly.img:engine:1.68.0-rc.2"
     // highlight-dependency
     implementation "androidx.appcompat:appcompat:1.6.0"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
 }

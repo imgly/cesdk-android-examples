@@ -230,6 +230,31 @@ tasks.register('getIMGLYSDKVersion') {
     }
 }
 
+tasks.register('generateUniversalApksArchive', JavaExec) {
+    def bundletool = configurations.detachedConfiguration(dependencies.create("bundletool-github:bundletool:1.18.3:all"))
+    classpath(bundletool)
+    mainClass = "com.android.tools.build.bundletool.BundleToolMain"
+
+    def aabTask = tasks.signStoreReleaseBundle
+    File aabPath = aabTask.finalBundleFile.get().getAsFile()
+    File outputApks = layout.buildDirectory.file("outputs/bundle/showcases-app-store-release.apks").get().getAsFile()
+
+    dependsOn(tasks.bundleStoreRelease)
+    inputs.file(aabPath)
+    outputs.file(outputApks)
+    def storeFile = rootProject.file("android-release.keystore")
+    def storePassword = System.getenv("CESDK_AND_KEYSTORE_PWD") ?: getLocalProperty("release_key_password")
+    def keyAlias = "cesdk-dev"
+    def keyPassword = System.getenv("CESDK_AND_KEYSTORE_PWD") ?: getLocalProperty("release_key_password")
+    args("build-apks", "--bundle=${aabPath.absolutePath}",
+        "--output=${outputApks.absolutePath}",
+        "--ks=${storeFile.absolutePath}",
+        "--ks-pass=pass:${storePassword}",
+        "--ks-key-alias=${keyAlias}",
+        "--key-pass=pass:${keyPassword}",
+        "--mode=universal")
+}
+
 android.applicationVariants.configureEach { variant ->
     if (variant.buildType.name == 'release') {
         def variantName = variant.name.capitalize()
