@@ -23,15 +23,11 @@ class ShowcasesApp : Application() {
                 .detectAll()
                 .penaltyLog()
                 .apply {
-                    if (ShowcasesBuildConfig.BUILD_NAME.isEmpty()) {
-                        penaltyDeath()
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && isFirebaseActive) {
                         // Setting a penalty listener is only possible on API levels >= 28.
                         // This should be enough to catch most issues anyway.
                         penaltyListener(ContextCompat.getMainExecutor(this@ShowcasesApp)) { violation ->
-                            if (isFirebaseActive) {
-                                Firebase.crashlytics.recordException(violation)
-                            }
+                            Firebase.crashlytics.recordException(violation)
                         }
                     }
                 }.build(),
@@ -45,9 +41,7 @@ class ShowcasesApp : Application() {
                 .detectLeakedRegistrationObjects()
                 .detectFileUriExposure()
                 .apply {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        detectCleartextNetwork()
-                    }
+                    detectCleartextNetwork()
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         detectContentUriWithoutPermission()
                     }
@@ -59,15 +53,11 @@ class ShowcasesApp : Application() {
                 }
                 .penaltyLog()
                 .apply {
-                    if (ShowcasesBuildConfig.BUILD_NAME.isEmpty()) {
-                        penaltyDeath()
-                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && isFirebaseActive) {
                         // Setting a penalty listener is only possible on API levels >= 28.
                         // This should be enough to catch most issues anyway.
                         penaltyListener(ContextCompat.getMainExecutor(this@ShowcasesApp)) { violation ->
-                            if (isFirebaseActive) {
-                                Firebase.crashlytics.recordException(violation)
-                            }
+                            Firebase.crashlytics.recordException(violation)
                         }
                     }
                 }
