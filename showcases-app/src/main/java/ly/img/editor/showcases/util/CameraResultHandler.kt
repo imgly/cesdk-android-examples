@@ -2,7 +2,6 @@ package ly.img.editor.showcases.util
 
 import android.graphics.PointF
 import android.graphics.RectF
-import android.net.Uri
 import android.util.SizeF
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
@@ -122,7 +121,6 @@ private suspend fun Engine.addAssetSources() = coroutineScope {
         addDemoAssetSources(
             sceneMode = scene.getMode(),
             withUploadAssetSources = true,
-            baseUri = Uri.parse("https://cdn.img.ly/assets/demo/v3"),
         )
     }
 }

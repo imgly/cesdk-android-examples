@@ -50,24 +50,27 @@ fun EditVideoFromUri(
                 onCreate = {
                     val eventHandler = editorContext.eventHandler
                     val engine = editorContext.engine
+                    val isNewScene = engine.scene.get() == null
                     EditorDefaults.onCreate(
                         engine = engine,
                         eventHandler = eventHandler,
                         sceneUri = EngineConfiguration.defaultVideoSceneUri,
                     )
 
-                    val currentPage = engine.scene.getCurrentPage()!!
-                    if (size.isSpecified) {
-                        engine.block.setWidth(currentPage, size.width)
-                        engine.block.setHeight(currentPage, size.height)
-                    }
+                    if (isNewScene) {
+                        val currentPage = engine.scene.getCurrentPage()!!
+                        if (size.isSpecified) {
+                            engine.block.setWidth(currentPage, size.width)
+                            engine.block.setHeight(currentPage, size.height)
+                        }
 
-                    eventHandler.send(
-                        EditorEvent.AddUriToScene(
-                            uploadAssetSourceType = AssetSourceType.VideoUploads,
-                            uri = uri,
-                        ),
-                    )
+                        eventHandler.send(
+                            EditorEvent.AddUriToScene(
+                                uploadAssetSourceType = AssetSourceType.VideoUploads,
+                                uri = uri,
+                            ),
+                        )
+                    }
                 },
             )
 
