@@ -20,14 +20,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -64,7 +64,6 @@ import ly.img.editor.core.theme.LocalIsDarkTheme
 import ly.img.editor.showcases.ui.components.versionFooterItem
 import ly.img.editor.showcases.ui.sections.quickActionsSection
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Showcases(
     showcasesViewModel: ShowcasesViewModel = viewModel(),
@@ -73,16 +72,22 @@ fun Showcases(
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {},
-                navigationIcon = {
+            Surface(
+                tonalElevation = 2.dp,
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Image(
-                        modifier = Modifier.padding(horizontal = 16.dp),
                         painter = painterResource(id = R.drawable.ic_logo),
                         contentDescription = null,
                     )
-                },
-            )
+                }
+            }
         },
     ) { paddingValues ->
         val items = remember { showcasesViewModel.getItems(ShowcasesViewModel.CATALOG_COLUMNS_SIZE) }
