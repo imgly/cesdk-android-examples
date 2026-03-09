@@ -30,24 +30,27 @@ fun EditCameraRecordings(
             license = Secrets.license,
             onCreate = {
                 val eventHandler = editorContext.eventHandler
+                val isNewScene = editorContext.engine.scene.get() == null
                 EditorDefaults.onCreate(
                     engine = editorContext.engine,
                     eventHandler = editorContext.eventHandler,
                     sceneUri = EngineConfiguration.defaultVideoSceneUri,
                 )
 
-                scope.launch {
-                    awaitFrame()
-                    eventHandler.send(
-                        EditorEvent.AddCameraRecordingsToScene(
-                            uploadAssetSourceType = AssetSourceType.VideoUploads,
-                            recordings = recording.recordings
-                                .flatMap { recording ->
-                                    recording.videos
-                                        .map { it.uri to recording.duration }
-                                },
-                        ),
-                    )
+                if (isNewScene) {
+                    scope.launch {
+                        awaitFrame()
+                        eventHandler.send(
+                            EditorEvent.AddCameraRecordingsToScene(
+                                uploadAssetSourceType = AssetSourceType.VideoUploads,
+                                recordings = recording.recordings
+                                    .flatMap { recording ->
+                                        recording.videos
+                                            .map { it.uri to recording.duration }
+                                    },
+                            ),
+                        )
+                    }
                 }
             },
         )
