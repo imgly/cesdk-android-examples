@@ -47,9 +47,9 @@ String getVersionName() {
 def UBQ_ROOT_DIR = "${project.projectDir}/../../.."
 def updateLocalizationTask = tasks.register("updateLocalizationFiles", Exec) {
     workingDir = UBQ_ROOT_DIR
-    executable "python3"
+    executable "bash"
     args = [
-        "scripts/localization/android/generate_localization.py",
+        "scripts/localization/android/generate_localization.sh",
         "scripts/localization/mobile-showcases.tsv",
         "apps/cesdk_android_showcases/showcases-app/src/main/res",
         "ly_img_showcases_"

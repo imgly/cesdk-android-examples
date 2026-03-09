@@ -127,12 +127,13 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                         val buffer = engine.block.export(
                             block = requireNotNull(engine.scene.get()),
                             mimeType = MimeType.PDF,
-                        ) {
-                            scene.getPages().forEach {
-                                block.setScopeEnabled(it, key = "layer/visibility", enabled = true)
-                                block.setVisible(it, visible = true)
-                            }
-                        }
+                            onPreExport = {
+                                scene.getPages().forEach { page ->
+                                    block.setScopeEnabled(page, key = "layer/visibility", enabled = true)
+                                    block.setVisible(page, visible = true)
+                                }
+                            },
+                        )
                         val file = writeToTempFile(buffer, MimeType.PDF)
                         withContext(Dispatchers.IO) {
                             FileProvider.getUriForFile(
