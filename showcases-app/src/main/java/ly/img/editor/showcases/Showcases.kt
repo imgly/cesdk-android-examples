@@ -6,7 +6,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
@@ -32,27 +32,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -61,7 +55,9 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import ly.img.editor.DebugMenu
 import ly.img.editor.core.theme.LocalIsDarkTheme
-import ly.img.editor.showcases.ui.components.versionFooterItem
+import ly.img.editor.showcases.ui.component.CustomFunctionalityCard
+import ly.img.editor.showcases.ui.component.versionFooterItem
+import ly.img.editor.showcases.ui.modifier.linearGradientBackground
 import ly.img.editor.showcases.ui.sections.quickActionsSection
 
 @Composable
@@ -125,6 +121,48 @@ fun Showcases(
     }
 }
 
+/**
+ * Handles the click actions for showcase items with consistent behavior
+ * @param actionScreen The screen to navigate to
+ * @param uri The URI to use (can be null)
+ * @param clickAction The type of click action to perform
+ * @param navigateTo Function to navigate to a specific route
+ * @param fileLauncher Optional launcher for file picking (only needed for PICK_SCENE actions)
+ * @param imageLauncher Launcher for image picking
+ */
+private fun handleShowcaseItemClick(
+    actionScreen: Screen,
+    uri: String?,
+    clickAction: ShowcaseItem.CarouselContent.ClickAction,
+    navigateTo: (String) -> Unit,
+    fileLauncher: (() -> Unit)? = null,
+    imageLauncher: () -> Unit,
+) {
+    when {
+        clickAction == ShowcaseItem.CarouselContent.ClickAction.OPEN_SCENE && uri != null -> {
+            navigateTo(actionScreen.getRoute("scene" to uri))
+        }
+
+        clickAction == ShowcaseItem.CarouselContent.ClickAction.OPEN_SCENE && uri == null -> {
+            // Direct navigation for screens that don't need scene parameters
+            navigateTo(actionScreen.routeScheme)
+        }
+
+        clickAction == ShowcaseItem.CarouselContent.ClickAction.PICK_SCENE -> {
+            fileLauncher?.invoke()
+        }
+
+        clickAction == ShowcaseItem.CarouselContent.ClickAction.PICK_IMAGE -> {
+            imageLauncher.invoke()
+        }
+
+        else -> {
+            // Default to direct navigation
+            navigateTo(actionScreen.routeScheme)
+        }
+    }
+}
+
 fun LazyListScope.showcaseItem(
     element: ShowcaseItem,
     navigateTo: (String) -> Unit,
@@ -134,6 +172,7 @@ fun LazyListScope.showcaseItem(
             item(key = element.key) {
                 HeaderItem(element)
             }
+
             item(key = element.key + "HeaderContent") {
                 LazyRow(
                     contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 16.dp),
@@ -177,19 +216,39 @@ fun LazyListScope.showcaseItem(
                     }
                 }
                 CarouselItem(element) { uri, clickAction ->
-                    when {
-                        clickAction == ShowcaseItem.CarouselContent.ClickAction.OPEN_SCENE && uri != null -> {
-                            navigateTo(element.actionScreen.getRoute("scene" to uri))
-                        }
-
-                        clickAction == ShowcaseItem.CarouselContent.ClickAction.PICK_SCENE -> {
+                    handleShowcaseItemClick(
+                        actionScreen = element.actionScreen,
+                        uri = uri,
+                        clickAction = clickAction,
+                        navigateTo = navigateTo,
+                        fileLauncher = {
                             fileLauncher.launch(arrayOf("text/plain", "application/force-download", "application/octet-stream"))
-                        }
-
-                        clickAction == ShowcaseItem.CarouselContent.ClickAction.PICK_IMAGE -> {
+                        },
+                        imageLauncher = {
                             imageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        }
+                        },
+                    )
+                }
+            }
+        }
+
+        is ShowcaseItem.CustomFunctionality -> {
+            item(key = element.key) {
+                val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { imageUri ->
+                    imageUri?.let { uri ->
+                        navigateTo(element.actionScreen.getRoute("scene" to element.actionScene, "image" to uri))
                     }
+                }
+                CustomFunctionalityCard(element) { uri, clickAction ->
+                    handleShowcaseItemClick(
+                        actionScreen = element.actionScreen,
+                        uri = uri,
+                        clickAction = clickAction,
+                        navigateTo = navigateTo,
+                        imageLauncher = {
+                            imageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        },
+                    )
                 }
             }
         }
@@ -213,25 +272,6 @@ fun HeaderItem(item: ShowcaseItem.Header) {
             lineHeight = 24.sp,
         )
     }
-}
-
-private fun Modifier.linearGradientBackground(
-    height: Dp,
-    shape: Shape,
-) = composed {
-    this.background(
-        brush = with(LocalDensity.current) {
-            Brush.linearGradient(
-                colors = listOf(
-                    Color(0x39C8C6CB),
-                    Color(0x3978777C),
-                ),
-                start = Offset(0f, 0f),
-                end = Offset(0f, height.toPx()),
-            )
-        },
-        shape = shape,
-    )
 }
 
 @Composable

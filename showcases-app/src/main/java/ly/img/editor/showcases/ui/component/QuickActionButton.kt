@@ -1,4 +1,4 @@
-package ly.img.editor.showcases.ui.components
+package ly.img.editor.showcases.ui.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background

@@ -4,11 +4,16 @@ import android.app.Application
 import android.os.Build
 import android.os.StrictMode
 import androidx.core.content.ContextCompat
+import coil.ImageLoader
+import coil.ImageLoaderFactory
+import coil.decode.SvgDecoder
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.crashlytics
 
-class ShowcasesApp : Application() {
+class ShowcasesApp :
+    Application(),
+    ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
 
@@ -64,4 +69,10 @@ class ShowcasesApp : Application() {
                 .build(),
         )
     }
+
+    override fun newImageLoader(): ImageLoader = ImageLoader.Builder(this)
+        .components {
+            add(SvgDecoder.Factory())
+        }
+        .build()
 }

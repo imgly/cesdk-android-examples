@@ -2,8 +2,9 @@
 androidMinSdk = "24"
 androidCompileSdk = "35"
 androidTargetSdk = "35"
+falClientKotlin = "0.7.1"
 kotlin = "2.1.10"
-imgly = "1.71.0"
+imgly = "1.72.0-rc.0"
 buildConfig = "5.3.5"
 dropshots = "0.4.1"
 gradleAndroid = "8.6.1"
@@ -16,6 +17,7 @@ appcompat = "1.7.0"
 installer = "0.7.6"
 
 [libraries]
+fal-client-kotlin = { module = "ai.fal.client:fal-client-kotlin", version.ref = "falClientKotlin" }
 imgly-editor = { module = "ly.img:editor", version.ref = "imgly" }
 imgly-camera = { module = "ly.img:camera", version.ref = "imgly" }
 editor-debug-menu = { module = "ly.img:editor-debug-menu", version.ref = "imgly" }
@@ -36,6 +38,7 @@ firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-crashlytics-ndk = { module = "com.google.firebase:firebase-crashlytics-ndk" }
 
 coil-compose = "io.coil-kt:coil-compose:2.2.2"
+coil-svg = "io.coil-kt:coil-svg:2.2.2"
 
 play-services-auth = "com.google.android.gms:play-services-auth:21.2.0"
 

@@ -25,6 +25,21 @@ String getLocalProperty(String property) {
     return properties.getProperty(property)
 }
 
+// Resolve BASE_URI: env var → local.properties → git branch.
+// Auto-resolves from git branch for local and App Distribution builds so
+// branch-deployed remote assets work without manual configuration (matching iOS).
+// Play Store builds (UBQ_APP_DISTRIBUTION_BUILD=false) use the CDN default.
+String resolveBaseUri() {
+    def explicit = System.env.CESDK_AND_BASE_URI ?: getLocalProperty("base_uri")
+    if (explicit) return explicit
+    if (System.getenv("UBQ_APP_DISTRIBUTION_BUILD") == "false") return ""
+    try {
+        def branch = ["git", "rev-parse", "--abbrev-ref", "HEAD"].execute(null, rootDir).text.trim()
+        if (branch) return "https://ubique.img.ly/${branch}/packages/imgly/cesdk-android/assets"
+    } catch (Exception ignored) {}
+    return ""
+}
+
 Integer getVersionCode() {
     def versionPropsFile = file('.version')
     def versionProps = new Properties()
@@ -55,7 +70,23 @@ def updateLocalizationTask = tasks.register("updateLocalizationFiles", Exec) {
         "ly_img_showcases_"
     ]
 }
-tasks.named("preBuild").configure { dependsOn(updateLocalizationTask) }
+// Bundle local assets for local dev and App Distribution builds, but not Play Store releases.
+// Play Store builds (UBQ_APP_DISTRIBUTION_BUILD=false) use CDN assets at runtime.
+def isPlayStoreBuild = System.getenv("UBQ_APP_DISTRIBUTION_BUILD") != null &&
+    !System.getenv("UBQ_APP_DISTRIBUTION_BUILD").toBoolean()
+if (isPlayStoreBuild) {
+    tasks.named("preBuild").configure { dependsOn(updateLocalizationTask) }
+} else {
+    def assembleAssetsTask = tasks.register("assembleAssets", Exec) {
+        def outputDir = "${projectDir}/src/main/assets/imgly-assets"
+        workingDir = UBQ_ROOT_DIR
+        commandLine "bash", "scripts/assemble-imgly-assets-bundle.sh", outputDir, "cesdk-android"
+        inputs.file("${UBQ_ROOT_DIR}/mobile-asset-versions.env")
+        inputs.dir("${UBQ_ROOT_DIR}/assets")
+        outputs.dir(outputDir)
+    }
+    tasks.named("preBuild").configure { dependsOn(updateLocalizationTask, assembleAssetsTask) }
+}
 tasks.named("build").configure { dependsOn(updateLocalizationTask) }
 
 android {
@@ -136,12 +167,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
 
     buildFeatures {
@@ -158,6 +189,8 @@ buildConfig {
     buildConfigField String, "COMMIT_ID", System.getenv("CESDK_AND_COMMIT_ID") ?: ""
     buildConfigField String, "LICENSE", System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""
     buildConfigField String, "REMOTE_ASSET_SOURCE_HOST", System.env.CESDK_AND_REMOTE_ASSET_SOURCE_HOST ?: getLocalProperty("remote_asset_source_host") ?: ""
+    buildConfigField String, "BASE_URI", resolveBaseUri()
+    buildConfigField String, "FAL_PROXY_URL", System.getenv("FAL_AI_PROXY_URL") ?: getLocalProperty("fal_proxy_url") ?: ""
     buildConfigField int, "VERSION_CODE", android.defaultConfig.versionCode ?: 0
     buildConfigField String, "VERSION_NAME", android.defaultConfig.versionName
     buildConfigField String, "ENGINE_VERSION", libs.versions.imgly.get()
@@ -184,6 +217,10 @@ dependencies {
     implementation libs.compose.navigation
 
     implementation libs.coil.compose
+    implementation libs.coil.svg
+
+    implementation(libs.fal.client.kotlin)
+    implementation("com.google.mlkit:segmentation-selfie:16.0.0-beta6")
 
     implementation(libs.material) {
         because "MaterialComponents DayNight theme"

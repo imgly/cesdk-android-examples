@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.launch
 import ly.img.editor.EditorConfiguration
@@ -34,6 +35,8 @@ import ly.img.editor.rememberForDesign
 import ly.img.editor.rememberForPhoto
 import ly.img.editor.rememberForPostcard
 import ly.img.editor.rememberForVideo
+import ly.img.editor.showcases.icon.CustomFunctionalitiesBackgroundRemoval
+import ly.img.editor.showcases.icon.CustomFunctionalitiesTextToImage
 import ly.img.editor.showcases.icon.Homeoutline
 import ly.img.editor.showcases.icon.IconPack
 import ly.img.engine.MimeType
@@ -323,6 +326,29 @@ class ShowcasesViewModel : ViewModel() {
                 ),
             ),
         ),
+        ShowcaseItem.Header(
+            title = R.string.ly_img_showcases_title_custom_functionalities,
+            span = columns,
+            items = listOf(
+                ShowcaseItem.CustomFunctionality(
+                    vectorIcon = IconPack.CustomFunctionalitiesTextToImage,
+                    thumbnailRes = R.drawable.custom_functionality_text_to_image,
+                    label = R.string.ly_img_showcases_button_text_to_image_title,
+                    sublabel = R.string.ly_img_showcases_button_text_to_image_subtitle,
+                    actionScene = null,
+                    actionScreen = Screen.TextToImage,
+                ),
+                ShowcaseItem.CustomFunctionality(
+                    vectorIcon = IconPack.CustomFunctionalitiesBackgroundRemoval,
+                    thumbnailRes = R.drawable.custom_functionality_background_removal,
+                    label = R.string.ly_img_showcases_button_custom_bg_removal_title,
+                    sublabel = R.string.ly_img_showcases_button_custom_bg_removal_subtitle,
+                    actionScene = null,
+                    actionScreen = Screen.BackgroundRemoval,
+                    clickAction = ShowcaseItem.CarouselContent.ClickAction.PICK_IMAGE,
+                ),
+            ),
+        ),
     )
 
     private val colorPaletteMapping by lazy {
@@ -391,33 +417,37 @@ class ShowcasesViewModel : ViewModel() {
     }
 
     @Composable
-    fun rememberEngineConfigurationForScene(sceneUri: Uri): EngineConfiguration = EngineConfiguration.remember(
-        license = Secrets.license,
-        onCreate = {
-            val engine = this.editorContext.engine
-            val eventHandler = this.editorContext.eventHandler
-            EditorDefaults.onCreate(engine, sceneUri, eventHandler) { _, scope ->
-                val isVideoScene = engine.scene.getMode() == SceneMode.VIDEO
-                if (remoteAssetsSupported) {
-                    scope.launch {
-                        val remoteAssetSourcesSet = buildSet {
-                            add(RemoteAssetSource.Path.ImagePexels)
-                            add(RemoteAssetSource.Path.ImageUnsplash)
-                            if (isVideoScene) {
-                                add(RemoteAssetSource.Path.VideoPexels)
-                                add(RemoteAssetSource.Path.VideoGiphy)
-                                add(RemoteAssetSource.Path.VideoGiphySicker)
+    fun rememberEngineConfigurationForScene(sceneUri: Uri): EngineConfiguration {
+        val baseUri = AssetConfig.baseUri(LocalContext.current) ?: EngineConfiguration.defaultBaseUri
+        return EngineConfiguration.remember(
+            license = Secrets.license,
+            baseUri = baseUri,
+            onCreate = {
+                val engine = this.editorContext.engine
+                val eventHandler = this.editorContext.eventHandler
+                EditorDefaults.onCreate(engine, sceneUri, eventHandler) { _, scope ->
+                    val isVideoScene = engine.scene.getMode() == SceneMode.VIDEO
+                    if (remoteAssetsSupported) {
+                        scope.launch {
+                            val remoteAssetSourcesSet = buildSet {
+                                add(RemoteAssetSource.Path.ImagePexels)
+                                add(RemoteAssetSource.Path.ImageUnsplash)
+                                if (isVideoScene) {
+                                    add(RemoteAssetSource.Path.VideoPexels)
+                                    add(RemoteAssetSource.Path.VideoGiphy)
+                                    add(RemoteAssetSource.Path.VideoGiphySicker)
+                                }
                             }
+                            engine.addRemoteAssetSources(
+                                host = Secrets.remoteAssetSourceHost,
+                                paths = remoteAssetSourcesSet,
+                            )
                         }
-                        engine.addRemoteAssetSources(
-                            host = Secrets.remoteAssetSourceHost,
-                            paths = remoteAssetSourcesSet,
-                        )
                     }
                 }
-            }
-        },
-    )
+            },
+        )
+    }
 
     @Composable
     fun rememberEngineConfigurationForImage(
@@ -441,8 +471,10 @@ class ShowcasesViewModel : ViewModel() {
                     }.getOrNull()
                 }
         }
+        val baseUri = AssetConfig.baseUri(LocalContext.current) ?: EngineConfiguration.defaultBaseUri
         return EngineConfiguration.remember(
             license = Secrets.license,
+            baseUri = baseUri,
             onCreate = {
                 val engine = editorContext.engine
                 val eventHandler = editorContext.eventHandler
