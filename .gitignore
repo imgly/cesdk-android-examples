@@ -11,3 +11,4 @@
 local.properties
 android-release.keystore
 **/build
+showcases-app/src/main/assets/imgly-assets/

@@ -2,6 +2,7 @@ package ly.img.editor.showcases
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class ShowcaseItem(
     open val actionScene: String? = null,
@@ -44,7 +45,7 @@ sealed class ShowcaseItem(
             actionScene = actionScene,
             actionScreen = actionScreen,
             span = 1,
-            key = "item.content.$actionScene",
+            key = "item.content.${actionScene ?: actionScreen.routeScheme}",
         ) {
         enum class ClickAction {
             OPEN_SCENE,
@@ -52,4 +53,19 @@ sealed class ShowcaseItem(
             PICK_IMAGE,
         }
     }
+
+    class CustomFunctionality(
+        val vectorIcon: ImageVector,
+        @DrawableRes val thumbnailRes: Int,
+        @StringRes val label: Int,
+        @StringRes val sublabel: Int?,
+        val clickAction: CarouselContent.ClickAction = CarouselContent.ClickAction.OPEN_SCENE,
+        override val actionScene: String?,
+        override val actionScreen: Screen,
+    ) : ShowcaseItem(
+            actionScene = actionScene,
+            actionScreen = actionScreen,
+            span = 1,
+            key = "item.custom_functionality.${actionScene ?: actionScreen.routeScheme}",
+        )
 }

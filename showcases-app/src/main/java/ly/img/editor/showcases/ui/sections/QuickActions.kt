@@ -20,7 +20,7 @@ import ly.img.camera.core.EngineConfiguration
 import ly.img.editor.showcases.R
 import ly.img.editor.showcases.Screen
 import ly.img.editor.showcases.Secrets
-import ly.img.editor.showcases.ui.components.QuickActionButton
+import ly.img.editor.showcases.ui.component.QuickActionButton
 
 fun LazyListScope.quickActionsSection(navController: NavHostController) {
     item {

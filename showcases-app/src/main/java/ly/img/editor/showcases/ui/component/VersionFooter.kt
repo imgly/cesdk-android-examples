@@ -1,4 +1,4 @@
-package ly.img.editor.showcases.ui.components
+package ly.img.editor.showcases.ui.component
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background

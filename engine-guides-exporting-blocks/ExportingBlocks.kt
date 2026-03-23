@@ -20,7 +20,7 @@ fun exportingBlocks(
     engine.scene.create()
     engine.editor.setSettingString(
         "basePath",
-        value = "https://cdn.img.ly/packages/imgly/cesdk-android/1.71.0/assets",
+        value = "https://cdn.img.ly/packages/imgly/cesdk-android/1.72.0-rc.2/assets",
     )
     engine.addDefaultAssetSources()
 

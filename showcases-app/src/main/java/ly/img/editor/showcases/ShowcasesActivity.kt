@@ -30,9 +30,11 @@ import ly.img.editor.PhotoEditor
 import ly.img.editor.PostcardEditor
 import ly.img.editor.VideoEditor
 import ly.img.editor.core.theme.EditorTheme
+import ly.img.editor.showcases.ui.screens.BackgroundRemovalScreen
 import ly.img.editor.showcases.ui.screens.EditCameraRecordings
 import ly.img.editor.showcases.ui.screens.EditRecordedReaction
 import ly.img.editor.showcases.ui.screens.EditVideoFromUri
+import ly.img.editor.showcases.ui.screens.TextToImageScreen
 import java.nio.charset.Charset
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -122,6 +124,29 @@ class ShowcasesActivity : ComponentActivity() {
                                 onBack = { navController.popBackStack() },
                             )
                         }
+                    }
+                    composable(screen = Screen.TextToImage) {
+                        val sceneUri = it.getSceneUri(defaultScene = "empty")
+                        TextToImageScreen(
+                            sceneUri = sceneUri,
+                            onBack = { navController.popBackStack() },
+                        )
+                    }
+                    composable(screen = Screen.BackgroundRemoval) {
+                        val dimensionsAsString = it.arguments
+                            ?.getString("scene")
+                            ?.decodeBase64(ifPrefixed = Screen.BASE_64_URL_PREFIX)
+                        val image = it.arguments
+                            ?.getString("image")
+                            ?.decodeBase64(ifPrefixed = Screen.BASE_64_URL_PREFIX)
+                        val engineConfiguration = showcasesViewModel.rememberEngineConfigurationForImage(
+                            imageUri = image?.let(Uri::parse),
+                            dimensionsAsString = dimensionsAsString,
+                        )
+                        BackgroundRemovalScreen(
+                            engineConfiguration = engineConfiguration,
+                            onBack = { navController.popBackStack() },
+                        )
                     }
                 }
             }
@@ -279,6 +304,30 @@ sealed class Screen(
     data object EditVideoFromUri : Screen(
         routeScheme = "edit-video-from-uri",
         arguments = listOf(),
+    )
+
+    data object TextToImage : Screen(
+        routeScheme = "text-to-image?scene={scene}",
+        arguments = listOf(
+            navArgument("scene") {
+                nullable = true
+                defaultValue = null
+            },
+        ),
+    )
+
+    data object BackgroundRemoval : Screen(
+        routeScheme = "background-removal?scene={scene}&image={image}",
+        arguments = listOf(
+            navArgument("scene") {
+                nullable = true
+                defaultValue = null
+            },
+            navArgument("image") {
+                nullable = true
+                defaultValue = null
+            },
+        ),
     )
 
     companion object {
