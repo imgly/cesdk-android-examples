@@ -55,7 +55,7 @@ fun customLUTFilter(
     engine.block.setFloat(lutFilter, property = "effect/lut_filter/intensity", value = 0.9F)
 
     @Suppress("ktlint:standard:max-line-length")
-    val lutUri = "https://cdn.img.ly/packages/imgly/cesdk-js/1.72.0/assets/extensions/ly.img.cesdk.filters.lut/LUTs/imgly_lut_ad1920_5_5_128.png"
+    val lutUri = "https://cdn.img.ly/packages/imgly/cesdk-js/1.72.1/assets/extensions/ly.img.cesdk.filters.lut/LUTs/imgly_lut_ad1920_5_5_128.png"
 
     engine.block.setString(
         lutFilter,
