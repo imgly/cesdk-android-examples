@@ -2,69 +2,67 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
-import ly.img.editor.DesignEditor
-import ly.img.editor.EditorConfiguration
-import ly.img.editor.EditorDefaults
-import ly.img.editor.EngineConfiguration
-import ly.img.editor.HideLoading
-import ly.img.editor.ShowLoading
+import ly.img.editor.Editor
+import ly.img.editor.core.component.EditorComponent
+import ly.img.editor.core.component.remember
+import ly.img.editor.core.configuration.EditorConfiguration
+import ly.img.editor.core.configuration.remember
 import ly.img.editor.core.event.EditorEvent
-import ly.img.editor.rememberForDesign
+import ly.img.engine.DesignBlockType
 
 // Add this composable to your NavHost
 @Composable
 fun OverlayEditorSolution(navController: NavHostController) {
-    val engineConfiguration = EngineConfiguration.rememberForDesign(
-        license = "<your license here>", // pass null or empty for evaluation mode with watermark
-    )
-    val editorConfiguration = EditorConfiguration.remember(
-        initialState = OverlayCustomState(),
-        // highlight-configuration-on-event
-        onEvent = { state, event ->
-            when (event) {
-                is ShowLoading -> {
-                    state.copy(showCustomLoading = true)
+    var isLoading by remember { mutableStateOf(false) }
+    Editor(
+        license = null, // pass null or empty for evaluation mode with watermark
+        configuration = {
+            EditorConfiguration.remember {
+                onCreate = {
+                    isLoading = true
+                    try {
+                        val scene = editorContext.engine.scene.create()
+                        val page = editorContext.engine.block.create(DesignBlockType.Page)
+                        editorContext.engine.block.setWidth(block = page, value = 1080F)
+                        editorContext.engine.block.setHeight(block = page, value = 1080F)
+                        editorContext.engine.block.appendChild(parent = scene, child = page)
+                    } finally {
+                        isLoading = false
+                    }
                 }
-                is HideLoading -> {
-                    state.copy(showCustomLoading = false)
-                }
-                else -> {
-                    // handle other default events
-                    state.copy(baseState = EditorDefaults.onEvent(editorContext.activity, state.baseState, event))
-                }
-            }
-        },
-        // highlight-configuration-on-event
-        // highlight-configuration-overlay
-        overlay = { state ->
-            if (state.showCustomLoading) {
-                AlertDialog(
-                    onDismissRequest = { },
-                    title = {
-                        Text(text = "Please wait. If you want to close the editor, click the button.")
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                editorContext.eventHandler.send(HideLoading)
-                                editorContext.eventHandler.send(EditorEvent.CloseEditor())
-                            },
-                        ) {
-                            Text(text = "Close")
+                overlay = {
+                    EditorComponent.remember {
+                        decoration = {
+                            if (isLoading) {
+                                AlertDialog(
+                                    onDismissRequest = { },
+                                    title = {
+                                        Text(text = "Please wait. If you want to close the editor, click the button.")
+                                    },
+                                    confirmButton = {
+                                        TextButton(
+                                            onClick = {
+                                                isLoading = false
+                                                editorContext.eventHandler.send(EditorEvent.CloseEditor())
+                                            },
+                                        ) {
+                                            Text(text = "Close Editor")
+                                        }
+                                    },
+                                    properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
+                                )
+                            }
                         }
-                    },
-                    properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false),
-                )
+                    }
+                }
             }
-            EditorDefaults.Overlay(state = state.baseState, eventHandler = editorContext.eventHandler)
         },
-        // highlight-configuration-overlay
-    )
-    DesignEditor(
-        engineConfiguration = engineConfiguration,
-        editorConfiguration = editorConfiguration,
     ) {
         // You can set result here
         navController.popBackStack()

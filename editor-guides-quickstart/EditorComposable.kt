@@ -1,22 +1,36 @@
+import android.widget.Toast
 import androidx.compose.runtime.Composable
-import ly.img.editor.DesignEditor
-import ly.img.editor.EngineConfiguration
-import ly.img.editor.rememberForDesign
+import androidx.compose.ui.platform.LocalContext
+import ly.img.editor.Editor
+import ly.img.editor.core.configuration.EditorConfiguration
+import ly.img.editor.core.configuration.remember
+import ly.img.engine.DesignBlockType
 
+// Add this composable to your Activity, Fragment, NavHost etc.
 @Composable
-fun EditorComposable() {
-    val engineConfiguration = EngineConfiguration.rememberForDesign(
+fun EditorComposable(onClose: (Throwable?) -> Unit) {
+    val context = LocalContext.current
+    Editor(
         // Get your license from https://img.ly/forms/free-trial
-        // pass null or empty for evaluation mode with watermark
-        license = "<your license here>",
-        userId = "<your unique user id>", // A unique string to identify your user/session
-    )
-
-    DesignEditor(
-        engineConfiguration = engineConfiguration,
-        onClose = {
-            // Close the editor here
-            // If using a navigation library, call pop() or navigateUp() here
+        // Keep this null for evaluation mode with watermark.
+        // Replace it with your license key for production use.
+        license = null,
+        configuration = {
+            // highlight-engine-configuration
+            EditorConfiguration.remember {
+                onCreate = {
+                    val scene = editorContext.engine.scene.create()
+                    val page = editorContext.engine.block.create(DesignBlockType.Page)
+                    editorContext.engine.block.setWidth(block = page, value = 1080F)
+                    editorContext.engine.block.setHeight(block = page, value = 1080F)
+                    editorContext.engine.block.appendChild(parent = scene, child = page)
+                }
+                onError = {
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+            // highlight-engine-configuration
         },
+        onClose = onClose,
     )
 }
