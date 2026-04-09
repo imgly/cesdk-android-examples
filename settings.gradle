@@ -43,7 +43,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "cesdk_android_showcases"
+rootProject.name = "CE.SDK Android Showcases"
 include ':showcases-app'
 include ':solutions:photo-editor'
 include ':solutions:solution-template'

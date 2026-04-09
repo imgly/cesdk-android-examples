@@ -1,13 +1,13 @@
 import android.net.Uri
 import android.os.Bundle
 import android.view.TextureView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ly.img.engine.Engine
 
-class MyActivity : AppCompatActivity() {
+class MyActivity : ComponentActivity() {
     // highlight-setup
     private val engine = Engine.getInstance(id = "ly.img.engine.example")
     // highlight-setup
@@ -19,7 +19,7 @@ class MyActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             // highlight-start
             engine.start(
-                license = "<your license here>", // pass null or empty for evaluation mode with watermark
+                license = null, // pass null or empty for evaluation mode with watermark
                 userId = "<your unique user id>",
                 savedStateRegistryOwner = this@MyActivity,
             )

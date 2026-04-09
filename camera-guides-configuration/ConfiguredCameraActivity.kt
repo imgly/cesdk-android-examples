@@ -1,8 +1,8 @@
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
@@ -14,7 +14,7 @@ import kotlin.time.Duration.Companion.seconds
 
 private const val TAG = "ConfiguredCameraActivity"
 
-class ConfiguredCameraActivity : AppCompatActivity() {
+class ConfiguredCameraActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -22,7 +22,7 @@ class ConfiguredCameraActivity : AppCompatActivity() {
             // highlight-engine-configuration
             engineConfiguration = EngineConfiguration(
                 // highlight-license
-                license = "<your license here>", // pass null or empty for evaluation mode with watermark
+                license = null, // pass null or empty for evaluation mode with watermark
                 // highlight-userId
                 userId = "<your unique user id>",
             ),

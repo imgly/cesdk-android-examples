@@ -9,69 +9,59 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import ly.img.editor.DesignEditor
-import ly.img.editor.EditorConfiguration
-import ly.img.editor.EngineConfiguration
+import ly.img.editor.Editor
 import ly.img.editor.core.component.CanvasMenu
-import ly.img.editor.core.component.CanvasMenu.Companion.DefaultDecoration
-import ly.img.editor.rememberForDesign
+import ly.img.editor.core.component.DefaultDecoration
+import ly.img.editor.core.component.remember
+import ly.img.editor.core.component.rememberDefaultScope
+import ly.img.editor.core.configuration.EditorConfiguration
+import ly.img.editor.core.configuration.remember
 import ly.img.engine.DesignBlockType
 
 // Add this composable to your NavHost
 @Composable
 fun SimpleCanvasMenuSolution(navController: NavHostController) {
-    val engineConfiguration = EngineConfiguration.rememberForDesign(
-        license = "<your license here>", // pass null or empty for evaluation mode with watermark
-    )
-
-    // highlight-canvasMenuConfiguration
-    val editorConfiguration = EditorConfiguration.rememberForDesign(
-        canvasMenu = {
-            CanvasMenu.remember(
-                // highlight-canvasMenuConfiguration-scope
-                // Implementation is too large, check the implementation of CanvasMenu.defaultScope
-                scope = CanvasMenu.defaultScope,
-                // highlight-canvasMenuConfiguration-scope
-                // highlight-canvasMenuConfiguration-visible
-                visible = {
-                    val editorState by editorContext.state.collectAsState()
-                    remember(this, editorState) {
-                        editorState.isTouchActive.not() &&
-                            editorState.activeSheet == null &&
-                            editorContext.safeSelection != null &&
-                            editorContext.selection.type != DesignBlockType.Page &&
-                            editorContext.selection.type != DesignBlockType.Audio &&
-                            editorContext.engine.editor.getEditMode() != "Text" &&
-                            editorContext.isScenePlaying.not() &&
-                            editorContext.selection.isVisibleAtCurrentPlaybackTime
+    Editor(
+        license = null, // pass null or empty for evaluation mode with watermark
+        configuration = {
+            // highlight-canvasMenuConfiguration
+            EditorConfiguration.remember {
+                canvasMenu = {
+                    CanvasMenu.remember {
+                        // Implementation is too large, check the implementation of CanvasMenu.rememberDefaultScope
+                        scope = {
+                            CanvasMenu.rememberDefaultScope(parentScope = this)
+                        }
+                        modifier = { Modifier }
+                        visible = {
+                            val editorState by editorContext.state.collectAsState()
+                            remember(this, editorState) {
+                                editorState.isTouchActive.not() &&
+                                    editorState.activeSheet == null &&
+                                    editorContext.safeSelection != null &&
+                                    editorContext.selection.type != DesignBlockType.Page &&
+                                    editorContext.selection.type != DesignBlockType.Audio &&
+                                    editorContext.engine.editor.getEditMode() != "Text" &&
+                                    editorContext.isScenePlaying.not() &&
+                                    editorContext.selection.isVisibleAtCurrentPlaybackTime
+                            }
+                        }
+                        enterTransition = { EnterTransition.None }
+                        exitTransition = { ExitTransition.None }
+                        // Implementation is too large, check the implementation of CanvasMenu.DefaultDecoration
+                        decoration = { CanvasMenu.DefaultDecoration(scope = this) { it() } }
+                        listBuilder = { CanvasMenu.ListBuilder.remember { /* Add items */ } }
+                        // Default value is { it() }
+                        itemDecoration = {
+                            Box(modifier = Modifier.padding(2.dp)) {
+                                it()
+                            }
+                        }
                     }
-                },
-                // highlight-canvasMenuConfiguration-visible
-                // highlight-canvasMenuConfiguration-enterTransition
-                enterTransition = { EnterTransition.None },
-                // highlight-canvasMenuConfiguration-exitTransition
-                exitTransition = { ExitTransition.None },
-                // highlight-canvasMenuConfiguration-decoration
-                // Implementation is too large, check the implementation of CanvasMenu.DefaultDecoration
-                decoration = { DefaultDecoration { it() } },
-                // highlight-canvasMenuConfiguration-decoration
-                // highlight-canvasMenuConfiguration-listBuilder
-                listBuilder = CanvasMenu.ListBuilder.remember(),
-                // highlight-canvasMenuConfiguration-itemDecoration
-                // default value is { it() }
-                itemDecoration = {
-                    Box(modifier = Modifier.padding(2.dp)) {
-                        it()
-                    }
-                },
-                // highlight-canvasMenuConfiguration-itemDecoration
-            )
+                }
+            }
+            // highlight-canvasMenuConfiguration
         },
-    )
-    // highlight-canvasMenuConfiguration
-    DesignEditor(
-        engineConfiguration = engineConfiguration,
-        editorConfiguration = editorConfiguration,
     ) {
         // You can set result here
         navController.popBackStack()
