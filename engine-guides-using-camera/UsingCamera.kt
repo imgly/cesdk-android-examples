@@ -1,5 +1,5 @@
 import android.view.SurfaceView
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
@@ -24,7 +24,7 @@ import ly.img.engine.camera.setCameraPreview
 import java.io.File
 
 fun usingCamera(
-    activity: AppCompatActivity,
+    activity: ComponentActivity,
     surfaceView: SurfaceView,
     cameraProvider: ProcessCameraProvider,
     license: String?, // pass null or empty for evaluation mode with watermark
