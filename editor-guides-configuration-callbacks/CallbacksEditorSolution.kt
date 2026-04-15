@@ -1,7 +1,10 @@
-import android.net.Uri
 import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.core.content.FileProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -9,120 +12,76 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ly.img.editor.DesignEditor
-import ly.img.editor.DismissVideoExportEvent
-import ly.img.editor.EditorDefaults
-import ly.img.editor.EngineConfiguration
-import ly.img.editor.HideLoading
-import ly.img.editor.OnSceneLoaded
-import ly.img.editor.ShareUriEvent
-import ly.img.editor.ShowCloseConfirmationDialogEvent
-import ly.img.editor.ShowErrorDialogEvent
-import ly.img.editor.ShowLoading
-import ly.img.editor.ShowVideoExportErrorEvent
-import ly.img.editor.ShowVideoExportProgressEvent
-import ly.img.editor.ShowVideoExportSuccessEvent
+import ly.img.editor.Editor
+import ly.img.editor.core.component.EditorComponent
+import ly.img.editor.core.component.remember
+import ly.img.editor.core.configuration.EditorConfiguration
+import ly.img.editor.core.configuration.remember
 import ly.img.editor.core.event.EditorEvent
-import ly.img.editor.core.library.data.TextAssetSource
-import ly.img.editor.core.library.data.TypefaceProvider
+import ly.img.engine.DesignBlockType
 import ly.img.engine.MimeType
-import ly.img.engine.SceneMode
-import ly.img.engine.addDefaultAssetSources
-import ly.img.engine.addDemoAssetSources
-import kotlin.coroutines.cancellation.CancellationException
+import java.io.File
+import java.nio.ByteBuffer
+import java.util.UUID
+
+// highlight-declare-state-class
+data class State(
+    val isLoading: Boolean = false,
+    val isCloseConfirmationDialogVisible: Boolean = false,
+    val error: Throwable? = null,
+)
+// highlight-declare-state-class
 
 // Add this composable to your NavHost
 @Composable
 fun CallbacksEditorSolution(navController: NavHostController) {
-    val engineConfiguration = EngineConfiguration.remember(
-        license = "<your license here>", // pass null or empty for evaluation mode with watermark
-        // highlight-configuration-onCreate
-        onCreate = {
-            // Note that lambda is copied from EditorDefaults.onCreate
-            coroutineScope {
-                // In case of process recovery, engine automatically recovers the scene that is why we need to check
-                if (editorContext.engine.scene.get() == null) {
-                    editorContext.engine.scene.load(EngineConfiguration.defaultDesignSceneUri)
+    // highlight-declare-state
+    var state by remember { mutableStateOf(State()) }
+    // highlight-declare-state
+    Editor(
+        license = null, // pass null or empty for evaluation mode with watermark
+        configuration = {
+            EditorConfiguration.remember {
+                // highlight-configuration-onCreate
+                onCreate = {
+                    state = state.copy(isLoading = true)
+                    try {
+                        val scene = editorContext.engine.scene.create()
+                        val page = editorContext.engine.block.create(DesignBlockType.Page)
+                        editorContext.engine.block.setWidth(block = page, value = 1080F)
+                        editorContext.engine.block.setHeight(block = page, value = 1080F)
+                        editorContext.engine.block.appendChild(parent = scene, child = page)
+
+                        editorContext.engine.editor.setSettingEnum(keypath = "touch/pinchAction", value = "Scale")
+                    } finally {
+                        state = state.copy(isLoading = false)
+                    }
                 }
-                launch {
-                    editorContext.engine.addDefaultAssetSources()
-                    val defaultTypeface = TypefaceProvider().provideTypeface(editorContext.engine, "Roboto")
-                    requireNotNull(defaultTypeface)
-                    editorContext.engine.asset.addSource(TextAssetSource(editorContext.engine, defaultTypeface))
-                }
-                launch {
-                    editorContext.engine.addDemoAssetSources(
-                        sceneMode = editorContext.engine.scene.getMode(),
-                        withUploadAssetSources = true,
-                    )
-                }
-            }
-            editorContext.eventHandler.send(HideLoading)
-            editorContext.eventHandler.send(OnSceneLoaded())
-        },
-        // highlight-configuration-onCreate
-        // highlight-configuration-onLoaded
-        onLoaded = {
-            editorContext.engine.editor.setSettingEnum("touch/pinchAction", "Scale")
-            coroutineScope {
-                launch {
-                    editorContext.engine.editor
-                        .onHistoryUpdated()
-                        .collect { Toast.makeText(editorContext.activity, "History is updated!", Toast.LENGTH_SHORT).show() }
-                }
-                launch {
-                    editorContext.engine.editor
-                        .onStateChanged()
-                        .map { editorContext.engine.editor.getEditMode() }
-                        .distinctUntilChanged()
-                        .collect { Toast.makeText(editorContext.activity, "Edit mode is updated to $it!", Toast.LENGTH_SHORT).show() }
-                }
-            }
-        },
-        // highlight-configuration-onLoaded
-        // highlight-configuration-onExport
-        onExport = {
-            val engine = editorContext.engine
-            val eventHandler = editorContext.eventHandler
-            val context = engine.applicationContext
-            EditorDefaults.run {
-                if (engine.scene.getMode() == SceneMode.VIDEO) {
-                    val page = engine.scene.getCurrentPage() ?: engine.scene.getPages()[0]
-                    var exportProgress = 0f
-                    eventHandler.send(ShowVideoExportProgressEvent(exportProgress))
-                    runCatching {
-                        val buffer = engine.block.exportVideo(
-                            block = page,
-                            timeOffset = 0.0,
-                            duration = engine.block.getDuration(page),
-                            mimeType = MimeType.MP4,
-                            progressCallback = { progress ->
-                                val newProgress = progress.encodedFrames.toFloat() / progress.totalFrames
-                                if (newProgress >= exportProgress + 0.01f) {
-                                    exportProgress = newProgress
-                                    eventHandler.send(ShowVideoExportProgressEvent(exportProgress))
-                                }
-                            },
-                        )
-                        val file = writeToTempFile(buffer, MimeType.MP4)
-                        withContext(Dispatchers.IO) {
-                            FileProvider.getUriForFile(
-                                context,
-                                "${context.packageName}.ly.img.editor.fileprovider",
-                                file,
-                            )
+                // highlight-configuration-onCreate
+                // highlight-configuration-onLoaded
+                onLoaded = {
+                    coroutineScope {
+                        launch {
+                            editorContext.engine.editor
+                                .onHistoryUpdated()
+                                .collect { Toast.makeText(editorContext.activity, "History is updated!", Toast.LENGTH_SHORT).show() }
                         }
-                    }.onSuccess { uri ->
-                        eventHandler.send(ShowVideoExportSuccessEvent(uri, MimeType.MP4.key))
-                    }.onFailure {
-                        if (it is CancellationException) {
-                            eventHandler.send(DismissVideoExportEvent)
-                        } else {
-                            eventHandler.send(ShowVideoExportErrorEvent)
+                        launch {
+                            editorContext.engine.editor
+                                .onStateChanged()
+                                .map { editorContext.engine.editor.getEditMode() }
+                                .distinctUntilChanged()
+                                .collect {
+                                    Toast.makeText(editorContext.activity, "Edit mode is updated to $it!", Toast.LENGTH_SHORT).show()
+                                }
                         }
                     }
-                } else {
-                    eventHandler.send(ShowLoading)
+                }
+                // highlight-configuration-onLoaded
+                // highlight-configuration-onExport
+                onExport = {
+                    val engine = editorContext.engine
+                    state = state.copy(isLoading = true)
                     runCatching {
                         val buffer = engine.block.export(
                             block = requireNotNull(engine.scene.get()),
@@ -134,55 +93,65 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                                 }
                             },
                         )
-                        val file = writeToTempFile(buffer, MimeType.PDF)
-                        withContext(Dispatchers.IO) {
-                            FileProvider.getUriForFile(
-                                context,
-                                "${context.packageName}.ly.img.editor.fileprovider",
-                                file,
-                            )
-                        }
-                    }.onSuccess { uri ->
-                        eventHandler.send(HideLoading)
-                        eventHandler.send(ShareUriEvent(uri, MimeType.PDF.key))
+                        writeToTempFile(buffer, MimeType.PDF)
+                    }.onSuccess { file ->
+                        state = state.copy(isLoading = false)
+                        // Do something with the file
                     }.onFailure {
-                        eventHandler.send(HideLoading)
-                        eventHandler.send(ShowErrorDialogEvent(error = it))
+                        state = state.copy(isLoading = false, error = it)
+                    }
+                }
+                // highlight-configuration-onExport
+                // highlight-configuration-onUpload
+                onUpload = onUpload@{ assetDefinition, _ ->
+                    val meta = assetDefinition.meta ?: return@onUpload assetDefinition
+                    val sourceUri = meta["uri"]?.toUri()
+                    val uploadedUri = sourceUri // todo upload the asset here and return remote uri
+                    val newMeta = meta +
+                        listOf(
+                            "uri" to uploadedUri.toString(),
+                            "thumbUri" to uploadedUri.toString(),
+                        )
+                    assetDefinition.copy(meta = newMeta)
+                }
+                // highlight-configuration-onUpload
+                // highlight-configuration-onClose
+                onClose = {
+                    if (editorContext.engine.editor.canUndo()) {
+                        state = state.copy(isCloseConfirmationDialogVisible = true)
+                    } else {
+                        editorContext.eventHandler.send(EditorEvent.CloseEditor())
+                    }
+                }
+                // highlight-configuration-onClose
+                // highlight-configuration-onError
+                onError = { error ->
+                    state = state.copy(error = error)
+                }
+                // highlight-configuration-onError
+                overlay = {
+                    EditorComponent.remember {
+                        // Render loading, export state, error dialog and close confirmation dialog here.
                     }
                 }
             }
         },
-        // highlight-configuration-onExport
-        // highlight-configuration-onUpload
-        onUpload = { assetDefinition, _ ->
-            val meta = assetDefinition.meta ?: return@remember assetDefinition
-            val sourceUri = Uri.parse(meta["uri"])
-            val uploadedUri = sourceUri // todo upload the asset here and return remote uri
-            val newMeta = meta +
-                listOf(
-                    "uri" to uploadedUri.toString(),
-                    "thumbUri" to uploadedUri.toString(),
-                )
-            assetDefinition.copy(meta = newMeta)
-        },
-        // highlight-configuration-onUpload
-        // highlight-configuration-onClose
-        onClose = { hasUnsavedChanges ->
-            if (hasUnsavedChanges) {
-                editorContext.eventHandler.send(ShowCloseConfirmationDialogEvent)
-            } else {
-                editorContext.eventHandler.send(EditorEvent.CloseEditor())
-            }
-        },
-        // highlight-configuration-onClose
-        // highlight-configuration-onError
-        onError = { error ->
-            editorContext.eventHandler.send(ShowErrorDialogEvent(error))
-        },
-        // highlight-configuration-onError
-    )
-    DesignEditor(engineConfiguration = engineConfiguration) {
+    ) {
         // You can set result here
         navController.popBackStack()
     }
 }
+
+// highlight-write-to-temp-file
+private suspend fun writeToTempFile(
+    byteBuffer: ByteBuffer,
+    mimeType: MimeType = MimeType.PDF,
+): File = withContext(Dispatchers.IO) {
+    val extension = mimeType.key.split("/").last()
+    File
+        .createTempFile(UUID.randomUUID().toString(), ".$extension")
+        .apply {
+            outputStream().channel.write(byteBuffer)
+        }
+}
+// highlight-write-to-temp-file

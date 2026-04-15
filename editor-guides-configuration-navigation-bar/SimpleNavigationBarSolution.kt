@@ -14,69 +14,56 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import ly.img.editor.DesignEditor
-import ly.img.editor.EditorConfiguration
-import ly.img.editor.EngineConfiguration
-import ly.img.editor.core.LocalEditorScope
+import ly.img.editor.Editor
 import ly.img.editor.core.component.NavigationBar
-import ly.img.editor.rememberForDesign
+import ly.img.editor.core.component.remember
+import ly.img.editor.core.configuration.EditorConfiguration
+import ly.img.editor.core.configuration.remember
 
 // Add this composable to your NavHost
 @Composable
 fun SimpleNavigationBarSolution(navController: NavHostController) {
-    val engineConfiguration = EngineConfiguration.rememberForDesign(
-        license = "<your license here>", // pass null or empty for evaluation mode with watermark
-    )
-    // highlight-navigationBarConfiguration
-    val editorConfiguration = EditorConfiguration.rememberForDesign(
-        navigationBar = {
-            NavigationBar.remember(
-                // highlight-navigationBarConfiguration-scope
-                scope = LocalEditorScope.current.run {
-                    remember(this) { NavigationBar.Scope(parentScope = this) }
-                },
-                // highlight-navigationBarConfiguration-scope
-                // highlight-navigationBarConfiguration-visible
-                visible = { true },
-                // highlight-navigationBarConfiguration-enterTransition
-                enterTransition = { EnterTransition.None },
-                // highlight-navigationBarConfiguration-exitTransition
-                exitTransition = { ExitTransition.None },
-                // highlight-navigationBarConfiguration-decoration
-                decoration = {
-                    // Also available via NavigationBar.DefaultDecoration
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 64.dp)
-                                .background(MaterialTheme.colorScheme.surface)
-                                .padding(PaddingValues(horizontal = 4.dp)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        it()
+    Editor(
+        license = null, // pass null or empty for evaluation mode with watermark
+        configuration = {
+            // highlight-navigationBarConfiguration
+            EditorConfiguration.remember {
+                navigationBar = {
+                    NavigationBar.remember {
+                        scope = {
+                            remember(this) { NavigationBar.Scope(parentScope = this) }
+                        }
+                        visible = { true }
+                        modifier = { Modifier }
+                        enterTransition = { EnterTransition.None }
+                        exitTransition = { ExitTransition.None }
+                        decoration = {
+                            // Also available via NavigationBar.DefaultDecoration
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = 64.dp)
+                                        .background(MaterialTheme.colorScheme.surface)
+                                        .padding(PaddingValues(horizontal = 4.dp)),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                it()
+                            }
+                        }
+                        listBuilder = { NavigationBar.ListBuilder.remember { /* Add items */ } }
+                        horizontalArrangement = { Arrangement.SpaceEvenly }
+                        // Default value is { it() }
+                        itemDecoration = {
+                            Box(modifier = Modifier.padding(2.dp)) {
+                                it()
+                            }
+                        }
                     }
-                },
-                // highlight-navigationBarConfiguration-decoration
-                // highlight-navigationBarConfiguration-listBuilder
-                listBuilder = NavigationBar.ListBuilder.remember { },
-                // highlight-navigationBarConfiguration-horizontalArrangement
-                horizontalArrangement = { Arrangement.SpaceEvenly },
-                // highlight-navigationBarConfiguration-itemDecoration
-                // default value is { it() }
-                itemDecoration = {
-                    Box(modifier = Modifier.padding(2.dp)) {
-                        it()
-                    }
-                },
-                // highlight-navigationBarConfiguration-itemDecoration
-            )
+                }
+            }
+            // highlight-navigationBarConfiguration
         },
-    )
-    // highlight-navigationBarConfiguration
-    DesignEditor(
-        engineConfiguration = engineConfiguration,
-        editorConfiguration = editorConfiguration,
     ) {
         // You can set result here
         navController.popBackStack()

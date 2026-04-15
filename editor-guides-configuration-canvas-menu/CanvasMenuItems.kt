@@ -15,10 +15,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ly.img.editor.ShowLoading
-import ly.img.editor.core.LocalEditorScope
 import ly.img.editor.core.component.CanvasMenu
+import ly.img.editor.core.component.EditorComponent
 import ly.img.editor.core.component.EditorComponentId
+import ly.img.editor.core.component.InspectorBar.Scope
+import ly.img.editor.core.component.remember
+import ly.img.editor.core.compose.rememberLastValue
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.iconpack.IconPack
 import ly.img.editor.core.iconpack.Music
@@ -26,136 +28,126 @@ import ly.img.editor.core.sheet.SheetType
 
 // highlight-canvasMenuItems-newButton
 @Composable
-fun rememberCanvasMenuButton() = CanvasMenu.Button.remember(
-    // highlight-canvasMenuItems-newButton-id
-    id = EditorComponentId("my.package.canvasMenu.button.newButton"),
-    // highlight-canvasMenuItems-newButton-scope
-    scope = LocalEditorScope.current.run {
-        remember(this) { CanvasMenu.ButtonScope(parentScope = this) }
-    },
-    // highlight-canvasMenuItems-newButton-scope
-    // highlight-canvasMenuItems-newButton-visible
-    visible = { true },
-    // highlight-canvasMenuItems-newButton-enterTransition
-    enterTransition = { EnterTransition.None },
-    // highlight-canvasMenuItems-newButton-exitTransition
-    exitTransition = { ExitTransition.None },
-    // highlight-canvasMenuItems-newButton-decoration
-    // default value is { it() }
+fun rememberCanvasMenuButton() = CanvasMenu.Button.remember {
+    id = { EditorComponentId("my.package.canvasMenu.button.newButton") }
+    scope = {
+        val parentScope = this as Scope
+        rememberLastValue(parentScope) {
+            if (editorContext.safeSelection == null) lastValue else CanvasMenu.ItemScope(parentScope = parentScope)
+        }
+    }
+    modifier = { Modifier }
+    visible = { true }
+    enterTransition = { EnterTransition.None }
+    exitTransition = { ExitTransition.None }
+    // Default value is { it() }
     decoration = {
         Surface(color = MaterialTheme.colorScheme.background) {
             it()
         }
-    },
-    // highlight-canvasMenuItems-newButton-decoration
-    // highlight-canvasMenuItems-newButton-onClick
-    onClick = { editorContext.eventHandler.send(EditorEvent.Sheet.Open(SheetType.Volume())) },
-    // highlight-canvasMenuItems-newButton-icon
-    // default value is null
+    }
+    onClick = { editorContext.eventHandler.send(EditorEvent.Sheet.Open(SheetType.Volume())) }
+    // Default value is null
     icon = {
         Icon(
             imageVector = IconPack.Music,
             contentDescription = null,
         )
-    },
-    // highlight-canvasMenuItems-newButton-icon
-    // highlight-canvasMenuItems-newButton-text
-    // default value is null
+    }
+    // Default value is null
     text = {
         Text(
             text = "Hello World",
         )
-    },
-    // highlight-canvasMenuItems-newButton-text
-    // highlight-canvasMenuItems-newButton-enabled
-    enabled = { true },
-)
+    }
+    enabled = { true }
+}
 // highlight-canvasMenuItems-newButton
 
-// highlight-canvasMenuItems-newButton-simpleOverload
+// highlight-canvasMenuItems-newButton-simple
 @Composable
-fun rememberCanvasMenuButtonSimpleOverload() = CanvasMenu.Button.remember(
-    id = EditorComponentId("my.package.canvasMenu.button.newButton"),
-    scope = LocalEditorScope.current.run {
-        remember(this) { CanvasMenu.ButtonScope(parentScope = this) }
-    },
-    visible = { true },
-    enterTransition = { EnterTransition.None },
-    exitTransition = { ExitTransition.None },
+fun rememberCanvasMenuButtonSimple() = CanvasMenu.Button.remember {
+    id = { EditorComponentId("my.package.canvasMenu.button.newButton") }
+    scope = {
+        val parentScope = this as Scope
+        rememberLastValue(parentScope) {
+            if (editorContext.safeSelection == null) lastValue else CanvasMenu.ItemScope(parentScope = parentScope)
+        }
+    }
+    modifier = { Modifier }
+    visible = { true }
+    enterTransition = { EnterTransition.None }
+    exitTransition = { ExitTransition.None }
+    // Default value is it
     decoration = {
         Surface(color = MaterialTheme.colorScheme.background) {
             it()
         }
-    },
-    onClick = { editorContext.eventHandler.send(ShowLoading) },
-    vectorIcon = { IconPack.Music }, // default value is null
-    text = { "Hello World" }, // default value is null
-    tint = null,
-    enabled = { true },
-    contentDescription = null,
-)
-// highlight-canvasMenuItems-newButton-simpleOverload
+    }
+    onClick = { editorContext.eventHandler.send(ShowLoading) }
+    // Default value is null
+    vectorIcon = { IconPack.Music }
+    // Default value is null
+    text = { "Hello World" }
+    tint = { MaterialTheme.colorScheme.onSurfaceVariant }
+    enabled = { true }
+    contentDescription = null
+}
+// highlight-canvasMenuItems-newButton-simple
 
 // highlight-canvasMenuItems-newDivider
 @Composable
-fun rememberCanvasMenuDivider() = CanvasMenu.Divider.remember(
-    // highlight-canvasMenuItems-newDivider-scope
-    scope = LocalEditorScope.current.run {
-        remember(this) { CanvasMenu.DividerScope(parentScope = this) }
-    },
-    // highlight-canvasMenuItems-newDivider-scope
-    // highlight-canvasMenuItems-newDivider-visible
-    visible = { true },
-    // highlight-canvasMenuItems-newDivider-enterTransition
-    enterTransition = { EnterTransition.None },
-    // highlight-canvasMenuItems-newDivider-exitTransition
-    exitTransition = { ExitTransition.None },
-    // highlight-canvasMenuItems-newDivider-decoration
-    decoration = { it() },
-    // highlight-canvasMenuItems-newDivider-modifier
+fun rememberCanvasMenuDivider() = CanvasMenu.Divider.remember {
+    scope = {
+        val parentScope = this as Scope
+        rememberLastValue(parentScope) {
+            if (editorContext.safeSelection == null) lastValue else CanvasMenu.ItemScope(parentScope = parentScope)
+        }
+    }
+    modifier = { Modifier }
+    visible = { true }
+    enterTransition = { EnterTransition.None }
+    exitTransition = { ExitTransition.None }
+    decoration = { it() }
     modifier = {
         remember(this) {
             Modifier
                 .padding(horizontal = 8.dp)
                 .size(width = 1.dp, height = 24.dp)
         }
-    },
-    // highlight-canvasMenuItems-newDivider-modifier
-)
+    }
+}
 // highlight-canvasMenuItems-newDivider
 
 // highlight-canvasMenuItems-newCustomItem
 @Composable
-fun rememberCanvasMenuCustomItem() = CanvasMenu.Custom.remember(
-    // highlight-canvasMenuItems-newCustomItem-id
-    id = EditorComponentId("my.package.canvasMenu.newCustomItem"),
-    // highlight-canvasMenuItems-newCustomItem-scope
-    scope = LocalEditorScope.current.run {
-        remember(this) { CanvasMenu.ItemScope(parentScope = this) }
-    },
-    // highlight-canvasMenuItems-newCustomItem-scope
-    // highlight-canvasMenuItems-newCustomItem-visible
-    visible = { true },
-    // highlight-canvasMenuItems-newCustomItem-enterTransition
-    enterTransition = { EnterTransition.None },
-    // highlight-canvasMenuItems-newCustomItem-exitTransition
-    exitTransition = { ExitTransition.None },
-) {
-    // highlight-canvasMenuItems-newCustomItem-content
-    Box(
-        modifier = Modifier
-            .fillMaxHeight()
-            .clickable {
-                Toast
-                    .makeText(editorContext.activity, "Hello World Clicked!", Toast.LENGTH_SHORT)
-                    .show()
-            },
-    ) {
-        Text(
-            modifier = Modifier.align(Alignment.Center),
-            text = "Hello World",
-        )
+fun rememberCanvasMenuCustomItem() = EditorComponent.remember {
+    id = { EditorComponentId("my.package.canvasMenu.newCustomItem") }
+    scope = {
+        val parentScope = this as Scope
+        rememberLastValue(parentScope) {
+            if (editorContext.safeSelection == null) lastValue else CanvasMenu.ItemScope(parentScope = parentScope)
+        }
     }
-    // highlight-canvasMenuItems-newCustomItem-content
+    modifier = { Modifier }
+    visible = { true }
+    enterTransition = { EnterTransition.None }
+    exitTransition = { ExitTransition.None }
+    decoration = {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .clickable {
+                    Toast
+                        .makeText(editorContext.activity, "Hello World Clicked!", Toast.LENGTH_SHORT)
+                        .show()
+                },
+        ) {
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = "Hello World",
+            )
+        }
+    }
 }
 // highlight-canvasMenuItems-newCustomItem

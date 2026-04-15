@@ -1,52 +1,59 @@
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
-import ly.img.editor.DesignEditor
-import ly.img.editor.EditorConfiguration
-import ly.img.editor.EngineConfiguration
+import ly.img.editor.Editor
 import ly.img.editor.core.component.CanvasMenu
 import ly.img.editor.core.component.EditorComponentId
+import ly.img.editor.core.component.remember
 import ly.img.editor.core.component.rememberBringForward
 import ly.img.editor.core.component.rememberDelete
 import ly.img.editor.core.component.rememberDuplicate
 import ly.img.editor.core.component.rememberSelectGroup
 import ly.img.editor.core.component.rememberSendBackward
-import ly.img.editor.rememberForDesign
+import ly.img.editor.core.configuration.EditorConfiguration
+import ly.img.editor.core.configuration.remember
 
 // Add this composable to your NavHost
 @Composable
 fun NewListBuilderCanvasMenuSolution(navController: NavHostController) {
-    val engineConfiguration = EngineConfiguration.rememberForDesign(
-        license = "<your license here>", // pass null or empty for evaluation mode with watermark
-    )
-
-    val editorConfiguration = EditorConfiguration.rememberForDesign(
-        canvasMenu = {
-            CanvasMenu.remember(
-                // highlight-newListBuilder
-                listBuilder = CanvasMenu.ListBuilder.remember {
-                    add {
-                        CanvasMenu.Button.remember(
-                            id = EditorComponentId("my.package.canvasMenu.button.custom"),
-                            onClick = {},
-                            vectorIcon = null,
-                            text = { "Custom Button" },
-                        )
+    Editor(
+        license = null, // pass null or empty for evaluation mode with watermark
+        configuration = {
+            EditorConfiguration.remember {
+                canvasMenu = {
+                    CanvasMenu.remember {
+                        listBuilder = {
+                            // highlight-newListBuilder
+                            CanvasMenu.ListBuilder.remember {
+                                add {
+                                    CanvasMenu.Button.remember {
+                                        id = { EditorComponentId("my.package.canvasMenu.button.custom") }
+                                        onClick = {}
+                                        vectorIcon = null
+                                        textString = { "Custom Button" }
+                                    }
+                                }
+                                add { CanvasMenu.Button.rememberSelectGroup() }
+                                if (editorContext.isSelectionInGroup) {
+                                    add {
+                                        CanvasMenu.Divider.remember()
+                                    }
+                                }
+                                add { CanvasMenu.Button.rememberSendBackward() }
+                                add { CanvasMenu.Button.rememberBringForward() }
+                                if (editorContext.canSelectionMove) {
+                                    add {
+                                        CanvasMenu.Divider.remember()
+                                    }
+                                }
+                                add { CanvasMenu.Button.rememberDuplicate() }
+                                add { CanvasMenu.Button.rememberDelete() }
+                            }
+                            // highlight-newListBuilder
+                        }
                     }
-                    add { CanvasMenu.Button.rememberSelectGroup() }
-                    add { CanvasMenu.Divider.remember(visible = { editorContext.isSelectionInGroup }) }
-                    add { CanvasMenu.Button.rememberSendBackward() }
-                    add { CanvasMenu.Button.rememberBringForward() }
-                    add { CanvasMenu.Divider.remember(visible = { editorContext.canSelectionMove }) }
-                    add { CanvasMenu.Button.rememberDuplicate() }
-                    add { CanvasMenu.Button.rememberDelete() }
-                },
-                // highlight-newListBuilder
-            )
+                }
+            }
         },
-    )
-    DesignEditor(
-        engineConfiguration = engineConfiguration,
-        editorConfiguration = editorConfiguration,
     ) {
         // You can set result here
         navController.popBackStack()

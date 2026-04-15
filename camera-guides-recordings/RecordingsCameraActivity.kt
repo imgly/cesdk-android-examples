@@ -1,8 +1,8 @@
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import ly.img.camera.core.CameraResult
@@ -11,13 +11,13 @@ import ly.img.camera.core.EngineConfiguration
 
 private const val TAG = "RecordingsCameraActivity"
 
-class RecordingsCameraActivity : AppCompatActivity() {
+class RecordingsCameraActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val cameraInput = CaptureVideo.Input(
             engineConfiguration = EngineConfiguration(
-                license = "<your license here>", // pass null or empty for evaluation mode with watermark
+                license = null, // pass null or empty for evaluation mode with watermark
                 userId = "<your unique user id>",
             ),
         )
