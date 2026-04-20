@@ -12,10 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import ly.img.editor.ShowLoading
-import ly.img.editor.core.LocalEditorScope
 import ly.img.editor.core.component.Dock
+import ly.img.editor.core.component.EditorComponent
 import ly.img.editor.core.component.EditorComponentId
+import ly.img.editor.core.component.remember
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.iconpack.IconPack
 import ly.img.editor.core.iconpack.Music
@@ -23,108 +23,93 @@ import ly.img.editor.core.sheet.SheetType
 
 // highlight-dockItems-newButton
 @Composable
-fun rememberDockButton() = Dock.Button.remember(
-    // highlight-dockItems-newButton-id
-    id = EditorComponentId("my.package.dock.button.newButton"),
-    // highlight-dockItems-newButton-scope
-    scope = LocalEditorScope.current.run {
-        remember(this) { Dock.ButtonScope(parentScope = this) }
-    },
-    // highlight-dockItems-newButton-scope
-    // highlight-dockItems-newButton-visible
-    visible = { true },
-    // highlight-dockItems-newButton-enterTransition
-    enterTransition = { EnterTransition.None },
-    // highlight-dockItems-newButton-exitTransition
-    exitTransition = { ExitTransition.None },
-    // highlight-dockItems-newButton-decoration
-    // default value is { it() }
+fun rememberDockButton() = Dock.Button.remember {
+    id = { EditorComponentId("my.package.dock.button.newButton") }
+    scope = {
+        remember(this) { Dock.ItemScope(parentScope = this) }
+    }
+    modifier = { Modifier }
+    visible = { true }
+    enterTransition = { EnterTransition.None }
+    exitTransition = { ExitTransition.None }
+    // Default value is { it() }
     decoration = {
         Surface(color = MaterialTheme.colorScheme.background) {
             it()
         }
-    },
-    // highlight-dockItems-newButton-decoration
-    // highlight-dockItems-newButton-onClick
-    onClick = { editorContext.eventHandler.send(EditorEvent.Sheet.Open(SheetType.Volume())) },
-    // highlight-dockItems-newButton-icon
-    // default value is null
+    }
+    onClick = { editorContext.eventHandler.send(EditorEvent.Sheet.Open(SheetType.Volume())) }
+    // Default value is null
     icon = {
         Icon(
             imageVector = IconPack.Music,
             contentDescription = null,
         )
-    },
-    // highlight-dockItems-newButton-icon
-    // highlight-dockItems-newButton-text
-    // default value is null
+    }
+    // Default value is null
     text = {
         Text(
             text = "Hello World",
         )
-    },
-    // highlight-dockItems-newButton-text
-    // highlight-dockItems-newButton-enabled
-    enabled = { true },
-)
+    }
+    enabled = { true }
+}
 // highlight-dockItems-newButton
 
-// highlight-dockItems-newButton-simpleOverload
+// highlight-dockItems-newButton-simple
 @Composable
-fun rememberDockButtonSimpleOverload() = Dock.Button.remember(
-    id = EditorComponentId("my.package.dock.button.newButton"),
-    scope = LocalEditorScope.current.run {
-        remember(this) { Dock.ButtonScope(parentScope = this) }
-    },
-    visible = { true },
-    enterTransition = { EnterTransition.None },
-    exitTransition = { ExitTransition.None },
+fun rememberDockButtonSimple() = Dock.Button.remember {
+    id = { EditorComponentId("my.package.dock.button.newButton") }
+    scope = {
+        remember(this) { Dock.ItemScope(parentScope = this) }
+    }
+    modifier = { Modifier }
+    visible = { true }
+    enterTransition = { EnterTransition.None }
+    exitTransition = { ExitTransition.None }
+    // Default value is { it() }
     decoration = {
         Surface(color = MaterialTheme.colorScheme.background) {
             it()
         }
-    },
-    onClick = { editorContext.eventHandler.send(ShowLoading) },
-    vectorIcon = { IconPack.Music }, // default value is null
-    text = { "Hello World" }, // default value is null
-    tint = null,
-    enabled = { true },
-    contentDescription = null,
-)
-// highlight-dockItems-newButton-simpleOverload
+    }
+    onClick = { editorContext.eventHandler.send(EditorEvent.CloseEditor()) }
+    // Default value is null
+    vectorIcon = { IconPack.Music }
+    // Default value is null
+    textString = { "Hello World" }
+    tint = { MaterialTheme.colorScheme.onSurfaceVariant }
+    enabled = { true }
+    contentDescription = null
+}
+// highlight-dockItems-newButton-simple
 
 // highlight-dockItems-newCustomItem
 @Composable
-fun rememberCustomItem() = Dock.Custom.remember(
-    // highlight-dockItems-newCustomItem-id
-    id = EditorComponentId("my.package.dock.newCustomItem"),
-    // highlight-dockItems-newCustomItem-scope
-    scope = LocalEditorScope.current.run {
+fun rememberCustomItem() = EditorComponent.remember {
+    id = { EditorComponentId("my.package.dock.newCustomItem") }
+    scope = {
         remember(this) { Dock.ItemScope(parentScope = this) }
-    },
-    // highlight-dockItems-newCustomItem-scope
-    // highlight-dockItems-newCustomItem-visible
-    visible = { true },
-    // highlight-dockItems-newCustomItem-enterTransition
-    enterTransition = { EnterTransition.None },
-    // highlight-dockItems-newCustomItem-exitTransition
-    exitTransition = { ExitTransition.None },
-) {
-    // highlight-dockItems-newCustomItem-content
-    Box(
-        modifier = Modifier
-            .fillMaxHeight()
-            .clickable {
-                Toast
-                    .makeText(editorContext.activity, "Hello World Clicked!", Toast.LENGTH_SHORT)
-                    .show()
-            },
-    ) {
-        Text(
-            modifier = Modifier.align(Alignment.Center),
-            text = "Hello World",
-        )
     }
-    // highlight-dockItems-newCustomItem-content
+    modifier = { Modifier }
+    visible = { true }
+    enterTransition = { EnterTransition.None }
+    exitTransition = { ExitTransition.None }
+    decoration = {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .clickable {
+                    Toast
+                        .makeText(editorContext.activity, "Hello World Clicked!", Toast.LENGTH_SHORT)
+                        .show()
+                },
+        ) {
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = "Hello World",
+            )
+        }
+    }
 }
 // highlight-dockItems-newCustomItem

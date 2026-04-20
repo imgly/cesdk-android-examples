@@ -17,6 +17,11 @@ if (firebaseEnabled) {
     apply plugin: 'com.google.firebase.appdistribution'
 }
 
+def starterKitsGradleFilePath = "$rootDir/starter-kits/starter-kits-local.gradle"
+if (file(starterKitsGradleFilePath).exists()) {
+    apply from: starterKitsGradleFilePath
+}
+
 String getLocalProperty(String property) {
     def propertiesFile = new File(rootDir, "local.properties")
     if (!propertiesFile.exists()) return null
