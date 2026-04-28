@@ -2,7 +2,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
 import ly.img.editor.core.component.EditorComponentId
 import ly.img.editor.core.component.NavigationBar
@@ -16,9 +15,12 @@ import ly.img.editor.core.configuration.remember
 
 // Add this composable to your NavHost
 @Composable
-fun NewListBuilderNavigationBarSolution(navController: NavHostController) {
+fun NewListBuilderNavigationBarSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             EditorConfiguration.remember {
                 navigationBar = {
@@ -54,8 +56,6 @@ fun NewListBuilderNavigationBarSolution(navController: NavHostController) {
                 }
             }
         },
-    ) {
-        // You can set result here
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }

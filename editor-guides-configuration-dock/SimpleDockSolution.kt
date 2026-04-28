@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
 import ly.img.editor.core.component.Dock
 import ly.img.editor.core.component.remember
@@ -20,9 +19,12 @@ import ly.img.editor.core.theme.surface1
 
 // Add this composable to your NavHost
 @Composable
-fun SimpleDockSolution(navController: NavHostController) {
+fun SimpleDockSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     Editor(
-        license = null, // evaluation mode with watermark
+        license = license, // evaluation mode with watermark
         configuration = {
             // highlight-dockConfiguration
             EditorConfiguration.remember {
@@ -72,8 +74,6 @@ fun SimpleDockSolution(navController: NavHostController) {
             }
             // highlight-dockConfiguration
         },
-    ) {
-        // You can set result here
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }

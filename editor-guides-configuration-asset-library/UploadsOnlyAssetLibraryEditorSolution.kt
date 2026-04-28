@@ -1,6 +1,5 @@
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
@@ -11,9 +10,12 @@ import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.data.AssetSourceType
 
 @Composable
-fun UploadsOnlyAssetLibraryEditorSolution(navController: NavHostController) {
+fun UploadsOnlyAssetLibraryEditorSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             EditorConfiguration.remember {
                 // highlight-uploads-only-asset-library
@@ -42,7 +44,6 @@ fun UploadsOnlyAssetLibraryEditorSolution(navController: NavHostController) {
                 // highlight-uploads-only-asset-library
             }
         },
-    ) {
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }

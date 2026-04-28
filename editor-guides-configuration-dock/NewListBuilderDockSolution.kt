@@ -1,5 +1,4 @@
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
 import ly.img.editor.core.component.Dock
 import ly.img.editor.core.component.EditorComponentId
@@ -15,9 +14,12 @@ import ly.img.editor.core.configuration.remember
 
 // Add this composable to your NavHost
 @Composable
-fun NewListBuilderDockSolution(navController: NavHostController) {
+fun NewListBuilderDockSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             EditorConfiguration.remember {
                 dock = {
@@ -46,8 +48,6 @@ fun NewListBuilderDockSolution(navController: NavHostController) {
                 }
             }
         },
-    ) {
-        // You can set result here
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }

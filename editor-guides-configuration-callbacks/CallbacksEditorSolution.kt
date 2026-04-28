@@ -1,26 +1,36 @@
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.core.net.toUri
-import androidx.navigation.NavHostController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ly.img.editor.BasicConfigurationBuilder
 import ly.img.editor.Editor
+import ly.img.editor.core.component.Dock
 import ly.img.editor.core.component.EditorComponent
+import ly.img.editor.core.component.NavigationBar
 import ly.img.editor.core.component.remember
+import ly.img.editor.core.component.rememberCloseEditor
+import ly.img.editor.core.component.rememberExport
+import ly.img.editor.core.component.rememberSystemCamera
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
 import ly.img.editor.core.event.EditorEvent
+import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.engine.DesignBlockType
 import ly.img.engine.MimeType
 import java.io.File
+import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.UUID
 
@@ -34,14 +44,17 @@ data class State(
 
 // Add this composable to your NavHost
 @Composable
-fun CallbacksEditorSolution(navController: NavHostController) {
+fun CallbacksEditorSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     // highlight-declare-state
     var state by remember { mutableStateOf(State()) }
     // highlight-declare-state
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
-            EditorConfiguration.remember {
+            EditorConfiguration.remember(::BasicConfigurationBuilder) {
                 // highlight-configuration-onCreate
                 onCreate = {
                     state = state.copy(isLoading = true)
@@ -51,8 +64,12 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                         editorContext.engine.block.setWidth(block = page, value = 1080F)
                         editorContext.engine.block.setHeight(block = page, value = 1080F)
                         editorContext.engine.block.appendChild(parent = scene, child = page)
-
                         editorContext.engine.editor.setSettingEnum(keypath = "touch/pinchAction", value = "Scale")
+                        // Add ImageUploads asset source to demonstrate onUpload
+                        editorContext.engine.asset.addLocalSource(
+                            sourceId = AssetSourceType.ImageUploads.sourceId,
+                            supportedMimeTypes = listOf(AssetSourceType.ImageUploads.mimeTypeFilter),
+                        )
                     } finally {
                         state = state.copy(isLoading = false)
                     }
@@ -61,11 +78,6 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                 // highlight-configuration-onLoaded
                 onLoaded = {
                     coroutineScope {
-                        launch {
-                            editorContext.engine.editor
-                                .onHistoryUpdated()
-                                .collect { Toast.makeText(editorContext.activity, "History is updated!", Toast.LENGTH_SHORT).show() }
-                        }
                         launch {
                             editorContext.engine.editor
                                 .onStateChanged()
@@ -95,6 +107,7 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                         )
                         writeToTempFile(buffer, MimeType.PDF)
                     }.onSuccess { file ->
+                        Toast.makeText(editorContext.activity, "Exported to $file!", Toast.LENGTH_SHORT).show()
                         state = state.copy(isLoading = false)
                         // Do something with the file
                     }.onFailure {
@@ -112,11 +125,12 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                             "uri" to uploadedUri.toString(),
                             "thumbUri" to uploadedUri.toString(),
                         )
+                    Toast.makeText(editorContext.activity, "onUpload invoked!", Toast.LENGTH_SHORT).show()
                     assetDefinition.copy(meta = newMeta)
                 }
                 // highlight-configuration-onUpload
                 // highlight-configuration-onClose
-                onClose = {
+                this.onClose = {
                     if (editorContext.engine.editor.canUndo()) {
                         state = state.copy(isCloseConfirmationDialogVisible = true)
                     } else {
@@ -131,15 +145,57 @@ fun CallbacksEditorSolution(navController: NavHostController) {
                 // highlight-configuration-onError
                 overlay = {
                     EditorComponent.remember {
-                        // Render loading, export state, error dialog and close confirmation dialog here.
+                        decoration = {
+                            // Capture system back button tap
+                            BackHandler(true) {
+                                editorContext.eventHandler.send(EditorEvent.OnClose())
+                            }
+                            if (state.isLoading) {
+                                Loading()
+                            }
+                            if (state.isCloseConfirmationDialogVisible) {
+                                CloseConfirmationDialog(
+                                    onDismissRequest = {
+                                        state = state.copy(isCloseConfirmationDialogVisible = false)
+                                    },
+                                )
+                            }
+                            val error = state.error
+                            when {
+                                error is IOException -> NoInternetDialog()
+                                error != null -> ErrorDialog(throwable = error)
+                            }
+                        }
+                    }
+                }
+                dock = {
+                    Dock.remember {
+                        listBuilder = {
+                            Dock.ListBuilder.remember {
+                                add { Dock.Button.rememberSystemCamera() }
+                            }
+                        }
+                        horizontalArrangement = { Arrangement.Center }
+                    }
+                }
+                navigationBar = {
+                    NavigationBar.remember {
+                        listBuilder = {
+                            NavigationBar.ListBuilder.remember {
+                                aligned(alignment = Alignment.Start) {
+                                    add { NavigationBar.Button.rememberCloseEditor() }
+                                }
+                                aligned(alignment = Alignment.End) {
+                                    add { NavigationBar.Button.rememberExport() }
+                                }
+                            }
+                        }
                     }
                 }
             }
         },
-    ) {
-        // You can set result here
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }
 
 // highlight-write-to-temp-file

@@ -6,7 +6,6 @@ import kotlinx.coroutines.withContext
 import ly.img.engine.Engine
 import ly.img.engine.ExportOptions
 import ly.img.engine.MimeType
-import ly.img.engine.addDefaultAssetSources
 import java.io.File
 import java.util.UUID
 
@@ -18,16 +17,10 @@ fun exportingBlocks(
     engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 1080, height = 1920)
     engine.scene.create()
-    engine.editor.setSettingString(
-        "basePath",
-        value = "https://cdn.img.ly/packages/imgly/cesdk-android/1.73.1/assets",
-    )
-    engine.addDefaultAssetSources()
 
-    val sceneUri = Uri.parse(
-        "https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene",
+    val scene = engine.scene.createFromImage(
+        imageUri = Uri.parse("https://img.ly/static/ubq_samples/imgly_logo.jpg"),
     )
-    val scene = engine.scene.load(sceneUri = sceneUri)
 
     // Export scene as PNG image.
     val mimeType = MimeType.PNG
