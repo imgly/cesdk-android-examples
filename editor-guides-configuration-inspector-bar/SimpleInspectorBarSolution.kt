@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
 import ly.img.editor.core.component.DefaultDecoration
 import ly.img.editor.core.component.InspectorBar
@@ -22,9 +21,12 @@ import ly.img.editor.core.configuration.remember
 
 // Add this composable to your NavHost
 @Composable
-fun SimpleInspectorBarSolution(navController: NavHostController) {
+fun SimpleInspectorBarSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             // highlight-inspectorBarConfiguration
             EditorConfiguration.remember {
@@ -86,8 +88,6 @@ fun SimpleInspectorBarSolution(navController: NavHostController) {
             }
             // highlight-inspectorBarConfiguration
         },
-    ) {
-        // You can set result here
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }

@@ -1,7 +1,7 @@
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
+import ly.img.editor.core.R
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
 import ly.img.editor.core.library.AssetLibrary
@@ -12,18 +12,20 @@ import ly.img.editor.core.library.addSection
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.dropSection
 import ly.img.editor.core.library.replaceSection
-import ly.img.editor.smoketests.R
 import ly.img.engine.DesignBlockType
 
 // Add this composable to your NavHost
 @Composable
-fun DefaultAssetLibraryEditorSolution(navController: NavHostController) {
+fun DefaultAssetLibraryEditorSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     // highlight-configuration-custom-asset-source
     val unsplashAssetSource = remember {
         UnsplashAssetSource(baseUrl = "<your Unsplash API host endpoint here>")
     }
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             // highlight-configuration-custom-asset-source
             EditorConfiguration.remember {
@@ -40,7 +42,6 @@ fun DefaultAssetLibraryEditorSolution(navController: NavHostController) {
                 assetLibrary = {
                     remember {
                         val unsplashSection = LibraryContent.Section(
-                            titleRes = R.string.unsplash,
                             sourceTypes = listOf(AssetSourceType(sourceId = unsplashAssetSource.sourceId)),
                             assetType = AssetType.Image,
                         )
@@ -54,7 +55,7 @@ fun DefaultAssetLibraryEditorSolution(navController: NavHostController) {
                             images = LibraryCategory.Images
                                 .replaceSection(index = 0) {
                                     // We replace the title: "Image Uploads" -> "Uploads"
-                                    copy(titleRes = R.string.uploads)
+                                    copy(titleRes = R.string.ly_img_editor_asset_library_section_audio_uploads)
                                 }
                                 .dropSection(index = 1)
                                 .addSection(unsplashSection),
@@ -64,8 +65,6 @@ fun DefaultAssetLibraryEditorSolution(navController: NavHostController) {
                 // highlight-configuration-default-asset-library
             }
         },
-    ) {
-        // You can set result here
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }

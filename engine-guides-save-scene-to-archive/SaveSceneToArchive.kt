@@ -26,12 +26,15 @@ fun saveSceneToArchive(
     // highlight-saveToArchive
 
     // highlight-create-form-data-archive
-    withContext(Dispatchers.IO) {
-        val connection = URL("https://example.com/upload/").openConnection() as HttpURLConnection
-        connection.requestMethod = "POST"
-        connection.doOutput = true
-        connection.outputStream.use { Channels.newChannel(it).write(blob) }
-        connection.connect()
+    try {
+        withContext(Dispatchers.IO) {
+            val connection = URL("https://example.com/upload/").openConnection() as HttpURLConnection
+            connection.requestMethod = "POST"
+            connection.doOutput = true
+            connection.outputStream.use { Channels.newChannel(it).write(blob) }
+            connection.connect()
+        }
+    } catch (exception: Exception) {
     }
     // highlight-create-form-data-archive
 
