@@ -3,7 +3,6 @@ import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
 import ly.img.editor.core.component.Dock
 import ly.img.editor.core.component.EditorComponentId
@@ -14,9 +13,12 @@ import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.sheet.SheetType
 
 @Composable
-fun DefaultPanelSolution(navController: NavHostController) {
+fun DefaultPanelSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             EditorConfiguration.remember {
                 dock = {
@@ -30,9 +32,8 @@ fun DefaultPanelSolution(navController: NavHostController) {
                 }
             }
         },
-    ) {
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }
 
 val openPanelDockButton

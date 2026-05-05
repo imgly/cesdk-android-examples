@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
 import ly.img.editor.core.component.CanvasMenu
 import ly.img.editor.core.component.DefaultDecoration
@@ -20,9 +19,12 @@ import ly.img.engine.DesignBlockType
 
 // Add this composable to your NavHost
 @Composable
-fun SimpleCanvasMenuSolution(navController: NavHostController) {
+fun SimpleCanvasMenuSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             // highlight-canvasMenuConfiguration
             EditorConfiguration.remember {
@@ -62,8 +64,6 @@ fun SimpleCanvasMenuSolution(navController: NavHostController) {
             }
             // highlight-canvasMenuConfiguration
         },
-    ) {
-        // You can set result here
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }

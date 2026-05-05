@@ -1,0 +1,60 @@
+{
+  "version": "4.0.0",
+  "id": "ly.img.crop.presets",
+  "assets": [
+    {
+      "id": "aspect-ratio-1-1",
+      "label": {
+        "en": "1:1",
+        "de": "1:1"
+      },
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.crop.presets/thumbnails/ratio-1-1.png"
+      },
+      "payload": {
+        "transformPreset": {
+          "type": "FixedAspectRatio",
+          "width": 1,
+          "height": 1
+        }
+      },
+      "groups": ["fixed-ratio"]
+    },
+    {
+      "id": "aspect-ratio-3-4",
+      "label": {
+        "en": "3:4",
+        "de": "3:4"
+      },
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.crop.presets/thumbnails/ratio-3-4.png"
+      },
+      "payload": {
+        "transformPreset": {
+          "type": "FixedAspectRatio",
+          "width": 3,
+          "height": 4
+        }
+      },
+      "groups": ["fixed-ratio"]
+    },
+    {
+      "id": "aspect-ratio-4-3",
+      "label": {
+        "en": "4:3",
+        "de": "4:3"
+      },
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.crop.presets/thumbnails/ratio-4-3.png"
+      },
+      "payload": {
+        "transformPreset": {
+          "type": "FixedAspectRatio",
+          "width": 4,
+          "height": 3
+        }
+      },
+      "groups": ["fixed-ratio"]
+    }
+  ]
+}

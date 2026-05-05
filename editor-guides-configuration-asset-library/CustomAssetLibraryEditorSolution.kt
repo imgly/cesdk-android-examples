@@ -1,6 +1,5 @@
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
 import ly.img.editor.core.R
 import ly.img.editor.core.configuration.EditorConfiguration
@@ -15,16 +14,18 @@ import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.addSection
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.engine.DesignBlockType
-import ly.img.editor.smoketests.R as SmokeTestR
 
 // Add this composable to your NavHost
 @Composable
-fun CustomAssetLibraryEditorSolution(navController: NavHostController) {
+fun CustomAssetLibraryEditorSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     val unsplashAssetSource = remember {
         UnsplashAssetSource(baseUrl = "<your Unsplash API host endpoint here>")
     }
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             EditorConfiguration.remember {
                 onCreate = {
@@ -39,15 +40,15 @@ fun CustomAssetLibraryEditorSolution(navController: NavHostController) {
                 // highlight-configuration-custom-asset-library
                 assetLibrary = {
                     remember {
-                        // We create a custom tab with title "My Assets" that contains 2 sections:
+                        // We create a custom tab with title "Elements" that contains 2 sections:
                         // 1. Stickers - expanding it opens the default stickers content
                         // 2. Text - expanding it opens the default text content. Note that the title is skipped.
                         val myAssetsCategory = LibraryCategory(
-                            tabTitleRes = SmokeTestR.string.my_assets,
+                            tabTitleRes = R.string.ly_img_editor_asset_library_title_elements,
                             tabSelectedIcon = IconPack.LibraryElements,
                             tabUnselectedIcon = IconPack.LibraryElements,
                             content = LibraryContent.Sections(
-                                titleRes = SmokeTestR.string.my_assets,
+                                titleRes = R.string.ly_img_editor_asset_library_title_elements,
                                 sections = listOf(
                                     LibraryContent.Section(
                                         titleRes = R.string.ly_img_editor_asset_library_title_stickers,
@@ -72,7 +73,6 @@ fun CustomAssetLibraryEditorSolution(navController: NavHostController) {
                             },
                             images = {
                                 val unsplashSection = LibraryContent.Section(
-                                    titleRes = SmokeTestR.string.unsplash,
                                     sourceTypes = listOf(AssetSourceType(sourceId = unsplashAssetSource.sourceId)),
                                     assetType = AssetType.Image,
                                 )
@@ -85,8 +85,6 @@ fun CustomAssetLibraryEditorSolution(navController: NavHostController) {
                 // highlight-configuration-custom-asset-library
             }
         },
-    ) {
-        // You can set result here
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }

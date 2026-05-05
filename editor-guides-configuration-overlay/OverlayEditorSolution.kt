@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.DialogProperties
-import androidx.navigation.NavHostController
+import kotlinx.coroutines.delay
 import ly.img.editor.Editor
 import ly.img.editor.core.component.EditorComponent
 import ly.img.editor.core.component.remember
@@ -18,10 +18,13 @@ import ly.img.engine.DesignBlockType
 
 // Add this composable to your NavHost
 @Composable
-fun OverlayEditorSolution(navController: NavHostController) {
+fun OverlayEditorSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     var isLoading by remember { mutableStateOf(false) }
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             EditorConfiguration.remember {
                 onCreate = {
@@ -32,6 +35,7 @@ fun OverlayEditorSolution(navController: NavHostController) {
                         editorContext.engine.block.setWidth(block = page, value = 1080F)
                         editorContext.engine.block.setHeight(block = page, value = 1080F)
                         editorContext.engine.block.appendChild(parent = scene, child = page)
+                        delay(3000)
                     } finally {
                         isLoading = false
                     }
@@ -63,8 +67,6 @@ fun OverlayEditorSolution(navController: NavHostController) {
                 }
             }
         },
-    ) {
-        // You can set result here
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }

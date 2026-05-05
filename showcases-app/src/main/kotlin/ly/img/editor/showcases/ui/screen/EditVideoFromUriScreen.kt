@@ -105,6 +105,7 @@ private fun EditorScope.postCreateScene(
         EditorEvent.AddUriToScene(
             uploadAssetSourceType = AssetSourceType.VideoUploads,
             uri = uri,
+            addToBackgroundTrack = true,
         ),
     )
 }

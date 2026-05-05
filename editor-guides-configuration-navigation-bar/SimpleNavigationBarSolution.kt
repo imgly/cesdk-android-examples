@@ -13,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
 import ly.img.editor.core.component.NavigationBar
 import ly.img.editor.core.component.remember
@@ -22,9 +21,12 @@ import ly.img.editor.core.configuration.remember
 
 // Add this composable to your NavHost
 @Composable
-fun SimpleNavigationBarSolution(navController: NavHostController) {
+fun SimpleNavigationBarSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             // highlight-navigationBarConfiguration
             EditorConfiguration.remember {
@@ -64,8 +66,6 @@ fun SimpleNavigationBarSolution(navController: NavHostController) {
             }
             // highlight-navigationBarConfiguration
         },
-    ) {
-        // You can set result here
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }
