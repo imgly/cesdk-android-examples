@@ -1,6 +1,9 @@
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
@@ -11,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
 import ly.img.editor.core.component.Dock
 import ly.img.editor.core.component.EditorComponentId
@@ -24,9 +26,12 @@ import ly.img.editor.core.sheet.SheetStyle
 import ly.img.editor.core.sheet.SheetType
 
 @Composable
-fun CustomPanelSolution(navController: NavHostController) {
+fun CustomPanelSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             EditorConfiguration.remember {
                 dock = {
@@ -41,9 +46,8 @@ fun CustomPanelSolution(navController: NavHostController) {
                 }
             }
         },
-    ) {
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }
 
 val openCustomPanelDockButton
@@ -74,10 +78,12 @@ val customSheetType: SheetType
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .navigationBarsPadding()
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text("Custom Panel")
+                    Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = {
                             // highlight-close-panel

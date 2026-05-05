@@ -1,6 +1,5 @@
 import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
 import ly.img.editor.Editor
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
@@ -15,9 +14,12 @@ object HideLoading : EditorEvent
 
 // Add this composable to your NavHost
 @Composable
-fun UiEventsEditorSolution(navController: NavHostController) {
+fun UiEventsEditorSolution(
+    license: String,
+    onClose: (Throwable?) -> Unit,
+) {
     Editor(
-        license = null, // pass null or empty for evaluation mode with watermark
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             EditorConfiguration.remember {
                 // highlight-configuration-onCreate-events
@@ -45,8 +47,6 @@ fun UiEventsEditorSolution(navController: NavHostController) {
                 // highlight-configuration-on-event
             }
         },
-    ) {
-        // You can set result here
-        navController.popBackStack()
-    }
+        onClose = onClose,
+    )
 }
