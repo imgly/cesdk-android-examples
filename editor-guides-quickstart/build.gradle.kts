@@ -41,7 +41,7 @@ android {
 // highlight-dependency
 dependencies {
     // This dependency makes main compose and coroutine APIs available in your project
-    implementation("ly.img:editor:1.74.0")
+    implementation("ly.img:editor:1.74.1-rc.0")
     // Other dependencies here
 }
 // highlight-dependency
