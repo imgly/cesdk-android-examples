@@ -85,7 +85,7 @@ class VideoConfigurationBuilder : BasicConfigurationBuilder() {
      * The configuration of the component that is displayed as horizontal list of items at the bottom of the editor.
      * Check parent class declaration for more details.
      */
-    override var dock: ScopedProperty<EditorScope, EditorComponent<*>>? = {
+    override var dock: ScopedProperty<EditorScope, EditorComponent<*>?>? = {
         rememberDock()
     }
 
@@ -93,7 +93,7 @@ class VideoConfigurationBuilder : BasicConfigurationBuilder() {
      * The configuration of the component that is displayed as horizontal list of items at the top of the editor.
      * Check parent class declaration for more details.
      */
-    override var navigationBar: ScopedProperty<EditorScope, EditorComponent<*>>? = {
+    override var navigationBar: ScopedProperty<EditorScope, EditorComponent<*>?>? = {
         rememberNavigationBar()
     }
 
@@ -102,7 +102,7 @@ class VideoConfigurationBuilder : BasicConfigurationBuilder() {
      * bottom of the editor when a design block is selected.
      * Check parent class declaration for more details.
      */
-    override var inspectorBar: ScopedProperty<EditorScope, EditorComponent<*>>? = {
+    override var inspectorBar: ScopedProperty<EditorScope, EditorComponent<*>?>? = {
         rememberInspectorBar()
     }
 
@@ -111,7 +111,7 @@ class VideoConfigurationBuilder : BasicConfigurationBuilder() {
      * the selected design block.
      * Check parent class declaration for more details.
      */
-    override var canvasMenu: ScopedProperty<EditorScope, EditorComponent<*>>? = {
+    override var canvasMenu: ScopedProperty<EditorScope, EditorComponent<*>?>? = {
         rememberCanvasMenu()
     }
 
@@ -120,7 +120,7 @@ class VideoConfigurationBuilder : BasicConfigurationBuilder() {
      * overlay.
      * Check parent class declaration for more details.
      */
-    override var bottomPanel: ScopedProperty<EditorScope, EditorComponent<*>>? = {
+    override var bottomPanel: ScopedProperty<EditorScope, EditorComponent<*>?>? = {
         rememberBottomPanel()
     }
 
@@ -129,7 +129,7 @@ class VideoConfigurationBuilder : BasicConfigurationBuilder() {
      * overlay.
      * Check parent class declaration for more details.
      */
-    override var overlay: ScopedProperty<EditorScope, EditorComponent<*>>? = {
+    override var overlay: ScopedProperty<EditorScope, EditorComponent<*>?>? = {
         rememberOverlay()
     }
 }

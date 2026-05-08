@@ -1,10 +1,15 @@
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ly.img.engine.DesignBlockType
+import ly.img.engine.DesignUnit
 import ly.img.engine.Engine
 import ly.img.engine.FillType
+import ly.img.engine.SceneLayout
 import ly.img.engine.ShapeType
+import ly.img.engine.ZoomAutoFitAxis
 
 fun modifyingScenes(
     license: String?, // pass null or empty for evaluation mode with watermark
@@ -14,53 +19,109 @@ fun modifyingScenes(
     engine.start(license = license, userId = userId)
     engine.bindOffscreen(width = 1080, height = 1920)
 
-    // highlight-scene-get-create
-    // In engine only mode we have to create our own scene and page.
-    if (engine.scene.get() == null) {
-        val scene = engine.scene.create()
-        // highlight-scene-get-create
-        // highlight-page-get-create
-        val page = engine.block.create(DesignBlockType.Page)
-        engine.block.appendChild(parent = scene, child = page)
-    }
+    // highlight-create-scene
+    val scene = engine.scene.create(sceneLayout = SceneLayout.VERTICAL_STACK)
+    // highlight-create-scene
 
-    // Find all pages in our scene.
-    val pages = engine.block.findByType(DesignBlockType.Page)
-    // Use the first page we found.
-    val page = pages.first()
-    // highlight-page-get-create
+    // highlight-create-page
+    val page = engine.block.create(DesignBlockType.Page)
+    engine.block.setWidth(page, value = 800F)
+    engine.block.setHeight(page, value = 600F)
+    engine.block.appendChild(parent = scene, child = page)
+    // highlight-create-page
 
-    // highlight-create-image
-    // Create a graphic block and add it to the scene's page.
+    // highlight-create-block
     val block = engine.block.create(DesignBlockType.Graphic)
-    val fill = engine.block.createFill(FillType.Image)
-    engine.block.setShape(block, shape = engine.block.createShape(ShapeType.Rect))
-    engine.block.setFill(block = block, fill = fill)
-    // highlight-create-image
-
-    // highlight-image-properties
-    engine.block.setString(
-        block = fill,
-        property = "fill/image/imageFileURI",
-        value = "https://img.ly/static/ubq_samples/imgly_logo.jpg",
-    )
-
-    // The content fill mode 'Contain' ensures the entire image is visible.
-    engine.block.setEnum(
-        block = block,
-        property = "contentFill/mode",
-        value = "Contain",
-    )
-    // highlight-image-properties
-
-    // highlight-image-append
+    val shape = engine.block.createShape(ShapeType.Rect)
+    engine.block.setShape(block, shape = shape)
+    val fill = engine.block.createFill(FillType.Color)
+    engine.block.setFill(block, fill = fill)
+    engine.block.setWidth(block, value = 200F)
+    engine.block.setHeight(block, value = 200F)
     engine.block.appendChild(parent = page, child = block)
-    // highlight-image-append
+    // highlight-create-block
 
-    // highlight-zoom-page
-    // Zoom the scene's camera on our page.
-    engine.scene.zoomToBlock(page)
-    // highlight-zoom-page
+    // highlight-design-unit
+    val designUnit = engine.scene.getDesignUnit()
+    println("Design unit: $designUnit")
+
+    engine.scene.setDesignUnit(DesignUnit.MILLIMETER)
+    // highlight-design-unit
+
+    // highlight-scene-layout
+    engine.scene.setLayout(SceneLayout.HORIZONTAL_STACK)
+
+    val layout = engine.scene.getLayout()
+    println("Layout: $layout")
+    // highlight-scene-layout
+
+    // highlight-page-navigation
+    val pages = engine.scene.getPages()
+    println("Number of pages: ${pages.size}")
+
+    val currentPage = engine.scene.getCurrentPage()
+    println("Current page: $currentPage")
+    // highlight-page-navigation
+
+    // highlight-zoom-to-block
+    engine.scene.zoomToBlock(
+        block = page,
+        paddingLeft = 20F,
+        paddingTop = 20F,
+        paddingRight = 20F,
+        paddingBottom = 20F,
+    )
+    // highlight-zoom-to-block
+
+    // highlight-zoom-level
+    val zoomLevel = engine.scene.getZoomLevel()
+    println("Zoom level: $zoomLevel")
+
+    engine.scene.setZoomLevel(1F)
+    // highlight-zoom-level
+
+    // highlight-zoom-auto-fit
+    engine.scene.enableZoomAutoFit(
+        block = page,
+        axis = ZoomAutoFitAxis.BOTH,
+        paddingLeft = 20F,
+        paddingTop = 20F,
+        paddingRight = 20F,
+        paddingBottom = 20F,
+    )
+    println("Auto-fit enabled: ${engine.scene.isZoomAutoFitEnabled(page)}")
+    engine.scene.disableZoomAutoFit(page)
+    // highlight-zoom-auto-fit
+
+    // highlight-save-scene
+    val savedScene = engine.scene.saveToString(scene = scene)
+    println("Scene saved, length: ${savedScene.length}")
+    // highlight-save-scene
+
+    // highlight-load-scene
+    val loadedScene = engine.scene.load(scene = savedScene)
+    println("Scene loaded: $loadedScene")
+    // highlight-load-scene
+
+    // highlight-event-subscriptions
+    val zoomEvents = engine.scene.onZoomLevelChanged()
+        .onEach {
+            println("Zoom changed: ${engine.scene.getZoomLevel()}")
+        }
+        .launchIn(this)
+
+    val activeSceneEvents = engine.scene.onActiveChanged()
+        .onEach {
+            println("Active scene changed")
+        }
+        .launchIn(this)
+
+    engine.scene.setZoomLevel(2F)
+    engine.scene.load(scene = savedScene)
+
+    zoomEvents.cancel()
+    activeSceneEvents.cancel()
+    // highlight-event-subscriptions
 
     engine.stop()
 }
