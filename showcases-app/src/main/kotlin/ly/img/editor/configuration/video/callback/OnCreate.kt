@@ -130,6 +130,7 @@ suspend fun VideoConfigurationBuilder.onLoadAssetSources() {
             "image/heif",
             "image/svg+xml",
             "image/gif",
+            "image/apng",
             "image/bmp",
         ),
     )
