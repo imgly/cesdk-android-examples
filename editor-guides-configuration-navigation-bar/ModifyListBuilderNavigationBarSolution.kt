@@ -69,7 +69,7 @@ fun ModifyListBuilderNavigationBarSolution(
                                 }
                                 // highlight-modifyListBuilder-addLast
                                 // highlight-modifyListBuilder-addAfter
-                                addAfter(id = NavigationBar.Button.Id.redo) {
+                                addAfter(id = NavigationBar.Button.Id.redo, failIfNotFound = true) {
                                     NavigationBar.Button.remember {
                                         id = { EditorComponentId("my.package.navigationBar.button.afterRedo") }
                                         vectorIcon = { IconPack.Music }
@@ -79,7 +79,7 @@ fun ModifyListBuilderNavigationBarSolution(
                                 }
                                 // highlight-modifyListBuilder-addAfter
                                 // highlight-modifyListBuilder-addBefore
-                                addBefore(id = NavigationBar.Button.Id.undo) {
+                                addBefore(id = NavigationBar.Button.Id.undo, failIfNotFound = true) {
                                     NavigationBar.Button.remember {
                                         id = { EditorComponentId("my.package.navigationBar.button.beforeUndo") }
                                         vectorIcon = { IconPack.Music }
@@ -89,17 +89,17 @@ fun ModifyListBuilderNavigationBarSolution(
                                 }
                                 // highlight-modifyListBuilder-addBefore
                                 // highlight-modifyListBuilder-replace
-                                replace(id = NavigationBar.Button.Id.export) {
+                                replace(id = NavigationBar.Button.Id.export, failIfNotFound = true) {
                                     NavigationBar.Button.remember {
                                         id = { EditorComponentId("my.package.navigationBar.button.replacedExport") }
                                         vectorIcon = null
-                                        text = { "Replaced Export" }
+                                        textString = { "Replaced Export" }
                                         onClick = {}
                                     }
                                 }
                                 // highlight-modifyListBuilder-replace
                                 // highlight-modifyListBuilder-remove
-                                remove(id = NavigationBar.Button.Id.closeEditor)
+                                remove(id = NavigationBar.Button.Id.closeEditor, failIfNotFound = true)
                                 // highlight-modifyListBuilder-remove
                             }
                             // highlight-modifyListBuilder
