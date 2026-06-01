@@ -65,8 +65,9 @@ class ShowcasesActivity : ComponentActivity() {
             EditorTheme {
                 NavHost(navController = navController, startDestination = Screen.Catalog.routeScheme) {
                     composable(screen = Screen.Catalog) {
+                        val items = remember(viewModel) { viewModel.getItems() }
                         ShowcasesScreen(
-                            viewModel = viewModel,
+                            items = items,
                             onResult = { key, value -> navController.currentBackStackEntry?.savedStateHandle?.set(key, value) },
                             navigateTo = { navController.navigate(it) },
                         )
@@ -74,7 +75,6 @@ class ShowcasesActivity : ComponentActivity() {
                     composable(screen = Screen.ApparelUi) {
                         val sceneUri = it.getSceneUri(defaultScene = "apparel")
                         ApparelEditorScreen(
-                            viewModel = viewModel,
                             baseUri = baseUri,
                             sceneUri = sceneUri,
                         ) { navController.popBackStack() }
@@ -82,7 +82,6 @@ class ShowcasesActivity : ComponentActivity() {
                     composable(screen = Screen.PostcardUi) {
                         val sceneUri = it.getSceneUri(defaultScene = "postcard")
                         PostcardEditorScreen(
-                            viewModel = viewModel,
                             baseUri = baseUri,
                             sceneUri = sceneUri,
                         ) { navController.popBackStack() }
@@ -90,14 +89,12 @@ class ShowcasesActivity : ComponentActivity() {
                     composable(screen = Screen.DesignUi) {
                         val sceneUri = it.getSceneUri(defaultScene = "design")
                         DesignEditorScreen(
-                            viewModel = viewModel,
                             baseUri = baseUri,
                             sceneUri = sceneUri,
                         ) { navController.popBackStack() }
                     }
                     composable(screen = Screen.PhotoUi) {
                         PhotoEditorScreen(
-                            viewModel = viewModel,
                             baseUri = baseUri,
                             imageUriAsString = it.arguments?.getString("image"),
                             sizeAsString = it.arguments?.getString("scene"),
@@ -106,7 +103,6 @@ class ShowcasesActivity : ComponentActivity() {
                     composable(screen = Screen.VideoUi) {
                         val sceneUri = it.getSceneUri(defaultScene = "video")
                         VideoEditorScreen(
-                            viewModel = viewModel,
                             baseUri = baseUri,
                             sceneUri = sceneUri,
                         ) { navController.popBackStack() }
@@ -116,7 +112,6 @@ class ShowcasesActivity : ComponentActivity() {
                         val recording = remember { arg }
                         if (recording != null) {
                             EditCameraRecordingsScreen(
-                                viewModel = viewModel,
                                 baseUri = baseUri,
                                 recording = recording,
                                 onBack = { navController.popBackStack() },
@@ -128,7 +123,6 @@ class ShowcasesActivity : ComponentActivity() {
                         val reaction = remember { arg }
                         if (reaction != null) {
                             EditRecordedReactionScreen(
-                                viewModel = viewModel,
                                 baseUri = baseUri,
                                 reaction = reaction,
                                 onBack = { navController.popBackStack() },
@@ -140,7 +134,6 @@ class ShowcasesActivity : ComponentActivity() {
                         val videoUri = remember { arg }
                         if (videoUri != null) {
                             EditVideoFromUriScreen(
-                                viewModel = viewModel,
                                 baseUri = baseUri,
                                 videoUri = videoUri,
                                 onBack = { navController.popBackStack() },
@@ -150,7 +143,6 @@ class ShowcasesActivity : ComponentActivity() {
                     composable(screen = Screen.TextToImage) {
                         val sceneUri = it.getSceneUri(defaultScene = "design")
                         TextToImageScreen(
-                            viewModel = viewModel,
                             baseUri = baseUri,
                             sceneUri = sceneUri,
                             onBack = { navController.popBackStack() },
@@ -158,7 +150,6 @@ class ShowcasesActivity : ComponentActivity() {
                     }
                     composable(screen = Screen.BackgroundRemoval) {
                         BackgroundRemovalScreen(
-                            viewModel = viewModel,
                             baseUri = baseUri,
                             imageUriAsString = it.arguments?.getString("image"),
                             sizeAsString = it.arguments?.getString("scene"),

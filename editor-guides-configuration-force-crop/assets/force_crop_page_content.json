@@ -1,0 +1,25 @@
+{
+  "version": "4.0.0",
+  "id": "ly.img.page.presets",
+  "assets": [
+    {
+      "id": "profile-photo",
+      "label": {
+        "en": "Profile Photo (400x400)",
+        "de": "Profile Photo (400x400)"
+      },
+      "meta": {
+        "thumbUri": "{{base_url}}/ly.img.page.presets/thumbnails/instagram/ig-square.png"
+      },
+      "payload": {
+        "transformPreset": {
+          "type": "FixedSize",
+          "width": 400,
+          "height": 400,
+          "designUnit": "Pixel"
+        }
+      },
+      "groups": ["fixed-size"]
+    }
+  ]
+}

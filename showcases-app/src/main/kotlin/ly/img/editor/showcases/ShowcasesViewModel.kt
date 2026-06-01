@@ -1,31 +1,18 @@
 package ly.img.editor.showcases
 
-import RemoteAssetSource
-import addRemoteAssetSources
-import android.net.Uri
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
-import ly.img.editor.core.EditorScope
-import ly.img.editor.core.UnstableEditorApi
-import ly.img.editor.core.library.AssetLibrary
-import ly.img.editor.core.library.AssetType
-import ly.img.editor.core.library.LibraryCategory
-import ly.img.editor.core.library.LibraryContent
-import ly.img.editor.core.library.data.AssetSourceType
-import ly.img.editor.core.theme.fillAndStrokeColors
-import ly.img.editor.showcases.icon.CustomFunctionalitiesBackgroundRemoval
+import ly.img.editor.plugin.backgroundRemoval.iconPack.BackgroundRemoval
 import ly.img.editor.showcases.icon.CustomFunctionalitiesTextToImage
 import ly.img.editor.showcases.icon.IconPack
+import ly.img.editor.plugin.backgroundRemoval.iconPack.IconPack as BackgroundRemovalIconPack
 
 @Stable
 class ShowcasesViewModel : ViewModel() {
-    private val remoteAssetsSupported = Secrets.remoteAssetSourceHost.isNotEmpty()
-
-    fun getItems(columns: Int) = listOfNotNull(
+    fun getItems() = listOfNotNull(
         ShowcaseItem.Header(
             title = R.string.ly_img_showcases_title_photo,
-            span = columns,
+            span = CATALOG_COLUMNS_SIZE,
             items = listOf(
                 ShowcaseItem.CarouselContent(
                     iconRes = R.drawable.photo_ui_choose_from_gallery,
@@ -95,7 +82,7 @@ class ShowcasesViewModel : ViewModel() {
         ),
         ShowcaseItem.Header(
             title = R.string.ly_img_showcases_title_design,
-            span = columns,
+            span = CATALOG_COLUMNS_SIZE,
             items = listOf(
                 ShowcaseItem.Content(
                     thumbnailRes = R.drawable.design_ui_instagram_story_template,
@@ -194,7 +181,7 @@ class ShowcasesViewModel : ViewModel() {
         ),
         ShowcaseItem.Header(
             title = R.string.ly_img_showcases_title_video,
-            span = columns,
+            span = CATALOG_COLUMNS_SIZE,
             items = listOf(
                 ShowcaseItem.Content(
                     thumbnailRes = R.drawable.thumbnail_red_dot,
@@ -231,7 +218,7 @@ class ShowcasesViewModel : ViewModel() {
         ),
         ShowcaseItem.Header(
             title = R.string.ly_img_showcases_title_apparel,
-            span = columns,
+            span = CATALOG_COLUMNS_SIZE,
             items = listOf(
                 ShowcaseItem.Content(
                     thumbnailRes = R.drawable.thumbnail_apparel_ui_b_1,
@@ -268,7 +255,7 @@ class ShowcasesViewModel : ViewModel() {
         ),
         ShowcaseItem.Header(
             title = R.string.ly_img_showcases_title_postcard,
-            span = columns,
+            span = CATALOG_COLUMNS_SIZE,
             items = listOf(
                 ShowcaseItem.Content(
                     thumbnailRes = R.drawable.thumbnail_bonjour_paris,
@@ -305,7 +292,7 @@ class ShowcasesViewModel : ViewModel() {
         ),
         ShowcaseItem.Header(
             title = R.string.ly_img_showcases_title_custom_functionalities,
-            span = columns,
+            span = CATALOG_COLUMNS_SIZE,
             items = listOf(
                 ShowcaseItem.CustomFunctionality(
                     vectorIcon = IconPack.CustomFunctionalitiesTextToImage,
@@ -316,7 +303,7 @@ class ShowcasesViewModel : ViewModel() {
                     actionScreen = Screen.TextToImage,
                 ),
                 ShowcaseItem.CustomFunctionality(
-                    vectorIcon = IconPack.CustomFunctionalitiesBackgroundRemoval,
+                    vectorIcon = BackgroundRemovalIconPack.BackgroundRemoval,
                     thumbnailRes = R.drawable.custom_functionality_background_removal,
                     label = R.string.ly_img_showcases_button_custom_bg_removal_title,
                     sublabel = R.string.ly_img_showcases_button_custom_bg_removal_subtitle,
@@ -328,159 +315,10 @@ class ShowcasesViewModel : ViewModel() {
         ),
     )
 
-    private val colorPaletteMapping by lazy {
-        mapOf(
-            "bonjour_paris" to
-                listOf(
-                    Color(0xFF000000),
-                    Color(0xFFFFFFFF),
-                    Color(0xFF4932D1),
-                    Color(0xFFFE6755),
-                    Color(0xFF606060),
-                    Color(0xFF696969),
-                    Color(0xFF999999),
-                ),
-            "merry_christmas" to
-                listOf(
-                    Color(0xFF536F1A),
-                    Color(0xFFFFFFFF),
-                    Color(0xFF6B2923),
-                    Color(0xFFF3AE2B),
-                    Color(0xFF051111),
-                    Color(0xFF696969),
-                    Color(0xFF999999),
-                ),
-            "thank_you" to
-                listOf(
-                    Color(0xFFE09F96),
-                    Color(0xFFFFFFFF),
-                    Color(0xFF761E40),
-                    Color(0xFF7471A3),
-                    Color(0xFF20121F),
-                    Color(0xFF696969),
-                    Color(0xFF999999),
-                ),
-            "wish_you_were_here" to
-                listOf(
-                    Color(0xFFE75050),
-                    Color(0xFFFFFFFF),
-                    Color(0xFF111111),
-                    Color(0xFF282929),
-                    Color(0xFF619888),
-                    Color(0xFF696969),
-                    Color(0xFF999999),
-                ),
-            "postcard" to
-                listOf(
-                    Color.Blue,
-                    Color.Green,
-                    Color.Yellow,
-                    Color.Red,
-                    Color.Black,
-                    Color.White,
-                    Color.Gray,
-                ),
-        )
-    }
-
-    suspend fun addRemoteAssetSources(
-        scope: EditorScope,
-        isVideoScene: Boolean,
-    ) = scope.run {
-        if (remoteAssetsSupported.not()) return
-        val remoteAssetSourcesSet = buildSet {
-            add(RemoteAssetSource.Path.ImagePexels)
-            add(RemoteAssetSource.Path.ImageUnsplash)
-            if (isVideoScene) {
-                add(RemoteAssetSource.Path.VideoPexels)
-                add(RemoteAssetSource.Path.VideoGiphy)
-                add(RemoteAssetSource.Path.VideoGiphySicker)
-            }
-        }
-        editorContext.engine.addRemoteAssetSources(
-            host = Secrets.remoteAssetSourceHost,
-            paths = remoteAssetSourcesSet,
-        )
-    }
-
-    fun getAssetLibrary(isVideoScene: Boolean): AssetLibrary {
-        val unsplashSection = LibraryContent.Section(
-            titleRes = R.string.ly_img_showcases_asset_library_section_unsplash,
-            sourceTypes = listOf(AssetSourceType(sourceId = "ly.img.image.unsplash")),
-            assetType = AssetType.Image,
-        )
-
-        val pexelsImagesSection = LibraryContent.Section(
-            titleRes = R.string.ly_img_showcases_asset_library_section_pexels,
-            sourceTypes = listOf(AssetSourceType(sourceId = "ly.img.image.pexels")),
-            assetType = AssetType.Image,
-        )
-
-        val pexelsVideoSection = LibraryContent.Section(
-            titleRes = R.string.ly_img_showcases_asset_library_section_pexels,
-            sourceTypes = listOf(AssetSourceType(sourceId = "ly.img.video.pexels")),
-            assetType = AssetType.Video,
-        )
-
-        val giphyVideoSection = LibraryContent.Section(
-            titleRes = R.string.ly_img_showcases_asset_library_section_giphy,
-            sourceTypes = listOf(AssetSourceType(sourceId = "ly.img.video.giphy")),
-            assetType = AssetType.Video,
-        )
-
-        val defaultImagesContent = LibraryCategory.Images.content as LibraryContent.Sections
-        val defaultVideoContent = LibraryCategory.Video.content as LibraryContent.Sections
-
-        val videos = LibraryCategory.Video.copy(
-            content = defaultVideoContent.copy(
-                sections = listOf(pexelsVideoSection, giphyVideoSection) + defaultVideoContent.sections,
-            ),
-        )
-
-        val images = LibraryCategory.Images.copy(
-            content = defaultImagesContent.copy(
-                sections = listOf(pexelsImagesSection, unsplashSection) + defaultImagesContent.sections,
-            ),
-        )
-
-        val stickersCategory = LibraryCategory.Stickers
-
-        return AssetLibrary.getDefault(
-            includeAVResources = isVideoScene,
-            images = images,
-            videos = videos,
-            stickers = if (isVideoScene.not()) {
-                stickersCategory
-            } else {
-                val content = stickersCategory.content as LibraryContent.Sections
-                stickersCategory.copy(
-                    content = (
-                        content.copy(
-                            sections = listOf(
-                                LibraryContent.Section(
-                                    titleRes = R.string.ly_img_showcases_asset_library_section_giphy_stickers,
-                                    sourceTypes = listOf(AssetSourceType(sourceId = "ly.img.video.giphy.sticker")),
-                                    assetType = AssetType.Sticker,
-                                ),
-                            ) + content.sections,
-                        )
-                    ),
-                )
-            },
-        )
-    }
-
-    @OptIn(UnstableEditorApi::class)
-    fun getColorPalette(sceneUri: Uri?): List<Color> {
-        sceneUri ?: return fillAndStrokeColors
-        val scene = sceneUri.pathSegments.lastOrNull() ?: return fillAndStrokeColors
-        return colorPaletteMapping[scene] ?: fillAndStrokeColors
-    }
-
-    companion object {
+    private companion object {
         const val CATALOG_COLUMNS_SIZE = 2
-        private const val APPAREL_THUMBNAIL_ASPECT_RATIO = 123F / 152F
-        private const val POSTCARD_THUMBNAIL_ASPECT_RATIO = 208F / 152F
-        private const val VIDEO_THUMBNAIL_ASPECT_RATIO = 95F / 152F
+        const val APPAREL_THUMBNAIL_ASPECT_RATIO = 123F / 152F
+        const val POSTCARD_THUMBNAIL_ASPECT_RATIO = 208F / 152F
+        const val VIDEO_THUMBNAIL_ASPECT_RATIO = 95F / 152F
     }
 }
