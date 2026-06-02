@@ -20,9 +20,6 @@ import ly.img.editor.core.component.rememberFillStroke
 import ly.img.editor.core.component.rememberFilter
 import ly.img.editor.core.component.rememberFormatText
 import ly.img.editor.core.component.rememberLayer
-import ly.img.editor.core.component.rememberMoveAsClip
-import ly.img.editor.core.component.rememberMoveAsOverlay
-import ly.img.editor.core.component.rememberReorder
 import ly.img.editor.core.component.rememberReplace
 import ly.img.editor.core.component.rememberSelectGroup
 import ly.img.editor.core.component.rememberShape
@@ -58,9 +55,6 @@ fun VideoConfigurationBuilder.rememberInspectorBar() = InspectorBar.remember {
             add { InspectorBar.Button.rememberEnterGroup() } // Group
             add { InspectorBar.Button.rememberLayer() } // Video, Image, Sticker, Shape, Text
             add { InspectorBar.Button.rememberSplit() } // Video, Image, Sticker, Shape, Text, Audio
-            add { InspectorBar.Button.rememberMoveAsClip() } // Video, Image, Sticker, Shape, Text
-            add { InspectorBar.Button.rememberMoveAsOverlay() } // Video, Image, Sticker, Shape, Text
-            add { InspectorBar.Button.rememberReorder() } // Video, Image, Sticker, Shape, Text
             add { InspectorBar.Button.rememberDuplicate() } // Video, Image, Sticker, Shape, Text
             add { InspectorBar.Button.rememberDelete() } // Video, Image, Sticker, Shape, Text
         }

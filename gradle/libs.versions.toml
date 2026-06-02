@@ -4,7 +4,7 @@ androidCompileSdk = "35"
 androidTargetSdk = "35"
 falClientKotlin = "0.7.1"
 kotlin = "2.1.10"
-imgly = "1.75.1"
+imgly = "1.76.0-rc.3"
 buildConfig = "5.3.5"
 dropshots = "0.4.1"
 gradleAndroid = "8.11.0"
@@ -15,10 +15,12 @@ agp = "8.4.2"
 coreKtx = "1.15.0"
 appcompat = "1.7.0"
 installer = "0.7.6"
+segmentationSelfie = "16.0.0-beta6"
 
 [libraries]
 fal-client-kotlin = { module = "ai.fal.client:fal-client-kotlin", version.ref = "falClientKotlin" }
 imgly-editor = { module = "ly.img:editor", version.ref = "imgly" }
+imgly-plugin-background-removal = { module = "ly.img:plugin-background-removal", version.ref = "imgly" }
 imgly-camera = { module = "ly.img:camera", version.ref = "imgly" }
 editor-debug-menu = { module = "ly.img:editor-debug-menu", version.ref = "imgly" }
 editor-debug-menu-dummy = { module = "ly.img:editor-debug-menu-dummy", version.ref = "imgly" }
@@ -49,6 +51,7 @@ installer-ktx = { module = "ru.solrudev.ackpine:ackpine-ktx", version.ref = "ins
 
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+segmentation-selfie = { module = "com.google.mlkit:segmentation-selfie", version.ref = "segmentationSelfie" }
 
 [plugins]
 android-library = { id = "com.android.library", version.ref = "agp" }
