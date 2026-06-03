@@ -47,23 +47,23 @@ fun spotColors(
 
     // highlight-create
     engine.editor.setSpotColor(
-        name = "Crayola-Pink-Flamingo",
+        name = "Brand-Pink-Flamingo",
         Color.fromRGBA(r = 0.988F, g = 0.455F, b = 0.992F, a = 1F),
     )
     engine.editor.setSpotColor(
-        name = "Pantone-ColorOfTheYear-2022",
+        name = "Brand-Periwinkle",
         Color.fromRGBA(r = 0.4F, g = 0.404F, b = 0.671F, a = 1F),
     )
     engine.editor.setSpotColor(name = "Yellow", Color.fromRGBA(r = 1F, g = 1F, b = 0F, a = 1F))
     engine.editor.getSpotColorRGB(name = "Yellow") // (r: 1F, g: 1F, b: 0F)
-    engine.editor.findAllSpotColors() // ["Crayola-Pink-Flamingo", "Pantone-ColorOfTheYear-2022", "Yellow"]
+    engine.editor.findAllSpotColors() // ["Brand-Pink-Flamingo", "Brand-Periwinkle", "Yellow"]
     // highlight-create
 
     // highlight-apply-star
     engine.block.setColor(
         fill,
         property = "fill/color/value",
-        value = Color.fromSpotColor(name = "Crayola-Pink-Flamingo"),
+        value = Color.fromSpotColor(name = "Brand-Pink-Flamingo"),
     )
     engine.block.setColor(
         block,
@@ -75,7 +75,7 @@ fun spotColors(
     engine.block.getColor(
         fill,
         property = "fill/color/value",
-    ) // SpotColor with name "Crayola-Pink-Flamingo" with 1F tint
+    ) // SpotColor with name "Brand-Pink-Flamingo" with 1F tint
     engine.block.getColor(
         block,
         property = "stroke/color",
@@ -91,14 +91,14 @@ fun spotColors(
     engine.block.setColor(
         text,
         property = "stroke/color",
-        value = Color.fromSpotColor(name = "Crayola-Pink-Flamingo", tint = 0.5F),
+        value = Color.fromSpotColor(name = "Brand-Pink-Flamingo", tint = 0.5F),
     )
     engine.block.setStrokeEnabled(text, enabled = true)
 
     engine.block.setColor(
         text,
         property = "backgroundColor/color",
-        value = Color.fromSpotColor(name = "Pantone-ColorOfTheYear-2022", tint = 0.9F),
+        value = Color.fromSpotColor(name = "Brand-Periwinkle", tint = 0.9F),
     )
     engine.block.setBackgroundColorEnabled(text, enabled = true)
     // highlight-apply-text

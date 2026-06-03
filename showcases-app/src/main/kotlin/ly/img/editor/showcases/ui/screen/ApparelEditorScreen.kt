@@ -2,23 +2,17 @@ package ly.img.editor.showcases.ui.screen
 
 import android.net.Uri
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import ly.img.editor.Editor
 import ly.img.editor.configuration.apparel.ApparelConfigurationBuilder
 import ly.img.editor.configuration.apparel.callback.onCreate
-import ly.img.editor.configuration.apparel.callback.onLoadAssetSources
-import ly.img.editor.configuration.apparel.component.rememberNavigationBar
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
+import ly.img.editor.core.configuration.then
 import ly.img.editor.showcases.Secrets
-import ly.img.editor.showcases.ShowcasesViewModel
-import ly.img.editor.showcases.ui.ext.modifiedCloseEditor
+import ly.img.editor.showcases.plugin.ShowcasesPlugin
 
 @Composable
 fun ApparelEditorScreen(
-    viewModel: ShowcasesViewModel,
     baseUri: Uri,
     sceneUri: Uri,
     onBack: () -> Unit,
@@ -29,35 +23,10 @@ fun ApparelEditorScreen(
         configuration = {
             EditorConfiguration.remember(::ApparelConfigurationBuilder) {
                 onCreate = {
-                    onCreate(
-                        createScene = {
-                            getOrLoadScene(sceneUri = sceneUri)
-                        },
-                        loadAssetSources = {
-                            coroutineScope {
-                                launch {
-                                    onLoadAssetSources()
-                                }
-                                launch {
-                                    viewModel.addRemoteAssetSources(scope = this@Editor, isVideoScene = false)
-                                }
-                            }
-                        },
-                    )
+                    onCreate(createScene = { getOrLoadScene(sceneUri = sceneUri) })
                 }
-                assetLibrary = {
-                    remember {
-                        viewModel.getAssetLibrary(isVideoScene = false)
-                    }
-                }
-                colorPalette = {
-                    remember {
-                        viewModel.getColorPalette(sceneUri = sceneUri)
-                    }
-                }
-                navigationBar = {
-                    rememberNavigationBar().modifiedCloseEditor()
-                }
+            }.then(::ShowcasesPlugin) {
+                this.sceneUri = sceneUri
             }
         },
     ) {

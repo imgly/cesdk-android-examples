@@ -58,7 +58,7 @@ fun ModifyListBuilderInspectorBarSolution(
                                 }
                                 // highlight-modifyListBuilder-addLast
                                 // highlight-modifyListBuilder-addAfter
-                                addAfter(id = InspectorBar.Button.Id.layer) {
+                                addAfter(id = InspectorBar.Button.Id.layer, failIfNotFound = true) {
                                     InspectorBar.Button.remember {
                                         id = { EditorComponentId("my.package.inspectorBar.button.afterLayer") }
                                         vectorIcon = null
@@ -68,7 +68,7 @@ fun ModifyListBuilderInspectorBarSolution(
                                 }
                                 // highlight-modifyListBuilder-addAfter
                                 // highlight-modifyListBuilder-addBefore
-                                addBefore(id = InspectorBar.Button.Id.crop) {
+                                addBefore(id = InspectorBar.Button.Id.crop, failIfNotFound = true) {
                                     InspectorBar.Button.remember {
                                         id = { EditorComponentId("my.package.inspectorBar.button.beforeCrop") }
                                         vectorIcon = null
@@ -78,7 +78,7 @@ fun ModifyListBuilderInspectorBarSolution(
                                 }
                                 // highlight-modifyListBuilder-addBefore
                                 // highlight-modifyListBuilder-replace
-                                replace(id = InspectorBar.Button.Id.formatText) {
+                                replace(id = InspectorBar.Button.Id.formatText, failIfNotFound = true) {
                                     InspectorBar.Button.remember {
                                         id = { EditorComponentId("my.package.inspectorBar.button.replacedFormatText") }
                                         vectorIcon = null
@@ -88,7 +88,7 @@ fun ModifyListBuilderInspectorBarSolution(
                                 }
                                 // highlight-modifyListBuilder-replace
                                 // highlight-modifyListBuilder-remove
-                                remove(id = InspectorBar.Button.Id.delete)
+                                remove(id = InspectorBar.Button.Id.delete, failIfNotFound = true)
                                 // highlight-modifyListBuilder-remove
                             }
                             // highlight-modifyListBuilder
