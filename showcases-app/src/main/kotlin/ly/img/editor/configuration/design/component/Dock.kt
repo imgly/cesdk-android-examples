@@ -8,10 +8,10 @@ import ly.img.editor.core.component.Dock
 import ly.img.editor.core.component.remember
 import ly.img.editor.core.component.rememberElementsLibrary
 import ly.img.editor.core.component.rememberImagesLibrary
+import ly.img.editor.core.component.rememberImglyCamera
 import ly.img.editor.core.component.rememberResizeAll
 import ly.img.editor.core.component.rememberShapesLibrary
 import ly.img.editor.core.component.rememberStickersLibrary
-import ly.img.editor.core.component.rememberSystemCamera
 import ly.img.editor.core.component.rememberSystemGallery
 import ly.img.editor.core.component.rememberTextLibrary
 
@@ -24,7 +24,7 @@ fun DesignConfigurationBuilder.rememberDock() = Dock.remember {
         Dock.ListBuilder.remember {
             add { Dock.Button.rememberElementsLibrary() }
             add { Dock.Button.rememberSystemGallery() }
-            add { Dock.Button.rememberSystemCamera() }
+            add { Dock.Button.rememberImglyCamera() }
             add { Dock.Button.rememberImagesLibrary() }
             add { Dock.Button.rememberTextLibrary() }
             add { Dock.Button.rememberShapesLibrary() }

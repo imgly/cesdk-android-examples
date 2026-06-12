@@ -8,7 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.Color
 import ly.img.camera.core.CameraConfiguration
 import ly.img.camera.core.CameraMode
-import ly.img.camera.core.CaptureVideo
+import ly.img.camera.core.CaptureMedia
 import ly.img.camera.core.EngineConfiguration
 import kotlin.time.Duration.Companion.seconds
 
@@ -18,7 +18,7 @@ class ConfiguredCameraActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val cameraInput = CaptureVideo.Input(
+        val cameraInput = CaptureMedia.Input(
             // highlight-engine-configuration
             engineConfiguration = EngineConfiguration(
                 // highlight-license
@@ -43,7 +43,7 @@ class ConfiguredCameraActivity : ComponentActivity() {
         )
 
         setContent {
-            val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureVideo()) { result ->
+            val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureMedia()) { result ->
                 result ?: run {
                     Log.d(TAG, "Camera dismissed")
                     return@rememberLauncherForActivityResult

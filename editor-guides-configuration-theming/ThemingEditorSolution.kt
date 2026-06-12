@@ -1,4 +1,5 @@
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,43 +20,51 @@ fun ThemingEditorSolution(
     license: String,
     onClose: (Throwable?) -> Unit,
 ) {
+    // highlight-android-theme-state
     var uiMode by remember { mutableStateOf(EditorUiMode.LIGHT) }
+    // highlight-android-theme-state
+
     Editor(
         license = license, // pass null or empty for evaluation mode with watermark
-        // highlight-configuration-uiMode
+        // highlight-android-editor-uimode
         uiMode = uiMode,
-        // highlight-configuration-uiMode
+        // highlight-android-editor-uimode
+        // highlight-android-theme-toggle
         configuration = {
             EditorConfiguration.remember {
                 dock = {
-                    rememberDock(
-                        onSwitchClick = {
-                            uiMode = if (uiMode == EditorUiMode.LIGHT) {
-                                EditorUiMode.DARK
-                            } else {
-                                EditorUiMode.LIGHT
+                    Dock.remember {
+                        horizontalArrangement = { Arrangement.Center }
+                        listBuilder = {
+                            Dock.ListBuilder.remember {
+                                add {
+                                    Dock.Button.remember {
+                                        textString = {
+                                            if (uiMode == EditorUiMode.DARK) {
+                                                "Use Light Theme"
+                                            } else {
+                                                "Use Dark Theme"
+                                            }
+                                        }
+                                        vectorIcon = { IconPack.Replace }
+                                        tint = { MaterialTheme.colorScheme.onSecondaryContainer }
+                                        containerColor = { MaterialTheme.colorScheme.secondaryContainer }
+                                        onClick = {
+                                            uiMode = if (uiMode == EditorUiMode.DARK) {
+                                                EditorUiMode.LIGHT
+                                            } else {
+                                                EditorUiMode.DARK
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                        },
-                    )
+                        }
+                    }
                 }
             }
         },
+        // highlight-android-theme-toggle
         onClose = onClose,
     )
-}
-
-@Composable
-private fun rememberDock(onSwitchClick: () -> Unit) = Dock.remember {
-    horizontalArrangement = { Arrangement.Center }
-    listBuilder = {
-        Dock.ListBuilder.remember {
-            add {
-                Dock.Button.remember {
-                    textString = { "Switch Theme" }
-                    vectorIcon = { IconPack.Replace }
-                    onClick = { onSwitchClick() }
-                }
-            }
-        }
-    }
 }

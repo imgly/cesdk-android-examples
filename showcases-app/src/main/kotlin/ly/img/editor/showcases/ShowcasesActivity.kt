@@ -108,12 +108,12 @@ class ShowcasesActivity : ComponentActivity() {
                         ) { navController.popBackStack() }
                     }
                     composable(screen = Screen.EditCameraRecordings) {
-                        val arg = navController.getParcelable<CameraResult.Record>("recording")
-                        val recording = remember { arg }
-                        if (recording != null) {
+                        val arg = navController.getParcelable<CameraResult.Captures>("captures")
+                        val captures = remember { arg }
+                        if (captures != null) {
                             EditCameraRecordingsScreen(
                                 baseUri = baseUri,
-                                recording = recording,
+                                captures = captures,
                                 onBack = { navController.popBackStack() },
                             )
                         }
@@ -142,7 +142,9 @@ class ShowcasesActivity : ComponentActivity() {
                     }
                     composable(screen = Screen.TextToImage) {
                         val sceneUri = it.getSceneUri(defaultScene = "design")
+                        val gatewayApiKey = it.arguments?.getString("gatewayApiKey")
                         TextToImageScreen(
+                            gatewayApiKey = gatewayApiKey,
                             baseUri = baseUri,
                             sceneUri = sceneUri,
                             onBack = { navController.popBackStack() },
@@ -326,7 +328,7 @@ sealed class Screen(
     )
 
     data object TextToImage : Screen(
-        routeScheme = "text-to-image?scene={scene}",
+        routeScheme = "text-to-image?gatewayApiKey={gatewayApiKey}",
         arguments = listOf(
             navArgument("scene") {
                 nullable = true

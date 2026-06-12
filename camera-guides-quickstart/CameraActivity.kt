@@ -6,8 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import ly.img.camera.core.CameraResult
-import ly.img.camera.core.CaptureVideo
+import ly.img.camera.core.CaptureMedia
 import ly.img.camera.core.EngineConfiguration
+import ly.img.camera.core.videos
 
 private const val TAG = "CameraActivity"
 
@@ -16,7 +17,7 @@ class CameraActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // highlight-initialization
-        val cameraInput = CaptureVideo.Input(
+        val cameraInput = CaptureMedia.Input(
             engineConfiguration = EngineConfiguration(
                 license = null, // pass null or empty for evaluation mode with watermark
                 userId = "<your unique user id>",
@@ -26,7 +27,7 @@ class CameraActivity : ComponentActivity() {
 
         setContent {
             // highlight-launcher
-            val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureVideo()) { result ->
+            val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureMedia()) { result ->
                 // highlight-launcher
                 // highlight-result
                 result ?: run {
@@ -34,8 +35,8 @@ class CameraActivity : ComponentActivity() {
                     return@rememberLauncherForActivityResult
                 }
                 when (result) {
-                    is CameraResult.Record -> {
-                        val recordedVideoUris = result.recordings.flatMap { it.videos.map { it.uri } }
+                    is CameraResult.Captures -> {
+                        val recordedVideoUris = result.captures.videos.flatMap { it.videos.map { it.uri } }
                         // Do something with the recorded videos
                         Log.d(TAG, "Recorded videos: $recordedVideoUris")
                     }
