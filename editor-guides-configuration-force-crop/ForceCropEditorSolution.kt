@@ -1,5 +1,6 @@
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import ly.img.editor.Editor
 import ly.img.editor.core.component.Dock
@@ -11,14 +12,13 @@ import ly.img.editor.core.component.rememberCrop
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
 import ly.img.editor.core.event.EditorEvent
-import ly.img.engine.DefaultAssetSource
-import ly.img.engine.populateAssetSource
 
 @Composable
 fun ForceCropEditorSolution(
     license: String,
     onClose: (Throwable?) -> Unit,
 ) {
+    val context = LocalContext.current
     Editor(
         license = license,
         configuration = {
@@ -28,31 +28,29 @@ fun ForceCropEditorSolution(
                         imageUri = "https://img.ly/static/ubq_samples/sample_4.jpg".toUri(),
                     )
                     // highlight-android-populate-asset-source
-                    val cropPresetsSourceId = DefaultAssetSource.CROP_PRESETS.key
-                    val pagePresetsSourceId = DefaultAssetSource.PAGE_PRESETS.key
+                    val cropPresetsSourceId = "ly.img.crop.presets"
+                    val pagePresetsSourceId = "ly.img.page.presets"
                     if (editorContext.engine.asset.findAllSources().contains(cropPresetsSourceId)) {
                         editorContext.engine.asset.removeSource(cropPresetsSourceId)
                     }
                     if (editorContext.engine.asset.findAllSources().contains(pagePresetsSourceId)) {
                         editorContext.engine.asset.removeSource(pagePresetsSourceId)
                     }
-                    editorContext.engine.populateAssetSource(
-                        id = cropPresetsSourceId,
-                        jsonUri = "file:///android_asset/force_crop_content.json".toUri(),
-                        replaceBaseUri = editorContext.baseUri,
+                    editorContext.engine.asset.addLocalSourceFromJSON(
+                        contentJSON = context.assets.open("force_crop_content.json").bufferedReader().use { it.readText() },
+                        basePath = editorContext.baseUri.toString(),
                     )
-                    editorContext.engine.populateAssetSource(
-                        id = pagePresetsSourceId,
-                        jsonUri = "file:///android_asset/force_crop_page_content.json".toUri(),
-                        replaceBaseUri = editorContext.baseUri,
+                    editorContext.engine.asset.addLocalSourceFromJSON(
+                        contentJSON = context.assets.open("force_crop_page_content.json").bufferedReader().use { it.readText() },
+                        basePath = editorContext.baseUri.toString(),
                     )
                     // highlight-android-populate-asset-source
                 }
                 onLoaded = {
                     val page = requireNotNull(editorContext.engine.scene.getCurrentPage())
                     // highlight-android-apply-force-crop
-                    val cropPresetsSourceId = DefaultAssetSource.CROP_PRESETS.key
-                    val pagePresetsSourceId = DefaultAssetSource.PAGE_PRESETS.key
+                    val cropPresetsSourceId = "ly.img.crop.presets"
+                    val pagePresetsSourceId = "ly.img.page.presets"
                     // Android treats the top-level preset and presetCandidates as one candidate list.
                     val configuration = ForceCropConfiguration(
                         sourceId = cropPresetsSourceId,

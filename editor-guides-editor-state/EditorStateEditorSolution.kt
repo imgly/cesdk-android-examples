@@ -7,13 +7,11 @@ import kotlinx.coroutines.launch
 import ly.img.editor.Editor
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
-import ly.img.engine.DefaultAssetSource
 import ly.img.engine.DesignBlockType
 import ly.img.engine.FillType
 import ly.img.engine.ShapeType
 import ly.img.engine.SizeMode
 import ly.img.engine.UnstableEngineApi
-import ly.img.engine.addDefaultAssetSources
 
 @OptIn(UnstableEngineApi::class)
 @Composable
@@ -70,20 +68,20 @@ fun EditorStateEditorSolution(
                     val engine = editorContext.engine
                     val imageBlock = engine.block.findByName(name = "editor-state-image").first()
                     val textBlock = engine.block.findByName(name = "editor-state-text").first()
-                    val requiredDefaultSources = setOf(
-                        DefaultAssetSource.CROP_PRESETS,
-                        DefaultAssetSource.PAGE_PRESETS,
-                    )
+                    val requiredSources = setOf("ly.img.crop.presets", "ly.img.page.presets")
 
                     coroutineScope {
-                        val missingDefaultSources = requiredDefaultSources
-                            .filterNot { source -> engine.asset.findAllSources().contains(source.key) }
-                            .toSet()
-                        if (missingDefaultSources.isNotEmpty()) {
-                            engine.addDefaultAssetSources(
-                                exclude = DefaultAssetSource.values().toSet() - missingDefaultSources,
-                            )
-                        }
+                        val existingSources = engine.asset.findAllSources().toSet()
+                        requiredSources
+                            .filterNot { it in existingSources }
+                            .forEach { sourceId ->
+                                engine.asset.addLocalSourceFromJSON(
+                                    contentUri = editorContext.baseUri.buildUpon()
+                                        .appendPath(sourceId)
+                                        .appendPath("content.json")
+                                        .build(),
+                                )
+                            }
 
                         // highlight-editorState-onStateChanged
                         launch {

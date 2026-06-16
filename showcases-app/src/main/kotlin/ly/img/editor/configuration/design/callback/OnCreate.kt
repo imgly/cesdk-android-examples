@@ -9,10 +9,7 @@ import ly.img.editor.core.library.data.SystemGalleryAssetSource
 import ly.img.editor.core.library.data.SystemGalleryPermission
 import ly.img.editor.core.library.data.TextAssetSource
 import ly.img.editor.core.library.data.TypefaceProvider
-import ly.img.engine.DefaultAssetSource
-import ly.img.engine.DemoAssetSource
 import ly.img.engine.DesignBlockType
-import ly.img.engine.populateAssetSource
 
 /**
  * The callback that is invoked when the editor is created.
@@ -72,25 +69,26 @@ suspend fun DesignConfigurationBuilder.onCreateScene() {
 suspend fun DesignConfigurationBuilder.onLoadAssetSources() {
     // Load asset sources in parallel from content.json files
     coroutineScope {
-        listOf(
-            DefaultAssetSource.STICKER.key,
-            DefaultAssetSource.VECTOR_PATH.key,
-            DefaultAssetSource.FILTER_LUT.key,
-            DefaultAssetSource.FILTER_DUO_TONE.key,
-            DefaultAssetSource.CROP_PRESETS.key,
-            DefaultAssetSource.PAGE_PRESETS.key,
-            DefaultAssetSource.EFFECT.key,
-            DefaultAssetSource.BLUR.key,
-            DefaultAssetSource.TYPEFACE.key,
-            DemoAssetSource.IMAGE.key,
-            DemoAssetSource.TEXT_COMPONENTS.key,
-        ).forEach { assetSource ->
+        val baseUri = editorContext.baseUri
+        val sourceIds = listOf(
+            "ly.img.sticker",
+            "ly.img.vector.shape",
+            "ly.img.filter",
+            "ly.img.color.palette",
+            "ly.img.effect",
+            "ly.img.blur",
+            "ly.img.typeface",
+            "ly.img.crop.presets",
+            "ly.img.page.presets",
+            "ly.img.text.presets",
+            "ly.img.text.components",
+            "ly.img.caption.presets",
+            "ly.img.image",
+        )
+        sourceIds.forEach { id ->
             launch {
-                val baseUri = editorContext.baseUri
-                editorContext.engine.populateAssetSource(
-                    id = assetSource,
-                    jsonUri = "$baseUri/$assetSource/content.json".toUri(),
-                    replaceBaseUri = baseUri,
+                editorContext.engine.asset.addLocalSourceFromJSON(
+                    contentUri = "$baseUri/$id/content.json".toUri(),
                 )
             }
         }
@@ -98,7 +96,7 @@ suspend fun DesignConfigurationBuilder.onLoadAssetSources() {
 
     // Load local asset sources
     editorContext.engine.asset.addLocalSource(
-        sourceId = DemoAssetSource.IMAGE_UPLOAD.key,
+        sourceId = "ly.img.image.upload",
         supportedMimeTypes = listOf(
             "image/jpeg",
             "image/png",

@@ -6,7 +6,7 @@ import ly.img.editor.core.component.NavigationBar
 import ly.img.editor.core.component.closeEditor
 import ly.img.editor.core.component.modify
 import ly.img.editor.core.component.rememberCloseEditor
-import ly.img.editor.showcases.icon.Homeoutline
+import ly.img.editor.showcases.icon.HomeOutline
 import ly.img.editor.showcases.icon.IconPack
 
 @Composable
@@ -14,7 +14,7 @@ fun NavigationBar<NavigationBar.Scope>.modifiedCloseEditor(): NavigationBar<Navi
     val updatedListBuilder = listBuilder.modify {
         replace(id = NavigationBar.Button.Id.closeEditor) {
             NavigationBar.Button.rememberCloseEditor {
-                vectorIcon = { IconPack.Homeoutline }
+                vectorIcon = { IconPack.HomeOutline }
             }
         }
     }
