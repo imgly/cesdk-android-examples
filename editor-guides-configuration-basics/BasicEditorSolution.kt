@@ -1,27 +1,56 @@
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.core.net.toUri
 import ly.img.editor.Editor
+import ly.img.editor.EditorUiMode
+import ly.img.editor.core.configuration.EditorConfiguration
+import ly.img.editor.core.configuration.remember
 import ly.img.editor.core.engine.EngineRenderTarget
 
-// Add this composable to your NavHost
+// Call this composable from your app's navigation layer.
 @Composable
 fun BasicEditorSolution(
     license: String,
+    signedInUserId: String?,
     onClose: (Throwable?) -> Unit,
 ) {
     Editor(
-        // highlight-configuration-license
-        license = license, // pass null or empty for evaluation mode with watermark
-        // highlight-configuration-license
-        // highlight-configuration-userId
-        userId = "<your unique user id>",
-        // highlight-configuration-userId
-        // highlight-configuration-baseUri
-        baseUri = "file:///android_asset/".toUri(),
-        // highlight-configuration-baseUri
-        // highlight-configuration-renderTarget
+        // highlight-android-license
+        license = license,
+        // highlight-android-license
+        // highlight-android-user-id
+        userId = signedInUserId,
+        // highlight-android-user-id
+        // highlight-android-base-uri
+        baseUri = "file:///android_asset/assets/".toUri(),
+        // highlight-android-base-uri
+        // highlight-android-rendering
         engineRenderTarget = EngineRenderTarget.SURFACE_VIEW,
-        // highlight-configuration-renderTarget
+        uiMode = EditorUiMode.SYSTEM,
+        // highlight-android-rendering
+        // highlight-android-runtime-configuration
+        configuration = {
+            EditorConfiguration.remember {
+                onLoaded = {
+                    val editor = editorContext.engine.editor
+                    editor.setRole("Creator")
+                    Log.i("ConfigurationGuide", "Current role: ${editor.getRole()}")
+
+                    editor.setSettingBoolean(
+                        keypath = "doubleClickToCropEnabled",
+                        value = false,
+                    )
+                    val doubleClickToCropEnabled = editor.getSettingBoolean(
+                        keypath = "doubleClickToCropEnabled",
+                    )
+                    Log.i(
+                        "ConfigurationGuide",
+                        "Double-click crop enabled: $doubleClickToCropEnabled",
+                    )
+                }
+            }
+        },
+        // highlight-android-runtime-configuration
         onClose = onClose,
     )
 }

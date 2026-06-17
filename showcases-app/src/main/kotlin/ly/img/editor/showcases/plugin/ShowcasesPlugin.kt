@@ -28,7 +28,7 @@ import ly.img.editor.core.library.LibraryContent
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.showcases.R
 import ly.img.editor.showcases.Secrets
-import ly.img.editor.showcases.icon.Homeoutline
+import ly.img.editor.showcases.icon.HomeOutline
 import ly.img.editor.showcases.icon.IconPack
 
 class ShowcasesPlugin : EditorConfigurationBuilder() {
@@ -168,7 +168,7 @@ class ShowcasesPlugin : EditorConfigurationBuilder() {
         val updatedListBuilder = parentNavigationBar.listBuilder.modify {
             replace(id = NavigationBar.Button.Id.closeEditor) {
                 NavigationBar.Button.rememberCloseEditor {
-                    vectorIcon = { IconPack.Homeoutline }
+                    vectorIcon = { IconPack.HomeOutline }
                 }
             }
         }
@@ -182,7 +182,7 @@ class ShowcasesPlugin : EditorConfigurationBuilder() {
         val updatedListBuilder = parentDock.listBuilder.modify {
             if (isVideoScene) {
                 replace(id = Dock.Button.Id.systemCamera, failIfNotFound = false) {
-                    Dock.Button.rememberImglyCamera()
+                    Dock.Button.rememberImglyCamera(acceptsVideoCapture = { true })
                 }
             }
         }
