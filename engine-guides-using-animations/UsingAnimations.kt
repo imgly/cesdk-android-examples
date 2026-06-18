@@ -1,6 +1,8 @@
+import android.net.Uri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import ly.img.engine.AnimationEasingType
 import ly.img.engine.AnimationType
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
@@ -40,61 +42,115 @@ fun usingAnimations(
     engine.block.setHeight(block, value = 300F)
     engine.block.appendChild(parent = page, child = block)
     val fill = engine.block.createFill(FillType.Image)
-    engine.block.setString(
+    engine.block.setUri(
         block = fill,
         property = "fill/image/imageFileURI",
-        value = "https://img.ly/static/ubq_samples/sample_1.jpg",
+        value = Uri.parse("https://img.ly/static/ubq_samples/sample_1.jpg"),
     )
     engine.block.setFill(block, fill = fill)
     // highlight-setup
 
-    // highlight-supportsAnimation
-    if (!engine.block.supportsAnimation(block)) {
-        engine.stop()
-        return@launch
+    // highlight-android-supports-animation
+    val supportsAnimations = engine.block.supportsAnimation(block)
+
+    if (supportsAnimations) {
+        val slideAnimation = engine.block.createAnimation(AnimationType.Slide)
+        engine.block.setInAnimation(block = block, animation = slideAnimation)
+        engine.block.setDuration(block = slideAnimation, duration = 1.0)
     }
-    // highlight-supportsAnimation
+    // highlight-android-supports-animation
 
-    // highlight-createAnimation
-    val slideInAnimation = engine.block.createAnimation(AnimationType.Slide)
-    val breathingLoopAnimation = engine.block.createAnimation(AnimationType.BreathingLoop)
-    val fadeOutAnimation = engine.block.createAnimation(AnimationType.Fade)
-    // highlight-createAnimation
-    // highlight-setInAnimation
-    engine.block.setInAnimation(block, slideInAnimation)
-    // highlight-setInAnimation
-    // highlight-setLoopAnimation
-    engine.block.setLoopAnimation(block, breathingLoopAnimation)
-    // highlight-setLoopAnimation
-    // highlight-setOutAnimation
-    engine.block.setOutAnimation(block, fadeOutAnimation)
-    // highlight-setOutAnimation
-    // highlight-getAnimation
-    val animation = engine.block.getLoopAnimation(block)
-    val animationType = engine.block.getType(animation)
-    // highlight-getAnimation
+    if (supportsAnimations) {
+        val initialIn = engine.block.getInAnimation(block)
+        if (engine.block.isValid(initialIn)) {
+            engine.block.destroy(initialIn)
+        }
 
-    // highlight-replaceAnimation
-    val squeezeLoopAnimation = engine.block.createAnimation(AnimationType.SqueezeLoop)
-    engine.block.destroy(engine.block.getLoopAnimation(block))
-    engine.block.setLoopAnimation(block, squeezeLoopAnimation)
-    // The following line would also destroy all currently attached animations
-    // engine.block.destroy(block)
-    // highlight-replaceAnimation
+        // highlight-android-entrance-animation
+        val fadeInAnimation = engine.block.createAnimation(AnimationType.Fade)
+        engine.block.setInAnimation(block = block, animation = fadeInAnimation)
+        engine.block.setDuration(block = fadeInAnimation, duration = 1.0)
+        engine.block.setEnum(
+            block = fadeInAnimation,
+            property = "animationEasing",
+            value = AnimationEasingType.EASE_OUT.key,
+        )
+        // highlight-android-entrance-animation
 
-    // highlight-getProperties
-    val allAnimationProperties = engine.block.findAllProperties(slideInAnimation)
-    // highlight-getProperties
-    // highlight-modifyProperties
-    engine.block.setFloat(slideInAnimation, "animation/slide/direction", 0.5F * Math.PI.toFloat())
-    // highlight-modifyProperties
-    // highlight-changeDuration
-    engine.block.setDuration(slideInAnimation, 0.6)
-    // highlight-changeDuration
-    // highlight-changeEasing
-    engine.block.setEnum(slideInAnimation, "animationEasing", "EaseOut")
-    println("Available easing options: ${engine.block.getEnumValues("animationEasing")}")
-    // highlight-changeEasing
+        val entranceIn = engine.block.getInAnimation(block)
+        if (engine.block.isValid(entranceIn)) {
+            engine.block.destroy(entranceIn)
+        }
+
+        val entranceForTiming = engine.block.createAnimation(AnimationType.Zoom)
+        engine.block.setInAnimation(block = block, animation = entranceForTiming)
+        engine.block.setDuration(block = entranceForTiming, duration = 1.0)
+
+        // highlight-android-exit-animation
+        val fadeOutAnimation = engine.block.createAnimation(AnimationType.Fade)
+        engine.block.setOutAnimation(block = block, animation = fadeOutAnimation)
+        engine.block.setDuration(block = fadeOutAnimation, duration = 1.0)
+        engine.block.setEnum(
+            block = fadeOutAnimation,
+            property = "animationEasing",
+            value = AnimationEasingType.EASE_IN.key,
+        )
+        // highlight-android-exit-animation
+
+        val timingIn = engine.block.getInAnimation(block)
+        if (engine.block.isValid(timingIn)) {
+            engine.block.destroy(timingIn)
+        }
+
+        // highlight-android-loop-animation
+        val breathingLoop = engine.block.createAnimation(AnimationType.BreathingLoop)
+        engine.block.setLoopAnimation(block = block, animation = breathingLoop)
+        engine.block.setDuration(block = breathingLoop, duration = 2.0)
+        // highlight-android-loop-animation
+
+        // highlight-android-animation-properties
+        val slideFromTop = engine.block.createAnimation(AnimationType.Slide)
+        engine.block.setInAnimation(block = block, animation = slideFromTop)
+        engine.block.setDuration(block = slideFromTop, duration = 1.0)
+
+        val slideProperties = engine.block.findAllProperties(slideFromTop)
+        val slideDirectionProperty = "animation/slide/direction"
+        check(slideDirectionProperty in slideProperties)
+        engine.block.setFloat(
+            block = slideFromTop,
+            property = slideDirectionProperty,
+            value = 0.5F * Math.PI.toFloat(),
+        )
+        engine.block.setEnum(
+            block = slideFromTop,
+            property = "animationEasing",
+            value = AnimationEasingType.EASE_IN_OUT.key,
+        )
+        // highlight-android-animation-properties
+
+        val currentLoop = engine.block.getLoopAnimation(block)
+        val currentOut = engine.block.getOutAnimation(block)
+
+        // highlight-android-manage-animations
+        val currentIn = engine.block.getInAnimation(block)
+
+        if (engine.block.isValid(currentIn)) {
+            engine.block.destroy(currentIn)
+        }
+        val replacementIn = engine.block.createAnimation(AnimationType.Wipe)
+        engine.block.setInAnimation(block = block, animation = replacementIn)
+        engine.block.setDuration(block = replacementIn, duration = 1.0)
+        // highlight-android-manage-animations
+
+        // highlight-android-easing-options
+        val easingOptions = engine.block.getEnumValues("animationEasing")
+        // highlight-android-easing-options
+
+        check(engine.block.isValid(currentLoop))
+        check(engine.block.isValid(currentOut))
+        check(easingOptions.contains(AnimationEasingType.EASE_OUT.key))
+        check(engine.block.getDuration(replacementIn) == 1.0)
+    }
 
     // highlight-textAnimationWritingStyle
     val text = engine.block.create(DesignBlockType.Text)

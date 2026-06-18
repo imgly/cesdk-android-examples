@@ -14,7 +14,6 @@ import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FindAssetsQuery
 import ly.img.engine.SizeMode
-import ly.img.engine.populateAssetSource
 import org.json.JSONObject
 import java.io.File
 import android.graphics.Color as AndroidColor
@@ -355,11 +354,7 @@ suspend fun loadCaptionPresetSource(
         }
     }
 
-    engine.populateAssetSource(
-        id = CaptionPresetSourceId,
-        jsonUri = contentJsonUri,
-        replaceBaseUri = assetsBaseUri,
-    )
+    engine.asset.addLocalSourceFromJSON(contentUri = contentJsonUri)
 
     val presets = engine.asset.findAssets(
         sourceId = CaptionPresetSourceId,

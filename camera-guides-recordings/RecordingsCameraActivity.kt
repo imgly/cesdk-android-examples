@@ -6,8 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import ly.img.camera.core.CameraResult
-import ly.img.camera.core.CaptureVideo
+import ly.img.camera.core.CaptureMedia
 import ly.img.camera.core.EngineConfiguration
+import ly.img.camera.core.videos
 
 private const val TAG = "RecordingsCameraActivity"
 
@@ -15,7 +16,7 @@ class RecordingsCameraActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val cameraInput = CaptureVideo.Input(
+        val cameraInput = CaptureMedia.Input(
             engineConfiguration = EngineConfiguration(
                 license = null, // pass null or empty for evaluation mode with watermark
                 userId = "<your unique user id>",
@@ -23,7 +24,7 @@ class RecordingsCameraActivity : ComponentActivity() {
         )
 
         setContent {
-            val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureVideo()) { result ->
+            val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureMedia()) { result ->
                 // highlight-failure
                 result ?: run {
                     Log.d(TAG, "Camera dismissed")
@@ -33,8 +34,8 @@ class RecordingsCameraActivity : ComponentActivity() {
                 // highlight-success
                 when (result) {
                     // highlight-standard
-                    is CameraResult.Record -> {
-                        for (recording in result.recordings) {
+                    is CameraResult.Captures -> {
+                        for (recording in result.captures.videos) {
                             Log.d(TAG, "Duration: ${recording.duration}")
                             for (video in recording.videos) {
                                 Log.d(TAG, "Video Uri: ${video.uri} Video Rect: ${video.rect}")

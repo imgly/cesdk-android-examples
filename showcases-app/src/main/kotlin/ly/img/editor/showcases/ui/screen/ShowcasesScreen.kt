@@ -2,6 +2,7 @@ package ly.img.editor.showcases.ui.screen
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,11 +24,18 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -42,6 +50,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -123,48 +132,6 @@ fun ShowcasesScreen(
     }
 }
 
-/**
- * Handles the click actions for showcase items with consistent behavior
- * @param actionScreen The screen to navigate to
- * @param uri The URI to use (can be null)
- * @param clickAction The type of click action to perform
- * @param navigateTo Function to navigate to a specific route
- * @param fileLauncher Optional launcher for file picking (only needed for PICK_SCENE actions)
- * @param imageLauncher Launcher for image picking
- */
-private fun handleShowcaseItemClick(
-    actionScreen: Screen,
-    uri: String?,
-    clickAction: ShowcaseItem.CarouselContent.ClickAction,
-    navigateTo: (String) -> Unit,
-    fileLauncher: (() -> Unit)? = null,
-    imageLauncher: () -> Unit,
-) {
-    when {
-        clickAction == ShowcaseItem.CarouselContent.ClickAction.OPEN_SCENE && uri != null -> {
-            navigateTo(actionScreen.getRoute("scene" to uri))
-        }
-
-        clickAction == ShowcaseItem.CarouselContent.ClickAction.OPEN_SCENE && uri == null -> {
-            // Direct navigation for screens that don't need scene parameters
-            navigateTo(actionScreen.routeScheme)
-        }
-
-        clickAction == ShowcaseItem.CarouselContent.ClickAction.PICK_SCENE -> {
-            fileLauncher?.invoke()
-        }
-
-        clickAction == ShowcaseItem.CarouselContent.ClickAction.PICK_IMAGE -> {
-            imageLauncher.invoke()
-        }
-
-        else -> {
-            // Default to direct navigation
-            navigateTo(actionScreen.routeScheme)
-        }
-    }
-}
-
 fun LazyListScope.showcaseItem(
     element: ShowcaseItem,
     navigateTo: (String) -> Unit,
@@ -189,69 +156,31 @@ fun LazyListScope.showcaseItem(
 
         is ShowcaseItem.Content -> {
             item(key = element.key) {
-                ContentItem(element) { uri -> navigateTo(element.actionScreen.getRoute("scene" to uri)) }
+                val onClick = rememberShowcaseItemOnClick(
+                    item = element,
+                    navigateTo = navigateTo,
+                )
+                ContentItem(item = element, onClick = onClick)
             }
         }
 
         is ShowcaseItem.CarouselContent -> {
             item(key = element.key) {
-                val context = LocalContext.current
-                val fileLauncher = rememberLauncherForActivityResult(
-                    object : ActivityResultContracts.OpenDocument() {
-                        override fun createIntent(
-                            context: Context,
-                            input: Array<String>,
-                        ) = super.createIntent(context, input).also {
-                            it.addCategory(Intent.CATEGORY_OPENABLE)
-                            it.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
-                            it.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        }
-                    },
-                ) { uri ->
-                    uri ?: return@rememberLauncherForActivityResult
-                    context.contentResolver.takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    navigateTo(element.actionScreen.getRoute("scene" to uri))
-                }
-                val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { imageUri ->
-                    imageUri?.let { uri ->
-                        navigateTo(element.actionScreen.getRoute("scene" to element.actionScene, "image" to uri))
-                    }
-                }
-                CarouselItem(element) { uri, clickAction ->
-                    handleShowcaseItemClick(
-                        actionScreen = element.actionScreen,
-                        uri = uri,
-                        clickAction = clickAction,
-                        navigateTo = navigateTo,
-                        fileLauncher = {
-                            fileLauncher.launch(arrayOf("text/plain", "application/force-download", "application/octet-stream"))
-                        },
-                        imageLauncher = {
-                            imageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        },
-                    )
-                }
+                val onClick = rememberShowcaseItemOnClick(
+                    item = element,
+                    navigateTo = navigateTo,
+                )
+                CarouselItem(item = element, onClick = onClick)
             }
         }
 
         is ShowcaseItem.CustomFunctionality -> {
             item(key = element.key) {
-                val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { imageUri ->
-                    imageUri?.let { uri ->
-                        navigateTo(element.actionScreen.getRoute("scene" to element.actionScene, "image" to uri))
-                    }
-                }
-                CustomFunctionalityCard(element) { uri, clickAction ->
-                    handleShowcaseItemClick(
-                        actionScreen = element.actionScreen,
-                        uri = uri,
-                        clickAction = clickAction,
-                        navigateTo = navigateTo,
-                        imageLauncher = {
-                            imageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                        },
-                    )
-                }
+                val onClick = rememberShowcaseItemOnClick(
+                    item = element,
+                    navigateTo = navigateTo,
+                )
+                CustomFunctionalityCard(item = element, onClick = onClick)
             }
         }
     }
@@ -279,7 +208,7 @@ fun HeaderItem(item: ShowcaseItem.Header) {
 @Composable
 fun ContentItem(
     item: ShowcaseItem.Content,
-    onClick: (String) -> Unit,
+    onClick: () -> Unit,
 ) {
     AsyncImage(
         model = ImageRequest
@@ -298,14 +227,14 @@ fun ContentItem(
             )
             .padding(4.dp)
             .clip(shape = MaterialTheme.shapes.extraSmall)
-            .clickable { onClick(item.actionScene) },
+            .clickable(onClick = onClick),
     )
 }
 
 @Composable
 fun CarouselItem(
     item: ShowcaseItem.CarouselContent,
-    onClick: (String?, clickAction: ShowcaseItem.CarouselContent.ClickAction) -> Unit,
+    onClick: () -> Unit,
 ) {
     val isDarkTheme = LocalIsDarkTheme.current
     Column(
@@ -316,7 +245,7 @@ fun CarouselItem(
             )
             .clip(shape = MaterialTheme.shapes.extraSmall)
             .size(152.dp)
-            .clickable { onClick(item.actionScene, item.clickAction) }
+            .clickable(onClick = onClick)
             .drawWithContent {
                 drawContent()
                 if (item.hasDotLine) {
@@ -372,12 +301,139 @@ fun CarouselItem(
 }
 
 @Composable
+private fun rememberShowcaseItemOnClick(
+    item: ShowcaseItem.Clickable,
+    navigateTo: (String) -> Unit,
+): () -> Unit {
+    val context = LocalContext.current
+    var clickAction by remember { mutableStateOf(item.clickAction) }
+    var showApiKeyDialog by remember { mutableStateOf(false) }
+    var image by remember { mutableStateOf<Uri?>(null) }
+    var scene by remember { mutableStateOf<Uri?>(null) }
+    var gatewayApiKey by remember { mutableStateOf("") }
+    lateinit var handleClick: () -> Unit
+
+    val fileLauncher = rememberLauncherForActivityResult(
+        object : ActivityResultContracts.OpenDocument() {
+            override fun createIntent(
+                context: Context,
+                input: Array<String>,
+            ) = super.createIntent(context, input).also {
+                it.addCategory(Intent.CATEGORY_OPENABLE)
+                it.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
+                it.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+        },
+    ) { sceneUri ->
+        sceneUri ?: return@rememberLauncherForActivityResult
+        context.contentResolver.takePersistableUriPermission(sceneUri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        scene = sceneUri
+        clickAction = clickAction.copy(requestScene = false)
+        handleClick()
+    }
+    val imageLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { imageUri ->
+        imageUri ?: return@rememberLauncherForActivityResult
+        image = imageUri
+        clickAction = clickAction.copy(requestImage = false)
+        handleClick()
+    }
+
+    handleClick = {
+        when {
+            clickAction.requestApiKey -> {
+                showApiKeyDialog = true
+            }
+            clickAction.requestImage -> {
+                imageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            }
+            clickAction.requestScene -> {
+                fileLauncher.launch(arrayOf("text/plain", "application/force-download", "application/octet-stream"))
+            }
+            else -> {
+                val route = clickAction.destination.getRoute(
+                    "scene" to (clickAction.sceneId ?: scene),
+                    "image" to image,
+                    "gatewayApiKey" to gatewayApiKey,
+                )
+                navigateTo(route)
+            }
+        }
+    }
+
+    if (showApiKeyDialog) {
+        ApiKeyDialog(
+            onDismissRequest = { showApiKeyDialog = false },
+            onResult = {
+                gatewayApiKey = it
+                clickAction = clickAction.copy(requestApiKey = false)
+                handleClick()
+            },
+        )
+    }
+    return {
+        handleClick()
+    }
+}
+
+@Composable
+private fun ApiKeyDialog(
+    onDismissRequest: () -> Unit,
+    onResult: (String) -> Unit,
+) {
+    var input by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(
+                text = stringResource(
+                    R.string.ly_img_showcases_gateway_dialog_title,
+                ),
+            )
+        },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = AnnotatedString(
+                        stringResource(
+                            R.string.ly_img_showcases_gateway_dialog_text,
+                        ),
+                    ),
+                )
+                OutlinedTextField(
+                    value = input,
+                    onValueChange = { input = it.trim() },
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = input.isNotEmpty(),
+                onClick = {
+                    onDismissRequest()
+                    onResult(input)
+                },
+            ) {
+                Text(stringResource(R.string.ly_img_showcases_gateway_dialog_button_confirm))
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismissRequest,
+            ) {
+                Text(stringResource(R.string.ly_img_showcases_gateway_dialog_button_dismiss))
+            }
+        },
+    )
+}
+
+@Composable
 @Preview
 fun ContentItemPreview() {
     val item = ShowcaseItem.Content(
         thumbnailRes = R.drawable.thumbnail_apparel_ui_b_2,
-        actionScreen = Screen.ApparelUi,
-        actionScene = "",
+        clickAction = ShowcaseItem.ClickAction(destination = Screen.ApparelUi),
     )
     ContentItem(item = item, onClick = {})
 }
