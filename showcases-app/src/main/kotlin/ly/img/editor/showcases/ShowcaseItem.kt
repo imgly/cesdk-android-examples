@@ -5,8 +5,6 @@ import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class ShowcaseItem(
-    open val actionScene: String? = null,
-    open val actionScreen: Screen? = null,
     open val span: Int,
     val key: String,
 ) {
@@ -15,57 +13,62 @@ sealed class ShowcaseItem(
         override val span: Int,
         val items: List<ShowcaseItem> = emptyList(),
     ) : ShowcaseItem(
-            actionScene = null,
-            actionScreen = null,
             span = span,
             key = "item.header.$title",
         )
 
+    data class ClickAction(
+        val destination: Screen,
+        val requestApiKey: Boolean = false,
+        val requestImage: Boolean = false,
+        val requestScene: Boolean = false,
+        val sceneId: String? = null,
+    ) {
+        init {
+            if (requestImage && requestScene) {
+                error("Cannot request both image and scene.")
+            }
+            if (sceneId != null && requestScene) {
+                error("Cannot request scene and also provide one.")
+            }
+        }
+    }
+
+    interface Clickable {
+        val clickAction: ClickAction
+    }
+
     data class Content(
         @DrawableRes val thumbnailRes: Int,
-        override val actionScene: String,
-        override val actionScreen: Screen,
+        override val clickAction: ClickAction,
         val thumbnailAspectRatio: Float = 1F,
     ) : ShowcaseItem(
-            actionScene = actionScene,
-            actionScreen = actionScreen,
             span = 1,
-            key = "item.content.$actionScene",
-        )
+            key = "item.content.$clickAction",
+        ),
+        Clickable
 
     class CarouselContent(
         @DrawableRes val iconRes: Int,
         @StringRes val label: Int,
         @StringRes val sublabel: Int?,
         val hasDotLine: Boolean = false,
-        val clickAction: ClickAction = ClickAction.OPEN_SCENE,
-        override val actionScene: String?,
-        override val actionScreen: Screen,
+        override val clickAction: ClickAction,
     ) : ShowcaseItem(
-            actionScene = actionScene,
-            actionScreen = actionScreen,
             span = 1,
-            key = "item.content.${actionScene ?: actionScreen.routeScheme}",
-        ) {
-        enum class ClickAction {
-            OPEN_SCENE,
-            PICK_SCENE,
-            PICK_IMAGE,
-        }
-    }
+            key = "item.content.$clickAction",
+        ),
+        Clickable
 
     class CustomFunctionality(
         val vectorIcon: ImageVector,
         @DrawableRes val thumbnailRes: Int,
         @StringRes val label: Int,
         @StringRes val sublabel: Int?,
-        val clickAction: CarouselContent.ClickAction = CarouselContent.ClickAction.OPEN_SCENE,
-        override val actionScene: String?,
-        override val actionScreen: Screen,
+        override val clickAction: ClickAction,
     ) : ShowcaseItem(
-            actionScene = actionScene,
-            actionScreen = actionScreen,
             span = 1,
-            key = "item.custom_functionality.${actionScene ?: actionScreen.routeScheme}",
-        )
+            key = "item.content.$clickAction",
+        ),
+        Clickable
 }

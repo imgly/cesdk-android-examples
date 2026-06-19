@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import ly.img.camera.core.CameraLayoutMode
 import ly.img.camera.core.CameraMode
 import ly.img.camera.core.CameraResult
-import ly.img.camera.core.CaptureVideo
+import ly.img.camera.core.CaptureMedia
 import ly.img.camera.core.EngineConfiguration
 import ly.img.camera.core.Recording
 import ly.img.camera.core.Video
@@ -33,7 +33,7 @@ private fun handleReactionCameraResult(
     when (result) {
         null -> onDismissed()
         is CameraResult.Reaction -> onReactionReady(result)
-        is CameraResult.Record -> Unit
+        else -> Unit
     }
 }
 // highlight-android-handle-result
@@ -47,12 +47,12 @@ fun rememberRecordReactionLauncher(
     onReactionReady: (CameraResult.Reaction) -> Unit,
     onDismissed: () -> Unit = {},
 ): () -> Unit {
-    val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureVideo()) { result ->
+    val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureMedia()) { result ->
         handleReactionCameraResult(result, onReactionReady, onDismissed)
     }
 
     return {
-        val input = CaptureVideo.Input(
+        val input = CaptureMedia.Input(
             engineConfiguration = EngineConfiguration(
                 license = license,
                 userId = userId,

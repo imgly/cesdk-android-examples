@@ -195,7 +195,6 @@ buildConfig {
     buildConfigField String, "LICENSE", System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""
     buildConfigField String, "REMOTE_ASSET_SOURCE_HOST", System.env.CESDK_AND_REMOTE_ASSET_SOURCE_HOST ?: getLocalProperty("remote_asset_source_host") ?: ""
     buildConfigField String, "BASE_URI", resolveBaseUri()
-    buildConfigField String, "FAL_PROXY_URL", System.getenv("FAL_AI_PROXY_URL") ?: getLocalProperty("fal_proxy_url") ?: ""
     buildConfigField int, "VERSION_CODE", android.defaultConfig.versionCode ?: 0
     buildConfigField String, "VERSION_NAME", android.defaultConfig.versionName
     buildConfigField String, "ENGINE_VERSION", libs.versions.imgly.get()
@@ -205,7 +204,8 @@ dependencies {
     implementation(libs.imgly.editor) {
         exclude group: 'ly.img', module: 'editor-debug-menu'
     }
-    implementation(libs.imgly.plugin.background.removal)
+    implementation(libs.imgly.plugin.background.removal.imgly)
+    implementation(libs.imgly.plugin.ai.image.generation)
     implementation(libs.imgly.camera) {
         exclude group: 'ly.img', module: 'editor-debug-menu'
     }
@@ -225,7 +225,7 @@ dependencies {
     implementation libs.coil.compose
     implementation libs.coil.svg
 
-    implementation(libs.fal.client.kotlin)
+    implementation(libs.okhttp)
 
     implementation(libs.material) {
         because "MaterialComponents DayNight theme"

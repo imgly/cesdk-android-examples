@@ -11,7 +11,7 @@ import ly.img.editor.configuration.photo.callback.onCreate
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
 import ly.img.editor.core.configuration.then
-import ly.img.editor.plugin.backgroundRemoval.BackgroundRemovalPlugin
+import ly.img.editor.plugin.backgroundRemoval.IMGLYBackgroundRemovalPlugin
 import ly.img.editor.showcases.Screen
 import ly.img.editor.showcases.Secrets
 import ly.img.editor.showcases.decodeBase64
@@ -48,7 +48,7 @@ fun BackgroundRemovalScreen(
                 }
             }
                 .then(::ShowcasesPlugin)
-                .then(::BackgroundRemovalPlugin)
+                .then(::IMGLYBackgroundRemovalPlugin)
         },
     ) {
         onBack()
