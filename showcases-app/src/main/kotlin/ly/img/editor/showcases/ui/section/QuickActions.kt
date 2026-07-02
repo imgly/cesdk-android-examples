@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ly.img.camera.core.CameraMode
 import ly.img.camera.core.CameraResult
-import ly.img.camera.core.CaptureVideo
+import ly.img.camera.core.CaptureMedia
 import ly.img.camera.core.EngineConfiguration
 import ly.img.editor.showcases.R
 import ly.img.editor.showcases.Screen
@@ -39,11 +39,11 @@ fun QuickActions(
     onResult: (String, Any?) -> Unit,
     navigateTo: (String) -> Unit,
 ) {
-    val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureVideo()) { result ->
+    val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureMedia()) { result ->
         result ?: run { return@rememberLauncherForActivityResult }
         when (result) {
-            is CameraResult.Record -> {
-                onResult("recording", result)
+            is CameraResult.Captures -> {
+                onResult("captures", result)
                 navigateTo(Screen.EditCameraRecordings.getRoute())
             }
 
@@ -51,6 +51,8 @@ fun QuickActions(
                 onResult("reaction", result)
                 navigateTo(Screen.EditRecordedReaction.getRoute())
             }
+
+            else -> Unit
         }
     }
 
@@ -64,7 +66,7 @@ fun QuickActions(
                 title = stringResource(id = R.string.ly_img_showcases_button_quick_action_record_video),
                 iconId = R.drawable.quick_action_record_video,
                 onClick = {
-                    val cameraInput = CaptureVideo.Input(
+                    val cameraInput = CaptureMedia.Input(
                         engineConfiguration = EngineConfiguration(license = Secrets.license),
                     )
                     cameraLauncher.launch(cameraInput)
@@ -75,7 +77,7 @@ fun QuickActions(
         item {
             val videoPickerLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { videoUri ->
                 videoUri?.let { uri ->
-                    val cameraInput = CaptureVideo.Input(
+                    val cameraInput = CaptureMedia.Input(
                         engineConfiguration = EngineConfiguration(license = Secrets.license),
                         cameraMode = CameraMode.Reaction(video = uri),
                     )

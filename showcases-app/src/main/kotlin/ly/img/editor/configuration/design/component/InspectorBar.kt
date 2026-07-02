@@ -22,6 +22,8 @@ import ly.img.editor.core.component.rememberReplace
 import ly.img.editor.core.component.rememberSelectGroup
 import ly.img.editor.core.component.rememberShape
 import ly.img.editor.core.component.rememberTextBackground
+import ly.img.editor.core.component.rememberTextOnPath
+import ly.img.editor.core.component.rememberTextPresets
 
 /**
  * The configuration of the component that is displayed as horizontal list of items at the
@@ -33,9 +35,11 @@ fun DesignConfigurationBuilder.rememberInspectorBar() = InspectorBar.remember {
         InspectorBar.ListBuilder.remember {
             add { InspectorBar.Button.rememberReplace() } // Image, Sticker, Audio
             add { InspectorBar.Button.rememberEditText() } // Text
+            add { InspectorBar.Button.rememberTextPresets() } // Text
             add { InspectorBar.Button.rememberFormatText() } // Text
             add { InspectorBar.Button.rememberFillStroke() } // Page, Image, Shape, Text
             add { InspectorBar.Button.rememberTextBackground() } // Text
+            add { InspectorBar.Button.rememberTextOnPath() } // Text
             add { InspectorBar.Button.rememberCrop() } // Image
             add { InspectorBar.Button.rememberAdjustments() } // Image
             add { InspectorBar.Button.rememberFilter() } // Image

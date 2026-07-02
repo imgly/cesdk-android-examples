@@ -34,14 +34,12 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ly.img.editor.defaultBaseUri
-import ly.img.engine.DefaultAssetSource
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.MimeType
 import ly.img.engine.ShapeType
 import ly.img.engine.SizeMode
-import ly.img.engine.populateAssetSource
 import java.io.File
 import ly.img.engine.Color as EngineColor
 
@@ -180,17 +178,14 @@ suspend fun runAutomationWorkflow(
     engine.bindOffscreen(width = 1080, height = 1350)
     val existingAssetSources = engine.asset.findAllSources().toSet()
     listOf(
-        DefaultAssetSource.COLORS_DEFAULT_PALETTE.key,
-        DefaultAssetSource.TYPEFACE.key,
+        "ly.img.typeface",
     ).filterNot(existingAssetSources::contains)
         .forEach { assetSource ->
-            engine.populateAssetSource(
-                id = assetSource,
-                jsonUri = defaultBaseUri.buildUpon()
+            engine.asset.addLocalSourceFromJSON(
+                contentUri = defaultBaseUri.buildUpon()
                     .appendPath(assetSource)
                     .appendPath("content.json")
                     .build(),
-                replaceBaseUri = defaultBaseUri,
             )
         }
     // highlight-android-start
