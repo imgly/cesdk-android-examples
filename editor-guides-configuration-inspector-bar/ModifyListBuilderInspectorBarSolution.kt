@@ -1,6 +1,5 @@
 import androidx.compose.runtime.Composable
 import ly.img.editor.Editor
-import ly.img.editor.core.component.EditorComponentId
 import ly.img.editor.core.component.InspectorBar
 import ly.img.editor.core.component.crop
 import ly.img.editor.core.component.delete
@@ -8,10 +7,15 @@ import ly.img.editor.core.component.formatText
 import ly.img.editor.core.component.layer
 import ly.img.editor.core.component.modify
 import ly.img.editor.core.component.remember
+import ly.img.editor.core.component.rememberAnimations
 import ly.img.editor.core.component.rememberCrop
 import ly.img.editor.core.component.rememberDelete
+import ly.img.editor.core.component.rememberDuplicate
+import ly.img.editor.core.component.rememberFillStroke
 import ly.img.editor.core.component.rememberFormatText
 import ly.img.editor.core.component.rememberLayer
+import ly.img.editor.core.component.rememberReplace
+import ly.img.editor.core.component.rememberTextBackground
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
 
@@ -28,8 +32,7 @@ fun ModifyListBuilderInspectorBarSolution(
                 inspectorBar = {
                     InspectorBar.remember {
                         listBuilder = {
-                            // highlight-modifyListBuilder
-                            // Makes sense to use only with builders that are already available and cannot be modified by you directly.
+                            // highlight-android-modify-list-builder
                             val existingListBuilder = InspectorBar.ListBuilder.remember {
                                 add { InspectorBar.Button.rememberLayer() }
                                 add { InspectorBar.Button.rememberCrop() }
@@ -37,61 +40,24 @@ fun ModifyListBuilderInspectorBarSolution(
                                 add { InspectorBar.Button.rememberDelete() }
                             }
                             existingListBuilder.modify {
-                                // highlight-modifyListBuilder-addFirst
                                 addFirst {
-                                    InspectorBar.Button.remember {
-                                        id = { EditorComponentId("my.package.inspectorBar.button.first") }
-                                        vectorIcon = null
-                                        textString = { "First Button" }
-                                        onClick = {}
-                                    }
+                                    InspectorBar.Button.rememberDuplicate()
                                 }
-                                // highlight-modifyListBuilder-addFirst
-                                // highlight-modifyListBuilder-addLast
                                 addLast {
-                                    InspectorBar.Button.remember {
-                                        id = { EditorComponentId("my.package.inspectorBar.button.last") }
-                                        vectorIcon = null
-                                        textString = { "Last Button" }
-                                        onClick = {}
-                                    }
+                                    InspectorBar.Button.rememberReplace()
                                 }
-                                // highlight-modifyListBuilder-addLast
-                                // highlight-modifyListBuilder-addAfter
                                 addAfter(id = InspectorBar.Button.Id.layer, failIfNotFound = true) {
-                                    InspectorBar.Button.remember {
-                                        id = { EditorComponentId("my.package.inspectorBar.button.afterLayer") }
-                                        vectorIcon = null
-                                        textString = { "After Layer" }
-                                        onClick = {}
-                                    }
+                                    InspectorBar.Button.rememberFillStroke()
                                 }
-                                // highlight-modifyListBuilder-addAfter
-                                // highlight-modifyListBuilder-addBefore
                                 addBefore(id = InspectorBar.Button.Id.crop, failIfNotFound = true) {
-                                    InspectorBar.Button.remember {
-                                        id = { EditorComponentId("my.package.inspectorBar.button.beforeCrop") }
-                                        vectorIcon = null
-                                        textString = { "Before Crop" }
-                                        onClick = {}
-                                    }
+                                    InspectorBar.Button.rememberAnimations()
                                 }
-                                // highlight-modifyListBuilder-addBefore
-                                // highlight-modifyListBuilder-replace
                                 replace(id = InspectorBar.Button.Id.formatText, failIfNotFound = true) {
-                                    InspectorBar.Button.remember {
-                                        id = { EditorComponentId("my.package.inspectorBar.button.replacedFormatText") }
-                                        vectorIcon = null
-                                        textString = { "Replaced Format Text" }
-                                        onClick = {}
-                                    }
+                                    InspectorBar.Button.rememberTextBackground()
                                 }
-                                // highlight-modifyListBuilder-replace
-                                // highlight-modifyListBuilder-remove
                                 remove(id = InspectorBar.Button.Id.delete, failIfNotFound = true)
-                                // highlight-modifyListBuilder-remove
                             }
-                            // highlight-modifyListBuilder
+                            // highlight-android-modify-list-builder
                         }
                     }
                 }

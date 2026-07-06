@@ -178,6 +178,7 @@ suspend fun runAutomationWorkflow(
     engine.bindOffscreen(width = 1080, height = 1350)
     val existingAssetSources = engine.asset.findAllSources().toSet()
     listOf(
+        "ly.img.color.palette",
         "ly.img.typeface",
     ).filterNot(existingAssetSources::contains)
         .forEach { assetSource ->

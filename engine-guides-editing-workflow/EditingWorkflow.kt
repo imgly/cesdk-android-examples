@@ -47,11 +47,7 @@ internal fun createEditingWorkflowTemplate(engine: Engine): EditingWorkflowTempl
     engine.block.setWidth(background, value = 720F)
     engine.block.setHeight(background, value = 1080F)
     engine.block.setFill(background, fill = engine.block.createFill(FillType.Color))
-    engine.block.setColor(
-        block = engine.block.getFill(background),
-        property = "fill/color/value",
-        value = Color.fromRGBA(247, 249, 252, 255),
-    )
+    engine.block.setFillSolidColor(background, color = Color.fromRGBA(247, 249, 252, 255))
     engine.block.appendChild(parent = page, child = background)
 
     // highlight-android-templateScene
@@ -63,11 +59,7 @@ internal fun createEditingWorkflowTemplate(engine: Engine): EditingWorkflowTempl
     engine.block.setPositionX(brandBanner, value = 40F)
     engine.block.setPositionY(brandBanner, value = 48F)
     engine.block.setFill(brandBanner, fill = engine.block.createFill(FillType.Color))
-    engine.block.setColor(
-        block = engine.block.getFill(brandBanner),
-        property = "fill/color/value",
-        value = Color.fromHex("#FF0B1220"),
-    )
+    engine.block.setFillSolidColor(brandBanner, color = Color.fromHex("#FF0B1220"))
     engine.block.appendChild(parent = page, child = brandBanner)
 
     val companyName = engine.block.create(DesignBlockType.Text)

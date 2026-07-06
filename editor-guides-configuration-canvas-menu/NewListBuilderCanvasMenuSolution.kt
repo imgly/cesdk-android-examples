@@ -1,3 +1,4 @@
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import ly.img.editor.Editor
 import ly.img.editor.core.component.CanvasMenu
@@ -24,14 +25,19 @@ fun NewListBuilderCanvasMenuSolution(
                 canvasMenu = {
                     CanvasMenu.remember {
                         listBuilder = {
-                            // highlight-newListBuilder
+                            // highlight-android-declare-items
                             CanvasMenu.ListBuilder.remember {
                                 add {
                                     CanvasMenu.Button.remember {
-                                        id = { EditorComponentId("my.package.canvasMenu.button.custom") }
-                                        onClick = {}
+                                        id = { EditorComponentId("com.example.canvasMenu.button.review") }
+                                        onClick = {
+                                            Toast
+                                                .makeText(editorContext.activity, "Review action", Toast.LENGTH_SHORT)
+                                                .show()
+                                        }
                                         vectorIcon = null
-                                        textString = { "Custom Button" }
+                                        textString = { "Review" }
+                                        contentDescription = { "Review selected block" }
                                     }
                                 }
                                 add { CanvasMenu.Button.rememberSelectGroup() }
@@ -50,7 +56,7 @@ fun NewListBuilderCanvasMenuSolution(
                                 add { CanvasMenu.Button.rememberDuplicate() }
                                 add { CanvasMenu.Button.rememberDelete() }
                             }
-                            // highlight-newListBuilder
+                            // highlight-android-declare-items
                         }
                     }
                 }

@@ -6,53 +6,65 @@ import androidx.activity.compose.setContent
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import ly.img.camera.core.CameraResult
+import ly.img.camera.core.Capture
 import ly.img.camera.core.CaptureMedia
 import ly.img.camera.core.EngineConfiguration
-import ly.img.camera.core.videos
 
 private const val TAG = "CameraActivity"
+
+// highlight-android-handle-result
+private fun handleCameraResult(result: CameraResult?) {
+    result ?: run {
+        Log.i(TAG, "Camera dismissed")
+        return
+    }
+    when (result) {
+        is CameraResult.Captures -> {
+            result.captures.forEach { capture ->
+                when (capture) {
+                    is Capture.Photo -> {
+                        Log.i(TAG, "Captured photo: ${capture.uri}")
+                    }
+                    is Capture.Video -> {
+                        val videoUris = capture.recording.videos.map { it.uri }
+                        Log.i(TAG, "Recorded video: $videoUris")
+                    }
+                }
+            }
+        }
+
+        else -> {
+            Log.i(TAG, "Unhandled result: $result")
+        }
+    }
+}
+// highlight-android-handle-result
 
 class CameraActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // highlight-initialization
+        // highlight-android-create-input
         val cameraInput = CaptureMedia.Input(
             engineConfiguration = EngineConfiguration(
-                license = null, // pass null or empty for evaluation mode with watermark
+                license = "YOUR_CESDK_LICENSE_KEY",
                 userId = "<your unique user id>",
             ),
         )
-        // highlight-initialization
+        // highlight-android-create-input
 
         setContent {
-            // highlight-launcher
+            // highlight-android-register-launcher
             val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureMedia()) { result ->
-                // highlight-launcher
-                // highlight-result
-                result ?: run {
-                    Log.d(TAG, "Camera dismissed")
-                    return@rememberLauncherForActivityResult
-                }
-                when (result) {
-                    is CameraResult.Captures -> {
-                        val recordedVideoUris = result.captures.videos.flatMap { it.videos.map { it.uri } }
-                        // Do something with the recorded videos
-                        Log.d(TAG, "Recorded videos: $recordedVideoUris")
-                    }
-
-                    else -> {
-                        Log.d(TAG, "Unhandled result")
-                    }
-                }
-                // highlight-result
+                handleCameraResult(result)
             }
+            // highlight-android-register-launcher
 
             Button(
                 onClick = {
-                    // highlight-launch
+                    // highlight-android-launch-camera
                     cameraLauncher.launch(cameraInput)
-                    // highlight-launch
+                    // highlight-android-launch-camera
                 },
             ) {
                 Text(text = "Open Camera")
