@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import ly.img.editor.Editor
+import ly.img.editor.core.EditorContext
 import ly.img.editor.core.component.Dock
 import ly.img.editor.core.component.EditorComponentId
 import ly.img.editor.core.component.data.Height
@@ -56,22 +57,24 @@ val openCustomPanelDockButton
         text = { Text("Open Panel") }
         icon = { Icon(Icons.Rounded.KeyboardArrowUp, null) }
         onClick = {
+            // highlight-android-open-custom-panel-event
             editorContext.eventHandler.send(
                 EditorEvent.Sheet.Open(customSheetType),
             )
+            // highlight-android-open-custom-panel-event
         }
     }
 
 val customSheetType: SheetType
     get() =
-        // highlight-open-custom-panel
+        // highlight-android-open-custom-panel
         SheetType.Custom(
             style = SheetStyle(
                 isFloating = false,
                 minHeight = Height.Exactly(0.dp),
                 maxHeight = Height.Fraction(0.7F),
                 isHalfExpandingEnabled = false,
-                isHalfExpandedInitially = true,
+                isHalfExpandedInitially = false,
                 animateInitialValue = true,
             ),
             content = {
@@ -84,16 +87,21 @@ val customSheetType: SheetType
                 ) {
                     Text("Custom Panel")
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = {
-                            // highlight-close-panel
-                            editorContext.eventHandler.send(
-                                EditorEvent.Sheet.Close(animate = true),
-                            )
-                            // highlight-close-panel
-                        },
-                    ) { Text("Close Panel") }
+                    ClosePanelButton(editorContext = editorContext)
                 }
             },
         )
-// highlight-open-custom-panel
+// highlight-android-open-custom-panel
+
+// highlight-android-close-panel
+@Composable
+fun ClosePanelButton(editorContext: EditorContext) {
+    Button(
+        onClick = {
+            editorContext.eventHandler.send(
+                EditorEvent.Sheet.Close(animate = true),
+            )
+        },
+    ) { Text("Close Panel") }
+}
+// highlight-android-close-panel
