@@ -1,63 +1,82 @@
 import android.net.Uri
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ly.img.engine.Engine
 
-fun uriResolver(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1920)
+private const val ASSET_BASE_PATH = "file:///android_asset"
 
-    // highlight-get-absolute-base-path
-    // This will return uri to "banana.jpg" asset file
-    engine.editor.getAbsoluteUri(uri = Uri.parse("banana.jpg"))
-    // This will return uri to remote resource "https://example.com/orange.png"
-    engine.editor.getAbsoluteUri(uri = Uri.parse("https://example.com/orange.png"))
-    // highlight-get-absolute-base-path
+suspend fun uriResolver(engine: Engine): List<Uri> = withContext(Dispatchers.Main) {
+    val originalBasePath = engine.editor.getSettingString("basePath")
+    engine.editor.setSettingString(keypath = "basePath", value = ASSET_BASE_PATH)
 
-    // highlight-resolver
-    // Replace all .jpg files with the IMG.LY logo!
-    engine.editor.setUriResolver {
-        if (it.toString().endsWith(".jpg")) {
-            Uri.parse("https://img.ly/static/ubq_samples/imgly_logo.jpg")
-        } else {
-            engine.editor.defaultUriResolver(it)
+    try {
+        // highlight-android-test-resolution
+        val relativeAsset = Uri.parse("images/poster.jpg")
+        val protectedAsset = Uri.parse("https://assets.example.com/protected/poster.jpg")
+
+        val defaultRelativeUri = engine.editor.getAbsoluteUri(uri = relativeAsset)
+        val defaultAbsoluteUri = engine.editor.getAbsoluteUri(uri = protectedAsset)
+        // highlight-android-test-resolution
+
+        // highlight-android-set-resolver
+        val appAssetHost = "app.example.com"
+        val storageHost = "assets.example.com"
+        val appAsset = Uri.parse("https://$appAssetHost/images/poster.jpg")
+
+        engine.editor.setUriResolver { uri ->
+            if (uri.host == appAssetHost) {
+                uri
+                    .buildUpon()
+                    .authority(storageHost)
+                    .build()
+            } else {
+                engine.editor.defaultUriResolver(uri)
+            }
         }
-    }
-    // highlight-resolver
 
-    // highlight-get-absolute-custom
-    // The custom resolver will return a path to the IMG.LY logo because the given path ends with ".jpg".
-    // This applies regardless if the given path is relative or absolute.
-    engine.editor.getAbsoluteUri(uri = Uri.parse("banana.jpg"))
+        val rewrittenAppAssetUri = engine.editor.getAbsoluteUri(uri = appAsset)
+        // highlight-android-set-resolver
 
-    // The custom resolver will not modify this path because it ends with ".png".
-    engine.editor.getAbsoluteUri(uri = Uri.parse("https://example.com/orange.png"))
+        // highlight-android-authentication
+        val protectedHost = "assets.example.com"
+        val protectedPrefix = "/protected/"
+        val token = "precomputed-session-token"
 
-    // Because a custom resolver is set, relative paths that the resolver does not transform remain unmodified!
-    engine.editor.getAbsoluteUri(uri = Uri.parse("/orange.png"))
-    // highlight-get-absolute-custom
+        engine.editor.setUriResolver { uri ->
+            val shouldAuthenticate =
+                uri.host == protectedHost &&
+                    uri.path?.startsWith(protectedPrefix) == true
 
-    // highlight-remove-resolver
-    // Removes the previously set resolver.
-    engine.editor.setUriResolver(null)
-
-    // Since we've removed the custom resolver, this will return
-    // Uri.Asset("banana.jpg") like before.
-    engine.editor.getAbsoluteUri(uri = Uri.parse("banana.jpg"))
-    // highlight-remove-resolver
-
-    engine.editor.setUriResolver { uri ->
-        val path = uri.path
-        if (uri.host == "localhost" && path != null && path.startsWith("/scenes") && !path.endsWith(".scene")) {
-            // Apply custom logic here, e.g. redirect to a different server
+            if (shouldAuthenticate) {
+                uri
+                    .buildUpon()
+                    .appendQueryParameter("token", token)
+                    .build()
+            } else {
+                engine.editor.defaultUriResolver(uri)
+            }
         }
-        engine.editor.defaultUriResolver(uri)
-    }
 
-    engine.stop()
+        val authenticatedUri = engine.editor.getAbsoluteUri(uri = protectedAsset)
+        val delegatedRelativeUri = engine.editor.getAbsoluteUri(uri = relativeAsset)
+        // highlight-android-authentication
+
+        // highlight-android-remove-resolver
+        engine.editor.setUriResolver(null)
+        val restoredRelativeUri = engine.editor.getAbsoluteUri(uri = relativeAsset)
+        // highlight-android-remove-resolver
+
+        listOf(
+            defaultRelativeUri,
+            defaultAbsoluteUri,
+            rewrittenAppAssetUri,
+            authenticatedUri,
+            delegatedRelativeUri,
+            restoredRelativeUri,
+        )
+    } finally {
+        engine.editor.setUriResolver(null)
+        engine.editor.setUriResolverAsync(null)
+        engine.editor.setSettingString(keypath = "basePath", value = originalBasePath)
+    }
 }

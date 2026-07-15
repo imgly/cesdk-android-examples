@@ -1,6 +1,7 @@
 import android.net.Uri
 import android.util.Log
 import ly.img.editor.defaultBaseUri
+import ly.img.engine.AssetDefinition
 import ly.img.engine.Color
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DefaultAssetSource
@@ -14,6 +15,7 @@ import ly.img.engine.ShapeType
 import ly.img.engine.populateAssetSource
 
 private const val TAG = "ShapesOrStickers"
+private const val GUIDE_STICKER_SOURCE_ID = "ly.img.guide.sticker"
 
 suspend fun insertMediaShapesOrStickers(engine: Engine): InsertMediaShapesOrStickersResult {
     // highlight-android-setup
@@ -230,15 +232,28 @@ suspend fun insertMediaShapesOrStickers(engine: Engine): InsertMediaShapesOrStic
         )
     }
 
-    val stickerResults = engine.asset.findAssets(
-        sourceId = stickerSourceId,
-        query = FindAssetsQuery(
-            query = null,
-            page = 0,
-            groups = listOf("emoji"),
-            perPage = 5,
-        ),
-    )
+    var stickerResults = findStickerAssets(engine = engine, sourceId = stickerSourceId)
+    var stickerAssetSourceId = stickerSourceId
+    if (stickerResults.assets.isEmpty()) {
+        try {
+            engine.populateAssetSource(
+                id = stickerSourceId,
+                jsonUri = stickerAssetsBaseUri.buildUpon()
+                    .appendPath(stickerSourceId)
+                    .appendPath("content.json")
+                    .build(),
+                replaceBaseUri = stickerAssetsBaseUri,
+            )
+        } catch (error: Exception) {
+            Log.w(TAG, "Could not populate sticker source $stickerSourceId.", error)
+        }
+        stickerResults = findStickerAssets(engine = engine, sourceId = stickerSourceId)
+    }
+    if (stickerResults.assets.isEmpty()) {
+        stickerAssetSourceId = GUIDE_STICKER_SOURCE_ID
+        ensureGuideStickerAssetSource(engine = engine, stickerUri = stickerUri)
+        stickerResults = findStickerAssets(engine = engine, sourceId = stickerAssetSourceId)
+    }
     Log.i(TAG, "Stickers in emoji category: ${stickerResults.total}")
     // highlight-android-query-stickers
 
@@ -247,7 +262,7 @@ suspend fun insertMediaShapesOrStickers(engine: Engine): InsertMediaShapesOrStic
         "No sticker assets found."
     }
     val stickerFromLibrary = checkNotNull(
-        engine.asset.applyAssetSourceAsset(sourceId = stickerSourceId, asset = stickerAsset),
+        engine.asset.applyAssetSourceAsset(sourceId = stickerAssetSourceId, asset = stickerAsset),
     ) {
         "The sticker asset source did not create a block."
     }
@@ -298,4 +313,53 @@ suspend fun insertMediaShapesOrStickers(engine: Engine): InsertMediaShapesOrStic
         stickerBlockCount = stickerBlocks.size,
         pngData = pngData.asReadOnlyBuffer(),
     )
+}
+
+private suspend fun findStickerAssets(
+    engine: Engine,
+    sourceId: String,
+) = engine.asset.findAssets(
+    sourceId = sourceId,
+    query = FindAssetsQuery(
+        query = null,
+        page = 0,
+        groups = listOf("emoji"),
+        perPage = 5,
+    ),
+)
+
+private suspend fun ensureGuideStickerAssetSource(
+    engine: Engine,
+    stickerUri: Uri,
+) {
+    if (GUIDE_STICKER_SOURCE_ID !in engine.asset.findAllSources()) {
+        engine.asset.addLocalSource(
+            sourceId = GUIDE_STICKER_SOURCE_ID,
+            supportedMimeTypes = listOf("image/svg+xml"),
+        )
+    }
+    if (findStickerAssets(engine = engine, sourceId = GUIDE_STICKER_SOURCE_ID).assets.isNotEmpty()) {
+        return
+    }
+    engine.asset.addAsset(
+        sourceId = GUIDE_STICKER_SOURCE_ID,
+        asset = AssetDefinition(
+            id = "guide-emoji-happyface",
+            label = mapOf("en" to "Happy Face"),
+            tags = mapOf("en" to listOf("emoji", "happy", "face")),
+            groups = listOf("emoji"),
+            meta = mapOf(
+                "uri" to stickerUri.toString(),
+                "thumbUri" to stickerUri.toString(),
+                "mimeType" to "image/svg+xml",
+                "kind" to "sticker",
+                "blockType" to DesignBlockType.Graphic.key,
+                "fillType" to FillType.Image.key,
+                "shapeType" to ShapeType.Rect.key,
+                "width" to "512",
+                "height" to "512",
+            ),
+        ),
+    )
+    engine.asset.assetSourceContentsChanged(sourceId = GUIDE_STICKER_SOURCE_ID)
 }

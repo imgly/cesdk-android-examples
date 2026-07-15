@@ -17,9 +17,9 @@ fun colorsReplace(engine: Engine) {
     engine.block.appendChild(parent = scene, child = page)
     // highlight-android-prepare-scene
 
+    // highlight-android-create-image-blocks
     val imageUri = Uri.parse("https://img.ly/static/ubq_samples/sample_1.jpg")
 
-    // highlight-android-create-image-blocks
     fun addImageBlock(
         x: Float,
         y: Float,
