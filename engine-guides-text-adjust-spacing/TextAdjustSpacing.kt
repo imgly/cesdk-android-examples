@@ -1,19 +1,18 @@
-// highlight-text-adjust-spacing
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.SizeMode
 
-fun textAdjustSpacing(
-    license: String,
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 100, height = 100)
+data class TextAdjustSpacing(
+    val letterSpacing: Float,
+    val lineHeight: Float,
+    val paragraph0LineHeight: Float,
+    val paragraph1LineHeight: Float,
+    val resetParagraph0LineHeight: Float,
+    val resetBlockLineHeight: Float,
+    val paragraphSpacing: Float,
+)
 
+fun textAdjustSpacing(engine: Engine): TextAdjustSpacing {
     val scene = engine.scene.create()
     val text = engine.block.create(DesignBlockType.Text)
     engine.block.appendChild(parent = scene, child = text)
@@ -21,46 +20,48 @@ fun textAdjustSpacing(
     engine.block.setHeightMode(text, mode = SizeMode.AUTO)
     engine.block.replaceText(text, text = "Hello\nWorld\nCE.SDK")
 
-    // highlight-letter-spacing
-    // Set letter spacing — positive values spread characters, negative values tighten them
+    // highlight-android-letter-spacing
     engine.block.setFloat(text, property = "text/letterSpacing", value = 0.1F)
+    val letterSpacing = engine.block.getFloat(text, property = "text/letterSpacing")
+    // highlight-android-letter-spacing
 
-    // Read the current letter spacing
-    engine.block.getFloat(text, property = "text/letterSpacing")
-    // highlight-letter-spacing
-
-    // highlight-line-height
-    // Set the block-level line height multiplier — applies to all paragraphs by default
+    // highlight-android-line-height
     engine.block.setFloat(text, property = "text/lineHeight", value = 1.5F)
+    val lineHeight = engine.block.getFloat(text, property = "text/lineHeight")
+    // highlight-android-line-height
 
-    // Read the current block-level line height
-    engine.block.getFloat(text, property = "text/lineHeight")
-    // highlight-line-height
-
-    // highlight-paragraph-line-height
-    // Set a per-paragraph line height override for paragraph 0 (first paragraph)
+    // highlight-android-paragraph-line-height
     engine.block.setTextLineHeight(text, lineHeight = 2.0F, paragraphIndex = 0)
+    val paragraph0LineHeight = engine.block.getTextLineHeight(text, paragraphIndex = 0)
+    val paragraph1LineHeight = engine.block.getTextLineHeight(text, paragraphIndex = 1)
 
-    // Read the line height for a specific paragraph
-    // Returns the override if set, otherwise falls back to the block-level value
-    engine.block.getTextLineHeight(text, paragraphIndex = 0)
-    engine.block.getTextLineHeight(text, paragraphIndex = 1)
-
-    // Clear a paragraph's override by passing null — it reverts to the block-level value
     engine.block.setTextLineHeight(text, lineHeight = null, paragraphIndex = 0)
+    val resetParagraph0LineHeight = engine.block.getTextLineHeight(text, paragraphIndex = 0)
 
-    // Set the block-level line height and clear all paragraph overrides at once
     engine.block.setTextLineHeight(text, lineHeight = 1.8F)
-    // highlight-paragraph-line-height
+    val resetBlockLineHeight = engine.block.getTextLineHeight(text, paragraphIndex = 1)
+    // highlight-android-paragraph-line-height
 
-    // highlight-paragraph-spacing
-    // Set paragraph spacing — adds space after each paragraph break
-    engine.block.setFloat(text, property = "text/paragraphSpacing", value = 20F)
+    // highlight-android-paragraph-spacing
+    engine.block.setFloat(text, property = "text/paragraphSpacing", value = 1.2F)
+    val paragraphSpacing = engine.block.getFloat(text, property = "text/paragraphSpacing")
+    // highlight-android-paragraph-spacing
 
-    // Read the current paragraph spacing
-    engine.block.getFloat(text, property = "text/paragraphSpacing")
-    // highlight-paragraph-spacing
+    check(letterSpacing == 0.1F)
+    check(lineHeight == 1.5F)
+    check(paragraph0LineHeight == 2.0F)
+    check(paragraph1LineHeight == 1.5F)
+    check(resetParagraph0LineHeight == 1.5F)
+    check(resetBlockLineHeight == 1.8F)
+    check(paragraphSpacing == 1.2F)
 
-    engine.stop()
+    return TextAdjustSpacing(
+        letterSpacing = letterSpacing,
+        lineHeight = lineHeight,
+        paragraph0LineHeight = paragraph0LineHeight,
+        paragraph1LineHeight = paragraph1LineHeight,
+        resetParagraph0LineHeight = resetParagraph0LineHeight,
+        resetBlockLineHeight = resetBlockLineHeight,
+        paragraphSpacing = paragraphSpacing,
+    )
 }
-// highlight-text-adjust-spacing

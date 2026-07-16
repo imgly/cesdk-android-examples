@@ -42,12 +42,12 @@ val openPanelDockButton
         text = { Text("Open Library") }
         icon = { Icon(Icons.Rounded.KeyboardArrowUp, null) }
         onClick = {
-            // highlight-open-panel
+            // highlight-android-open-panel
             editorContext.eventHandler.send(
                 EditorEvent.Sheet.Open(
                     SheetType.LibraryAdd(),
                 ),
             )
-            // highlight-open-panel
+            // highlight-android-open-panel
         }
     }
