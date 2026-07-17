@@ -25,7 +25,7 @@ fun EditorStateEditorSolution(
             EditorConfiguration.remember {
                 onCreate = {
                     val scene = editorContext.engine.scene.create()
-                    // highlight-editorState-setup
+                    // highlight-android-editor-state-setup
                     val page = editorContext.engine.block.create(DesignBlockType.Page)
                     editorContext.engine.block.setWidth(page, value = 800F)
                     editorContext.engine.block.setHeight(page, value = 600F)
@@ -62,7 +62,7 @@ fun EditorStateEditorSolution(
                     editorContext.engine.block.setHeightMode(textBlock, mode = SizeMode.AUTO)
                     editorContext.engine.block.setPositionX(textBlock, value = 450F)
                     editorContext.engine.block.setPositionY(textBlock, value = 275F)
-                    // highlight-editorState-setup
+                    // highlight-android-editor-state-setup
                 }
                 onLoaded = {
                     val engine = editorContext.engine
@@ -83,7 +83,7 @@ fun EditorStateEditorSolution(
                                 )
                             }
 
-                        // highlight-editorState-onStateChanged
+                        // highlight-android-editor-state-on-state-changed
                         launch {
                             engine.editor.onStateChanged()
                                 .map { engine.editor.getEditMode() }
@@ -92,23 +92,23 @@ fun EditorStateEditorSolution(
                                     println("Edit mode changed to: $currentMode")
                                 }
                         }
-                        // highlight-editorState-onStateChanged
+                        // highlight-android-editor-state-on-state-changed
 
-                        // highlight-editorState-getEditMode
+                        // highlight-android-editor-state-get-edit-mode
                         val initialMode = engine.editor.getEditMode()
                         println("Initial edit mode: $initialMode")
-                        // highlight-editorState-getEditMode
+                        // highlight-android-editor-state-get-edit-mode
 
                         engine.block.select(imageBlock)
-                        // highlight-editorState-setEditMode
+                        // highlight-android-editor-state-set-edit-mode
                         engine.editor.setEditMode("Crop")
                         println(
                             "Edit mode changed to: ${engine.editor.getEditMode()} " +
                                 "(requested before entering the crop-based demo state)",
                         )
-                        // highlight-editorState-setEditMode
+                        // highlight-android-editor-state-set-edit-mode
 
-                        // highlight-editorState-customEditMode
+                        // highlight-android-editor-state-custom-edit-mode
                         engine.editor.setEditMode(
                             editMode = "MyCustomCropMode",
                             baseMode = "Crop",
@@ -117,19 +117,19 @@ fun EditorStateEditorSolution(
                             "Edit mode changed to: ${engine.editor.getEditMode()} " +
                                 "(steady state after launch)",
                         )
-                        // highlight-editorState-customEditMode
+                        // highlight-android-editor-state-custom-edit-mode
 
                         engine.block.select(textBlock)
                         engine.editor.setEditMode("Text")
 
-                        // highlight-editorState-textCursorPosition
+                        // highlight-android-editor-state-text-cursor-position
                         val textCursorX = engine.editor.getTextCursorPositionInScreenSpaceX()
                         val textCursorY = engine.editor.getTextCursorPositionInScreenSpaceY()
                         println(
                             "Text cursor position before placing a live caret: " +
                                 "($textCursorX, $textCursorY)",
                         )
-                        // highlight-editorState-textCursorPosition
+                        // highlight-android-editor-state-text-cursor-position
 
                         engine.block.select(imageBlock)
                         engine.editor.setEditMode(
@@ -141,10 +141,10 @@ fun EditorStateEditorSolution(
                                 "(restored after the text-cursor check)",
                         )
 
-                        // highlight-editorState-interactionHappening
+                        // highlight-android-editor-state-interaction-happening
                         val isInteracting = engine.editor.isInteractionHappening()
                         println("Is interaction happening: $isInteracting")
-                        // highlight-editorState-interactionHappening
+                        // highlight-android-editor-state-interaction-happening
                     }
                 }
             }

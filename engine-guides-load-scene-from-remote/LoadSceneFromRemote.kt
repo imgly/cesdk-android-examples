@@ -1,32 +1,20 @@
 import android.net.Uri
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 
-fun loadSceneFromRemote(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1920)
-
-    // highlight-url
+suspend fun loadSceneFromRemote(engine: Engine): DesignBlock {
+    // highlight-android-load-from-url
     val sceneUri = Uri.parse(
-        "https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene",
+        "file:///android_asset/imgly-assets/ly.img.templates/templates/cesdk_postcard_1.scene",
     )
-    // highlight-url
+    val scene = engine.scene.load(sceneUri = sceneUri, waitForResources = true)
+    // highlight-android-load-from-url
 
-    // highlight-load-remote
-    val scene = engine.scene.load(sceneUri = sceneUri)
-    // highlight-load-remote
-
-    // highlight-modify-text-remote
+    // highlight-android-modify-loaded-scene
     val text = engine.block.findByType(DesignBlockType.Text).first()
-    engine.block.setDropShadowEnabled(text, enabled = true)
-    // highlight-modify-text-remote
+    engine.block.setDropShadowEnabled(block = text, enabled = true)
+    // highlight-android-modify-loaded-scene
 
-    engine.stop()
+    return scene
 }

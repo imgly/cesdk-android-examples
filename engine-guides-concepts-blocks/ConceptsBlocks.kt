@@ -1,9 +1,7 @@
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
@@ -11,26 +9,11 @@ import ly.img.engine.FillType
 import ly.img.engine.HorizontalAlignment
 import ly.img.engine.ShapeType
 
-fun conceptsBlocks(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-): Job = CoroutineScope(Dispatchers.Main).launch {
-    runConceptsBlocks(license, userId)
-}
-
-suspend fun runConceptsBlocks(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = coroutineScope {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
+suspend fun conceptsBlocks(engine: Engine) = withContext(engine.dispatcher) {
     var selectionObserver: Job? = null
     var stateObserver: Job? = null
 
     try {
-        engine.start(license = license, userId = userId)
-        engine.bindOffscreen(width = 1080, height = 1920)
-
-        // highlight-setup
         val scene = engine.scene.create()
 
         val page = engine.block.create(DesignBlockType.Page)
@@ -45,26 +28,24 @@ suspend fun runConceptsBlocks(
             paddingRight = 40F,
             paddingBottom = 40F,
         )
-        // highlight-setup
-
-        // highlight-block-types
+        // highlight-android-block-types
         val pages = engine.block.findByType(DesignBlockType.Page)
         val firstPage = pages.first()
 
         val pageType = engine.block.getType(firstPage)
         println("Page block type: $pageType")
-        // highlight-block-types
+        // highlight-android-block-types
 
-        // highlight-type-vs-kind
+        // highlight-android-type-vs-kind
         engine.block.setKind(firstPage, kind = "main-canvas")
         val pageKind = engine.block.getKind(firstPage)
         println("Page kind: $pageKind")
 
         val mainCanvasBlocks = engine.block.findByKind("main-canvas")
         println("Blocks with kind 'main-canvas': ${mainCanvasBlocks.size}")
-        // highlight-type-vs-kind
+        // highlight-android-type-vs-kind
 
-        // highlight-block-lifecycle
+        // highlight-android-block-lifecycle
         val graphic = engine.block.create(DesignBlockType.Graphic)
 
         val graphicCopy = engine.block.duplicate(graphic)
@@ -74,9 +55,9 @@ suspend fun runConceptsBlocks(
         val isCopyValid = engine.block.isValid(graphicCopy)
         println("Original valid: $isOriginalValid")
         println("Copy valid after destroy: $isCopyValid")
-        // highlight-block-lifecycle
+        // highlight-android-block-lifecycle
 
-        // highlight-shape
+        // highlight-android-shape
         val rectShape = engine.block.createShape(ShapeType.Rect)
         engine.block.setShape(graphic, shape = rectShape)
 
@@ -84,9 +65,9 @@ suspend fun runConceptsBlocks(
         engine.block.setPositionY(graphic, value = 100F)
         engine.block.setWidth(graphic, value = 400F)
         engine.block.setHeight(graphic, value = 300F)
-        // highlight-shape
+        // highlight-android-shape
 
-        // highlight-fill
+        // highlight-android-fill
         val imageFill = engine.block.createFill(FillType.Image)
         engine.block.setString(
             block = imageFill,
@@ -96,9 +77,9 @@ suspend fun runConceptsBlocks(
         engine.block.setFill(graphic, fill = imageFill)
 
         engine.block.setContentFillMode(graphic, ContentFillMode.COVER)
-        // highlight-fill
+        // highlight-android-fill
 
-        // highlight-block-hierarchy
+        // highlight-android-block-hierarchy
         engine.block.appendChild(parent = page, child = graphic)
 
         val graphicParent = engine.block.getParent(graphic)
@@ -106,9 +87,9 @@ suspend fun runConceptsBlocks(
 
         val pageChildren = engine.block.getChildren(page)
         println("Page has children: ${pageChildren.size}")
-        // highlight-block-hierarchy
+        // highlight-android-block-hierarchy
 
-        // highlight-text-block
+        // highlight-android-text-block
         val textBlock = engine.block.create(DesignBlockType.Text)
         engine.block.appendChild(parent = page, child = textBlock)
 
@@ -127,9 +108,9 @@ suspend fun runConceptsBlocks(
 
         val textType = engine.block.getType(textBlock)
         println("Text block type: $textType")
-        // highlight-text-block
+        // highlight-android-text-block
 
-        // highlight-block-properties
+        // highlight-android-block-properties
         val graphicProperties = engine.block.findAllProperties(graphic)
         println("Graphic block has ${graphicProperties.size} properties")
 
@@ -139,9 +120,9 @@ suspend fun runConceptsBlocks(
         val isOpacityReadable = engine.block.isPropertyReadable("opacity")
         val isOpacityWritable = engine.block.isPropertyWritable("opacity")
         println("Opacity readable: $isOpacityReadable writable: $isOpacityWritable")
-        // highlight-block-properties
+        // highlight-android-block-properties
 
-        // highlight-property-accessors
+        // highlight-android-property-accessors
         engine.block.setFloat(block = graphic, property = "opacity", value = 0.9F)
         val opacity = engine.block.getFloat(block = graphic, property = "opacity")
         println("Graphic opacity: $opacity")
@@ -156,9 +137,9 @@ suspend fun runConceptsBlocks(
         engine.block.setEnum(block = graphic, property = "blend/mode", value = "Multiply")
         val blendMode = engine.block.getEnum(block = graphic, property = "blend/mode")
         println("Graphic blend mode: $blendMode")
-        // highlight-property-accessors
+        // highlight-android-property-accessors
 
-        // highlight-uuid-identity
+        // highlight-android-uuid-identity
         val graphicUUID = engine.block.getUUID(graphic)
         println("Graphic UUID: $graphicUUID")
 
@@ -170,9 +151,9 @@ suspend fun runConceptsBlocks(
 
         val namedBlocks = engine.block.findByName("Hero Image")
         println("Blocks named Hero Image: ${namedBlocks.size}")
-        // highlight-uuid-identity
+        // highlight-android-uuid-identity
 
-        // highlight-selection
+        // highlight-android-selection
         selectionObserver = launch {
             engine.block.onSelectionChanged().collect {
                 val selected = engine.block.findAllSelected()
@@ -187,9 +168,9 @@ suspend fun runConceptsBlocks(
         engine.block.setSelected(textBlock, selected = true)
         val selectedBlocks = engine.block.findAllSelected()
         println("Selected blocks count: ${selectedBlocks.size}")
-        // highlight-selection
+        // highlight-android-selection
 
-        // highlight-visibility
+        // highlight-android-visibility
         engine.block.setVisible(graphic, visible = true)
         val isVisible = engine.block.isVisible(graphic)
         println("Graphic is visible: $isVisible")
@@ -197,15 +178,15 @@ suspend fun runConceptsBlocks(
         engine.block.setIncludedInExport(graphic, enabled = true)
         val inExport = engine.block.isIncludedInExport(graphic)
         println("Graphic included in export: $inExport")
-        // highlight-visibility
+        // highlight-android-visibility
 
-        // highlight-clipping
+        // highlight-android-clipping
         engine.block.setClipped(graphic, clipped = false)
         val isClipped = engine.block.isClipped(graphic)
         println("Graphic is clipped: $isClipped")
-        // highlight-clipping
+        // highlight-android-clipping
 
-        // highlight-block-state
+        // highlight-android-block-state
         val graphicState = engine.block.getState(graphic)
         println("Graphic state: $graphicState")
 
@@ -217,9 +198,9 @@ suspend fun runConceptsBlocks(
                 }
             }
         }
-        // highlight-block-state
+        // highlight-android-block-state
 
-        // highlight-serialization
+        // highlight-android-serialization
         val savedString = engine.block.saveToString(blocks = listOf(graphic, textBlock))
         println("Blocks saved to string, length: ${savedString.length}")
 
@@ -236,13 +217,14 @@ suspend fun runConceptsBlocks(
         loadedBlocks.forEach { loadedBlock ->
             engine.block.destroy(loadedBlock)
         }
-        // highlight-serialization
+        // highlight-android-serialization
+
+        engine.block.forceLoadResources(listOf(graphic, textBlock))
 
         println("Blocks guide initialized successfully.")
         println("Created graphic and text blocks, then exercised hierarchy and state APIs.")
     } finally {
         selectionObserver?.cancel()
         stateObserver?.cancel()
-        engine.stop()
     }
 }

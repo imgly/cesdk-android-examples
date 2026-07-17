@@ -5,22 +5,21 @@ import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
 import ly.img.editor.core.library.AssetLibrary
 
-// Add this composable to your NavHost
 @Composable
 fun AssetLibraryEditorSolution(
     license: String,
     onClose: (Throwable?) -> Unit,
 ) {
     Editor(
-        license = license, // pass null or empty for evaluation mode with watermark
+        license = license,
         configuration = {
-            // highlight-configuration-asset-library
+            // highlight-android-asset-library-configuration
             EditorConfiguration.remember {
                 assetLibrary = {
                     remember { AssetLibrary.getDefault() }
                 }
             }
-            // highlight-configuration-asset-library
+            // highlight-android-asset-library-configuration
         },
         onClose = onClose,
     )

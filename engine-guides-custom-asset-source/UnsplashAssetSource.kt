@@ -1,105 +1,146 @@
 import android.net.Uri
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ly.img.editor.core.R
+import ly.img.editor.core.library.AssetLibrary
+import ly.img.editor.core.library.AssetType
+import ly.img.editor.core.library.LibraryCategory
+import ly.img.editor.core.library.LibraryContent
+import ly.img.editor.core.library.addSection
+import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.engine.Asset
-import ly.img.engine.AssetColor
 import ly.img.engine.AssetContext
 import ly.img.engine.AssetCredits
 import ly.img.engine.AssetDefinition
 import ly.img.engine.AssetLicense
-import ly.img.engine.AssetPayload
 import ly.img.engine.AssetSource
 import ly.img.engine.AssetUTM
+import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.FindAssetsQuery
 import ly.img.engine.FindAssetsResult
+import ly.img.engine.MimeType
 import ly.img.engine.ShapeType
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 
-fun customAssetSource(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
+data class CustomAssetSourceSummary(
+    val sourceRegistered: Boolean,
+    val sourceCreditsName: String?,
+    val sourceLicenseName: String?,
+    val localAssetCount: Int,
+    val localAssetId: String?,
+    val queriedRemoteSource: Boolean,
+    val appliedRemoteAsset: Boolean,
+)
+
+suspend fun customAssetSource(
+    engine: Engine,
     unsplashBaseUrl: String,
-) = CoroutineScope(
-    Dispatchers.Main,
-).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1920)
+    utmSource: String,
+    unsplashAssetSource: UnsplashAssetSource? = null,
+): CustomAssetSourceSummary {
+    runCatching { engine.asset.removeSource(UnsplashAssetSource.SOURCE_ID) }
+    runCatching { engine.asset.removeSource(LOCAL_SOURCE_ID) }
 
-    // highlight-unsplash-definition
-    val source = UnsplashAssetSource(unsplashBaseUrl) // INSERT YOUR UNSPLASH PROXY URL HERE
-    engine.asset.addSource(source)
-    // highlight-unsplash-definition
-
-    // highlight-unsplash-findAssets
-    val list = runCatching {
-        engine.asset.findAssets(
-            sourceId = "ly.img.asset.source.unsplash",
-            query = FindAssetsQuery(query = "", page = 1, perPage = 10),
-        )
-    }.getOrElse { it.printStackTrace() }
-    // highlight-unsplash-findAssets
-
-    // highlight-unsplash-list
-    val search = runCatching {
-        engine.asset.findAssets(
-            sourceId = "ly.img.asset.source.unsplash",
-            query = FindAssetsQuery(query = "banana", page = 1, perPage = 10),
-        )
-    }.getOrElse { it.printStackTrace() }
-    // highlight-unsplash-list
-
-    // highlight-add-local-source
-    engine.asset.addLocalSource(
-        sourceId = "background-videos",
-        supportedMimeTypes = listOf("video/mp4"),
+    val source = unsplashAssetSource ?: UnsplashAssetSource(
+        engine = engine,
+        baseUrl = unsplashBaseUrl,
+        utmSource = utmSource,
     )
-    // highlight-add-local-source
-    // highlight-add-asset-to-source
-    val asset = AssetDefinition(
-        id = "ocean-waves-1",
-        label = mapOf(
-            "en" to "relaxing ocean waves",
-            "es" to "olas del mar relajantes",
-        ),
-        tags = mapOf(
-            "en" to listOf("ocean", "waves", "soothing", "slow"),
-            "es" to listOf("mar", "olas", "calmante", "lento"),
-        ),
+    // highlight-android-register-source
+    engine.asset.addSource(source)
+    // highlight-android-register-source
+
+    val queriedRemoteSource = unsplashBaseUrl.isNotBlank()
+    var appliedRemoteAsset = false
+
+    // highlight-android-query-and-apply
+    if (unsplashBaseUrl.isNotBlank()) {
+        val popularResults = engine.asset.findAssets(
+            sourceId = source.sourceId,
+            query = FindAssetsQuery(query = "", page = 0, perPage = 10),
+        )
+        val searchResults = engine.asset.findAssets(
+            sourceId = source.sourceId,
+            query = FindAssetsQuery(query = "landscape", page = 0, perPage = 10),
+        )
+
+        val assetToApply = searchResults.assets.firstOrNull() ?: popularResults.assets.firstOrNull()
+        if (assetToApply != null) {
+            appliedRemoteAsset = engine.asset.applyAssetSourceAsset(
+                sourceId = source.sourceId,
+                asset = assetToApply,
+            ) != null
+        }
+    }
+    // highlight-android-query-and-apply
+
+    // highlight-android-add-local-source
+    engine.asset.addLocalSource(
+        sourceId = LOCAL_SOURCE_ID,
+        supportedMimeTypes = listOf(MimeType.JPEG.key),
+    )
+    // highlight-android-add-local-source
+
+    // highlight-android-add-asset-to-source
+    val localAsset = AssetDefinition(
+        id = "sample-landscape",
+        label = mapOf("en" to "Sample Landscape"),
+        tags = mapOf("en" to listOf("landscape", "sample")),
         meta = mapOf(
-            "uri" to "https://example.com/ocean-waves-1.mp4",
-            "thumbUri" to "https://example.com/thumbnails/ocean-waves-1.jpg",
-            "mimeType" to "video/mp4",
-            "width" to "1920",
+            "uri" to "https://img.ly/static/ubq_samples/sample_1.jpg",
+            "thumbUri" to "https://img.ly/static/ubq_samples/sample_1.jpg",
+            "mimeType" to MimeType.JPEG.key,
+            "blockType" to DesignBlockType.Graphic.key,
+            "fillType" to FillType.Image.key,
+            "shapeType" to ShapeType.Rect.key,
+            "kind" to "image",
+            "width" to "1080",
             "height" to "1080",
         ),
-        payload = AssetPayload(color = AssetColor.RGB(r = 0F, g = 0F, b = 1F)),
     )
-    engine.asset.addAsset(sourceId = "background-videos", asset = asset)
-    // highlight-add-asset-to-source
+    engine.asset.addAsset(sourceId = LOCAL_SOURCE_ID, asset = localAsset)
+    engine.asset.assetSourceContentsChanged(sourceId = LOCAL_SOURCE_ID)
+    // highlight-android-add-asset-to-source
 
-    engine.stop()
+    val localResults = engine.asset.findAssets(
+        sourceId = LOCAL_SOURCE_ID,
+        query = FindAssetsQuery(query = "landscape", page = 0, perPage = 10),
+    )
+
+    return CustomAssetSourceSummary(
+        sourceRegistered = source.sourceId in engine.asset.findAllSources(),
+        sourceCreditsName = engine.asset.getCredits(source.sourceId)?.name,
+        sourceLicenseName = engine.asset.getLicense(source.sourceId)?.name,
+        localAssetCount = localResults.assets.size,
+        localAssetId = localResults.assets.firstOrNull()?.id,
+        queriedRemoteSource = queriedRemoteSource,
+        appliedRemoteAsset = appliedRemoteAsset,
+    )
 }
 
-// highlight-unsplash-source-creation
-class UnsplashAssetSource(
+// highlight-android-source-definition
+open class UnsplashAssetSource(
+    private val engine: Engine,
     private val baseUrl: String,
+    private val utmSource: String,
 ) : AssetSource(sourceId = "ly.img.asset.source.unsplash") {
-// highlight-unsplash-source-creation
+    companion object {
+        const val SOURCE_ID = "ly.img.asset.source.unsplash"
+    }
+
+    override val supportedMimeTypes = listOf(MimeType.JPEG.key)
 
     override suspend fun getGroups(): List<String>? = null
+    // highlight-android-source-definition
 
-    override val supportedMimeTypes = listOf("image/jpeg")
-
-    // highlight-unsplash-credits-license
+    // highlight-android-credits-license
     override val credits = AssetCredits(
         name = "Unsplash",
         uri = Uri.parse("https://unsplash.com/"),
@@ -109,50 +150,126 @@ class UnsplashAssetSource(
         name = "Unsplash license (free)",
         uri = Uri.parse("https://unsplash.com/license"),
     )
-    // highlight-unsplash-credits-license
+    // highlight-android-credits-license
 
-    // highlight-unsplash-query
+    // highlight-android-find-assets
     override suspend fun findAssets(query: FindAssetsQuery): FindAssetsResult = withContext(Dispatchers.IO) {
-        if (query.query.isNullOrEmpty()) query.getPopularList() else query.getSearchList()
+        if (query.query.isNullOrBlank()) {
+            query.getPopularList()
+        } else {
+            query.getSearchList()
+        }
     }
+    // highlight-android-find-assets
 
+    // highlight-android-popular-list
     private suspend fun FindAssetsQuery.getPopularList(): FindAssetsResult {
-        val queryParams = listOf(
-            "order_by" to "popular",
-            "page" to page + 1,
-            "per_page" to perPage,
-        ).joinToString(separator = "&") { (key, value) -> "$key=$value" }
-        val assetsArray = getResponseAsString("$baseUrl/photos?$queryParams").let(::JSONArray)
+        val requestUrl = "$baseUrl/photos?order_by=popular&page=${page + 1}&per_page=$perPage"
+        val assetsArray = getResponseAsString(requestUrl).let(::JSONArray)
+        val assets = mutableListOf<Asset>()
+        for (index in 0 until assetsArray.length()) {
+            assets += assetsArray.getJSONObject(index).toAsset()
+        }
         return FindAssetsResult(
-            assets = (0 until assetsArray.length()).map { assetsArray.getJSONObject(it).toAsset() },
+            assets = assets,
             currentPage = page,
-            nextPage = page + 1,
+            nextPage = if (assets.isEmpty()) -1 else page + 1,
             total = Int.MAX_VALUE,
         )
     }
+    // highlight-android-popular-list
 
+    // highlight-android-search-query
     private suspend fun FindAssetsQuery.getSearchList(): FindAssetsResult {
-        val queryParams = listOf(
-            "query" to query,
-            "page" to page + 1,
-            "per_page" to perPage,
-        ).joinToString(separator = "&") { (key, value) -> "$key=$value" }
-        // highlight-unsplash-result-mapping
-        val response = getResponseAsString("$baseUrl/search/photos?$queryParams").let(::JSONObject)
+        val encodedQuery = URLEncoder.encode(query.orEmpty(), Charsets.UTF_8.name())
+        val requestUrl = "$baseUrl/search/photos?query=$encodedQuery&page=${page + 1}&per_page=$perPage"
+        val response = getResponseAsString(requestUrl).let(::JSONObject)
         val assetsArray = response.getJSONArray("results")
+        val assets = mutableListOf<Asset>()
+        for (index in 0 until assetsArray.length()) {
+            assets += assetsArray.getJSONObject(index).toAsset()
+        }
+
         val total = response.getInt("total")
         val totalPages = response.getInt("total_pages")
         return FindAssetsResult(
-            assets = (0 until assetsArray.length()).map { assetsArray.getJSONObject(it).toAsset() },
+            assets = assets,
             currentPage = page,
-            nextPage = if (page == totalPages) -1 else page + 1,
+            nextPage = if (page + 1 >= totalPages) -1 else page + 1,
             total = total,
         )
-        // highlight-unsplash-result-mapping
     }
-    // highlight-unsplash-query
+    // highlight-android-search-query
 
-    private suspend fun getResponseAsString(url: String) = withContext(Dispatchers.IO) {
+    // highlight-android-apply-and-track
+    override suspend fun applyAsset(asset: Asset): DesignBlock? {
+        trackDownloadEvent(asset)
+        return engine.asset.defaultApplyAsset(asset)
+    }
+
+    override suspend fun applyAsset(
+        asset: Asset,
+        block: DesignBlock,
+    ) {
+        trackDownloadEvent(asset)
+        engine.asset.defaultApplyAsset(asset, block)
+    }
+    // highlight-android-apply-and-track
+
+    // highlight-android-download-tracking
+    private suspend fun trackDownloadEvent(asset: Asset) {
+        val downloadLocation = asset.meta
+            ?.get("downloadLocation")
+            ?.takeIf { it.isNotBlank() }
+            ?: return
+
+        getResponseAsString(proxiedApiUrl(downloadLocation))
+    }
+    // highlight-android-download-tracking
+
+    // highlight-android-translate-asset
+    private suspend fun JSONObject.toAsset() = Asset(
+        id = getString("id"),
+        locale = "en",
+        label = listOf(
+            optString("description"),
+            optString("alt_description"),
+        ).firstOrNull { it.isNotBlank() },
+        tags = optJSONArray("tags")
+            ?.let { array ->
+                (0 until array.length()).mapNotNull { index ->
+                    array.optJSONObject(index)?.optString("title")?.takeIf { it.isNotBlank() }
+                }
+            }
+            ?.takeIf { it.isNotEmpty() },
+        meta = mapOf(
+            "uri" to getJSONObject("urls").getString("regular"),
+            "thumbUri" to getJSONObject("urls").getString("thumb"),
+            "downloadLocation" to optJSONObject("links")
+                ?.optString("download_location")
+                .orEmpty(),
+            "blockType" to DesignBlockType.Graphic.key,
+            "fillType" to FillType.Image.key,
+            "shapeType" to ShapeType.Rect.key,
+            "kind" to "image",
+            "width" to getInt("width").toString(),
+            "height" to getInt("height").toString(),
+        ),
+        context = AssetContext(sourceId = sourceId),
+        credits = AssetCredits(
+            name = optJSONObject("user")?.optString("name")?.takeIf { it.isNotBlank() } ?: "Unknown photographer",
+            uri = optJSONObject("user")
+                ?.optJSONObject("links")
+                ?.optString("html")
+                ?.takeIf { it.isNotBlank() }
+                ?.let(Uri::parse),
+        ),
+        utm = AssetUTM(source = utmSource, medium = "referral"),
+    )
+    // highlight-android-translate-asset
+
+    // highlight-android-networking-helpers
+    protected open suspend fun getResponseAsString(url: String) = withContext(Dispatchers.IO) {
         val connection = URL(url).openConnection() as HttpURLConnection
         require(connection.responseCode in 200 until 300) {
             connection.errorStream.bufferedReader().use { it.readText() }
@@ -160,68 +277,41 @@ class UnsplashAssetSource(
         connection.inputStream.bufferedReader().use { it.readText() }
     }
 
-    // highlight-translateToAssetResult
-    private fun JSONObject.toAsset() = Asset(
-        // highlight-result-id
-        id = getString("id"),
-        // highlight-result-id
-        // highlight-result-locale
-        locale = "en",
-        // highlight-result-locale
-        // highlight-result-label
-        label = when {
-            !isNull("description") -> getString("description")
-            !isNull("alt_description") -> getString("alt_description")
-            else -> null
-        },
-        // highlight-result-label
-        // highlight-result-tags
-        tags = takeIf { has("tags") }?.let { getJSONArray("tags") }?.let {
-            (0 until it.length()).map { index -> it.getJSONObject(index).getString("title") }
-        }?.takeIf { it.isNotEmpty() },
-        // highlight-result-tags
-        // highlight-result-meta
-        meta = mapOf(
-            // highlight-result-uri
-            "uri" to getJSONObject("urls").getString("full"),
-            // highlight-result-uri
-            // highlight-result-thumbUri
-            "thumbUri" to getJSONObject("urls").getString("thumb"),
-            // highlight-result-thumbUri
-            // highlight-result-blockType
-            "blockType" to DesignBlockType.Graphic.key,
-            // highlight-result-blockType
-            // highlight-result-fillType
-            "fillType" to FillType.Image.key,
-            // highlight-result-fillType
-            // highlight-result-shapeType
-            "shapeType" to ShapeType.Rect.key,
-            // highlight-result-shapeType
-            // highlight-result-kind
-            "kind" to "image",
-            // highlight-result-kind
-            // highlight-result-size
-            "width" to getInt("width").toString(),
-            "height" to getInt("height").toString(),
-            // highlight-result-size
-        ),
-        // highlight-result-meta
-        // highlight-result-context
-        context = AssetContext(sourceId = "unsplash"),
-        // highlight-result-context
-        // highlight-result-credits
-        credits = AssetCredits(
-            name = getJSONObject("user").getString("name"),
-            uri = getJSONObject("user")
-                .takeIf { it.has("links") }
-                ?.getJSONObject("links")
-                ?.getString("html")
-                ?.let { Uri.parse(it) },
-        ),
-        // highlight-result-credits
-        // highlight-result-utm
-        utm = AssetUTM(source = "CE.SDK Demo", medium = "referral"),
-        // highlight-result-utm
-    )
-    // highlight-translateToAssetResult
+    private fun proxiedApiUrl(url: String): String {
+        val parsedUrl = Uri.parse(url)
+        if (parsedUrl.scheme == null) {
+            val separator = if (url.startsWith("/")) "" else "/"
+            return "$baseUrl$separator$url"
+        }
+        require(parsedUrl.host == "api.unsplash.com") {
+            "Expected an Unsplash API URL but received ${parsedUrl.host}"
+        }
+
+        val path = parsedUrl.encodedPath.orEmpty()
+        val query = parsedUrl.encodedQuery?.let { "?$it" }.orEmpty()
+        return "$baseUrl$path$query"
+    }
+    // highlight-android-networking-helpers
 }
+
+private const val LOCAL_SOURCE_ID = "sample-local-images"
+
+// highlight-android-asset-library-ui
+fun unsplashAssetLibrary(): AssetLibrary {
+    val unsplashSourceType = AssetSourceType(sourceId = UnsplashAssetSource.SOURCE_ID)
+    val unsplashSection = LibraryContent.Section(
+        titleRes = R.string.ly_img_editor_asset_library_section_images,
+        sourceTypes = listOf(unsplashSourceType),
+        assetType = AssetType.Image,
+        expandContent = LibraryContent.Grid(
+            titleRes = R.string.ly_img_editor_asset_library_section_images,
+            sourceType = unsplashSourceType,
+            assetType = AssetType.Image,
+        ),
+    )
+
+    return AssetLibrary.getDefault(
+        images = LibraryCategory.Images.addSection(unsplashSection),
+    )
+}
+// highlight-android-asset-library-ui

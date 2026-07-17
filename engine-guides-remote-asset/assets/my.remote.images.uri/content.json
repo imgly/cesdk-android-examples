@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "id": "my.remote.images.uri",
+  "assets": [
+    {
+      "id": "sample_1",
+      "label": { "en": "Sample Image" },
+      "meta": {
+        "uri": "file:///android_asset/imgly-assets/ly.img.image/images/sample_1.jpg",
+        "thumbUri": "file:///android_asset/imgly-assets/ly.img.image/images/sample_1.jpg",
+        "kind": "image",
+        "fillType": "//ly.img.ubq/fill/image",
+        "mimeType": "image/jpeg",
+        "width": 2500,
+        "height": 1667
+      }
+    }
+  ]
+}

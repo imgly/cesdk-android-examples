@@ -1,20 +1,11 @@
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.SceneLayout
 import ly.img.engine.ShapeType
 
-fun multiPage(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1920)
-
+suspend fun multiPage(engine: Engine) = withContext(engine.dispatcher) {
     // highlight-android-create-scene
     // Create a scene with HorizontalStack layout.
     engine.scene.create(sceneLayout = SceneLayout.HORIZONTAL_STACK)
@@ -114,5 +105,5 @@ fun multiPage(
     println("Nearest page: $nearestPage")
     // highlight-android-nearest-page
 
-    engine.stop()
+    engine.block.forceLoadResources(listOf(imageBlock1, imageBlock2))
 }

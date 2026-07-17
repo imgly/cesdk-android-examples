@@ -1,9 +1,10 @@
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ly.img.engine.Color
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
@@ -12,26 +13,36 @@ import ly.img.engine.FillType
 import ly.img.engine.HistoryUpdate
 import ly.img.engine.ShapeType
 
-fun undoAndHistory(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1920)
-
-    val page = createDemoPage(engine)
-    val historyUpdates = subscribeToHistoryUpdates(scope = this, engine = engine)
+suspend fun undoAndHistory(
+    engine: Engine,
+    page: DesignBlock? = null,
+) = withContext(engine.dispatcher) {
+    val targetPage = page ?: createDemoPage(engine)
+    val activeHistory = engine.editor.getActiveHistory()
+    val guideHistory = engine.editor.createHistory()
+    var historyUpdates: Job? = null
 
     try {
-        val primaryBlock = createPrimaryBlock(engine, page)
+        engine.editor.setActiveHistory(guideHistory)
+        historyUpdates = subscribeToHistoryUpdates(scope = this, engine = engine)
+
+        val primaryBlock = createPrimaryBlock(engine, targetPage)
         undoLatestChange(engine)
         redoLatestChange(engine)
         applyManualUndoStep(engine, primaryBlock)
-        createSecondaryHistoryDemo(engine, page)
+        createSecondaryHistoryDemo(engine, targetPage)
     } finally {
-        historyUpdates.cancel()
-        engine.stop()
+        withContext(NonCancellable) {
+            try {
+                historyUpdates?.cancelAndJoin()
+            } finally {
+                try {
+                    engine.editor.setActiveHistory(activeHistory)
+                } finally {
+                    engine.editor.destroyHistory(guideHistory)
+                }
+            }
+        }
     }
 }
 
@@ -121,29 +132,32 @@ private fun createSecondaryHistoryDemo(
     // highlight-android-multiple-histories
     val primaryHistory = engine.editor.getActiveHistory()
     val secondaryHistory = engine.editor.createHistory()
-    engine.editor.setActiveHistory(secondaryHistory)
-    val secondaryBlock = engine.block.create(DesignBlockType.Graphic)
-    engine.block.setPositionX(secondaryBlock, 440F)
-    engine.block.setPositionY(secondaryBlock, 95F)
-    engine.block.setWidth(secondaryBlock, 220F)
-    engine.block.setHeight(secondaryBlock, 220F)
-    val circleShape = engine.block.createShape(ShapeType.Ellipse)
-    engine.block.setShape(secondaryBlock, circleShape)
-    val circleFill = engine.block.createFill(FillType.Color)
-    engine.block.setColor(
-        circleFill,
-        property = "fill/color/value",
-        value = Color.fromRGBA(0.9F, 0.3F, 0.3F, 1F),
-    )
-    engine.block.setFill(secondaryBlock, circleFill)
-    engine.block.appendChild(page, secondaryBlock)
-    engine.editor.addUndoStep()
-    engine.editor.setActiveHistory(primaryHistory)
+    try {
+        engine.editor.setActiveHistory(secondaryHistory)
+        val secondaryBlock = engine.block.create(DesignBlockType.Graphic)
+        engine.block.setPositionX(secondaryBlock, 440F)
+        engine.block.setPositionY(secondaryBlock, 95F)
+        engine.block.setWidth(secondaryBlock, 220F)
+        engine.block.setHeight(secondaryBlock, 220F)
+        val circleShape = engine.block.createShape(ShapeType.Ellipse)
+        engine.block.setShape(secondaryBlock, circleShape)
+        val circleFill = engine.block.createFill(FillType.Color)
+        engine.block.setColor(
+            circleFill,
+            property = "fill/color/value",
+            value = Color.fromRGBA(0.9F, 0.3F, 0.3F, 1F),
+        )
+        engine.block.setFill(secondaryBlock, circleFill)
+        engine.block.appendChild(page, secondaryBlock)
+        engine.editor.addUndoStep()
+    } finally {
+        try {
+            engine.editor.setActiveHistory(primaryHistory)
+        } finally {
+            engine.editor.destroyHistory(secondaryHistory)
+        }
+    }
     // highlight-android-multiple-histories
-
-    // highlight-android-destroy-history
-    engine.editor.destroyHistory(secondaryHistory)
-    // highlight-android-destroy-history
 }
 
 private fun createDemoPage(engine: Engine): DesignBlock {

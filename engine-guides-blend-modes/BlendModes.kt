@@ -1,6 +1,4 @@
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ly.img.engine.BlendMode
 import ly.img.engine.Color
 import ly.img.engine.DesignBlock
@@ -10,14 +8,7 @@ import ly.img.engine.FillType
 import ly.img.engine.RGBAColor
 import ly.img.engine.ShapeType
 
-fun blendModes(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1920)
-
+suspend fun blendModes(engine: Engine) = withContext(engine.dispatcher) {
     val scene = engine.scene.create()
 
     val page = engine.block.create(DesignBlockType.Page)
@@ -97,6 +88,4 @@ fun blendModes(
     println("Current opacity: $currentOpacity")
     check(currentOpacity == 0.7F)
     // highlight-android-get-opacity
-
-    engine.stop()
 }

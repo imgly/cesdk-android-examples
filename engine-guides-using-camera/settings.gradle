@@ -1,0 +1,39 @@
+pluginManagement {
+    plugins {
+        id 'com.android.application' version '8.11.0'
+        id 'org.jetbrains.kotlin.android' version '1.9.10'
+    }
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name "IMG.LY Artifactory"
+            url "https://artifactory.img.ly/artifactory/maven"
+            mavenContent {
+                includeGroup("ly.img")
+            }
+        }
+    }
+}
+
+rootProject.name = "Record Video Camera Guide"
+
+def engineDir = file("../../../bindings/android")
+if (engineDir.exists() && System.getenv("UBQ_ANDROID_USE_ARTIFACTS") != "true") {
+    includeBuild(engineDir) {
+        name = "engine"
+        dependencySubstitution {
+            substitute module('ly.img:engine') using project(':engine')
+            substitute module('ly.img:engine-camera') using project(':engine-camera')
+        }
+    }
+}
