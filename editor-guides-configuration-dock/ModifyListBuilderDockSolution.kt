@@ -15,21 +15,19 @@ import ly.img.editor.core.component.textLibrary
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
 
-// Add this composable to your NavHost
 @Composable
 fun ModifyListBuilderDockSolution(
     license: String,
     onClose: (Throwable?) -> Unit,
 ) {
     Editor(
-        license = license, // pass null or empty for evaluation mode with watermark
+        license = license,
         configuration = {
             EditorConfiguration.remember {
                 dock = {
                     Dock.remember {
                         listBuilder = {
-                            // highlight-modifyListBuilder
-                            // Makes sense to use only with builders that are already available and cannot be modified by you directly.
+                            // highlight-android-modify-list-builder
                             val existingListBuilder = Dock.ListBuilder.remember {
                                 add { Dock.Button.rememberSystemGallery() }
                                 add { Dock.Button.rememberSystemCamera() }
@@ -37,7 +35,6 @@ fun ModifyListBuilderDockSolution(
                                 add { Dock.Button.rememberShapesLibrary() }
                             }
                             existingListBuilder.modify {
-                                // highlight-modifyListBuilder-addFirst
                                 addFirst {
                                     Dock.Button.remember {
                                         id = { EditorComponentId("my.package.dock.button.first") }
@@ -46,8 +43,6 @@ fun ModifyListBuilderDockSolution(
                                         onClick = {}
                                     }
                                 }
-                                // highlight-modifyListBuilder-addFirst
-                                // highlight-modifyListBuilder-addLast
                                 addLast {
                                     Dock.Button.remember {
                                         id = { EditorComponentId("my.package.dock.button.last") }
@@ -56,8 +51,6 @@ fun ModifyListBuilderDockSolution(
                                         onClick = {}
                                     }
                                 }
-                                // highlight-modifyListBuilder-addLast
-                                // highlight-modifyListBuilder-addAfter
                                 addAfter(id = Dock.Button.Id.systemGallery, failIfNotFound = true) {
                                     Dock.Button.remember {
                                         id = { EditorComponentId("my.package.dock.button.afterSystemGallery") }
@@ -66,8 +59,6 @@ fun ModifyListBuilderDockSolution(
                                         onClick = {}
                                     }
                                 }
-                                // highlight-modifyListBuilder-addAfter
-                                // highlight-modifyListBuilder-addBefore
                                 addBefore(id = Dock.Button.Id.systemCamera, failIfNotFound = true) {
                                     Dock.Button.remember {
                                         id = { EditorComponentId("my.package.dock.button.beforeSystemCamera") }
@@ -76,8 +67,6 @@ fun ModifyListBuilderDockSolution(
                                         onClick = {}
                                     }
                                 }
-                                // highlight-modifyListBuilder-addBefore
-                                // highlight-modifyListBuilder-replace
                                 replace(id = Dock.Button.Id.textLibrary, failIfNotFound = true) {
                                     Dock.Button.remember {
                                         id = { EditorComponentId("my.package.dock.button.replacedTextLibrary") }
@@ -86,12 +75,9 @@ fun ModifyListBuilderDockSolution(
                                         onClick = {}
                                     }
                                 }
-                                // highlight-modifyListBuilder-replace
-                                // highlight-modifyListBuilder-remove
                                 remove(id = Dock.Button.Id.shapesLibrary, failIfNotFound = true)
-                                // highlight-modifyListBuilder-remove
                             }
-                            // highlight-modifyListBuilder
+                            // highlight-android-modify-list-builder
                         }
                     }
                 }
