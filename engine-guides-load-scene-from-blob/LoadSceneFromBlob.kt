@@ -1,43 +1,25 @@
-import kotlinx.coroutines.CoroutineScope
+import android.content.Context
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
-import java.io.ByteArrayOutputStream
-import java.net.URL
 
-fun loadSceneFromBlob(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1920)
-
-    // highlight-fetch-blob
-    val sceneUrl = URL("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
-    val sceneBlob = withContext(Dispatchers.IO) {
-        val outputStream = ByteArrayOutputStream()
-        sceneUrl.openStream().use { inputStream ->
-            outputStream.use(inputStream::copyTo)
-        }
-        outputStream.toByteArray()
+suspend fun loadSceneFromBlob(
+    engine: Engine,
+    context: Context,
+): DesignBlock {
+    // highlight-android-load-from-blob
+    val sceneBytes = withContext(Dispatchers.IO) {
+        context.assets.open("imgly-assets/ly.img.templates/templates/cesdk_postcard_1.scene")
+            .use { it.readBytes() }
     }
-    // highlight-fetch-blob
+    val sceneString = sceneBytes.toString(Charsets.UTF_8)
+    val scene = engine.scene.load(scene = sceneString, waitForResources = true)
+    // highlight-android-load-from-blob
 
-    // highlight-read-blob
-    val blobString = String(sceneBlob, Charsets.UTF_8)
-    // highlight-read-blob
-
-    // highlight-load-blob
-    val scene = engine.scene.load(scene = blobString)
-    // highlight-load-blob
-
-    // highlight-modify-text-blob
     val text = engine.block.findByType(DesignBlockType.Text).first()
-    engine.block.setDropShadowEnabled(text, enabled = true)
-    // highlight-modify-text-blob
+    engine.block.setDropShadowEnabled(block = text, enabled = true)
 
-    engine.stop()
+    return scene
 }

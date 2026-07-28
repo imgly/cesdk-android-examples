@@ -150,7 +150,7 @@ private fun addReactionRecording(
     setFrame(engine = engine, designBlock = reactionBlock, rect = reactionVideo.rect)
 
     val fill = engine.block.createFill(FillType.Video)
-    // Video fills currently use a generic property key for their URI.
+    // Point the video fill at the recorded reaction segment.
     engine.block.setUri(
         block = fill,
         property = "fill/video/fileURI",

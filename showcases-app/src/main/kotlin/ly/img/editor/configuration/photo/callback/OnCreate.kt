@@ -102,6 +102,7 @@ suspend fun PhotoConfigurationBuilder.onLoadAssetSources() {
             "ly.img.text.styles",
             "ly.img.text.curves",
             "ly.img.text.components",
+            "ly.img.image",
         )
         sourceIds.forEach { id ->
             launch {

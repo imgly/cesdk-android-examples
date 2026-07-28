@@ -26,8 +26,16 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+import ly.img.engine.Engine
+import java.io.InputStream
+import java.nio.ByteBuffer
 
 private sealed interface DataMergeGuideUiState {
     data object Loading : DataMergeGuideUiState
@@ -61,10 +69,9 @@ fun DataMergeGuideScreen(
             uiState = DataMergeGuideUiState.Loading
             try {
                 uiState = runCatching {
-                    mergeBusinessCards(
+                    runStandaloneDataMerge(
                         application = application,
                         license = license?.ifBlank { null },
-                        userId = "data-merge-guide",
                     )
                 }.fold(
                     onSuccess = { cards -> DataMergeGuideUiState.Success(cards) },
@@ -118,8 +125,8 @@ fun DataMergeGuideScreen(
 
             is DataMergeGuideUiState.Success -> {
                 val preview = remember(state.mergedCards) {
-                    state.mergedCards.firstOrNull()?.pngBytes?.let { bytes ->
-                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    state.mergedCards.firstOrNull()?.pngData?.let { pngData ->
+                        BitmapFactory.decodeStream(ByteBufferInputStream(pngData))
                     }
                 }
 
@@ -152,4 +159,41 @@ fun DataMergeGuideScreen(
             }
         }
     }
+}
+
+// The fixed Engine ID is shared across screen instances, so each invocation
+// owns its full start/use/stop lifecycle while holding this lock.
+private val dataMergeEngineMutex = Mutex()
+
+private suspend fun runStandaloneDataMerge(
+    application: Application,
+    license: String?,
+): List<MergedCard> = withContext(Dispatchers.Main) {
+    dataMergeEngineMutex.withLock {
+        Engine.init(application)
+        val engine = Engine.getInstance(id = "ly.img.engine.data-merge-guide")
+        var engineStarted = false
+
+        try {
+            engineStarted = engine.start(license = license, userId = "data-merge-guide")
+            check(engineStarted) { "Unable to start the data merge Engine." }
+
+            engine.bindOffscreen(width = 1050, height = 600)
+            mergeBusinessCards(engine)
+        } finally {
+            if (engineStarted) {
+                withContext(NonCancellable) {
+                    engine.stop()
+                }
+            }
+        }
+    }
+}
+
+private class ByteBufferInputStream(
+    buffer: ByteBuffer,
+) : InputStream() {
+    private val data = buffer.asReadOnlyBuffer()
+
+    override fun read(): Int = if (data.hasRemaining()) data.get().toInt() and 0xFF else -1
 }
