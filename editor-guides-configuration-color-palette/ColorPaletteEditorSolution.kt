@@ -11,6 +11,7 @@ import ly.img.engine.AssetDefinition
 import ly.img.engine.AssetPayload
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
+import ly.img.engine.FindAssetsQuery
 import androidx.compose.ui.graphics.Color as ComposeColor
 
 // highlight-android-defining-color-assets
@@ -103,11 +104,32 @@ private fun removeBrandColor(
 }
 // highlight-android-remove-color
 
-private fun selectFirstPageForDemo(engine: Engine) {
-    // Select the page so the Fill/Stroke inspector button is visible immediately.
-    engine.block.findByType(DesignBlockType.Page)
-        .firstOrNull()
-        ?.let { engine.block.setSelected(it, selected = true) }
+data class ColorPaletteSmokeResult(
+    val paletteColorCount: Int,
+    val initialAssetIds: List<String>,
+    val remainingAssetIds: List<String>,
+)
+
+suspend fun colorPalette(engine: Engine): ColorPaletteSmokeResult {
+    createBrandColorLibrary(engine)
+
+    val initialAssetIds = engine.asset.findAssets(
+        sourceId = BRAND_COLOR_SOURCE_ID,
+        query = FindAssetsQuery(page = 0, perPage = 10),
+    ).assets.map { asset -> asset.id }
+
+    removeBrandColor(engine)
+
+    val remainingAssetIds = engine.asset.findAssets(
+        sourceId = BRAND_COLOR_SOURCE_ID,
+        query = FindAssetsQuery(page = 0, perPage = 10),
+    ).assets.map { asset -> asset.id }
+
+    return ColorPaletteSmokeResult(
+        paletteColorCount = brandPaletteColors().size,
+        initialAssetIds = initialAssetIds,
+        remainingAssetIds = remainingAssetIds,
+    )
 }
 
 // Add this composable to your NavHost
@@ -132,7 +154,10 @@ fun ColorPaletteEditorSolution(
                 }
                 // highlight-android-register-library
                 onLoaded = {
-                    selectFirstPageForDemo(editorContext.engine)
+                    // Select the page so the Fill/Stroke inspector button is visible immediately.
+                    editorContext.engine.block.findByType(DesignBlockType.Page)
+                        .firstOrNull()
+                        ?.let { editorContext.engine.block.setSelected(it, selected = true) }
                 }
                 // highlight-android-config-palette
                 colorPalette = {

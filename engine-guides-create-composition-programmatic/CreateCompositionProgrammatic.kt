@@ -1,8 +1,5 @@
-import android.app.Application
 import android.net.Uri
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ly.img.engine.Color
 import ly.img.engine.ContentFillMode
@@ -20,38 +17,8 @@ import ly.img.engine.Typeface
 import java.io.File
 import java.util.UUID
 
-fun createCompositionProgrammatic(
-    application: Application,
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    exportProgrammaticComposition(application = application, license = license, userId = userId)
-}
-
-suspend fun exportProgrammaticComposition(
-    application: Application,
-    license: String?,
-    userId: String,
-): File = withContext(Dispatchers.Main) {
-    var engine: Engine? = null
-    var engineStarted = false
-    try {
-        // highlight-android-setup
-        Engine.init(application)
-        val currentEngine = Engine.getInstance(id = "ly.img.engine.example")
-        engine = currentEngine
-        engineStarted = currentEngine.start(license = license, userId = userId)
-        currentEngine.bindOffscreen(width = 1080, height = 1080)
-        // highlight-android-setup
-
-        buildProgrammaticComposition(currentEngine)
-    } finally {
-        // highlight-android-cleanup
-        if (engineStarted) {
-            engine?.stop()
-        }
-        // highlight-android-cleanup
-    }
+suspend fun exportProgrammaticComposition(engine: Engine): File = withContext(engine.dispatcher) {
+    buildProgrammaticComposition(engine)
 }
 
 private suspend fun buildProgrammaticComposition(engine: Engine): File {
@@ -262,10 +229,11 @@ private suspend fun buildProgrammaticComposition(engine: Engine): File {
     // highlight-android-export-file
     return withContext(Dispatchers.IO) {
         val outputFile = File.createTempFile("composition-${UUID.randomUUID()}", ".png")
-        val bytes = ByteArray(blob.remaining())
-        blob.get(bytes)
-        outputFile.outputStream().use { output ->
-            output.write(bytes)
+        val data = blob.asReadOnlyBuffer()
+        outputFile.outputStream().channel.use { channel ->
+            while (data.hasRemaining()) {
+                channel.write(data)
+            }
         }
         outputFile
     }

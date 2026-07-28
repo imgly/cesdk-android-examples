@@ -1,10 +1,11 @@
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ly.img.engine.Color
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
@@ -17,20 +18,39 @@ private const val BRAND_BANNER_NAME = "Brand banner"
 private const val COMPANY_NAME = "Company name"
 private const val ATTENDEE_NAME = "Attendee name"
 
-fun editingWorkflow(
-    license: String?,
-    userId: String,
-): Job = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example.editing-workflow")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 720, height = 1080)
+suspend fun editingWorkflow(
+    engine: Engine,
+    restoreEngineState: Boolean = false,
+) = withContext(engine.dispatcher) {
+    val previousRole = if (restoreEngineState) engine.editor.getRole() else null
+    val previousSelectionMode = if (restoreEngineState) {
+        engine.editor.getSettingEnum("doubleClickSelectionMode")
+    } else {
+        null
+    }
+    val previousGlobalScopes = if (restoreEngineState) {
+        engine.editor.findAllScopes().associateWith { scope ->
+            engine.editor.getGlobalScope(key = scope)
+        }
+    } else {
+        emptyMap()
+    }
     val roleCustomization = customizeEditingWorkflowRoles(engine, this)
 
     try {
-        createEditingWorkflowTemplate(engine)
+        val template = createEditingWorkflowTemplate(engine)
+        engine.block.forceLoadResources(listOf(template.companyName, template.attendeeName))
     } finally {
-        roleCustomization.cancelAndJoin()
-        engine.stop()
+        withContext(NonCancellable) {
+            roleCustomization.cancelAndJoin()
+            previousRole?.let(engine.editor::setRole)
+            previousSelectionMode?.let {
+                engine.editor.setSettingEnum("doubleClickSelectionMode", value = it)
+            }
+            previousGlobalScopes.forEach { (scope, globalScope) ->
+                engine.editor.setGlobalScope(key = scope, globalScope = globalScope)
+            }
+        }
     }
 }
 
