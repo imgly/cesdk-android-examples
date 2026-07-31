@@ -1,10 +1,10 @@
 [versions]
 androidMinSdk = "24"
-androidCompileSdk = "35"
-androidTargetSdk = "35"
+androidCompileSdk = "36"
+androidTargetSdk = "36"
 kotlin = "2.1.10"
 okhttp = "4.10.0"
-imgly = "1.79.0"
+imgly = "1.80.0-rc.0"
 buildConfig = "5.3.5"
 dropshots = "0.4.1"
 gradleAndroid = "8.11.0"

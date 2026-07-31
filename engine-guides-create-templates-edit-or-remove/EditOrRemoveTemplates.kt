@@ -205,7 +205,7 @@ suspend fun editOrRemoveTemplates(engine: Engine): TemplateManagementSummary {
         val updatedTemplate = engine.scene.saveToString(scene = updatedScene)
         val updatedTemplateArchive = engine.scene.saveToArchive(scene = updatedScene)
         // Archive APIs load from a URI, so write the buffer to app-owned storage first.
-        val updatedTemplateArchiveFile = File.createTempFile("updated-template", ".zip")
+        val updatedTemplateArchiveFile = File.createTempFile("updated-template", ".imgly")
         withContext(Dispatchers.IO) {
             updatedTemplateArchiveFile.outputStream().use { output ->
                 val archiveBuffer = updatedTemplateArchive.asReadOnlyBuffer()
@@ -214,8 +214,8 @@ suspend fun editOrRemoveTemplates(engine: Engine): TemplateManagementSummary {
                 }
             }
         }
-        val archivedTemplateScene = engine.scene.loadArchive(
-            archiveUri = Uri.fromFile(updatedTemplateArchiveFile),
+        val archivedTemplateScene = engine.scene.load(
+            sceneUri = Uri.fromFile(updatedTemplateArchiveFile),
             waitForResources = true,
         )
         val archiveLoaded = archivedTemplateScene == engine.scene.get()

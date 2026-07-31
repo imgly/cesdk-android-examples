@@ -3,7 +3,9 @@ package ly.img.editor.configuration.video.callback
 import kotlinx.coroutines.CancellationException
 import ly.img.editor.configuration.video.VideoConfigurationBuilder
 import ly.img.editor.configuration.video.model.ExportStatus
+import ly.img.engine.ExportVideoOptions
 import ly.img.engine.MimeType
+import ly.img.engine.VideoBitrate
 import java.nio.ByteBuffer
 
 /**
@@ -63,6 +65,8 @@ suspend fun VideoConfigurationBuilder.onExportByteBuffer(): ByteBuffer {
                 exportStatus = ExportStatus.Loading(progress = newProgress)
             }
         },
+        // videoBitrate: VideoBitrate.Auto derives a bounded bitrate from the resolution/framerate.
+        options = ExportVideoOptions(videoBitrate = VideoBitrate.Auto),
     )
 }
 // highlight-starter-kit-on-export-byte-buffer

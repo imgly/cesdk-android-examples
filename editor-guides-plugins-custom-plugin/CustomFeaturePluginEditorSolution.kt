@@ -168,7 +168,7 @@ open class CustomFeaturePlugin : EditorConfigurationBuilder() {
 
     // highlight-android-write-archive
     private suspend fun writeArchiveToTempFile(archive: ByteBuffer): File = withContext(Dispatchers.IO) {
-        File.createTempFile("custom-feature-${UUID.randomUUID()}", ".scene.zip").apply {
+        File.createTempFile("custom-feature-${UUID.randomUUID()}", ".imgly").apply {
             outputStream().channel.use { channel ->
                 channel.write(archive)
             }
