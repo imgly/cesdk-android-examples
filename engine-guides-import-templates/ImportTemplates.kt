@@ -28,7 +28,7 @@ data class PageSize(
 
 suspend fun importTemplates(engine: Engine): ImportTemplatesResult {
     val sceneUri = templateSceneUri
-    val archiveFile = File.createTempFile("imported-template", ".zip")
+    val archiveFile = File.createTempFile("imported-template", ".imgly")
 
     try {
         // highlight-android-load-from-url
@@ -49,8 +49,8 @@ suspend fun importTemplates(engine: Engine): ImportTemplatesResult {
         val archiveUri = Uri.fromFile(archiveFile)
 
         // highlight-android-load-from-archive
-        engine.scene.loadArchive(
-            archiveUri = archiveUri,
+        engine.scene.load(
+            sceneUri = archiveUri,
             waitForResources = true,
         )
         // highlight-android-load-from-archive

@@ -1,6 +1,4 @@
-import android.app.Application
 import android.net.Uri
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlock
@@ -25,162 +23,143 @@ data class JoinAndArrangeVideoResult(
     val overlayClipCount: Int,
 )
 
-suspend fun joinAndArrangeVideoClips(
-    application: Application,
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-): JoinAndArrangeVideoResult = withContext(Dispatchers.Main) {
-    var engine: Engine? = null
-    var engineStarted = false
+suspend fun joinAndArrangeVideoClips(engine: Engine): JoinAndArrangeVideoResult = withContext(engine.dispatcher) {
+    // highlight-android-create-scene
+    val scene = engine.scene.createForVideo()
+    val page = engine.block.create(DesignBlockType.Page)
+    engine.block.appendChild(parent = scene, child = page)
+    engine.block.setWidth(page, value = 1920F)
+    engine.block.setHeight(page, value = 1080F)
+    engine.block.setDuration(page, duration = 15.0)
+    // highlight-android-create-scene
 
-    try {
-        Engine.init(application)
-        val currentEngine = Engine.getInstance(id = "ly.img.engine.join-and-arrange-video.example")
-        engine = currentEngine
-        engineStarted = currentEngine.start(license = license, userId = userId)
-        currentEngine.bindOffscreen(width = 1920, height = 1080)
+    val videoUri = Uri.parse(
+        "https://cdn.img.ly/assets/demo/v3/ly.img.video/videos/" +
+            "pexels-drone-footage-of-a-surfer-barrelling-a-wave-12715991.mp4",
+    )
 
-        // highlight-android-create-scene
-        val scene = currentEngine.scene.createForVideo()
-        val page = currentEngine.block.create(DesignBlockType.Page)
-        currentEngine.block.appendChild(parent = scene, child = page)
-        currentEngine.block.setWidth(page, value = 1920F)
-        currentEngine.block.setHeight(page, value = 1080F)
-        currentEngine.block.setDuration(page, duration = 15.0)
-        // highlight-android-create-scene
+    // highlight-android-create-clips
+    val clipA = createVideoClip(
+        engine = engine,
+        name = "Clip A",
+        videoUri = videoUri,
+        width = 1920F,
+        height = 1080F,
+    )
+    val clipB = createVideoClip(
+        engine = engine,
+        name = "Clip B",
+        videoUri = videoUri,
+        width = 1920F,
+        height = 1080F,
+    )
+    val clipC = createVideoClip(
+        engine = engine,
+        name = "Clip C",
+        videoUri = videoUri,
+        width = 1920F,
+        height = 1080F,
+    )
+    // highlight-android-create-clips
 
-        val videoUri = Uri.parse(
-            "https://cdn.img.ly/assets/demo/v3/ly.img.video/videos/" +
-                "pexels-drone-footage-of-a-surfer-barrelling-a-wave-12715991.mp4",
+    // highlight-android-create-track
+    val track = engine.block.create(DesignBlockType.Track)
+    engine.block.appendChild(parent = page, child = track)
+    engine.block.setBoolean(
+        block = track,
+        property = "track/automaticallyManageBlockOffsets",
+        value = false,
+    )
+    // highlight-android-create-track
+
+    // highlight-android-add-clips-to-track
+    engine.block.appendChild(parent = track, child = clipA)
+    engine.block.appendChild(parent = track, child = clipB)
+    engine.block.appendChild(parent = track, child = clipC)
+
+    engine.block.fillParent(track)
+    val initialTrackChildren = engine.block.getChildren(track)
+    check(initialTrackChildren == listOf(clipA, clipB, clipC))
+    // highlight-android-add-clips-to-track
+
+    // highlight-android-set-clip-durations
+    engine.block.setDuration(clipA, duration = 5.0)
+    engine.block.setDuration(clipB, duration = 5.0)
+    engine.block.setDuration(clipC, duration = 5.0)
+    engine.block.setDuration(track, duration = 15.0)
+    // highlight-android-set-clip-durations
+
+    // highlight-android-time-offsets
+    engine.block.setTimeOffset(clipA, offset = 0.0)
+    engine.block.setTimeOffset(clipB, offset = 5.0)
+    engine.block.setTimeOffset(clipC, offset = 10.0)
+    val initialTrackDuration = engine.block.getDuration(track)
+    check(initialTrackDuration == 15.0)
+
+    val initialClipStates = engine.block.getChildren(track).map { clip ->
+        TrackClipState(
+            name = engine.block.getName(clip),
+            timeOffset = engine.block.getTimeOffset(clip),
+            duration = engine.block.getDuration(clip),
         )
-
-        // highlight-android-create-clips
-        val clipA = createVideoClip(
-            engine = currentEngine,
-            name = "Clip A",
-            videoUri = videoUri,
-            width = 1920F,
-            height = 1080F,
-        )
-        val clipB = createVideoClip(
-            engine = currentEngine,
-            name = "Clip B",
-            videoUri = videoUri,
-            width = 1920F,
-            height = 1080F,
-        )
-        val clipC = createVideoClip(
-            engine = currentEngine,
-            name = "Clip C",
-            videoUri = videoUri,
-            width = 1920F,
-            height = 1080F,
-        )
-        // highlight-android-create-clips
-
-        // highlight-android-create-track
-        val track = currentEngine.block.create(DesignBlockType.Track)
-        currentEngine.block.appendChild(parent = page, child = track)
-        currentEngine.block.setBoolean(
-            block = track,
-            property = "track/automaticallyManageBlockOffsets",
-            value = false,
-        )
-        // highlight-android-create-track
-
-        // highlight-android-add-clips-to-track
-        currentEngine.block.appendChild(parent = track, child = clipA)
-        currentEngine.block.appendChild(parent = track, child = clipB)
-        currentEngine.block.appendChild(parent = track, child = clipC)
-
-        currentEngine.block.fillParent(track)
-        val initialTrackChildren = currentEngine.block.getChildren(track)
-        check(initialTrackChildren == listOf(clipA, clipB, clipC))
-        // highlight-android-add-clips-to-track
-
-        // highlight-android-set-clip-durations
-        currentEngine.block.setDuration(clipA, duration = 5.0)
-        currentEngine.block.setDuration(clipB, duration = 5.0)
-        currentEngine.block.setDuration(clipC, duration = 5.0)
-        currentEngine.block.setDuration(track, duration = 15.0)
-        // highlight-android-set-clip-durations
-
-        // highlight-android-time-offsets
-        currentEngine.block.setTimeOffset(clipA, offset = 0.0)
-        currentEngine.block.setTimeOffset(clipB, offset = 5.0)
-        currentEngine.block.setTimeOffset(clipC, offset = 10.0)
-        val initialTrackDuration = currentEngine.block.getDuration(track)
-        check(initialTrackDuration == 15.0)
-
-        val initialClipStates = currentEngine.block.getChildren(track).map { clip ->
-            TrackClipState(
-                name = currentEngine.block.getName(clip),
-                timeOffset = currentEngine.block.getTimeOffset(clip),
-                duration = currentEngine.block.getDuration(clip),
-            )
-        }
-        // highlight-android-time-offsets
-
-        // highlight-android-reorder-clips
-        currentEngine.block.insertChild(parent = track, child = clipC, index = 0)
-        currentEngine.block.setTimeOffset(clipC, offset = 0.0)
-        currentEngine.block.setTimeOffset(clipA, offset = 5.0)
-        currentEngine.block.setTimeOffset(clipB, offset = 10.0)
-        val reorderedTrackDuration = currentEngine.block.getDuration(track)
-        check(reorderedTrackDuration == 15.0)
-
-        val reorderedClipStates = currentEngine.block.getChildren(track).map { clip ->
-            TrackClipState(
-                name = currentEngine.block.getName(clip),
-                timeOffset = currentEngine.block.getTimeOffset(clip),
-                duration = currentEngine.block.getDuration(clip),
-            )
-        }
-        // highlight-android-reorder-clips
-
-        // highlight-android-query-track-children
-        val finalClipOrder = currentEngine.block.getChildren(track).map { clip ->
-            currentEngine.block.getName(clip)
-        }
-        val finalClipOffsets = currentEngine.block.getChildren(track).map { clip ->
-            currentEngine.block.getTimeOffset(clip)
-        }
-        check(finalClipOrder == listOf("Clip C", "Clip A", "Clip B"))
-        check(finalClipOffsets == listOf(0.0, 5.0, 10.0))
-        // highlight-android-query-track-children
-
-        // highlight-android-multi-track
-        val overlayTrack = currentEngine.block.create(DesignBlockType.Track)
-        currentEngine.block.appendChild(parent = page, child = overlayTrack)
-        currentEngine.block.setTimeOffset(overlayTrack, offset = 2.0)
-
-        val overlayClip = createVideoClip(
-            engine = currentEngine,
-            name = "Overlay Clip",
-            videoUri = videoUri,
-            width = 1920F / 4F,
-            height = 1080F / 4F,
-        )
-        currentEngine.block.setDuration(overlayClip, duration = 5.0)
-        currentEngine.block.appendChild(parent = overlayTrack, child = overlayClip)
-        currentEngine.block.setPositionX(overlayClip, value = 1920F - 1920F / 4F - 40F)
-        currentEngine.block.setPositionY(overlayClip, value = 1080F - 1080F / 4F - 40F)
-        // highlight-android-multi-track
-
-        JoinAndArrangeVideoResult(
-            initialTrackClips = initialClipStates,
-            reorderedTrackClips = reorderedClipStates,
-            pageDuration = currentEngine.block.getDuration(page),
-            mainTrackDuration = reorderedTrackDuration,
-            overlayTrackOffset = currentEngine.block.getTimeOffset(overlayTrack),
-            overlayTrackDuration = currentEngine.block.getDuration(overlayTrack),
-            overlayClipCount = currentEngine.block.getChildren(overlayTrack).size,
-        )
-    } finally {
-        if (engineStarted) {
-            engine?.stop()
-        }
     }
+    // highlight-android-time-offsets
+
+    // highlight-android-reorder-clips
+    engine.block.insertChild(parent = track, child = clipC, index = 0)
+    engine.block.setTimeOffset(clipC, offset = 0.0)
+    engine.block.setTimeOffset(clipA, offset = 5.0)
+    engine.block.setTimeOffset(clipB, offset = 10.0)
+    val reorderedTrackDuration = engine.block.getDuration(track)
+    check(reorderedTrackDuration == 15.0)
+
+    val reorderedClipStates = engine.block.getChildren(track).map { clip ->
+        TrackClipState(
+            name = engine.block.getName(clip),
+            timeOffset = engine.block.getTimeOffset(clip),
+            duration = engine.block.getDuration(clip),
+        )
+    }
+    // highlight-android-reorder-clips
+
+    // highlight-android-query-track-children
+    val finalClipOrder = engine.block.getChildren(track).map { clip ->
+        engine.block.getName(clip)
+    }
+    val finalClipOffsets = engine.block.getChildren(track).map { clip ->
+        engine.block.getTimeOffset(clip)
+    }
+    check(finalClipOrder == listOf("Clip C", "Clip A", "Clip B"))
+    check(finalClipOffsets == listOf(0.0, 5.0, 10.0))
+    // highlight-android-query-track-children
+
+    // highlight-android-multi-track
+    val overlayTrack = engine.block.create(DesignBlockType.Track)
+    engine.block.appendChild(parent = page, child = overlayTrack)
+    engine.block.setTimeOffset(overlayTrack, offset = 2.0)
+
+    val overlayClip = createVideoClip(
+        engine = engine,
+        name = "Overlay Clip",
+        videoUri = videoUri,
+        width = 1920F / 4F,
+        height = 1080F / 4F,
+    )
+    engine.block.setDuration(overlayClip, duration = 5.0)
+    engine.block.appendChild(parent = overlayTrack, child = overlayClip)
+    engine.block.setPositionX(overlayClip, value = 1920F - 1920F / 4F - 40F)
+    engine.block.setPositionY(overlayClip, value = 1080F - 1080F / 4F - 40F)
+    // highlight-android-multi-track
+
+    JoinAndArrangeVideoResult(
+        initialTrackClips = initialClipStates,
+        reorderedTrackClips = reorderedClipStates,
+        pageDuration = engine.block.getDuration(page),
+        mainTrackDuration = reorderedTrackDuration,
+        overlayTrackOffset = engine.block.getTimeOffset(overlayTrack),
+        overlayTrackDuration = engine.block.getDuration(overlayTrack),
+        overlayClipCount = engine.block.getChildren(overlayTrack).size,
+    )
 }
 
 // highlight-android-create-video-helper
@@ -192,18 +171,33 @@ private suspend fun createVideoClip(
     height: Float,
 ): DesignBlock {
     val clip = engine.block.create(DesignBlockType.Graphic)
-    engine.block.setName(clip, name)
-    engine.block.setShape(clip, shape = engine.block.createShape(ShapeType.Rect))
-    engine.block.setWidth(clip, value = width)
-    engine.block.setHeight(clip, value = height)
+    var videoFill: DesignBlock? = null
 
-    val videoFill = engine.block.createFill(FillType.Video)
-    // The Android binding has no typed property helper for video fill URIs yet.
-    engine.block.setUri(block = videoFill, property = "fill/video/fileURI", value = videoUri)
-    engine.block.setFill(block = clip, fill = videoFill)
-    engine.block.setContentFillMode(block = clip, mode = ContentFillMode.COVER)
-    engine.block.forceLoadAVResource(block = videoFill)
+    try {
+        engine.block.setName(clip, name)
+        engine.block.setShape(clip, shape = engine.block.createShape(ShapeType.Rect))
+        engine.block.setWidth(clip, value = width)
+        engine.block.setHeight(clip, value = height)
 
-    return clip
+        val fill = engine.block.createFill(FillType.Video)
+        videoFill = fill
+        // The Android binding has no typed property helper for video fill URIs yet.
+        engine.block.setUri(block = fill, property = "fill/video/fileURI", value = videoUri)
+        engine.block.setFill(block = clip, fill = fill)
+        engine.block.setContentFillMode(block = clip, mode = ContentFillMode.COVER)
+        engine.block.forceLoadAVResource(block = fill)
+
+        return clip
+    } catch (error: Throwable) {
+        runCatching {
+            if (engine.block.isValid(clip)) engine.block.destroy(clip)
+        }
+        videoFill?.let { fill ->
+            runCatching {
+                if (engine.block.isValid(fill)) engine.block.destroy(fill)
+            }
+        }
+        throw error
+    }
 }
 // highlight-android-create-video-helper

@@ -1,6 +1,4 @@
-import android.app.Application
 import android.util.Base64
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ly.img.engine.Color
 import ly.img.engine.DesignBlock
@@ -12,74 +10,59 @@ import ly.img.engine.MimeType
 import ly.img.engine.ShapeType
 import java.nio.ByteBuffer
 
-suspend fun exportDesignToBase64(
-    application: Application,
-    license: String?,
-    userId: String,
-): List<String> = withContext(Dispatchers.Main) {
-    Engine.init(application)
-    val engine = Engine.getInstance(id = "ly.img.engine.to-base64-guide")
+suspend fun exportDesignToBase64(engine: Engine): List<String> = withContext(engine.dispatcher) {
+    val scene = engine.scene.create()
+    val page = createSamplePage(engine)
+    engine.block.appendChild(parent = scene, child = page)
 
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1080)
+    // highlight-android-export-base64
+    val mimeType = MimeType.PNG
+    val buffer = engine.block.export(block = page, mimeType = mimeType)
+    val base64 = buffer.toBase64()
+    val dataUri = "data:${mimeType.key};base64,$base64"
+    // highlight-android-export-base64
 
-    try {
-        val scene = engine.scene.create()
-        val page = createSamplePage(engine)
-        engine.block.appendChild(parent = scene, child = page)
+    // highlight-android-data-uri
+    val inlineImageSource = "data:${mimeType.key};base64,$base64"
+    // Use inlineImageSource wherever your app expects a URI string,
+    // for example in a WebView, JSON payload, or HTML email template.
+    // highlight-android-data-uri
 
-        // highlight-android-export-base64
-        val mimeType = MimeType.PNG
-        val buffer = engine.block.export(block = page, mimeType = mimeType)
-        val base64 = buffer.toBase64()
-        val dataUri = "data:${mimeType.key};base64,$base64"
-        // highlight-android-export-base64
+    // highlight-android-mime-types
+    val jpegOptions = ExportOptions(jpegQuality = 0.7F, targetWidth = 720F)
+    val jpegBuffer = engine.block.export(
+        block = page,
+        mimeType = MimeType.JPEG,
+        options = jpegOptions,
+    )
+    val jpegDataUri = jpegBuffer.toDataUri(MimeType.JPEG)
 
-        // highlight-android-data-uri
-        val inlineImageSource = "data:${mimeType.key};base64,$base64"
-        // Use inlineImageSource wherever your app expects a URI string,
-        // for example in a WebView, JSON payload, or HTML email template.
-        // highlight-android-data-uri
+    val compressedPngOptions = ExportOptions(pngCompressionLevel = 9, targetWidth = 720F)
+    val compressedPngBuffer = engine.block.export(
+        block = page,
+        mimeType = MimeType.PNG,
+        options = compressedPngOptions,
+    )
+    val compressedPngDataUri = compressedPngBuffer.toDataUri(MimeType.PNG)
+    // highlight-android-mime-types
 
-        // highlight-android-mime-types
-        val jpegOptions = ExportOptions(jpegQuality = 0.7F, targetWidth = 720F)
-        val jpegBuffer = engine.block.export(
-            block = page,
-            mimeType = MimeType.JPEG,
-            options = jpegOptions,
-        )
-        val jpegDataUri = jpegBuffer.toDataUri(MimeType.JPEG)
+    val secondPage = createSamplePage(engine)
+    engine.block.appendChild(parent = scene, child = secondPage)
 
-        val compressedPngOptions = ExportOptions(pngCompressionLevel = 9, targetWidth = 720F)
-        val compressedPngBuffer = engine.block.export(
-            block = page,
-            mimeType = MimeType.PNG,
-            options = compressedPngOptions,
-        )
-        val compressedPngDataUri = compressedPngBuffer.toDataUri(MimeType.PNG)
-        // highlight-android-mime-types
-
-        val secondPage = createSamplePage(engine)
-        engine.block.appendChild(parent = scene, child = secondPage)
-
-        // highlight-android-batch
-        val pages = engine.scene.getPages()
-        val pageBuffers = engine.block.export(blocks = pages, mimeType = MimeType.PNG)
-        val pageDataUris = pageBuffers.map { pageBuffer ->
-            pageBuffer.toDataUri(MimeType.PNG)
-        }
-        // highlight-android-batch
-
-        check(inlineImageSource.startsWith("data:image/png;base64,"))
-        check(jpegDataUri.startsWith("data:image/jpeg;base64,"))
-        check(compressedPngDataUri.startsWith("data:image/png;base64,"))
-        check(pageDataUris.size == pages.size)
-        check(pageDataUris.all { it.startsWith("data:image/png;base64,") })
-
-        listOf(dataUri, jpegDataUri, compressedPngDataUri) + pageDataUris
-    } finally {
-        engine.stop()
+    // highlight-android-batch
+    val pages = engine.scene.getPages()
+    val pageBuffers = engine.block.export(blocks = pages, mimeType = MimeType.PNG)
+    val pageDataUris = pageBuffers.map { pageBuffer ->
+        pageBuffer.toDataUri(MimeType.PNG)
     }
+    // highlight-android-batch
+
+    check(inlineImageSource.startsWith("data:image/png;base64,"))
+    check(jpegDataUri.startsWith("data:image/jpeg;base64,"))
+    check(compressedPngDataUri.startsWith("data:image/png;base64,"))
+    check(pageDataUris.size == pages.size)
+    check(pageDataUris.all { it.startsWith("data:image/png;base64,") })
+    listOf(dataUri, jpegDataUri, compressedPngDataUri) + pageDataUris
 }
 
 // highlight-android-convert-buffer

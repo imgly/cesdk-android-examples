@@ -40,7 +40,7 @@ suspend fun importDesign(
 
     val archiveBytes = engine.scene.saveToArchive(scene = stringScene)
     val archiveFile = withContext(Dispatchers.IO) {
-        val file = File.createTempFile("import-design-", ".zip")
+        val file = File.createTempFile("import-design-", ".imgly")
         val archiveBuffer = archiveBytes.asReadOnlyBuffer()
         file.outputStream().channel.use { channel ->
             while (archiveBuffer.hasRemaining()) {
@@ -50,8 +50,8 @@ suspend fun importDesign(
         file
     }
     // highlight-android-load-from-archive
-    val archiveScene = engine.scene.loadArchive(
-        archiveUri = Uri.fromFile(archiveFile),
+    val archiveScene = engine.scene.load(
+        sceneUri = Uri.fromFile(archiveFile),
         waitForResources = true,
     )
     // highlight-android-load-from-archive

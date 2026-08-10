@@ -7,8 +7,8 @@ suspend fun importFromPhotoshop(
     archiveUri: Uri,
 ): DesignBlock {
     // highlight-android-load-converted-archive
-    val scene = engine.scene.loadArchive(
-        archiveUri = archiveUri,
+    val scene = engine.scene.load(
+        sceneUri = archiveUri,
         waitForResources = true,
     )
     // highlight-android-load-converted-archive

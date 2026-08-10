@@ -63,8 +63,8 @@ suspend fun saveDesigns(
     // highlight-android-save-to-archive
 
     // highlight-android-write-to-disk
-    val sceneFile = File(outputDir, "spring-campaign.scene")
-    val sceneArchiveFile = File(outputDir, "spring-campaign.zip")
+    val sceneFile = File(outputDir, "spring-campaign.imgly")
+    val sceneArchiveFile = File(outputDir, "spring-campaign-archive.imgly")
 
     withContext(Dispatchers.IO) {
         sceneFile.bufferedWriter(Charsets.UTF_8).use { writer ->
@@ -126,8 +126,8 @@ suspend fun saveDesigns(
     check(loadedSceneName == "Spring Campaign")
 
     // highlight-android-load-archive
-    engine.scene.loadArchive(
-        archiveUri = Uri.fromFile(sceneArchiveFile),
+    engine.scene.load(
+        sceneUri = Uri.fromFile(sceneArchiveFile),
         waitForResources = true,
     )
     // highlight-android-load-archive

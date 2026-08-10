@@ -1,8 +1,5 @@
-import android.app.Application
 import android.net.Uri
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ly.img.engine.Color
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
@@ -12,24 +9,8 @@ import ly.img.engine.GlobalScope
 import ly.img.engine.ShapeType
 import kotlin.math.roundToInt
 
-fun collage(
-    application: Application,
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    Engine.init(application)
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    var engineStarted = false
-
-    try {
-        engineStarted = engine.start(license = license, userId = userId)
-        engine.bindOffscreen(width = 1080, height = 1920)
-        createAndApplyCollage(engine = engine)
-    } finally {
-        if (engineStarted) {
-            engine.stop()
-        }
-    }
+suspend fun collage(engine: Engine) = withContext(engine.dispatcher) {
+    createAndApplyCollage(engine = engine)
 }
 
 private suspend fun createAndApplyCollage(engine: Engine) {
@@ -64,14 +45,17 @@ private suspend fun createAndApplyCollage(engine: Engine) {
     )
 
     // highlight-android-define-layout
-    val layoutPage = createCollagePage(engine = engine, width = 1080F, height = 1080F)
-    addImageSlot(engine = engine, page = layoutPage, x = 32F, y = 32F, width = 1016F, height = 496F)
-    addImageSlot(engine = engine, page = layoutPage, x = 32F, y = 560F, width = 492F, height = 360F)
-    addImageSlot(engine = engine, page = layoutPage, x = 556F, y = 560F, width = 492F, height = 360F)
-    addTextBlock(engine = engine, page = layoutPage, text = "Title", x = 64F, y = 952F)
-
-    val layoutBlocksString = engine.block.saveToString(blocks = listOf(layoutPage))
-    engine.block.destroy(layoutPage)
+    val layoutBlocksString = createCollagePage(engine = engine, width = 1080F, height = 1080F).let { layoutPage ->
+        try {
+            addImageSlot(engine = engine, page = layoutPage, x = 32F, y = 32F, width = 1016F, height = 496F)
+            addImageSlot(engine = engine, page = layoutPage, x = 32F, y = 560F, width = 492F, height = 360F)
+            addImageSlot(engine = engine, page = layoutPage, x = 556F, y = 560F, width = 492F, height = 360F)
+            addTextBlock(engine = engine, page = layoutPage, text = "Title", x = 64F, y = 952F)
+            engine.block.saveToString(blocks = listOf(layoutPage))
+        } finally {
+            engine.block.destroy(layoutPage)
+        }
+    }
     // highlight-android-define-layout
 
     // highlight-android-apply-layout
@@ -98,11 +82,11 @@ suspend fun applyCollageLayout(
     currentPage: DesignBlock,
     layoutBlocksString: String,
     addUndoStep: Boolean = true,
-): DesignBlock {
+): DesignBlock = withContext(engine.dispatcher) {
     val previousDestroyScope = engine.editor.getGlobalScope("lifecycle/destroy")
     engine.editor.setGlobalScope(key = "lifecycle/destroy", globalScope = GlobalScope.ALLOW)
 
-    return try {
+    try {
         engine.block.findAllSelected().forEach { selectedBlock ->
             engine.block.setSelected(block = selectedBlock, selected = false)
         }

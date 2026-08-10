@@ -30,8 +30,8 @@ fun createImglyPremiumAssetSource(engine: Engine) {
         applyAsset = { asset: Asset ->
             val archiveUri = asset.meta?.get("uri")?.let(Uri::parse)
                 ?: error("Premium template ${asset.id} is missing meta.uri")
-            engine.scene.loadArchive(
-                archiveUri = archiveUri,
+            engine.scene.load(
+                sceneUri = archiveUri,
                 waitForResources = true,
             )
             null

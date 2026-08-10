@@ -9,13 +9,12 @@ import ly.img.engine.FillType
 import ly.img.engine.FontUnit
 import ly.img.engine.MimeType
 import ly.img.engine.ShapeType
-import ly.img.engine.assetBaseUri
 import java.nio.ByteBuffer
 
 @Suppress("DEPRECATION")
 suspend fun useTemplatesProgrammatically(
     engine: Engine,
-    templateBaseUri: Uri = Engine.assetBaseUri,
+    templateBaseUri: Uri,
 ): UseTemplatesProgrammaticallyResult {
     val previousVariables = engine.variable.findAll().associateWith { key ->
         engine.variable.get(key)

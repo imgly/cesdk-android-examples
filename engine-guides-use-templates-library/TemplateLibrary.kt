@@ -13,7 +13,7 @@ import ly.img.engine.FindAssetsQuery
 suspend fun templateLibrary(
     engine: Engine,
     monitoringScope: CoroutineScope,
-    assetBaseUri: Uri = Uri.parse("https://cdn.img.ly/packages/imgly/cesdk-android/1.79.0/assets"),
+    assetBaseUri: Uri,
 ): TemplateLibraryResult = coroutineScope {
     val templateSourceId = "my.custom.templates"
     val hostedSourceId = "ly.img.templates"
