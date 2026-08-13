@@ -25,10 +25,10 @@ suspend fun applyTemplate(engine: Engine): ApplyTemplate {
     // highlight-android-template-inputs
     val firstTemplateString = createTemplateString(engine = engine, headlineText = "Spring Sale")
     val secondTemplateString = createTemplateString(engine = engine, headlineText = "New Arrivals")
-    val firstTemplateFile = File.createTempFile("spring-sale-template", ".scene").apply {
+    val firstTemplateFile = File.createTempFile("spring-sale-template", ".imgly").apply {
         writeText(firstTemplateString)
     }
-    val secondTemplateFile = File.createTempFile("new-arrivals-template", ".scene").apply {
+    val secondTemplateFile = File.createTempFile("new-arrivals-template", ".imgly").apply {
         writeText(secondTemplateString)
     }
     // highlight-android-template-inputs

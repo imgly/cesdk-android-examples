@@ -1,8 +1,6 @@
-import android.app.Application
+@file:Suppress("ktlint:standard:filename")
+
 import android.net.Uri
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ly.img.engine.Color
 import ly.img.engine.ContentFillMode
@@ -15,34 +13,10 @@ import ly.img.engine.ShapeType
 import ly.img.engine.SplitOptions
 import java.nio.ByteBuffer
 
-fun editVideoProgrammatically(
-    application: Application,
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    exportProgrammaticVideoEdit(application = application, license = license, userId = userId)
-}
+suspend fun editVideoProgrammatically(engine: Engine): ProgrammaticVideoEditResult = exportProgrammaticVideoEdit(engine)
 
-suspend fun exportProgrammaticVideoEdit(
-    application: Application,
-    license: String?,
-    userId: String,
-): ProgrammaticVideoEditResult = withContext(Dispatchers.Main) {
-    var engine: Engine? = null
-    var engineStarted = false
-    try {
-        Engine.init(application)
-        val currentEngine = Engine.getInstance(id = "ly.img.engine.programmatic-video-editing")
-        engine = currentEngine
-        engineStarted = currentEngine.start(license = license, userId = userId)
-        currentEngine.bindOffscreen(width = 1280, height = 720)
-
-        buildProgrammaticVideoEdit(currentEngine)
-    } finally {
-        if (engineStarted) {
-            engine?.stop()
-        }
-    }
+suspend fun exportProgrammaticVideoEdit(engine: Engine): ProgrammaticVideoEditResult = withContext(engine.dispatcher) {
+    buildProgrammaticVideoEdit(engine)
 }
 
 private suspend fun buildProgrammaticVideoEdit(engine: Engine): ProgrammaticVideoEditResult {

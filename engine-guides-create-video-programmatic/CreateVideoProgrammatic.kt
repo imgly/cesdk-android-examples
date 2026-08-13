@@ -9,6 +9,7 @@ import ly.img.engine.ExportVideoOptions
 import ly.img.engine.FillType
 import ly.img.engine.MimeType
 import ly.img.engine.ShapeType
+import ly.img.engine.VideoBitrate
 import java.io.File
 
 suspend fun createVideoProgrammatic(engine: Engine): File = withContext(Dispatchers.Main) {
@@ -78,6 +79,10 @@ suspend fun createVideoProgrammatic(engine: Engine): File = withContext(Dispatch
             )
         },
         options = ExportVideoOptions(
+            // VideoBitrate.Auto derives a bounded bitrate from the resolution/framerate,
+            // consistent across platforms. Pass VideoBitrate.Custom(bitsPerSecond) instead
+            // for an explicit bitrate.
+            videoBitrate = VideoBitrate.Auto,
             targetWidth = previewExportWidth,
             targetHeight = previewExportHeight,
             frameRate = previewFrameRate,

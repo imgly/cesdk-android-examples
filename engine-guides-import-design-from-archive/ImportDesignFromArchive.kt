@@ -27,7 +27,7 @@ suspend fun importDesignFromArchive(
     val archive = createArchiveForTransfer(engine, sourceScene)
     val archiveFile = writeArchiveToFile(
         archive = archive,
-        archiveFile = File(outputDir, "portable-design.zip"),
+        archiveFile = File(outputDir, "portable-design.imgly"),
     )
     val loadedScene = loadArchiveFromUri(
         engine = engine,
@@ -77,8 +77,8 @@ suspend fun writeArchiveToFile(
 suspend fun loadArchiveFromUri(
     engine: Engine,
     archiveUri: Uri,
-): DesignBlock = engine.scene.loadArchive(
-    archiveUri = archiveUri,
+): DesignBlock = engine.scene.load(
+    sceneUri = archiveUri,
     waitForResources = true,
 )
 // highlight-android-load-archive

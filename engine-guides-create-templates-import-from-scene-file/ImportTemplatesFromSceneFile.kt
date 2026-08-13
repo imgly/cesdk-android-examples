@@ -38,7 +38,7 @@ suspend fun importTemplatesFromSceneFile(engine: Engine): ImportedTemplateSummar
     val stringPageCount = engine.scene.getPages().size
 
     // highlight-android-prepare-archive-uri
-    val templateArchiveFile = File.createTempFile("template", ".zip")
+    val templateArchiveFile = File.createTempFile("template", ".imgly")
     val templateArchive = engine.scene.saveToArchive(scene = sceneFromString)
     withContext(Dispatchers.IO) {
         templateArchiveFile.outputStream().use { output ->
@@ -53,8 +53,8 @@ suspend fun importTemplatesFromSceneFile(engine: Engine): ImportedTemplateSummar
 
     // highlight-android-load-from-archive
     val archiveUri = Uri.fromFile(templateArchiveFile)
-    val sceneFromArchive = engine.scene.loadArchive(
-        archiveUri = archiveUri,
+    val sceneFromArchive = engine.scene.load(
+        sceneUri = archiveUri,
         waitForResources = true,
     )
     // highlight-android-load-from-archive

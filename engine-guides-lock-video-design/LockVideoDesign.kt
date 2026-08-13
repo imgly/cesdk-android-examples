@@ -1,6 +1,4 @@
-import android.app.Application
 import android.net.Uri
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
@@ -10,14 +8,16 @@ import ly.img.engine.ShapeType
 import ly.img.engine.SizeMode
 
 suspend fun lockVideoDesign(
-    application: Application,
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = withContext(Dispatchers.Main) {
-    Engine.init(application)
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1280, height = 720)
+    engine: Engine,
+    restoreGlobalScopes: Boolean = false,
+) = withContext(engine.dispatcher) {
+    val previousGlobalScopes = if (restoreGlobalScopes) {
+        engine.editor.findAllScopes().associateWith { scope ->
+            engine.editor.getGlobalScope(key = scope)
+        }
+    } else {
+        emptyMap()
+    }
 
     try {
         val scene = engine.scene.createForVideo()
@@ -145,6 +145,8 @@ suspend fun lockVideoDesign(
         require(currentScopeSettings["editor/select"] == GlobalScope.DEFER)
         // highlight-android-discover-scopes
     } finally {
-        engine.stop()
+        previousGlobalScopes.forEach { (scope, globalScope) ->
+            engine.editor.setGlobalScope(key = scope, globalScope = globalScope)
+        }
     }
 }
