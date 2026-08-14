@@ -27,6 +27,7 @@ import ly.img.editor.core.component.rememberSplit
 import ly.img.editor.core.component.rememberTextBackground
 import ly.img.editor.core.component.rememberTextOnPath
 import ly.img.editor.core.component.rememberTextPresets
+import ly.img.editor.core.component.rememberTransition
 import ly.img.editor.core.component.rememberVoiceover
 import ly.img.editor.core.component.rememberVolume
 
@@ -50,6 +51,7 @@ fun VideoConfigurationBuilder.rememberInspectorBar() = InspectorBar.remember {
             add { InspectorBar.Button.rememberClipSpeed() } // Video
             add { InspectorBar.Button.rememberCrop() } // Video, Image
             add { InspectorBar.Button.rememberAnimations() } // Video, Image, Sticker, Shape, Text
+            add { InspectorBar.Button.rememberTransition() } // Video, Image
             add { InspectorBar.Button.rememberAdjustments() } // Video, Image
             add { InspectorBar.Button.rememberFilter() } // Video, Image
             add { InspectorBar.Button.rememberEffect() } // Video, Image

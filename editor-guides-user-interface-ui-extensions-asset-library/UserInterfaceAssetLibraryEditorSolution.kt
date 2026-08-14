@@ -15,6 +15,7 @@ import ly.img.engine.Asset
 import ly.img.engine.AssetContext
 import ly.img.engine.AssetCredits
 import ly.img.engine.AssetDefinition
+import ly.img.engine.AssetFilter
 import ly.img.engine.AssetLicense
 import ly.img.engine.AssetSource
 import ly.img.engine.DesignBlock
@@ -151,14 +152,21 @@ private class BrandImageAssetSource(
 
     // highlight-android-find-assets
     override suspend fun findAssets(query: FindAssetsQuery): FindAssetsResult {
-        val filteredAssets = assets.filter { it.matches(query) }
+        val locale = query.locale ?: "en"
+        val filteredAssets = assets
+            .asSequence()
+            .filter { it.matches(query) }
+            .map { it.toAsset(sourceId = sourceId, locale = locale) }
+            .filter { asset ->
+                query.filter.orEmpty().all { filter -> asset.matches(filter) }
+            }
+            .toList()
         val page = query.page.coerceAtLeast(0)
         val perPage = query.perPage.coerceAtLeast(1)
         val start = page * perPage
         val pageAssets = filteredAssets
             .drop(start)
             .take(perPage)
-            .map { it.toAsset(sourceId = sourceId, locale = query.locale ?: "en") }
 
         return FindAssetsResult(
             assets = pageAssets,
@@ -204,6 +212,51 @@ private class BrandImageAssetSource(
 
         return groupMatches && excludedGroupMatches && tagMatches && queryMatches
     }
+
+    // highlight-android-asset-filter
+    private fun Asset.matches(filter: AssetFilter): Boolean = when (filter) {
+        is AssetFilter.Equals -> filterValues(filter.property).any {
+            it.lowercaseAscii() == filter.value.lowercaseAscii()
+        }
+        is AssetFilter.Contains -> filterValues(filter.property).any {
+            filter.value.lowercaseAscii() in it.lowercaseAscii()
+        }
+        is AssetFilter.And -> {
+            require(filter.filters.isNotEmpty()) { "AssetFilter.And must not be empty." }
+            filter.filters.all { child -> matches(child) }
+        }
+        is AssetFilter.Or -> {
+            require(filter.filters.isNotEmpty()) { "AssetFilter.Or must not be empty." }
+            filter.filters.any { child -> matches(child) }
+        }
+        is AssetFilter.Not -> !matches(filter.filter)
+    }
+
+    private fun Asset.filterValues(property: String): List<String> = when (property) {
+        "label" -> listOfNotNull(label)
+        "id" -> listOf(id)
+        "tags" -> tags.orEmpty()
+        "groups" -> groups.orEmpty()
+        else -> {
+            require(property.startsWith("meta.") && property.length > "meta.".length) {
+                "Unsupported asset filter property: $property"
+            }
+            listOfNotNull(meta?.get(property.removePrefix("meta.")))
+        }
+    }
+
+    private fun String.lowercaseAscii(): String = buildString(length) {
+        for (character in this@lowercaseAscii) {
+            append(
+                if (character in 'A'..'Z') {
+                    (character.code + 32).toChar()
+                } else {
+                    character
+                },
+            )
+        }
+    }
+    // highlight-android-asset-filter
 
     // highlight-android-asset-metadata
     private fun BrandImage.toAsset(

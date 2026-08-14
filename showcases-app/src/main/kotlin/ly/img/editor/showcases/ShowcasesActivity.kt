@@ -34,6 +34,7 @@ import ly.img.editor.showcases.ui.screen.DesignEditorScreen
 import ly.img.editor.showcases.ui.screen.EditCameraRecordingsScreen
 import ly.img.editor.showcases.ui.screen.EditRecordedReactionScreen
 import ly.img.editor.showcases.ui.screen.EditVideoFromUriScreen
+import ly.img.editor.showcases.ui.screen.MemoriesEditorScreen
 import ly.img.editor.showcases.ui.screen.PhotoEditorScreen
 import ly.img.editor.showcases.ui.screen.PostcardEditorScreen
 import ly.img.editor.showcases.ui.screen.ShowcasesScreen
@@ -106,6 +107,9 @@ class ShowcasesActivity : ComponentActivity() {
                             baseUri = baseUri,
                             sceneUri = sceneUri,
                         ) { navController.popBackStack() }
+                    }
+                    composable(screen = Screen.MemoriesUi) {
+                        MemoriesEditorScreen { navController.popBackStack() }
                     }
                     composable(screen = Screen.EditCameraRecordings) {
                         val arg = navController.getParcelable<CameraResult.Captures>("captures")
@@ -304,6 +308,16 @@ sealed class Screen(
 
     data object VideoUi : Screen(
         routeScheme = "video-ui?scene={scene}",
+        arguments = listOf(
+            navArgument("scene") {
+                nullable = true
+                defaultValue = null
+            },
+        ),
+    )
+
+    data object MemoriesUi : Screen(
+        routeScheme = "memories-ui?scene={scene}",
         arguments = listOf(
             navArgument("scene") {
                 nullable = true

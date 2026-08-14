@@ -13,6 +13,8 @@
     <string name="ly_img_showcases_button_custom_ai_text_to_image_title">Text to Image\nGeneration</string>
     <string name="ly_img_showcases_button_custom_bg_removal_subtitle">Remove the background of any image directly from the editor</string>
     <string name="ly_img_showcases_button_custom_bg_removal_title">Background Removal</string>
+    <string name="ly_img_showcases_button_custom_memories_subtitle">Turn photos and videos into a shareable video story</string>
+    <string name="ly_img_showcases_button_custom_memories_title">Memories</string>
     <string name="ly_img_showcases_button_design_booklet_subtitle">210 × 297 mm</string>
     <string name="ly_img_showcases_button_design_booklet_title">Booklet</string>
     <string name="ly_img_showcases_button_design_business_card_subtitle">85 × 55 mm</string>

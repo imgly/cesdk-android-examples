@@ -4,14 +4,13 @@ androidCompileSdk = "36"
 androidTargetSdk = "36"
 kotlin = "2.1.10"
 okhttp = "4.10.0"
-imgly = "1.80.0"
+imgly = "1.81.0-rc.0"
 buildConfig = "5.3.5"
 dropshots = "0.4.1"
 gradleAndroid = "8.11.0"
 googleServices = "4.4.2"
 gradleCrashlytics = "3.0.2"
 appDistributionPlugin = "5.0.0"
-agp = "8.4.2"
 coreKtx = "1.15.0"
 appcompat = "1.7.0"
 installer = "0.7.6"
@@ -58,6 +57,5 @@ segmentation-selfie = { module = "com.google.mlkit:segmentation-selfie", version
 onnxRuntime = { module = "com.microsoft.onnxruntime:onnxruntime-android", version.ref = "onnxRuntime" }
 
 [plugins]
-android-library = { id = "com.android.library", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
