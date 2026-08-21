@@ -13,6 +13,8 @@
     <string name="ly_img_showcases_button_custom_ai_text_to_image_title">Text-zu-Bild-\nGenerierung</string>
     <string name="ly_img_showcases_button_custom_bg_removal_subtitle">Entfernen Sie den Hintergrund eines Bildes direkt im Editor</string>
     <string name="ly_img_showcases_button_custom_bg_removal_title">Hintergrund entfernen</string>
+    <string name="ly_img_showcases_button_custom_memories_subtitle">Verwandeln Sie Fotos und Videos in eine teilbare Video-Story</string>
+    <string name="ly_img_showcases_button_custom_memories_title">Erinnerungen</string>
     <string name="ly_img_showcases_button_design_booklet_subtitle">210 × 297 mm</string>
     <string name="ly_img_showcases_button_design_booklet_title">Broschüre</string>
     <string name="ly_img_showcases_button_design_business_card_subtitle">85 × 55 mm</string>

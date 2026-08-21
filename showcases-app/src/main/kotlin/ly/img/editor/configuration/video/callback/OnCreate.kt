@@ -110,13 +110,6 @@ suspend fun VideoConfigurationBuilder.onLoadAssetSources() {
         }
     }
 
-    // Required for animations
-    editorContext.engine.block.setMetadata(
-        block = requireNotNull(editorContext.engine.scene.get()),
-        key = "ly.img.defaultAssetSourcesBaseUri",
-        value = editorContext.baseUri.toString(),
-    )
-
     // Load local asset sources
     editorContext.engine.asset.addLocalSource(
         sourceId = "ly.img.image.upload",
