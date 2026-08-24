@@ -9,3 +9,10 @@ plugins {
     id 'com.google.firebase.crashlytics' version libs.versions.gradleCrashlytics apply false
     alias(libs.plugins.compose.compiler) apply false
 }
+
+// Pin the NDK so AGP's native-library strip step behaves identically on every machine.
+subprojects { sub ->
+    sub.plugins.withId("com.android.base") {
+        sub.extensions.getByName("android").ndkVersion = "27.0.12077973"
+    }
+}

@@ -39,7 +39,15 @@ String resolveBaseUri() {
     if (explicit) return explicit
     if (System.getenv("UBQ_APP_DISTRIBUTION_BUILD") == "false") return ""
     try {
-        def branch = ["git", "rev-parse", "--abbrev-ref", "HEAD"].execute(null, rootDir).text.trim()
+        // providers.exec, not String.execute: starting a process directly at
+        // configuration time is unsupported by the configuration cache.
+        def git = providers.exec {
+            commandLine "git", "rev-parse", "--abbrev-ref", "HEAD"
+            workingDir = rootDir
+            ignoreExitValue = true
+        }
+        if (git.result.get().exitValue != 0) return ""
+        def branch = git.standardOutput.asText.get().trim()
         if (branch) return "https://ubique.img.ly/${branch}/packages/imgly/cesdk-android/assets"
     } catch (Exception ignored) {}
     return ""

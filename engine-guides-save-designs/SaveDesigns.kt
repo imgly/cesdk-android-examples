@@ -8,6 +8,7 @@ import ly.img.engine.CompressionOptions
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
+import ly.img.engine.SaveToArchiveOptions
 import ly.img.engine.SaveToStringOptions
 import ly.img.engine.ShapeType
 import java.io.File
@@ -95,6 +96,19 @@ suspend fun saveDesigns(
     )
     // highlight-android-compression
     check(compressedSceneString.isNotBlank())
+
+    // highlight-android-archive-compression
+    val compressedSceneArchive = engine.scene.saveToArchive(
+        scene = scene,
+        options = SaveToArchiveOptions(
+            compression = CompressionOptions(
+                format = CompressionFormat.ZSTD,
+                level = CompressionLevel.DEFAULT,
+            ),
+        ),
+    )
+    // highlight-android-archive-compression
+    check(compressedSceneArchive.hasRemaining())
 
     // highlight-android-save-blocks
     val blockString = engine.block.saveToString(blocks = listOf(badge))

@@ -10,6 +10,7 @@ import ly.img.editor.plugin.backgroundRemoval.iconPack.BackgroundRemoval
 import ly.img.editor.plugin.backgroundRemoval.remover.IMGLYBackgroundRemover
 import ly.img.editor.showcases.ShowcaseItem.ClickAction
 import ly.img.editor.showcases.icon.IconPack
+import ly.img.editor.showcases.icon.Memories
 import ly.img.editor.showcases.icon.TextToImage
 import ly.img.editor.plugin.backgroundRemoval.iconPack.IconPack as BackgroundRemovalIconPack
 
@@ -404,6 +405,16 @@ class ShowcasesViewModel(
                     clickAction = ClickAction(
                         destination = Screen.BackgroundRemoval,
                         requestImage = true,
+                    ),
+                ),
+                ShowcaseItem.CustomFunctionality(
+                    vectorIcon = IconPack.Memories,
+                    thumbnailRes = R.drawable.custom_functionality_memories,
+                    label = R.string.ly_img_showcases_button_custom_memories_title,
+                    sublabel = R.string.ly_img_showcases_button_custom_memories_subtitle,
+                    clickAction = ClickAction(
+                        sceneId = "memories", // From starter kit package
+                        destination = Screen.MemoriesUi,
                     ),
                 ),
             ),
