@@ -19,7 +19,7 @@ data class FromTemplate(
 suspend fun fromTemplate(engine: Engine): FromTemplate {
     // highlight-android-load-from-url
     val templateUri = Uri.parse(
-        "https://cdn.img.ly/packages/imgly/cesdk-android/1.81.0/assets/ly.img.templates/templates/cesdk_business_card_1.scene",
+        "https://cdn.img.ly/packages/imgly/cesdk-android/1.81.1/assets/ly.img.templates/templates/cesdk_business_card_1.scene",
     )
     val scene = engine.scene.load(sceneUri = templateUri, waitForResources = true)
     // highlight-android-load-from-url
@@ -33,7 +33,7 @@ suspend fun fromTemplate(engine: Engine): FromTemplate {
 
     // highlight-android-apply-template
     val replacementTemplateUri = Uri.parse(
-        "https://cdn.img.ly/packages/imgly/cesdk-android/1.81.0/assets/ly.img.templates/templates/cesdk_business_card_1.scene",
+        "https://cdn.img.ly/packages/imgly/cesdk-android/1.81.1/assets/ly.img.templates/templates/cesdk_business_card_1.scene",
     )
     engine.scene.applyTemplate(templateUri = replacementTemplateUri)
     // highlight-android-apply-template
