@@ -10,9 +10,13 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
 }
 
-// Pin the NDK so AGP's native-library strip step behaves identically on every machine.
-subprojects { sub ->
-    sub.plugins.withId("com.android.base") {
-        sub.extensions.getByName("android").ndkVersion = "27.0.12077973"
+def pinnedNdk = file("$rootDir/../../config/gradle/pinned-ndk.gradle")
+if (pinnedNdk.exists()) {
+    apply from: pinnedNdk
+}
+
+allprojects {
+    tasks.matching { it.name ==~ /compress.*Assets/ }.configureEach {
+        outputs.doNotCacheIf("asset compression is cheaper to rerun than to transfer") { true }
     }
 }
