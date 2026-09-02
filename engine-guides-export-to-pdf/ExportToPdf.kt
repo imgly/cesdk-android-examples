@@ -1,4 +1,7 @@
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ly.img.engine.Color
 import ly.img.engine.DesignBlockType
@@ -10,7 +13,7 @@ import ly.img.engine.ShapeType
 import java.io.File
 import java.nio.ByteBuffer
 
-suspend fun underlayer(engine: Engine): List<File> {
+suspend fun exportToPdf(engine: Engine): List<File> {
     // Demo scaffolding: create renderable content for the export snippets. In
     // an app, start from the scene already loaded in the editor.
     val scene = engine.scene.create()
@@ -39,6 +42,36 @@ suspend fun underlayer(engine: Engine): List<File> {
     )
     val defaultPdf = writePdfExport(fileName = "design-pages.pdf", buffer = pdfData)
     // highlight-android-export-pdf
+
+    // highlight-android-progress
+    // Report per-page progress as the PDF is written. The callback runs once
+    // per page; only PDF exports invoke it.
+    val progressData = engine.block.export(
+        block = scene,
+        mimeType = MimeType.PDF,
+        progressCallback = { progress ->
+            println("Exported ${progress.exportedPages} of ${progress.totalPages} pages")
+        },
+    )
+    val progressPdf = writePdfExport(fileName = "design-with-progress.pdf", buffer = progressData)
+    // highlight-android-progress
+
+    // highlight-android-cancel
+    // Cancelling the coroutine that runs the export stops the export itself.
+    // Keep the job in your view model and cancel it from your Cancel button.
+    coroutineScope {
+        val exportJob = launch {
+            try {
+                engine.block.export(block = scene, mimeType = MimeType.PDF)
+            } catch (cancellation: CancellationException) {
+                // A cancelled export produces no data.
+                println("Export cancelled")
+                throw cancellation
+            }
+        }
+        exportJob.cancel()
+    }
+    // highlight-android-cancel
 
     // highlight-android-high-compatibility
     val highCompatibilityOptions = ExportOptions(exportPdfWithHighCompatibility = true)
@@ -85,7 +118,7 @@ suspend fun underlayer(engine: Engine): List<File> {
     val a4Pdf = writePdfExport(fileName = "design-a4.pdf", buffer = a4Data)
     // highlight-android-target-size
 
-    return listOf(defaultPdf, highCompatibilityPdf, underlayerPdf, a4Pdf)
+    return listOf(defaultPdf, progressPdf, highCompatibilityPdf, underlayerPdf, a4Pdf)
 }
 
 // highlight-android-save-pdf

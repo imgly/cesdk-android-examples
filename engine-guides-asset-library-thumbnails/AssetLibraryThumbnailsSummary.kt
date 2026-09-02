@@ -9,7 +9,7 @@ import ly.img.engine.FindAssetsQuery
 import ly.img.engine.FindAssetsResult
 import ly.img.engine.ShapeType
 
-private const val ASSET_BASE_URI = "https://cdn.img.ly/packages/imgly/cesdk-android/1.81.1/assets"
+private const val ASSET_BASE_URI = "https://cdn.img.ly/packages/imgly/cesdk-android/1.82.0-rc.1/assets"
 private const val IMAGE_SOURCE_ID = "ly.img.guides.asset-library-thumbnails.images"
 private const val AUDIO_SOURCE_ID = "ly.img.guides.asset-library-thumbnails.audio"
 private const val REMOTE_SOURCE_ID = "ly.img.guides.asset-library-thumbnails.remote"

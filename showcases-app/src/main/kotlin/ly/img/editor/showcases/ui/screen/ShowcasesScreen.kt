@@ -34,6 +34,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,10 +61,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import ly.img.editor.DebugMenu
 import ly.img.editor.core.theme.LocalIsDarkTheme
+import ly.img.editor.showcases.BuildMetadata
 import ly.img.editor.showcases.R
 import ly.img.editor.showcases.Screen
 import ly.img.editor.showcases.ShowcaseItem
-import ly.img.editor.showcases.ShowcasesBuildConfig
 import ly.img.editor.showcases.ui.component.CustomFunctionalityCard
 import ly.img.editor.showcases.ui.component.versionFooterItem
 import ly.img.editor.showcases.ui.modifier.linearGradientBackground
@@ -105,17 +106,21 @@ fun ShowcasesScreen(
                 )
                 .fillMaxHeight(),
         ) {
+            val context = LocalContext.current
+            val buildMetadata by produceState(initialValue = BuildMetadata.EMPTY) {
+                value = BuildMetadata.load(context)
+            }
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(top = 8.dp),
             ) {
-                if (ShowcasesBuildConfig.BUILD_NAME.isNotEmpty()) {
+                if (buildMetadata.buildName.isNotEmpty()) {
                     item(key = "updateBlock") {
                         DebugMenu(
                             modifier = Modifier.padding(horizontal = 8.dp),
-                            versionInfo = ShowcasesBuildConfig.BUILD_NAME,
-                            branchName = ShowcasesBuildConfig.BRANCH_NAME,
-                            commitId = ShowcasesBuildConfig.COMMIT_ID,
+                            versionInfo = buildMetadata.buildName,
+                            branchName = buildMetadata.branchName,
+                            commitId = buildMetadata.commitId,
                         )
                     }
                 }

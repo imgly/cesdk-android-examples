@@ -90,12 +90,19 @@ def isPlayStoreBuild = System.getenv("UBQ_APP_DISTRIBUTION_BUILD") != null &&
 if (isPlayStoreBuild) {
     tasks.named("preBuild").configure { dependsOn(updateLocalizationTask) }
 } else {
+    // Nothing in the showcases app reads the premium-templates source
+    // (353 MB), so it is excluded from the bundle.
+    def mobileAssetVersions = new Properties()
+    file("${UBQ_ROOT_DIR}/mobile-asset-versions.env").withInputStream { mobileAssetVersions.load(it) }
     def assembleAssetsTask = tasks.register("assembleAssets", Exec) {
         def outputDir = "${projectDir}/src/main/assets/imgly-assets"
         workingDir = UBQ_ROOT_DIR
         commandLine "bash", "scripts/assemble-imgly-assets-bundle.sh", outputDir, "cesdk-android"
+        environment "UBQ_EXCLUDE_PREMIUM_TEMPLATES", "true"
+        inputs.property("excludePremiumTemplates", true)
         inputs.file("${UBQ_ROOT_DIR}/mobile-asset-versions.env")
-        inputs.dir("${UBQ_ROOT_DIR}/assets")
+        inputs.dir("${UBQ_ROOT_DIR}/assets/${mobileAssetVersions.getProperty('CESDK_ANDROID_DEFAULT_ASSETS_VERSION')}")
+        inputs.dir("${UBQ_ROOT_DIR}/assets/demo/${mobileAssetVersions.getProperty('CESDK_ANDROID_DEMO_ASSETS_VERSION')}")
         outputs.dir(outputDir)
     }
     tasks.named("preBuild").configure { dependsOn(updateLocalizationTask, assembleAssetsTask) }
@@ -111,10 +118,18 @@ android {
     if (isLocalBuild) {
         versionNameValue = "local"
     } else if (isAppDistributionBuild) {
-        versionNameValue = "${System.getenv("CESDK_AND_BRANCH_NAME")} - ${System.getenv("CESDK_AND_COMMIT_ID")}"
+        // The commit id must stay out of versionName: it flows into the merged
+        // manifest -> resources -> R8, rekeying the whole app chain on every
+        // commit. It lives in the release notes and the build-metadata asset
+        // instead.
+        versionNameValue = "${System.getenv("CESDK_AND_BRANCH_NAME")}"
     } else {
         versionNameValue = getVersionName()
     }
+
+    def engineInternalDeploy = Boolean.parseBoolean(System.getenv("UBQ_ANDROID_INTERNAL_DEPLOY") ?: "true")
+    def engineForceProductionLicense = Boolean.parseBoolean(System.getenv("UBQ_ANDROID_FORCE_PRODUCTION_LICENSE") ?: "false")
+
     namespace 'ly.img.editor.showcases'
     compileSdk libs.versions.androidCompileSdk.get().toInteger()
 
@@ -124,6 +139,12 @@ android {
         targetSdk libs.versions.androidTargetSdk.get().toInteger()
         versionCode versionCodeValue
         versionName versionNameValue
+        manifestPlaceholders += [
+            imglyEngineInternalDeploy: engineInternalDeploy,
+            imglyEngineLogging: engineInternalDeploy,
+            imglyEngineStagingLicense: engineInternalDeploy && !engineForceProductionLicense,
+            imglyEngineTrackingEndpoint: System.getenv("CESDK_QA_TRACKING_ENDPOINT") ?: "",
+        ]
         ndk {
             abiFilters "arm64-v8a", "armeabi-v7a", "x86_64", "x86"
         }
@@ -144,6 +165,16 @@ android {
         if (storeVariantEnabled) {
             store {
                 dimension "version"
+                // The Play Store build has to look exactly like a customer's
+                // app: no on-canvas build version, no logging, production
+                // license endpoint. It overrides defaultConfig, which is
+                // env-driven for the internally distributed flavor.
+                manifestPlaceholders += [
+                    imglyEngineInternalDeploy: false,
+                    imglyEngineLogging: false,
+                    imglyEngineStagingLicense: false,
+                    imglyEngineTrackingEndpoint: "",
+                ]
             }
         }
         internal {
@@ -152,7 +183,8 @@ android {
             if (firebaseEnabled) {
                 firebaseAppDistribution {
                     artifactType = "APK"
-                    releaseNotes = System.getenv("CESDK_AND_BRANCH_NAME")
+                    releaseNotes = System.getenv("CESDK_AND_BRANCH_NAME") == null ? null :
+                        "${System.getenv("CESDK_AND_BRANCH_NAME")} - ${System.getenv("CESDK_AND_COMMIT_ID")}"
                     groups = "internal"
                 }
             }
@@ -197,15 +229,50 @@ buildConfig {
     className "ShowcasesBuildConfig"
     packageName "ly.img.editor.showcases"
 
-    buildConfigField String, "BRANCH_NAME", System.getenv("CESDK_AND_BRANCH_NAME") ?: ""
-    buildConfigField String, "BUILD_NAME", System.getenv("CESDK_AND_BUILD_NAME") ?: ""
-    buildConfigField String, "COMMIT_ID", System.getenv("CESDK_AND_COMMIT_ID") ?: ""
     buildConfigField String, "LICENSE", System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""
     buildConfigField String, "REMOTE_ASSET_SOURCE_HOST", System.env.CESDK_AND_REMOTE_ASSET_SOURCE_HOST ?: getLocalProperty("remote_asset_source_host") ?: ""
     buildConfigField String, "BASE_URI", resolveBaseUri()
     buildConfigField int, "VERSION_CODE", android.defaultConfig.versionCode ?: 0
     buildConfigField String, "VERSION_NAME", android.defaultConfig.versionName
     buildConfigField String, "ENGINE_VERSION", libs.versions.imgly.get()
+}
+
+apply from: "$rootDir/../../config/gradle/android-build-metadata.gradle"
+
+// Crashlytics mints a fresh mapping-file id on every build, rekeying the
+// resources -> R8 -> lint chain even for identical inputs. CI passes a
+// deterministic id derived from the trees that feed R8; the uploaded mapping
+// stays consistent because the upload task reads the id back from this
+// resource. Local builds (env unset) keep the plugin behavior.
+def deterministicMappingFileId = System.getenv("CESDK_AND_MAPPING_FILE_ID")
+if (deterministicMappingFileId != null) {
+    tasks.configureEach { task ->
+        if (task.name.startsWith("injectCrashlyticsMappingFileId")) {
+            // Part of the task identity: an id change must re-execute the task
+            // (and re-key its cache entry), or stale ids would be restored.
+            task.inputs.property("cesdkDeterministicMappingFileId", deterministicMappingFileId)
+            task.doLast {
+                def files = task.outputs.files.asFileTree
+                    .matching { include "**/com_google_firebase_crashlytics_mappingfileid.xml" }
+                    .files
+                if (files.size() != 1) {
+                    throw new GradleException(
+                        "Expected exactly one mapping-file id resource in the outputs of ${task.name}, " +
+                            "found ${files.size()} - the Crashlytics plugin layout changed, update this hook.",
+                    )
+                }
+                def xmlFile = files.first()
+                def rewritten = xmlFile.text.replaceAll(/>[0-9a-fA-F-]{30,40}</, ">${deterministicMappingFileId}<")
+                if (!rewritten.contains(">${deterministicMappingFileId}<")) {
+                    throw new GradleException(
+                        "Could not inject the deterministic mapping-file id into ${xmlFile} - " +
+                            "unexpected file content, update this hook.",
+                    )
+                }
+                xmlFile.text = rewritten
+            }
+        }
+    }
 }
 
 dependencies {
