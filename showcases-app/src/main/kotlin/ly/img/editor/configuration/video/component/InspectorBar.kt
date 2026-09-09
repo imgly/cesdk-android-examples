@@ -9,10 +9,12 @@ import ly.img.editor.core.component.remember
 import ly.img.editor.core.component.rememberAdjustments
 import ly.img.editor.core.component.rememberAnimations
 import ly.img.editor.core.component.rememberBlur
+import ly.img.editor.core.component.rememberCaptionStyle
 import ly.img.editor.core.component.rememberClipSpeed
 import ly.img.editor.core.component.rememberCrop
 import ly.img.editor.core.component.rememberDelete
 import ly.img.editor.core.component.rememberDuplicate
+import ly.img.editor.core.component.rememberEditCaptions
 import ly.img.editor.core.component.rememberEditText
 import ly.img.editor.core.component.rememberEffect
 import ly.img.editor.core.component.rememberEnterGroup
@@ -41,6 +43,8 @@ fun VideoConfigurationBuilder.rememberInspectorBar() = InspectorBar.remember {
         InspectorBar.ListBuilder.remember {
             add { InspectorBar.Button.rememberVoiceover() } // Voiceover Audio
             add { InspectorBar.Button.rememberReplace() } // Video, Image, Sticker, Audio
+            add { InspectorBar.Button.rememberEditCaptions() } // Caption
+            add { InspectorBar.Button.rememberCaptionStyle() } // Caption
             add { InspectorBar.Button.rememberEditText() } // Text
             add { InspectorBar.Button.rememberTextPresets() } // Text
             add { InspectorBar.Button.rememberFormatText() } // Text

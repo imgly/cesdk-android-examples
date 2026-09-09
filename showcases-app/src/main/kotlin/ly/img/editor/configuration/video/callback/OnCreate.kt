@@ -97,6 +97,7 @@ suspend fun VideoConfigurationBuilder.onLoadAssetSources() {
             "ly.img.text.styles",
             "ly.img.text.curves",
             "ly.img.text.components",
+            "ly.img.caption.presets",
             "ly.img.image",
             "ly.img.audio",
             "ly.img.video",
