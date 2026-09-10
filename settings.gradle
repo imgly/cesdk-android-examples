@@ -11,6 +11,12 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
+def remoteBuildCache = file("$settingsDir/../../config/gradle/remote-build-cache.settings.gradle")
+if (remoteBuildCache.exists()) {
+    apply from: remoteBuildCache
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -45,8 +51,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "CE.SDK Android Showcases"
 include ':showcases-app'
-include ':solutions:photo-editor'
-include ':solutions:solution-template'
 
 if (file('internal.settings.gradle').exists()) {
     apply from: 'internal.settings.gradle'
