@@ -32,17 +32,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import ly.img.editor.defaultBaseUri
+import ly.img.engine.DefaultAssetSource
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.MimeType
 import ly.img.engine.ShapeType
 import ly.img.engine.SizeMode
+import ly.img.engine.populateAssetSource
 import java.io.File
 import ly.img.engine.Color as EngineColor
 
@@ -55,10 +54,6 @@ private data class AutomationJob(
     val heroImageUri: String,
 )
 // highlight-android-record
-
-private val automationVariableKeys = listOf("headline", "subline", "cta")
-private val automationAssetSourceIds = listOf("ly.img.color.palette", "ly.img.typeface")
-private val automationEngineMutex = Mutex()
 
 data class AutomationResult(
     val variableKeys: List<String>,
@@ -84,7 +79,7 @@ fun AutomateWorkflowsScreen(license: String) {
     var uiState by remember { mutableStateOf<AutomationUiState>(AutomationUiState.Loading) }
 
     LaunchedEffect(context, license) {
-        uiState = runCatching { runStandaloneAutomationWorkflow(context, license) }
+        uiState = runCatching { runAutomationWorkflow(context, license) }
             .fold(
                 onSuccess = { AutomationUiState.Success(it) },
                 onFailure = { AutomationUiState.Error(it.message ?: "Unknown automation error.") },
@@ -169,118 +164,82 @@ fun AutomateWorkflowsScreen(license: String) {
     }
 }
 
-private suspend fun runStandaloneAutomationWorkflow(
+suspend fun runAutomationWorkflow(
     context: Context,
     license: String,
 ): AutomationResult = withContext(Dispatchers.Main) {
-    automationEngineMutex.withLock {
-        val application = context.applicationContext as Application
-        Engine.init(application)
-        val engine = Engine.getInstance(id = "ly.img.engine.automateWorkflows")
-        var engineStarted = false
+    val application = context.applicationContext as Application
+    Engine.init(application)
+    val engine = Engine.getInstance(id = "ly.img.engine.automateWorkflows")
 
-        try {
-            engineStarted = engine.start(
-                license = license,
-                userId = "automation-guide",
-            )
-            check(engineStarted) { "Unable to start the automation guide Engine." }
-
-            engine.bindOffscreen(width = 1080, height = 1350)
-            runAutomationWorkflow(engine = engine, context = context)
-        } finally {
-            if (engineStarted) {
-                withContext(NonCancellable) {
-                    engine.stop()
-                }
-            }
-        }
-    }
-}
-
-suspend fun runAutomationWorkflow(
-    engine: Engine,
-    context: Context,
-): AutomationResult = withContext(engine.dispatcher) {
-    val currentVariableKeys = engine.variable.findAll().toSet()
-    val previousVariables = automationVariableKeys
-        .filter(currentVariableKeys::contains)
-        .associateWith(engine.variable::get)
-
-    val originalAssetSources = engine.asset.findAllSources().toSet()
-    try {
-        // highlight-android-asset-sources
-        val existingAssetSources = engine.asset.findAllSources().toSet()
-        val addedAssetSources = automationAssetSourceIds.filterNot(existingAssetSources::contains)
-        addedAssetSources.forEach { assetSource ->
-            engine.asset.addLocalSourceFromJSON(
-                contentUri = defaultBaseUri.buildUpon()
+    // highlight-android-start
+    engine.start(
+        license = license,
+        userId = "automation-guide",
+    )
+    engine.bindOffscreen(width = 1080, height = 1350)
+    val existingAssetSources = engine.asset.findAllSources().toSet()
+    listOf(
+        DefaultAssetSource.COLORS_DEFAULT_PALETTE.key,
+        DefaultAssetSource.TYPEFACE.key,
+    ).filterNot(existingAssetSources::contains)
+        .forEach { assetSource ->
+            engine.populateAssetSource(
+                id = assetSource,
+                jsonUri = defaultBaseUri.buildUpon()
                     .appendPath(assetSource)
                     .appendPath("content.json")
                     .build(),
+                replaceBaseUri = defaultBaseUri,
             )
         }
-        // highlight-android-asset-sources
+    // highlight-android-start
 
-        runAutomationWorkflowWithTemporaryState(engine = engine, context = context)
-    } finally {
-        val variablesToRemove = engine.variable.findAll().toSet()
-        automationVariableKeys.filter(variablesToRemove::contains).forEach(engine.variable::remove)
-        previousVariables.forEach { (key, value) -> engine.variable.set(key = key, value = value) }
-
-        automationAssetSourceIds.filterNot(originalAssetSources::contains).asReversed().forEach { sourceId ->
-            if (sourceId in engine.asset.findAllSources()) {
-                engine.asset.removeSource(sourceId)
+    try {
+        val outputDirectory = withContext(Dispatchers.IO) {
+            File(context.cacheDir, "automate-workflows").apply {
+                mkdirs()
+                listFiles()?.forEach(File::delete)
             }
         }
-    }
-}
-
-private suspend fun runAutomationWorkflowWithTemporaryState(
-    engine: Engine,
-    context: Context,
-): AutomationResult {
-    val outputDirectory = withContext(Dispatchers.IO) {
-        File(context.cacheDir, "automate-workflows").apply {
-            mkdirs()
-            listFiles()?.forEach(File::delete)
-        }
-    }
-    val templateScene = createTemplateScene(engine)
-    val tokenizedBlockNames = discoverTokenizedBlocks(engine)
-    val jobs = listOf(
-        AutomationJob(
-            fileStem = "summer-sale",
-            headline = "Summer Sale",
-            subline = "Save 25% on the launch collection.",
-            cta = "Shop Now",
-            heroImageUri = "https://img.ly/static/ubq_samples/sample_1.jpg",
-        ),
-        AutomationJob(
-            fileStem = "autumn-launch",
-            headline = "Autumn Launch",
-            subline = "New arrivals for cozy desk setups.",
-            cta = "Explore",
-            heroImageUri = "https://img.ly/static/ubq_samples/sample_4.jpg",
-        ),
-    )
-
-    // highlight-android-batch
-    val exportedFiles = jobs.map { job ->
-        exportAutomationJob(
-            engine = engine,
-            templateScene = templateScene,
-            job = job,
-            outputDirectory = outputDirectory,
+        val templateScene = createTemplateScene(engine)
+        val tokenizedBlockNames = discoverTokenizedBlocks(engine)
+        val jobs = listOf(
+            AutomationJob(
+                fileStem = "summer-sale",
+                headline = "Summer Sale",
+                subline = "Save 25% on the launch collection.",
+                cta = "Shop Now",
+                heroImageUri = "https://img.ly/static/ubq_samples/sample_1.jpg",
+            ),
+            AutomationJob(
+                fileStem = "autumn-launch",
+                headline = "Autumn Launch",
+                subline = "New arrivals for cozy desk setups.",
+                cta = "Explore",
+                heroImageUri = "https://img.ly/static/ubq_samples/sample_4.jpg",
+            ),
         )
-    }
-    // highlight-android-batch
 
-    return AutomationResult(
-        variableKeys = automationVariableKeys.sorted(),
-        tokenizedBlockNames = tokenizedBlockNames,
-        exportedFiles = exportedFiles,
-    )
+        // highlight-android-batch
+        val exportedFiles = jobs.map { job ->
+            exportAutomationJob(
+                engine = engine,
+                templateScene = templateScene,
+                job = job,
+                outputDirectory = outputDirectory,
+            )
+        }
+        // highlight-android-batch
+
+        AutomationResult(
+            variableKeys = engine.variable.findAll().sorted(),
+            tokenizedBlockNames = tokenizedBlockNames,
+            exportedFiles = exportedFiles,
+        )
+    } finally {
+        engine.stop()
+    }
 }
 
 private suspend fun createTemplateScene(engine: Engine): String {
@@ -386,8 +345,6 @@ private suspend fun createTemplateScene(engine: Engine): String {
     val serializedTemplate = engine.scene.saveToString(scene = scene)
     // highlight-android-template
 
-    engine.block.forceLoadResources(listOf(heroImage, headline, subline, cta))
-
     return serializedTemplate
 }
 
@@ -427,7 +384,6 @@ private suspend fun exportAutomationJob(
     // highlight-android-apply-data
 
     val page = requireNotNull(engine.scene.getCurrentPage()) { "Expected a page in the automation template." }
-    engine.block.forceLoadResources(listOf(page))
 
     // highlight-android-export
     val exportData = engine.block.export(

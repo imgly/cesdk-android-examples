@@ -1,39 +1,44 @@
 import android.net.Uri
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import ly.img.engine.Asset
+import ly.img.engine.AssetContext
 import ly.img.engine.AssetDefinition
 import ly.img.engine.AssetPayload
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
-import ly.img.engine.MimeType
 import ly.img.engine.ShapeType
 import ly.img.engine.Source
-import java.nio.ByteBuffer
 
-data class SourceSets(
-    val configuredImageSourceWidths: List<Int>,
-    val updatedImageSourceWidths: List<Int>,
-    val assetSourceWidths: List<Int>,
-    val videoSourceWidths: List<Int>,
-    val lowQualityVideoPreviewEnabled: Boolean,
-    val exportedImage: ByteBuffer,
-)
+fun sourceSets(
+    license: String?, // pass null or empty for evaluation mode with watermark
+    userId: String,
+) = CoroutineScope(Dispatchers.Main).launch {
+    val engine = Engine.getInstance(id = "ly.img.engine.example")
+    engine.start(license = license, userId = userId)
+    engine.bindOffscreen(width = 1080, height = 1920)
 
-suspend fun sourceSets(engine: Engine): SourceSets {
+    // highlight-setup
     val scene = engine.scene.create()
 
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.setWidth(page, value = 800F)
     engine.block.setHeight(page, value = 600F)
     engine.block.appendChild(parent = scene, child = page)
+    engine.scene.zoomToBlock(
+        block = page,
+        paddingLeft = 50F,
+        paddingTop = 50F,
+        paddingRight = 50F,
+        paddingBottom = 50F,
+    )
+    // highlight-setup
 
-    // highlight-android-set-source-set
-    val imageBlock = engine.block.create(DesignBlockType.Graphic)
-    engine.block.setShape(imageBlock, shape = engine.block.createShape(ShapeType.Rect))
-    engine.block.setWidth(imageBlock, value = 300F)
-    engine.block.setHeight(imageBlock, value = 300F)
-    engine.block.setPositionX(imageBlock, value = 50F)
-    engine.block.setPositionY(imageBlock, value = 50F)
-
+    // highlight-set-source-set
+    val block = engine.block.create(DesignBlockType.Graphic)
+    engine.block.setShape(block, engine.block.createShape(ShapeType.Rect))
     val imageFill = engine.block.createFill(FillType.Image)
     engine.block.setSourceSet(
         block = imageFill,
@@ -49,51 +54,23 @@ suspend fun sourceSets(engine: Engine): SourceSets {
                 width = 1024,
                 height = 683,
             ),
+            Source(
+                uri = Uri.parse("https://img.ly/static/ubq_samples/sample_1_2048x1366.jpg"),
+                width = 2048,
+                height = 1366,
+            ),
         ),
     )
-    engine.block.setFill(block = imageBlock, fill = imageFill)
-    engine.block.appendChild(parent = page, child = imageBlock)
-    // highlight-android-set-source-set
+    engine.block.setFill(block = block, fill = imageFill)
+    engine.block.appendChild(parent = page, child = block)
+    // highlight-set-source-set
 
-    val configuredImageSourceSet = engine.block.getSourceSet(
-        block = imageFill,
-        property = "fill/image/sourceSet",
-    )
-    check(configuredImageSourceSet.map(Source::width) == listOf(1024, 512))
-
-    // highlight-android-query-source-set
-    val currentImageSourceSet = engine.block.getSourceSet(
-        block = imageFill,
-        property = "fill/image/sourceSet",
-    )
-
-    engine.block.addImageFileUriToSourceSet(
-        block = imageFill,
-        property = "fill/image/sourceSet",
-        uri = "https://img.ly/static/ubq_samples/sample_1_2048x1366.jpg",
-    )
-
-    val updatedImageSourceSet = engine.block.getSourceSet(
-        block = imageFill,
-        property = "fill/image/sourceSet",
-    )
-    // highlight-android-query-source-set
-
-    check(currentImageSourceSet.map(Source::width) == listOf(1024, 512))
-    check(updatedImageSourceSet.map(Source::width) == listOf(2048, 1024, 512))
-
-    // highlight-android-asset-source-set
-    val assetSourceId = "android-guide-source-sets"
-    if (assetSourceId in engine.asset.findAllSources()) {
-        engine.asset.removeSource(assetSourceId)
-    }
-
+    // highlight-asset-definition
     val assetWithSourceSet = AssetDefinition(
-        id = "multi-resolution-image",
-        label = mapOf("en" to "Multi-resolution image"),
+        id = "my-image",
         meta = mapOf(
             "kind" to "image",
-            "fillType" to FillType.Image.key,
+            "fillType" to "//ly.img.ubq/fill/image",
         ),
         payload = AssetPayload(
             sourceSet = listOf(
@@ -115,37 +92,27 @@ suspend fun sourceSets(engine: Engine): SourceSets {
             ),
         ),
     )
+    // highlight-asset-definition
 
+    // highlight-asset-source
     engine.asset.addLocalSource(
-        sourceId = assetSourceId,
-        supportedMimeTypes = listOf(MimeType.JPEG.key),
+        sourceId = "my-dynamic-images",
+        supportedMimeTypes = listOf("image/jpeg"),
     )
-    engine.asset.addAsset(sourceId = assetSourceId, asset = assetWithSourceSet)
+    engine.asset.addAsset(sourceId = "my-dynamic-images", asset = assetWithSourceSet)
+    // highlight-asset-source
 
-    val asset = engine.asset.fetchAsset(
-        sourceId = assetSourceId,
-        assetId = assetWithSourceSet.id,
-    ) ?: error("Expected the local source to return the asset.")
-
-    val assetBlock = engine.asset.defaultApplyAsset(asset)
-        ?: error("Expected the image asset to create a block.")
-    val assetFill = engine.block.getFill(assetBlock)
-    val assetSourceSet = engine.block.getSourceSet(
-        block = assetFill,
-        property = "fill/image/sourceSet",
+    // highlight-apply-asset
+    // Could also acquire the asset using `findAssets` on the source
+    val asset = Asset(
+        id = assetWithSourceSet.id,
+        meta = assetWithSourceSet.meta?.toMap(),
+        context = AssetContext(sourceId = "my-dynamic-images"),
     )
-    // highlight-android-asset-source-set
+    val result = engine.asset.defaultApplyAsset(asset)
+    // highlight-apply-asset
 
-    check(assetSourceSet.map(Source::width) == listOf(2048, 1024, 512))
-
-    // highlight-android-video-source-set
-    val videoBlock = engine.block.create(DesignBlockType.Graphic)
-    engine.block.setShape(videoBlock, shape = engine.block.createShape(ShapeType.Rect))
-    engine.block.setWidth(videoBlock, value = 400F)
-    engine.block.setHeight(videoBlock, value = 225F)
-    engine.block.setPositionX(videoBlock, value = 50F)
-    engine.block.setPositionY(videoBlock, value = 400F)
-
+    // highlight-video-source-sets
     val videoFill = engine.block.createFill(FillType.Video)
     engine.block.setSourceSet(
         block = videoFill,
@@ -158,8 +125,6 @@ suspend fun sourceSets(engine: Engine): SourceSets {
             ),
         ),
     )
-    engine.block.setFill(block = videoBlock, fill = videoFill)
-    engine.block.appendChild(parent = page, child = videoBlock)
 
     engine.block.addVideoFileUriToSourceSet(
         block = videoFill,
@@ -167,41 +132,7 @@ suspend fun sourceSets(engine: Engine): SourceSets {
         uri = "https://img.ly/static/example-assets/sourceset/2x.mp4",
     )
 
-    val videoSourceSet = engine.block.getSourceSet(
-        block = videoFill,
-        property = "fill/video/sourceSet",
-    )
-    // highlight-android-video-source-set
+    // highlight-video-source-sets
 
-    check(videoSourceSet.map(Source::width) == listOf(1440, 720))
-
-    val previousLowQualityVideoPreview = engine.editor.getSettingBoolean(
-        keypath = "features/forceLowQualityVideoPreview",
-    )
-
-    // highlight-android-video-preview-settings
-    engine.editor.setSettingBoolean(
-        keypath = "features/forceLowQualityVideoPreview",
-        value = true,
-    )
-    // highlight-android-video-preview-settings
-
-    val lowQualityVideoPreviewEnabled = engine.editor.getSettingBoolean(
-        keypath = "features/forceLowQualityVideoPreview",
-    )
-    engine.editor.setSettingBoolean(
-        keypath = "features/forceLowQualityVideoPreview",
-        value = previousLowQualityVideoPreview,
-    )
-
-    val exportedImage = engine.block.export(imageBlock, mimeType = MimeType.PNG)
-
-    return SourceSets(
-        configuredImageSourceWidths = configuredImageSourceSet.map(Source::width),
-        updatedImageSourceWidths = updatedImageSourceSet.map(Source::width),
-        assetSourceWidths = assetSourceSet.map(Source::width),
-        videoSourceWidths = videoSourceSet.map(Source::width),
-        lowQualityVideoPreviewEnabled = lowQualityVideoPreviewEnabled,
-        exportedImage = exportedImage,
-    )
+    engine.stop()
 }

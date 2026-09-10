@@ -34,7 +34,6 @@ import ly.img.editor.showcases.ui.screen.DesignEditorScreen
 import ly.img.editor.showcases.ui.screen.EditCameraRecordingsScreen
 import ly.img.editor.showcases.ui.screen.EditRecordedReactionScreen
 import ly.img.editor.showcases.ui.screen.EditVideoFromUriScreen
-import ly.img.editor.showcases.ui.screen.MemoriesEditorScreen
 import ly.img.editor.showcases.ui.screen.PhotoEditorScreen
 import ly.img.editor.showcases.ui.screen.PostcardEditorScreen
 import ly.img.editor.showcases.ui.screen.ShowcasesScreen
@@ -108,16 +107,13 @@ class ShowcasesActivity : ComponentActivity() {
                             sceneUri = sceneUri,
                         ) { navController.popBackStack() }
                     }
-                    composable(screen = Screen.MemoriesUi) {
-                        MemoriesEditorScreen { navController.popBackStack() }
-                    }
                     composable(screen = Screen.EditCameraRecordings) {
-                        val arg = navController.getParcelable<CameraResult.Captures>("captures")
-                        val captures = remember { arg }
-                        if (captures != null) {
+                        val arg = navController.getParcelable<CameraResult.Record>("recording")
+                        val recording = remember { arg }
+                        if (recording != null) {
                             EditCameraRecordingsScreen(
                                 baseUri = baseUri,
-                                captures = captures,
+                                recording = recording,
                                 onBack = { navController.popBackStack() },
                             )
                         }
@@ -146,9 +142,7 @@ class ShowcasesActivity : ComponentActivity() {
                     }
                     composable(screen = Screen.TextToImage) {
                         val sceneUri = it.getSceneUri(defaultScene = "design")
-                        val gatewayApiKey = it.arguments?.getString("gatewayApiKey")
                         TextToImageScreen(
-                            gatewayApiKey = gatewayApiKey,
                             baseUri = baseUri,
                             sceneUri = sceneUri,
                             onBack = { navController.popBackStack() },
@@ -316,16 +310,6 @@ sealed class Screen(
         ),
     )
 
-    data object MemoriesUi : Screen(
-        routeScheme = "memories-ui?scene={scene}",
-        arguments = listOf(
-            navArgument("scene") {
-                nullable = true
-                defaultValue = null
-            },
-        ),
-    )
-
     data object EditCameraRecordings : Screen(
         routeScheme = "edit-camera-recordings",
         arguments = listOf(),
@@ -342,7 +326,7 @@ sealed class Screen(
     )
 
     data object TextToImage : Screen(
-        routeScheme = "text-to-image?gatewayApiKey={gatewayApiKey}",
+        routeScheme = "text-to-image?scene={scene}",
         arguments = listOf(
             navArgument("scene") {
                 nullable = true

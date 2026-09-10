@@ -1,4 +1,7 @@
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import ly.img.engine.Color
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
@@ -28,30 +31,48 @@ data class ConversionToPngResult(
             listOf(compressed, targetDimensions, textOverhang)
 }
 
-suspend fun conversionToPng(engine: Engine): ConversionToPngResult = withContext(engine.dispatcher) {
-    createSceneWithPages(engine)
-    val currentPage = engine.scene.getCurrentPage() ?: engine.scene.getPages().first()
+fun conversionToPng(
+    license: String?, // pass null or empty for evaluation mode with watermark
+    userId: String,
+): Deferred<ConversionToPngResult> = CoroutineScope(Dispatchers.Main).async {
+    val engine = Engine.getInstance(id = "ly.img.engine.example")
 
-    ConversionToPngResult(
-        singlePage = PngExport("single page", exportSinglePage(engine, currentPage).readOnlyForVerification()),
-        allPages = exportAllPages(engine).mapIndexed { index, pngData ->
-            PngExport("page ${index + 1}", pngData.readOnlyForVerification())
-        },
-        compressed = PngExport("compressed", exportWithCompression(engine, currentPage).readOnlyForVerification()),
-        targetDimensions = PngExport(
-            "target dimensions",
-            exportWithTargetDimensions(engine, currentPage).readOnlyForVerification(),
-        ),
-        textOverhang = PngExport(
-            "text overhang",
-            exportWithTextOverhang(engine, currentPage).readOnlyForVerification(),
-        ),
-    )
+    try {
+        engine.start(license = license, userId = userId)
+        engine.bindOffscreen(width = 1080, height = 1920)
+
+        createSceneWithPages(engine)
+        val currentPage = engine.scene.getCurrentPage() ?: engine.scene.getPages().first()
+
+        ConversionToPngResult(
+            singlePage = PngExport("single page", exportSinglePage(engine, currentPage).copyForVerification()),
+            allPages = exportAllPages(engine).mapIndexed { index, pngData ->
+                PngExport("page ${index + 1}", pngData.copyForVerification())
+            },
+            compressed = PngExport("compressed", exportWithCompression(engine, currentPage).copyForVerification()),
+            targetDimensions = PngExport(
+                "target dimensions",
+                exportWithTargetDimensions(engine, currentPage).copyForVerification(),
+            ),
+            textOverhang = PngExport(
+                "text overhang",
+                exportWithTextOverhang(engine, currentPage).copyForVerification(),
+            ),
+        )
+    } finally {
+        engine.stop()
+    }
 }
 
-private fun ByteBuffer.readOnlyForVerification(): ByteBuffer = asReadOnlyBuffer()
+private fun ByteBuffer.copyForVerification(): ByteBuffer {
+    val duplicate = asReadOnlyBuffer()
+    val bytes = ByteArray(duplicate.remaining())
+    duplicate.get(bytes)
+    return ByteBuffer.wrap(bytes).asReadOnlyBuffer()
+}
 
-private fun createSceneWithPages(engine: Engine): DesignBlock {
+// highlight-android-create-scene
+fun createSceneWithPages(engine: Engine): DesignBlock {
     val scene = engine.scene.create()
 
     repeat(2) { pageIndex ->
@@ -65,6 +86,7 @@ private fun createSceneWithPages(engine: Engine): DesignBlock {
 
     return scene
 }
+// highlight-android-create-scene
 
 private fun addVisiblePageContent(
     engine: Engine,
@@ -125,19 +147,19 @@ private fun addVisiblePageContent(
 suspend fun exportSinglePage(
     engine: Engine,
     page: DesignBlock,
-): ByteBuffer = withContext(engine.dispatcher) {
+): ByteBuffer {
     val pngData = engine.block.export(
         block = page,
         mimeType = MimeType.PNG,
     )
 
     check(pngData.hasRemaining()) { "single page PNG export is empty" }
-    pngData
+    return pngData
 }
 // highlight-android-export-single-page
 
 // highlight-android-export-all-pages
-suspend fun exportAllPages(engine: Engine): List<ByteBuffer> = withContext(engine.dispatcher) {
+suspend fun exportAllPages(engine: Engine): List<ByteBuffer> {
     val pages = engine.scene.getPages()
     val pngFiles = engine.block.export(
         blocks = pages,
@@ -148,7 +170,7 @@ suspend fun exportAllPages(engine: Engine): List<ByteBuffer> = withContext(engin
     pngFiles.forEachIndexed { index, pngData ->
         check(pngData.hasRemaining()) { "page ${index + 1} PNG export is empty" }
     }
-    pngFiles
+    return pngFiles
 }
 // highlight-android-export-all-pages
 
@@ -156,7 +178,7 @@ suspend fun exportAllPages(engine: Engine): List<ByteBuffer> = withContext(engin
 suspend fun exportWithCompression(
     engine: Engine,
     page: DesignBlock,
-): ByteBuffer = withContext(engine.dispatcher) {
+): ByteBuffer {
     val options = ExportOptions(pngCompressionLevel = 9)
     val pngData = engine.block.export(
         block = page,
@@ -165,7 +187,7 @@ suspend fun exportWithCompression(
     )
 
     check(pngData.hasRemaining()) { "compressed PNG export is empty" }
-    pngData
+    return pngData
 }
 // highlight-android-compression-level
 
@@ -173,7 +195,7 @@ suspend fun exportWithCompression(
 suspend fun exportWithTargetDimensions(
     engine: Engine,
     page: DesignBlock,
-): ByteBuffer = withContext(engine.dispatcher) {
+): ByteBuffer {
     val options = ExportOptions(
         targetWidth = 1200F,
         targetHeight = 900F,
@@ -185,7 +207,7 @@ suspend fun exportWithTargetDimensions(
     )
 
     check(pngData.hasRemaining()) { "target dimensions PNG export is empty" }
-    pngData
+    return pngData
 }
 // highlight-android-target-dimensions
 
@@ -193,7 +215,7 @@ suspend fun exportWithTargetDimensions(
 suspend fun exportWithTextOverhang(
     engine: Engine,
     page: DesignBlock,
-): ByteBuffer = withContext(engine.dispatcher) {
+): ByteBuffer {
     val options = ExportOptions(allowTextOverhang = true)
     val pngData = engine.block.export(
         block = page,
@@ -202,6 +224,6 @@ suspend fun exportWithTextOverhang(
     )
 
     check(pngData.hasRemaining()) { "text overhang PNG export is empty" }
-    pngData
+    return pngData
 }
 // highlight-android-text-overhang

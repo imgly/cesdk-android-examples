@@ -22,14 +22,11 @@ fun OverlayEditorSolution(
     license: String,
     onClose: (Throwable?) -> Unit,
 ) {
-    // highlight-android-state
     var isLoading by remember { mutableStateOf(false) }
-    // highlight-android-state
     Editor(
-        license = license,
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             EditorConfiguration.remember {
-                // highlight-android-loading-state
                 onCreate = {
                     isLoading = true
                     try {
@@ -38,14 +35,11 @@ fun OverlayEditorSolution(
                         editorContext.engine.block.setWidth(block = page, value = 1080F)
                         editorContext.engine.block.setHeight(block = page, value = 1080F)
                         editorContext.engine.block.appendChild(parent = scene, child = page)
-                        // Replace this delay with the startup work that should block editor interaction.
                         delay(3000)
                     } finally {
                         isLoading = false
                     }
                 }
-                // highlight-android-loading-state
-                // highlight-android-overlay
                 overlay = {
                     EditorComponent.remember {
                         decoration = {
@@ -53,14 +47,12 @@ fun OverlayEditorSolution(
                                 AlertDialog(
                                     onDismissRequest = { },
                                     title = {
-                                        Text(text = "Loading editor")
-                                    },
-                                    text = {
-                                        Text(text = "The editor is preparing the scene. You can close it if you need to cancel.")
+                                        Text(text = "Please wait. If you want to close the editor, click the button.")
                                     },
                                     confirmButton = {
                                         TextButton(
                                             onClick = {
+                                                isLoading = false
                                                 editorContext.eventHandler.send(EditorEvent.CloseEditor())
                                             },
                                         ) {
@@ -73,7 +65,6 @@ fun OverlayEditorSolution(
                         }
                     }
                 }
-                // highlight-android-overlay
             }
         },
         onClose = onClose,

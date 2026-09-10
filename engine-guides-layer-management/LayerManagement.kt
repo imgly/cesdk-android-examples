@@ -1,4 +1,6 @@
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ly.img.engine.Color
 import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
@@ -7,7 +9,14 @@ import ly.img.engine.FillType
 import ly.img.engine.RGBAColor
 import ly.img.engine.ShapeType
 
-suspend fun layerManagement(engine: Engine) = withContext(engine.dispatcher) {
+fun layerManagement(
+    license: String?, // pass null or empty for evaluation mode with watermark
+    userId: String,
+) = CoroutineScope(Dispatchers.Main).launch {
+    val engine = Engine.getInstance(id = "ly.img.engine.example")
+    engine.start(license = license, userId = userId)
+    engine.bindOffscreen(width = 1080, height = 1920)
+
     val scene = engine.scene.create()
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.setWidth(page, value = 800F)
@@ -111,6 +120,8 @@ suspend fun layerManagement(engine: Engine) = withContext(engine.dispatcher) {
         paddingBottom = 40F,
     )
     // highlight-android-zoom
+
+    engine.stop()
 }
 
 // highlight-android-create-helper

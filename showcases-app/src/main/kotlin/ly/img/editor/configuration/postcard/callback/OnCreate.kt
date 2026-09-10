@@ -9,7 +9,12 @@ import ly.img.editor.configuration.postcard.PostcardConfigurationBuilder
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.data.SystemGalleryAssetSource
 import ly.img.editor.core.library.data.SystemGalleryPermission
+import ly.img.editor.core.library.data.TextAssetSource
+import ly.img.editor.core.library.data.TypefaceProvider
+import ly.img.engine.DefaultAssetSource
+import ly.img.engine.DemoAssetSource
 import ly.img.engine.GlobalScope
+import ly.img.engine.populateAssetSource
 
 /**
  * The callback that is invoked when the editor is created.
@@ -65,27 +70,24 @@ suspend fun PostcardConfigurationBuilder.onCreateScene() {
 suspend fun PostcardConfigurationBuilder.onLoadAssetSources() {
     // Load asset sources in parallel from content.json files
     coroutineScope {
-        val baseUri = editorContext.baseUri
-        // Postcard intentionally registers a custom subset of default sources (no
-        // ly.img.color.palette / ly.img.page.presets — those are provided by the postcard builder).
-        val sourceIds = listOf(
-            "ly.img.sticker",
-            "ly.img.vector.shape",
-            "ly.img.filter",
-            "ly.img.crop.presets",
-            "ly.img.effect",
-            "ly.img.blur",
-            "ly.img.typeface",
-            "ly.img.text",
-            "ly.img.text.styles",
-            "ly.img.text.curves",
-            "ly.img.text.components",
-            "ly.img.image",
-        )
-        sourceIds.forEach { id ->
+        listOf(
+            DefaultAssetSource.STICKER.key,
+            DefaultAssetSource.VECTOR_PATH.key,
+            DefaultAssetSource.FILTER_LUT.key,
+            DefaultAssetSource.FILTER_DUO_TONE.key,
+            DefaultAssetSource.CROP_PRESETS.key,
+            DefaultAssetSource.EFFECT.key,
+            DefaultAssetSource.BLUR.key,
+            DefaultAssetSource.TYPEFACE.key,
+            DemoAssetSource.IMAGE.key,
+            DemoAssetSource.TEXT_COMPONENTS.key,
+        ).forEach { assetSource ->
             launch {
-                editorContext.engine.asset.addLocalSourceFromJSON(
-                    contentUri = "$baseUri/$id/content.json".toUri(),
+                val baseUri = editorContext.baseUri
+                editorContext.engine.populateAssetSource(
+                    id = assetSource,
+                    jsonUri = "$baseUri/$assetSource/content.json".toUri(),
+                    replaceBaseUri = baseUri,
                 )
             }
         }
@@ -93,7 +95,7 @@ suspend fun PostcardConfigurationBuilder.onLoadAssetSources() {
 
     // Load local asset sources
     editorContext.engine.asset.addLocalSource(
-        sourceId = "ly.img.image.upload",
+        sourceId = DemoAssetSource.IMAGE_UPLOAD.key,
         supportedMimeTypes = listOf(
             "image/jpeg",
             "image/png",
@@ -120,6 +122,15 @@ suspend fun PostcardConfigurationBuilder.onLoadAssetSources() {
         )
     }
     SystemGalleryPermission.setMode(systemGalleryConfiguration)
+
+    // Register text asset source
+    TypefaceProvider().provideTypeface(
+        engine = editorContext.engine,
+        name = "Roboto",
+    )?.let {
+        val textAssetSource = TextAssetSource(engine = editorContext.engine, typeface = it)
+        editorContext.engine.asset.addSource(textAssetSource)
+    }
 }
 // highlight-starter-kit-on-load-asset-sources
 

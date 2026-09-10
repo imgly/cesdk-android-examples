@@ -14,7 +14,7 @@ dependencyResolutionManagement {
         mavenCentral()
         maven {
             name = "IMG.LY Artifactory"
-            url = uri("https://maven.img.ly/maven")
+            url = uri("https://artifactory.img.ly/artifactory/maven")
             mavenContent {
                 includeGroup("ly.img")
             }
