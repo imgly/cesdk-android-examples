@@ -9,14 +9,3 @@ plugins {
     id 'com.google.firebase.crashlytics' version libs.versions.gradleCrashlytics apply false
     alias(libs.plugins.compose.compiler) apply false
 }
-
-def pinnedNdk = file("$rootDir/../../config/gradle/pinned-ndk.gradle")
-if (pinnedNdk.exists()) {
-    apply from: pinnedNdk
-}
-
-allprojects {
-    tasks.matching { it.name ==~ /compress.*Assets/ }.configureEach {
-        outputs.doNotCacheIf("asset compression is cheaper to rerun than to transfer") { true }
-    }
-}

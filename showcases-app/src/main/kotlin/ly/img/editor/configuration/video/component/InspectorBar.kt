@@ -9,12 +9,10 @@ import ly.img.editor.core.component.remember
 import ly.img.editor.core.component.rememberAdjustments
 import ly.img.editor.core.component.rememberAnimations
 import ly.img.editor.core.component.rememberBlur
-import ly.img.editor.core.component.rememberCaptionStyle
 import ly.img.editor.core.component.rememberClipSpeed
 import ly.img.editor.core.component.rememberCrop
 import ly.img.editor.core.component.rememberDelete
 import ly.img.editor.core.component.rememberDuplicate
-import ly.img.editor.core.component.rememberEditCaptions
 import ly.img.editor.core.component.rememberEditText
 import ly.img.editor.core.component.rememberEffect
 import ly.img.editor.core.component.rememberEnterGroup
@@ -27,9 +25,6 @@ import ly.img.editor.core.component.rememberSelectGroup
 import ly.img.editor.core.component.rememberShape
 import ly.img.editor.core.component.rememberSplit
 import ly.img.editor.core.component.rememberTextBackground
-import ly.img.editor.core.component.rememberTextOnPath
-import ly.img.editor.core.component.rememberTextPresets
-import ly.img.editor.core.component.rememberTransition
 import ly.img.editor.core.component.rememberVoiceover
 import ly.img.editor.core.component.rememberVolume
 
@@ -43,19 +38,14 @@ fun VideoConfigurationBuilder.rememberInspectorBar() = InspectorBar.remember {
         InspectorBar.ListBuilder.remember {
             add { InspectorBar.Button.rememberVoiceover() } // Voiceover Audio
             add { InspectorBar.Button.rememberReplace() } // Video, Image, Sticker, Audio
-            add { InspectorBar.Button.rememberEditCaptions() } // Caption
-            add { InspectorBar.Button.rememberCaptionStyle() } // Caption
             add { InspectorBar.Button.rememberEditText() } // Text
-            add { InspectorBar.Button.rememberTextPresets() } // Text
             add { InspectorBar.Button.rememberFormatText() } // Text
             add { InspectorBar.Button.rememberFillStroke() } // Page, Video, Image, Shape, Text
             add { InspectorBar.Button.rememberTextBackground() } // Text
-            add { InspectorBar.Button.rememberTextOnPath() } // Text
             add { InspectorBar.Button.rememberVolume() } // Video, Audio
             add { InspectorBar.Button.rememberClipSpeed() } // Video
             add { InspectorBar.Button.rememberCrop() } // Video, Image
             add { InspectorBar.Button.rememberAnimations() } // Video, Image, Sticker, Shape, Text
-            add { InspectorBar.Button.rememberTransition() } // Video, Image
             add { InspectorBar.Button.rememberAdjustments() } // Video, Image
             add { InspectorBar.Button.rememberFilter() } // Video, Image
             add { InspectorBar.Button.rememberEffect() } // Video, Image

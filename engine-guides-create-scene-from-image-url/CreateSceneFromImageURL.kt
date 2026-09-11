@@ -1,39 +1,34 @@
 import android.net.Uri
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
-import ly.img.engine.FillType
-import ly.img.engine.SceneLayout
 
-suspend fun createSceneFromImageURL(engine: Engine) {
-    // highlight-android-create-from-url
+fun createSceneFromImageURL(
+    license: String?, // pass null or empty for evaluation mode with watermark
+    userId: String,
+) = CoroutineScope(
+    Dispatchers.Main,
+).launch {
+    val engine = Engine.getInstance(id = "ly.img.engine.example")
+    engine.start(license = license, userId = userId)
+    engine.bindOffscreen(width = 1080, height = 1920)
+
+    // highlight-createFromImage
     val imageRemoteUri = Uri.parse("https://img.ly/static/ubq_samples/sample_4.jpg")
-    engine.scene.createFromImage(imageRemoteUri)
-    // highlight-android-create-from-url
+    val scene = engine.scene.createFromImage(imageRemoteUri)
+    // highlight-createFromImage
 
-    // highlight-android-work-with-scene
+    // highlight-findByType
     val page = engine.block.findByType(DesignBlockType.Page).first()
-    val pageWidth = engine.block.getWidth(page)
-    val pageHeight = engine.block.getHeight(page)
-    // highlight-android-work-with-scene
+    // highlight-findByType
 
-    check(pageWidth > 0F)
-    check(pageHeight > 0F)
-
-    // highlight-android-inspect-page-fill
+    // highlight-check-fill
+    // Get the fill from the page and verify it's an image fill
     val pageFill = engine.block.getFill(page)
     val imageFillType = engine.block.getType(pageFill)
-    // highlight-android-inspect-page-fill
+    // highlight-check-fill
 
-    check(imageFillType == FillType.Image.key)
-
-    // highlight-android-configure-scene
-    val configuredScene = engine.scene.createFromImage(
-        imageUri = imageRemoteUri,
-        dpi = 300F,
-        pixelScaleFactor = 1F,
-        sceneLayout = SceneLayout.FREE,
-    )
-    // highlight-android-configure-scene
-
-    check(configuredScene >= 0)
+    engine.stop()
 }

@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import ly.img.camera.core.CameraLayoutMode
 import ly.img.camera.core.CameraMode
 import ly.img.camera.core.CameraResult
-import ly.img.camera.core.CaptureMedia
+import ly.img.camera.core.CaptureVideo
 import ly.img.camera.core.EngineConfiguration
 import ly.img.camera.core.Recording
 import ly.img.camera.core.Video
@@ -33,7 +33,7 @@ private fun handleReactionCameraResult(
     when (result) {
         null -> onDismissed()
         is CameraResult.Reaction -> onReactionReady(result)
-        else -> Unit
+        is CameraResult.Record -> Unit
     }
 }
 // highlight-android-handle-result
@@ -47,12 +47,12 @@ fun rememberRecordReactionLauncher(
     onReactionReady: (CameraResult.Reaction) -> Unit,
     onDismissed: () -> Unit = {},
 ): () -> Unit {
-    val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureMedia()) { result ->
+    val cameraLauncher = rememberLauncherForActivityResult(contract = CaptureVideo()) { result ->
         handleReactionCameraResult(result, onReactionReady, onDismissed)
     }
 
     return {
-        val input = CaptureMedia.Input(
+        val input = CaptureVideo.Input(
             engineConfiguration = EngineConfiguration(
                 license = license,
                 userId = userId,
@@ -150,7 +150,7 @@ private fun addReactionRecording(
     setFrame(engine = engine, designBlock = reactionBlock, rect = reactionVideo.rect)
 
     val fill = engine.block.createFill(FillType.Video)
-    // Point the video fill at the recorded reaction segment.
+    // Video fills currently use a generic property key for their URI.
     engine.block.setUri(
         block = fill,
         property = "fill/video/fileURI",

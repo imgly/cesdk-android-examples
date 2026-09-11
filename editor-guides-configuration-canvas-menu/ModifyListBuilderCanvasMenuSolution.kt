@@ -30,54 +30,68 @@ fun ModifyListBuilderCanvasMenuSolution(
                 canvasMenu = {
                     CanvasMenu.remember {
                         listBuilder = {
+                            // highlight-modifyListBuilder
+                            // Makes sense to use only with builders that are already available and cannot be modified by you directly.
                             val existingListBuilder = CanvasMenu.ListBuilder.remember {
                                 add { CanvasMenu.Button.rememberBringForward() }
                                 add { CanvasMenu.Button.rememberSendBackward() }
                                 add { CanvasMenu.Button.rememberDuplicate() }
                                 add { CanvasMenu.Button.rememberDelete() }
                             }
-                            // highlight-android-modify-items
                             existingListBuilder.modify {
+                                // highlight-modifyListBuilder-addFirst
                                 addFirst {
                                     CanvasMenu.Button.remember {
-                                        id = { EditorComponentId("com.example.canvasMenu.button.first") }
+                                        id = { EditorComponentId("my.package.canvasMenu.button.first") }
                                         vectorIcon = null
-                                        textString = { "First" }
+                                        textString = { "First Button" }
                                         onClick = {}
                                     }
                                 }
+                                // highlight-modifyListBuilder-addFirst
+                                // highlight-modifyListBuilder-addLast
                                 addLast {
                                     CanvasMenu.Button.remember {
-                                        id = { EditorComponentId("com.example.canvasMenu.button.last") }
+                                        id = { EditorComponentId("my.package.canvasMenu.button.last") }
                                         vectorIcon = null
-                                        textString = { "Last" }
+                                        textString = { "Last Button" }
                                         onClick = {}
                                     }
                                 }
+                                // highlight-modifyListBuilder-addLast
+                                // highlight-modifyListBuilder-addAfter
                                 addAfter(id = CanvasMenu.Button.Id.bringForward, failIfNotFound = true) {
                                     CanvasMenu.Button.remember {
-                                        id = { EditorComponentId("com.example.canvasMenu.button.afterBringForward") }
+                                        id = { EditorComponentId("my.package.canvasMenu.button.afterBringForward") }
                                         vectorIcon = null
-                                        textString = { "After Forward" }
+                                        textString = { "After Bring Forward" }
                                         onClick = {}
                                     }
                                 }
+                                // highlight-modifyListBuilder-addAfter
+                                // highlight-modifyListBuilder-addBefore
                                 addBefore(id = CanvasMenu.Button.Id.sendBackward, failIfNotFound = true) {
                                     CanvasMenu.Button.remember {
-                                        id = { EditorComponentId("com.example.canvasMenu.button.beforeSendBackward") }
+                                        id = { EditorComponentId("my.package.canvasMenu.button.beforeSendBackward") }
                                         vectorIcon = null
-                                        textString = { "Before Backward" }
+                                        textString = { "Before Send Backward" }
                                         onClick = {}
                                     }
                                 }
+                                // highlight-modifyListBuilder-addBefore
+                                // highlight-modifyListBuilder-replace
                                 replace(id = CanvasMenu.Button.Id.duplicate, failIfNotFound = true) {
+                                    // Note that it can be replaced with a component that has a different id.
                                     CanvasMenu.Button.rememberDuplicate {
                                         vectorIcon = { IconPack.Music }
                                     }
                                 }
+                                // highlight-modifyListBuilder-replace
+                                // highlight-modifyListBuilder-remove
                                 remove(id = CanvasMenu.Button.Id.delete, failIfNotFound = true)
+                                // highlight-modifyListBuilder-remove
                             }
-                            // highlight-android-modify-items
+                            // highlight-modifyListBuilder
                         }
                     }
                 }
