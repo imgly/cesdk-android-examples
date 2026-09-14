@@ -1,11 +1,10 @@
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import ly.img.engine.Color
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
@@ -18,39 +17,20 @@ private const val BRAND_BANNER_NAME = "Brand banner"
 private const val COMPANY_NAME = "Company name"
 private const val ATTENDEE_NAME = "Attendee name"
 
-suspend fun editingWorkflow(
-    engine: Engine,
-    restoreEngineState: Boolean = false,
-) = withContext(engine.dispatcher) {
-    val previousRole = if (restoreEngineState) engine.editor.getRole() else null
-    val previousSelectionMode = if (restoreEngineState) {
-        engine.editor.getSettingEnum("doubleClickSelectionMode")
-    } else {
-        null
-    }
-    val previousGlobalScopes = if (restoreEngineState) {
-        engine.editor.findAllScopes().associateWith { scope ->
-            engine.editor.getGlobalScope(key = scope)
-        }
-    } else {
-        emptyMap()
-    }
+fun editingWorkflow(
+    license: String?,
+    userId: String,
+): Job = CoroutineScope(Dispatchers.Main).launch {
+    val engine = Engine.getInstance(id = "ly.img.engine.example.editing-workflow")
+    engine.start(license = license, userId = userId)
+    engine.bindOffscreen(width = 720, height = 1080)
     val roleCustomization = customizeEditingWorkflowRoles(engine, this)
 
     try {
-        val template = createEditingWorkflowTemplate(engine)
-        engine.block.forceLoadResources(listOf(template.companyName, template.attendeeName))
+        createEditingWorkflowTemplate(engine)
     } finally {
-        withContext(NonCancellable) {
-            roleCustomization.cancelAndJoin()
-            previousRole?.let(engine.editor::setRole)
-            previousSelectionMode?.let {
-                engine.editor.setSettingEnum("doubleClickSelectionMode", value = it)
-            }
-            previousGlobalScopes.forEach { (scope, globalScope) ->
-                engine.editor.setGlobalScope(key = scope, globalScope = globalScope)
-            }
-        }
+        roleCustomization.cancelAndJoin()
+        engine.stop()
     }
 }
 
@@ -67,7 +47,11 @@ internal fun createEditingWorkflowTemplate(engine: Engine): EditingWorkflowTempl
     engine.block.setWidth(background, value = 720F)
     engine.block.setHeight(background, value = 1080F)
     engine.block.setFill(background, fill = engine.block.createFill(FillType.Color))
-    engine.block.setFillSolidColor(background, color = Color.fromRGBA(247, 249, 252, 255))
+    engine.block.setColor(
+        block = engine.block.getFill(background),
+        property = "fill/color/value",
+        value = Color.fromRGBA(247, 249, 252, 255),
+    )
     engine.block.appendChild(parent = page, child = background)
 
     // highlight-android-templateScene
@@ -79,7 +63,11 @@ internal fun createEditingWorkflowTemplate(engine: Engine): EditingWorkflowTempl
     engine.block.setPositionX(brandBanner, value = 40F)
     engine.block.setPositionY(brandBanner, value = 48F)
     engine.block.setFill(brandBanner, fill = engine.block.createFill(FillType.Color))
-    engine.block.setFillSolidColor(brandBanner, color = Color.fromHex("#FF0B1220"))
+    engine.block.setColor(
+        block = engine.block.getFill(brandBanner),
+        property = "fill/color/value",
+        value = Color.fromHex("#FF0B1220"),
+    )
     engine.block.appendChild(parent = page, child = brandBanner)
 
     val companyName = engine.block.create(DesignBlockType.Text)

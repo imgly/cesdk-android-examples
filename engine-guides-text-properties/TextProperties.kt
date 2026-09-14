@@ -1,4 +1,7 @@
 import android.net.Uri
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import ly.img.engine.AnimationType
 import ly.img.engine.Color
 import ly.img.engine.DesignBlockType
@@ -10,29 +13,33 @@ import ly.img.engine.SizeMode
 import ly.img.engine.TextCase
 import ly.img.engine.Typeface
 
-suspend fun textProperties(engine: Engine) {
+fun textProperties(
+    license: String?, // pass null or empty for evaluation mode with watermark
+    userId: String,
+) = CoroutineScope(Dispatchers.Main).launch {
+    val engine = Engine.getInstance(id = "ly.img.engine.example")
+    engine.start(license = license, userId = userId)
+    engine.bindOffscreen(width = 1080, height = 1920)
+
     val scene = engine.scene.create()
     val text = engine.block.create(DesignBlockType.Text)
     engine.block.appendChild(parent = scene, child = text)
-    engine.block.setWidthMode(text, mode = SizeMode.ABSOLUTE)
-    engine.block.setHeightMode(text, mode = SizeMode.ABSOLUTE)
-    engine.block.setWidth(text, value = 520F)
-    engine.block.setHeight(text, value = 220F)
-    // Use a large font size so the styling changes are clearly visible.
-    engine.block.setTextFontSize(text, fontSize = 160F)
+    engine.block.setWidthMode(text, mode = SizeMode.AUTO)
+    engine.block.setHeightMode(text, mode = SizeMode.AUTO)
 
-    // highlight-android-edit-text
+    // highlight-replaceText
     engine.block.replaceText(text, text = "Hello World")
+    // highlight-replaceText
 
-    // Insert a "!" at the UTF-16 offset after "Hello World".
+    // highlight-replaceText-single-index
+    // Add a "!" at the end of the text
     engine.block.replaceText(text, text = "!", from = 11)
+    // highlight-replaceText-single-index
 
-    // Replace "World" with "Alex".
+    // highlight-replaceText-range
+    // Replace "World" with "Alex"
     engine.block.replaceText(text, text = "Alex", from = 6, to = 11)
-
-    // Remove "Hello ".
-    engine.block.removeText(text, from = 0, to = 6)
-    // highlight-android-edit-text
+    // highlight-replaceText-range
 
     engine.scene.zoomToBlock(
         block = text,
@@ -42,110 +49,134 @@ suspend fun textProperties(engine: Engine) {
         paddingBottom = 100F,
     )
 
-    // highlight-android-text-colors
-    val yellow = Color.fromRGBA(r = 255, g = 230, b = 0)
-    val black = Color.fromRGBA(r = 0, g = 0, b = 0)
+    // highlight-removeText
+    // Remove the "Hello "
+    engine.block.removeText(text, from = 0, to = 6)
+    // highlight-removeText
 
-    engine.block.setTextColor(text, color = yellow)
-    engine.block.setTextColor(text, color = black, from = 1, to = 4)
+    // highlight-setTextColor
+    engine.block.setTextColor(text, color = Color.fromHex("#FFFF0000"))
+    // highlight-setTextColor
 
+    // highlight-setTextColor-range
+    engine.block.setTextColor(text, color = Color.fromHex("#FFFF0000"), from = 1, to = 4)
+    // highlight-setTextColor-range
+
+    // highlight-getTextColors
     val allColors = engine.block.getTextColors(text)
+    // highlight-getTextColors
+
+    // highlight-getTextColors-range
     val colorsInRange = engine.block.getTextColors(text, from = 2, to = 5)
-    // highlight-android-text-colors
+    // highlight-getTextColors-range
 
-    // highlight-android-text-background
-    if (engine.block.supportsBackgroundColor(text)) {
-        engine.block.setBackgroundColorEnabled(text, enabled = true)
-        val backgroundColorEnabled = engine.block.isBackgroundColorEnabled(text)
+    // highlight-backgroundColor-enabled
+    engine.block.setBoolean(text, property = "backgroundColor/enabled", value = true)
 
-        val backgroundColor = engine.block.getBackgroundColor(text)
-        engine.block.setBackgroundColor(text, color = Color.fromRGBA(r = 242, g = 242, b = 242))
+    // highlight-backgroundColor-get-set
+    val color = engine.block.getColor(text, property = "backgroundColor/color")
+    engine.block.setColor(text, property = "backgroundColor/color", value = Color.fromRGBA(r = 0, g = 0, b = 1, a = 1))
 
-        engine.block.setFloat(text, property = "backgroundColor/paddingLeft", value = 10F)
-        engine.block.setFloat(text, property = "backgroundColor/paddingRight", value = 10F)
-        engine.block.setFloat(text, property = "backgroundColor/paddingTop", value = 8F)
-        engine.block.setFloat(text, property = "backgroundColor/paddingBottom", value = 8F)
-        engine.block.setFloat(text, property = "backgroundColor/cornerRadius", value = 8F)
-    }
-    // highlight-android-text-background
+    // highlight-backgroundColor-padding
+    engine.block.setFloat(text, property = "backgroundColor/paddingLeft", value = 1.0F)
+    engine.block.setFloat(text, property = "backgroundColor/paddingTop", value = 2.0F)
+    engine.block.setFloat(text, property = "backgroundColor/paddingRight", value = 3.0F)
+    engine.block.setFloat(text, property = "backgroundColor/paddingBottom", value = 4.0F)
 
-    // highlight-android-background-animation
+    // highlight-backgroundColor-cornerRadius
+    engine.block.setFloat(text, property = "backgroundColor/cornerRadius", value = 4.0F)
+
+    // highlight-backgroundColor-animation
     val animation = engine.block.createAnimation(AnimationType.Slide)
     engine.block.setEnum(animation, property = "textAnimationWritingStyle", value = "Block")
+
     engine.block.setInAnimation(text, animation = animation)
     engine.block.setOutAnimation(text, animation = animation)
-    // highlight-android-background-animation
 
-    // highlight-android-text-case
+    // highlight-setTextCase
     engine.block.setTextCase(text, textCase = TextCase.TITLE_CASE)
+    // highlight-setTextCase
 
+    // highlight-getTextCases
     val textCases = engine.block.getTextCases(text)
-    // highlight-android-text-case
+    // highlight-getTextCases
 
-    // highlight-android-typeface
-    val bundledAssetsBaseUri = "file:///android_asset/imgly-assets"
+    // highlight-setFont
     val typeface = Typeface(
-        name = "Fira Sans",
+        name = "Roboto",
         fonts = listOf(
             Font(
-                uri = Uri.parse(
-                    "$bundledAssetsBaseUri/ly.img.typeface/fonts/FiraSans/FiraSans-Regular.ttf",
-                ),
-                subFamily = "Regular",
-                weight = FontWeight.NORMAL,
-                style = FontStyle.NORMAL,
-            ),
-            Font(
-                uri = Uri.parse(
-                    "$bundledAssetsBaseUri/ly.img.typeface/fonts/FiraSans/FiraSans-Bold.ttf",
-                ),
+                uri = Uri.parse("https://cdn.img.ly/assets/v3/ly.img.typeface/fonts/Roboto/Roboto-Bold.ttf"),
                 subFamily = "Bold",
                 weight = FontWeight.BOLD,
                 style = FontStyle.NORMAL,
             ),
             Font(
-                uri = Uri.parse(
-                    "$bundledAssetsBaseUri/ly.img.typeface/fonts/FiraSans/FiraSans-Italic.ttf",
-                ),
-                subFamily = "Italic",
-                weight = FontWeight.NORMAL,
-                style = FontStyle.ITALIC,
-            ),
-            Font(
-                uri = Uri.parse(
-                    "$bundledAssetsBaseUri/ly.img.typeface/fonts/FiraSans/FiraSans-BoldItalic.ttf",
-                ),
+                uri = Uri.parse("https://cdn.img.ly/assets/v3/ly.img.typeface/fonts/Roboto/Roboto-BoldItalic.ttf"),
                 subFamily = "Bold Italic",
                 weight = FontWeight.BOLD,
                 style = FontStyle.ITALIC,
             ),
+            Font(
+                uri = Uri.parse("https://cdn.img.ly/assets/v3/ly.img.typeface/fonts/Roboto/Roboto-Italic.ttf"),
+                subFamily = "Italic",
+                weight = FontWeight.BOLD,
+                style = FontStyle.NORMAL,
+            ),
+            Font(
+                uri = Uri.parse("https://cdn.img.ly/assets/v3/ly.img.typeface/fonts/Roboto/Roboto-Regular.ttf"),
+                subFamily = "Regular",
+                weight = FontWeight.NORMAL,
+                style = FontStyle.NORMAL,
+            ),
         ),
     )
-    val regularFont = typeface.fonts.firstOrNull {
-        it.weight == FontWeight.NORMAL && it.style == FontStyle.NORMAL
-    } ?: error("Typeface must include a normal regular font.")
+    engine.block.setFont(text, typeface.fonts[3].uri, typeface)
+    // highlight-setFont
 
-    engine.block.setFont(text, fontFileUri = regularFont.uri, typeface = typeface)
-    engine.block.setTypeface(text, typeface = typeface, from = 1, to = 4)
+    // highlight-setTypeface
+    engine.block.setTypeface(text, typeface, from = 1, to = 4)
+    engine.block.setTypeface(text, typeface)
+    // highlight-setTypeface
 
+    // highlight-getTypeface
     val currentDefaultTypeface = engine.block.getTypeface(text)
+    // highlight-getTypeface
+
+    // highlight-getTypefaces
     val currentTypefaces = engine.block.getTypefaces(text)
     val currentTypefacesOfRange = engine.block.getTypefaces(text, from = 1, to = 4)
-    // highlight-android-typeface
+    // highlight-getTypefaces
 
-    // highlight-android-font-styles
+    // highlight-toggleBold
     if (engine.block.canToggleBoldFont(text)) {
         engine.block.toggleBoldFont(text)
     }
+    if (engine.block.canToggleBoldFont(text, from = 1, to = 4)) {
+        engine.block.toggleBoldFont(text, from = 1, to = 4)
+    }
+    // highlight-toggleBold
 
+    // highlight-toggleItalic
+    if (engine.block.canToggleItalicFont(text)) {
+        engine.block.toggleItalicFont(text)
+    }
     if (engine.block.canToggleItalicFont(text, from = 1, to = 4)) {
         engine.block.toggleItalicFont(text, from = 1, to = 4)
     }
+    // highlight-toggleItalic
 
-    engine.block.setTextFontWeight(text, fontWeight = FontWeight.BOLD)
+    // highlight-getTextFontWeights
     val fontWeights = engine.block.getTextFontWeights(text)
+    // highlight-getTextFontWeights
 
-    engine.block.setTextFontStyle(text, fontStyle = FontStyle.ITALIC)
+    // highlight-setTextFontStyle
+    engine.block.setTextFontStyle(text, FontStyle.NORMAL)
+    // highlight-setTextFontStyle
+
+    // highlight-getTextFontStyles
     val fontStyles = engine.block.getTextFontStyles(text)
-    // highlight-android-font-styles
+    // highlight-getTextFontStyles
+
+    engine.stop()
 }

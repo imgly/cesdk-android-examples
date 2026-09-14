@@ -1,3 +1,5 @@
+import android.app.Application
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
@@ -7,18 +9,18 @@ import ly.img.engine.ShapeType
 import ly.img.engine.SizeMode
 
 suspend fun lockDesign(
-    engine: Engine,
-    restoreGlobalScopes: Boolean = false,
-) = withContext(engine.dispatcher) {
-    val previousGlobalScopes = if (restoreGlobalScopes) {
-        engine.editor.findAllScopes().associateWith { scope ->
-            engine.editor.getGlobalScope(key = scope)
-        }
-    } else {
-        emptyMap()
-    }
+    application: Application,
+    license: String?, // pass null or empty for evaluation mode with watermark
+    userId: String,
+) = withContext(Dispatchers.Main) {
+    // highlight-android-initialize-engine
+    Engine.init(application)
+    val engine = Engine.getInstance(id = "ly.img.engine.example")
+    engine.start(license = license, userId = userId)
+    engine.bindOffscreen(width = 1080, height = 1920)
+    // highlight-android-initialize-engine
 
-    try {
+    withEngineCleanup(engine) {
         val scene = engine.scene.create()
 
         val page = engine.block.create(DesignBlockType.Page)
@@ -45,7 +47,6 @@ suspend fun lockDesign(
         )
         engine.block.setFill(imageBlock, fill = imageFill)
         engine.block.appendChild(parent = page, child = imageBlock)
-        engine.block.forceLoadResources(listOf(textBlock, imageBlock))
 
         // highlight-android-lock-entire-design
         val scopes = engine.editor.findAllScopes()
@@ -110,9 +111,18 @@ suspend fun lockDesign(
         require("text/edit" in availableScopes)
         require(currentScopeSettings["text/edit"] == GlobalScope.DEFER)
         // highlight-android-get-scopes
-    } finally {
-        previousGlobalScopes.forEach { (scope, globalScope) ->
-            engine.editor.setGlobalScope(key = scope, globalScope = globalScope)
-        }
     }
+}
+
+private suspend fun withEngineCleanup(
+    engine: Engine,
+    block: suspend () -> Unit,
+) {
+    // highlight-android-cleanup-resources
+    try {
+        block()
+    } finally {
+        engine.stop()
+    }
+    // highlight-android-cleanup-resources
 }

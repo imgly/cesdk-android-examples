@@ -18,7 +18,7 @@ fun UploadsOnlyAssetLibraryEditorSolution(
         license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             EditorConfiguration.remember {
-                // highlight-android-uploads-only-asset-library
+                // highlight-uploads-only-asset-library
                 assetLibrary = {
                     remember {
                         val uploadsOnlyImages = LibraryCategory.Images.copy(
@@ -41,7 +41,7 @@ fun UploadsOnlyAssetLibraryEditorSolution(
                         AssetLibrary.getDefault(images = uploadsOnlyImages)
                     }
                 }
-                // highlight-android-uploads-only-asset-library
+                // highlight-uploads-only-asset-library
             }
         },
         onClose = onClose,

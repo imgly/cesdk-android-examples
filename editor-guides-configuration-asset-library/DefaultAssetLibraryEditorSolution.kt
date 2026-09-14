@@ -12,34 +12,37 @@ import ly.img.editor.core.library.addSection
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.core.library.dropSection
 import ly.img.editor.core.library.replaceSection
+import ly.img.engine.DesignBlockType
 
+// Add this composable to your NavHost
 @Composable
 fun DefaultAssetLibraryEditorSolution(
     license: String,
     onClose: (Throwable?) -> Unit,
 ) {
-    // highlight-android-custom-asset-source
-    val remoteImageAssetSource = remember {
-        RemoteImageAssetSource(assetBaseUri = "<your image asset base URI>")
+    // highlight-configuration-custom-asset-source
+    val unsplashAssetSource = remember {
+        UnsplashAssetSource(baseUrl = "<your Unsplash API host endpoint here>")
     }
-    // highlight-android-custom-asset-source
-
     Editor(
-        license = license,
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
+            // highlight-configuration-custom-asset-source
             EditorConfiguration.remember {
-                // highlight-android-register-asset-source
-                onLoaded = {
-                    editorContext.engine.asset.addSource(remoteImageAssetSource)
-                }
-                // highlight-android-register-asset-source
+                onCreate = {
+                    val scene = editorContext.engine.scene.create()
+                    val page = editorContext.engine.block.create(DesignBlockType.Page)
+                    editorContext.engine.block.setWidth(block = page, value = 1080F)
+                    editorContext.engine.block.setHeight(block = page, value = 1080F)
+                    editorContext.engine.block.appendChild(parent = scene, child = page)
 
-                // highlight-android-default-asset-library
+                    editorContext.engine.asset.addSource(unsplashAssetSource)
+                }
+                // highlight-configuration-default-asset-library
                 assetLibrary = {
                     remember {
-                        val remoteImageSection = LibraryContent.Section(
-                            titleRes = R.string.ly_img_editor_asset_library_title_images,
-                            sourceTypes = listOf(AssetSourceType(sourceId = remoteImageAssetSource.sourceId)),
+                        val unsplashSection = LibraryContent.Section(
+                            sourceTypes = listOf(AssetSourceType(sourceId = unsplashAssetSource.sourceId)),
                             assetType = AssetType.Image,
                         )
                         AssetLibrary.getDefault(
@@ -51,14 +54,15 @@ fun DefaultAssetLibraryEditorSolution(
                             ),
                             images = LibraryCategory.Images
                                 .replaceSection(index = 0) {
-                                    copy(count = 6)
+                                    // We replace the title: "Image Uploads" -> "Uploads"
+                                    copy(titleRes = R.string.ly_img_editor_asset_library_section_audio_uploads)
                                 }
                                 .dropSection(index = 1)
-                                .addSection(remoteImageSection),
+                                .addSection(unsplashSection),
                         )
                     }
                 }
-                // highlight-android-default-asset-library
+                // highlight-configuration-default-asset-library
             }
         },
         onClose = onClose,

@@ -19,7 +19,7 @@ import ly.img.editor.showcases.plugin.ShowcasesPlugin
 @Composable
 fun EditCameraRecordingsScreen(
     baseUri: Uri,
-    captures: CameraResult.Captures,
+    recording: CameraResult.Record,
     onBack: () -> Unit,
 ) {
     Editor(
@@ -32,7 +32,7 @@ fun EditCameraRecordingsScreen(
                     onCreate(
                         postCreateScene = {
                             if (isNewScene) {
-                                postCreateScene(captures)
+                                postCreateScene(recording)
                             }
                         },
                     )
@@ -46,13 +46,16 @@ fun EditCameraRecordingsScreen(
     }
 }
 
-private suspend fun EditorScope.postCreateScene(captures: CameraResult.Captures) {
+private suspend fun EditorScope.postCreateScene(recording: CameraResult.Record) {
     awaitFrame()
     editorContext.eventHandler.send(
-        EditorEvent.AddCameraCapturesToScene(
-            photoUploadAssetSourceType = AssetSourceType.ImageUploads,
-            videoUploadAssetSourceType = AssetSourceType.VideoUploads,
-            captures = captures.captures,
+        EditorEvent.AddCameraRecordingsToScene(
+            uploadAssetSourceType = AssetSourceType.VideoUploads,
+            recordings = recording.recordings
+                .flatMap { recording ->
+                    recording.videos
+                        .map { it.uri to recording.duration }
+                },
         ),
     )
 }

@@ -11,28 +11,27 @@ import ly.img.editor.core.component.rememberSystemGallery
 import ly.img.editor.core.component.rememberTextLibrary
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
-import ly.img.editor.core.iconpack.AddShape
-import ly.img.editor.core.iconpack.IconPack
 
+// Add this composable to your NavHost
 @Composable
 fun NewListBuilderDockSolution(
     license: String,
     onClose: (Throwable?) -> Unit,
 ) {
     Editor(
-        license = license,
+        license = license, // pass null or empty for evaluation mode with watermark
         configuration = {
             EditorConfiguration.remember {
                 dock = {
                     Dock.remember {
                         listBuilder = {
-                            // highlight-android-new-list-builder
+                            // highlight-newListBuilder
                             Dock.ListBuilder.remember {
                                 add {
                                     Dock.Button.remember {
                                         id = { EditorComponentId("my.package.dock.button.custom") }
-                                        vectorIcon = { IconPack.AddShape }
-                                        textString = { "Custom" }
+                                        vectorIcon = null
+                                        textString = { "Custom Button" }
                                         onClick = {}
                                     }
                                 }
@@ -43,7 +42,7 @@ fun NewListBuilderDockSolution(
                                 add { Dock.Button.rememberImagesLibrary() }
                                 add { Dock.Button.rememberTextLibrary() }
                             }
-                            // highlight-android-new-list-builder
+                            // highlight-newListBuilder
                         }
                     }
                 }

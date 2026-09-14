@@ -1,4 +1,8 @@
+import android.app.Application
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import ly.img.engine.Color
 import ly.img.engine.DesignBlock
@@ -19,26 +23,56 @@ data class ToBlobResult(
     val savedPngFile: File,
 )
 
-suspend fun toBlob(
-    engine: Engine,
+fun toBlob(
+    application: Application,
+    license: String?, // pass null or empty for evaluation mode with watermark
+    userId: String,
     outputDir: File,
-): ToBlobResult = withContext(engine.dispatcher) {
-    val pages = createExportScene(engine)
-    val page = pages.first()
-    val pngData = exportBlockToBinaryData(engine, page).copyForVerification()
-    val jpegData = exportWithOptions(engine, page).copyForVerification()
-    val pageExports = exportMultipleBlocks(engine).map(ByteBuffer::copyForVerification)
-    val savedPngFile = saveByteBufferToFile(
-        buffer = pngData,
-        outputFile = File(outputDir, "to-blob-page.png"),
+): Deferred<ToBlobResult> = CoroutineScope(Dispatchers.Main).async {
+    val engine = startToBlobEngine(
+        application = application,
+        license = license,
+        userId = userId,
     )
 
-    ToBlobResult(
-        pngData = pngData,
-        jpegData = jpegData,
-        pageExports = pageExports,
-        savedPngFile = savedPngFile,
-    )
+    try {
+        val pages = createExportScene(engine)
+        val page = pages.first()
+        val pngData = exportBlockToBinaryData(engine, page).copyForVerification()
+        val jpegData = exportWithOptions(engine, page).copyForVerification()
+        val pageExports = exportMultipleBlocks(engine).map(ByteBuffer::copyForVerification)
+        val savedPngFile = saveByteBufferToFile(
+            buffer = pngData,
+            outputFile = File(outputDir, "to-blob-page.png"),
+        )
+
+        ToBlobResult(
+            pngData = pngData,
+            jpegData = jpegData,
+            pageExports = pageExports,
+            savedPngFile = savedPngFile,
+        )
+    } finally {
+        engine.stop()
+    }
+}
+
+suspend fun startToBlobEngine(
+    application: Application,
+    license: String?,
+    userId: String,
+): Engine {
+    Engine.init(application)
+    val engine = Engine.getInstance(id = "ly.img.engine.toBlob")
+
+    try {
+        engine.start(license = license, userId = userId)
+        engine.bindOffscreen(width = 1080, height = 1920)
+        return engine
+    } catch (error: Throwable) {
+        engine.stop()
+        throw error
+    }
 }
 
 private fun ByteBuffer.copyForVerification(): ByteBuffer {
@@ -112,14 +146,14 @@ private fun addPageContent(
 suspend fun exportBlockToBinaryData(
     engine: Engine,
     page: DesignBlock,
-): ByteBuffer = withContext(engine.dispatcher) {
+): ByteBuffer {
     val pngData = engine.block.export(
         block = page,
         mimeType = MimeType.PNG,
     )
 
     check(pngData.hasRemaining()) { "PNG export is empty" }
-    pngData
+    return pngData
 }
 // highlight-android-export-png
 
@@ -127,7 +161,7 @@ suspend fun exportBlockToBinaryData(
 suspend fun exportWithOptions(
     engine: Engine,
     page: DesignBlock,
-): ByteBuffer = withContext(engine.dispatcher) {
+): ByteBuffer {
     val options = ExportOptions(
         jpegQuality = 0.8F,
         targetWidth = 1920F,
@@ -140,12 +174,12 @@ suspend fun exportWithOptions(
     )
 
     check(jpegData.hasRemaining()) { "JPEG export is empty" }
-    jpegData
+    return jpegData
 }
 // highlight-android-export-options
 
 // highlight-android-export-multiple
-suspend fun exportMultipleBlocks(engine: Engine): List<ByteBuffer> = withContext(engine.dispatcher) {
+suspend fun exportMultipleBlocks(engine: Engine): List<ByteBuffer> {
     val pages = engine.scene.getPages()
     val pngBuffers = engine.block.export(
         blocks = pages,
@@ -156,7 +190,7 @@ suspend fun exportMultipleBlocks(engine: Engine): List<ByteBuffer> = withContext
     pngBuffers.forEachIndexed { index, pngData ->
         check(pngData.hasRemaining()) { "PNG export ${index + 1} is empty" }
     }
-    pngBuffers
+    return pngBuffers
 }
 // highlight-android-export-multiple
 

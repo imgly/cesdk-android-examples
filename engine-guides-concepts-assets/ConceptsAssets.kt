@@ -1,9 +1,11 @@
 import android.net.Uri
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import ly.img.engine.Asset
 import ly.img.engine.AssetContext
 import ly.img.engine.AssetCredits
@@ -16,23 +18,23 @@ import ly.img.engine.FetchAssetOptions
 import ly.img.engine.FillType
 import ly.img.engine.FindAssetsQuery
 import ly.img.engine.FindAssetsResult
-import ly.img.engine.MimeType
 import ly.img.engine.ShapeType
-import java.util.UUID
 
-suspend fun conceptsAssets(engine: Engine) = withContext(engine.dispatcher) {
+fun conceptsAssets(
+    license: String?, // Pass null for evaluation mode or your production key in app code.
+    userId: String,
+) = CoroutineScope(Dispatchers.Main).launch {
+    val engine = Engine.getInstance(id = "ly.img.engine.example")
+    engine.start(license = license, userId = userId)
+    engine.bindOffscreen(width = 1080, height = 1920)
     val sourceEventJobs = mutableListOf<Job>()
-    val invocationId = UUID.randomUUID()
-    val source = BrandedAssetSource(sourceId = "ly.img.asset.source.branded.$invocationId")
-    val localSourceId = "my-local-images.$invocationId"
-    val registeredGuideSourceIds = mutableListOf<String>()
 
     try {
         val scene = engine.scene.create()
         val page = engine.block.create(DesignBlockType.Page)
         engine.block.appendChild(parent = scene, child = page)
 
-        // highlight-android-concepts-assets-source-events
+        // highlight-conceptsAssets-sourceEvents
         sourceEventJobs += engine.asset.onAssetSourceAdded()
             .onEach { println("Asset source added: $it") }
             .launchIn(this)
@@ -44,12 +46,12 @@ suspend fun conceptsAssets(engine: Engine) = withContext(engine.dispatcher) {
         sourceEventJobs += engine.asset.onAssetSourceUpdated()
             .onEach { println("Asset source updated: $it") }
             .launchIn(this)
-        // highlight-android-concepts-assets-source-events
+        // highlight-conceptsAssets-sourceEvents
 
+        val source = BrandedAssetSource()
         engine.asset.addSource(source)
-        registeredGuideSourceIds += source.sourceId
 
-        // highlight-android-concepts-assets-query-assets
+        // highlight-conceptsAssets-queryAssets
         val queriedAssets = engine.asset.findAssets(
             sourceId = source.sourceId,
             query = FindAssetsQuery(
@@ -62,9 +64,9 @@ suspend fun conceptsAssets(engine: Engine) = withContext(engine.dispatcher) {
         val queriedAsset = queriedAssets.assets.first()
         val groups = engine.asset.getGroups(sourceId = source.sourceId)
         println("Found ${queriedAssets.total} assets in groups $groups")
-        // highlight-android-concepts-assets-query-assets
+        // highlight-conceptsAssets-queryAssets
 
-        // highlight-android-concepts-assets-apply-asset
+        // highlight-conceptsAssets-applyAsset
         val appliedBlock = engine.asset.applyAssetSourceAsset(
             sourceId = source.sourceId,
             asset = queriedAsset,
@@ -73,18 +75,13 @@ suspend fun conceptsAssets(engine: Engine) = withContext(engine.dispatcher) {
             engine.block.setPositionX(appliedBlock, 64F)
             engine.block.setPositionY(appliedBlock, 64F)
         }
-        // highlight-android-concepts-assets-apply-asset
+        // highlight-conceptsAssets-applyAsset
 
-        if (appliedBlock != null) {
-            engine.block.forceLoadResources(listOf(appliedBlock))
-        }
-
-        // highlight-android-concepts-assets-local-source
+        // highlight-conceptsAssets-localSource
         engine.asset.addLocalSource(
-            sourceId = localSourceId,
-            supportedMimeTypes = listOf(MimeType.JPEG.key),
+            sourceId = "my-local-images",
+            supportedMimeTypes = listOf("image/jpeg"),
         )
-        registeredGuideSourceIds += localSourceId
 
         val localAsset = AssetDefinition(
             id = "sunrise-poster",
@@ -94,7 +91,7 @@ suspend fun conceptsAssets(engine: Engine) = withContext(engine.dispatcher) {
             meta = mapOf(
                 "uri" to "https://img.ly/static/ubq_samples/sample_1.jpg",
                 "thumbUri" to "https://img.ly/static/ubq_samples/sample_1.jpg",
-                "mimeType" to MimeType.JPEG.key,
+                "mimeType" to "image/jpeg",
                 "kind" to "image",
                 "blockType" to DesignBlockType.Graphic.key,
                 "fillType" to FillType.Image.key,
@@ -103,47 +100,20 @@ suspend fun conceptsAssets(engine: Engine) = withContext(engine.dispatcher) {
                 "height" to "1080",
             ),
         )
-        engine.asset.addAsset(sourceId = localSourceId, asset = localAsset)
-        engine.asset.assetSourceContentsChanged(sourceId = localSourceId)
-        // highlight-android-concepts-assets-local-source
+        engine.asset.addAsset(sourceId = "my-local-images", asset = localAsset)
+        engine.asset.assetSourceContentsChanged(sourceId = "my-local-images")
+        // highlight-conceptsAssets-localSource
+
+        engine.asset.removeSource(sourceId = "my-local-images")
+        engine.asset.removeSource(sourceId = source.sourceId)
     } finally {
-        withContext(NonCancellable) {
-            try {
-                removeRegisteredGuideSources(engine = engine, sourceIds = registeredGuideSourceIds)
-            } finally {
-                sourceEventJobs.forEach { it.cancel() }
-                sourceEventJobs.forEach { it.join() }
-            }
-        }
+        sourceEventJobs.forEach { it.cancelAndJoin() }
+        engine.stop()
     }
 }
 
-private fun removeRegisteredGuideSources(
-    engine: Engine,
-    sourceIds: List<String>,
-) {
-    var cleanupFailure: Throwable? = null
-
-    sourceIds.asReversed().forEach { sourceId ->
-        try {
-            engine.asset.removeSource(sourceId)
-        } catch (throwable: Throwable) {
-            val previousFailure = cleanupFailure
-            if (previousFailure == null) {
-                cleanupFailure = throwable
-            } else {
-                previousFailure.addSuppressed(throwable)
-            }
-        }
-    }
-
-    cleanupFailure?.let { throw it }
-}
-
-private class BrandedAssetSource(
-    sourceId: String,
-) : AssetSource(sourceId = sourceId) {
-    override val supportedMimeTypes = listOf(MimeType.JPEG.key)
+private class BrandedAssetSource : AssetSource(sourceId = SOURCE_ID) {
+    override val supportedMimeTypes = listOf("image/jpeg")
 
     override val credits = AssetCredits(
         name = "IMG.LY",
@@ -155,7 +125,7 @@ private class BrandedAssetSource(
         uri = Uri.parse("https://img.ly/legal/"),
     )
 
-    // highlight-android-concepts-assets-asset-source
+    // highlight-conceptsAssets-assetSource
     override suspend fun getGroups(): List<String>? = brandedAssets.flatMap { it.groups.orEmpty() }.distinct()
 
     override suspend fun findAssets(query: FindAssetsQuery): FindAssetsResult {
@@ -198,10 +168,10 @@ private class BrandedAssetSource(
         id: String,
         options: FetchAssetOptions,
     ): Asset? = brandedAssets.firstOrNull { it.id == id }
-    // highlight-android-concepts-assets-asset-source
+    // highlight-conceptsAssets-assetSource
 
     private val brandedAssets = listOf(
-        // highlight-android-concepts-assets-asset-definition
+        // highlight-conceptsAssets-assetDefinition
         Asset(
             id = "imgly-logo",
             context = AssetContext(sourceId = sourceId),
@@ -212,7 +182,7 @@ private class BrandedAssetSource(
             meta = mapOf(
                 "uri" to "https://img.ly/static/ubq_samples/imgly_logo.jpg",
                 "thumbUri" to "https://img.ly/static/ubq_samples/imgly_logo.jpg",
-                "mimeType" to MimeType.JPEG.key,
+                "mimeType" to "image/jpeg",
                 "kind" to "image",
                 "blockType" to DesignBlockType.Graphic.key,
                 "fillType" to FillType.Image.key,
@@ -221,7 +191,7 @@ private class BrandedAssetSource(
                 "height" to "320",
             ),
         ),
-        // highlight-android-concepts-assets-asset-definition
+        // highlight-conceptsAssets-assetDefinition
         Asset(
             id = "brand-background",
             context = AssetContext(sourceId = sourceId),
@@ -232,7 +202,7 @@ private class BrandedAssetSource(
             meta = mapOf(
                 "uri" to "https://img.ly/static/ubq_samples/sample_4.jpg",
                 "thumbUri" to "https://img.ly/static/ubq_samples/sample_4.jpg",
-                "mimeType" to MimeType.JPEG.key,
+                "mimeType" to "image/jpeg",
                 "kind" to "image",
                 "blockType" to DesignBlockType.Graphic.key,
                 "fillType" to FillType.Image.key,
@@ -242,4 +212,8 @@ private class BrandedAssetSource(
             ),
         ),
     )
+
+    private companion object {
+        const val SOURCE_ID = "ly.img.asset.source.branded"
+    }
 }
