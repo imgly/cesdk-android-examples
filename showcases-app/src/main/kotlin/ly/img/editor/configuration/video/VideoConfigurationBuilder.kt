@@ -28,7 +28,7 @@ class VideoConfigurationBuilder : BasicConfigurationBuilder() {
      * Current export status of the editor.
      */
     var exportStatus: ExportStatus? by editorContext.mutableStateOf(
-        key = KEY_STATE_EXPORT_STATUS,
+        key = "ly.img.editor.configuration.video.state.exportStatus",
         initial = null,
     )
 
@@ -36,7 +36,7 @@ class VideoConfigurationBuilder : BasicConfigurationBuilder() {
      * Whether export cancellation confirmation dialog should be displayed.
      */
     var showCancelExportConfirmationDialog: Boolean by editorContext.mutableStateOf(
-        key = KEY_STATE_SHOW_CANCEL_EXPORT_CONFIRMATION_DIALOG,
+        key = "ly.img.editor.configuration.video.state.showCancelExportConfirmationDialog",
         initial = false,
     )
 
@@ -131,11 +131,5 @@ class VideoConfigurationBuilder : BasicConfigurationBuilder() {
      */
     override var overlay: ScopedProperty<EditorScope, EditorComponent<*>?>? = {
         rememberOverlay()
-    }
-
-    companion object {
-        const val KEY_STATE_EXPORT_STATUS = "ly.img.editor.configuration.video.state.exportStatus"
-        const val KEY_STATE_SHOW_CANCEL_EXPORT_CONFIRMATION_DIALOG =
-            "ly.img.editor.configuration.video.state.showCancelExportConfirmationDialog"
     }
 }

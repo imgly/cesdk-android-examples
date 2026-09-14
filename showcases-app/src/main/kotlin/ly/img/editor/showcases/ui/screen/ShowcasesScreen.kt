@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -55,6 +56,7 @@ import ly.img.editor.showcases.R
 import ly.img.editor.showcases.Screen
 import ly.img.editor.showcases.ShowcaseItem
 import ly.img.editor.showcases.ShowcasesBuildConfig
+import ly.img.editor.showcases.ShowcasesViewModel
 import ly.img.editor.showcases.ui.component.CustomFunctionalityCard
 import ly.img.editor.showcases.ui.component.versionFooterItem
 import ly.img.editor.showcases.ui.modifier.linearGradientBackground
@@ -62,7 +64,7 @@ import ly.img.editor.showcases.ui.section.quickActionsSection
 
 @Composable
 fun ShowcasesScreen(
-    items: List<ShowcaseItem>,
+    viewModel: ShowcasesViewModel,
     onResult: (String, Any?) -> Unit,
     navigateTo: (String) -> Unit,
 ) {
@@ -86,6 +88,7 @@ fun ShowcasesScreen(
             }
         },
     ) { paddingValues ->
+        val items = remember { viewModel.getItems(ShowcasesViewModel.Companion.CATALOG_COLUMNS_SIZE) }
         Box(
             modifier = Modifier
                 .padding(
