@@ -9,7 +9,6 @@ import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
-import ly.img.engine.HistoryUpdate
 import ly.img.engine.ShapeType
 
 fun undoAndHistory(
@@ -40,15 +39,11 @@ private fun subscribeToHistoryUpdates(
     engine: Engine,
 ): Job = scope.launch {
     // highlight-android-subscribe-history
-    // Subscribe to history updates.
-    engine.editor.onHistoryUpdatedWithKind().collect { kind ->
-        when (kind) {
-            HistoryUpdate.ACTIVATED -> println("Active history switched, scene unchanged.")
-            HistoryUpdate.UPDATED -> println(
-                "History updated: canUndo=${engine.editor.canUndo()}, " +
-                    "canRedo=${engine.editor.canRedo()}",
-            )
-        }
+    engine.editor.onHistoryUpdated().collect {
+        println(
+            "History updated: canUndo=${engine.editor.canUndo()}, " +
+                "canRedo=${engine.editor.canRedo()}",
+        )
     }
     // highlight-android-subscribe-history
 }

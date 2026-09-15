@@ -60,7 +60,7 @@ fun ModifyListBuilderCanvasMenuSolution(
                                 }
                                 // highlight-modifyListBuilder-addLast
                                 // highlight-modifyListBuilder-addAfter
-                                addAfter(id = CanvasMenu.Button.Id.bringForward, failIfNotFound = true) {
+                                addAfter(id = CanvasMenu.Button.Id.bringForward) {
                                     CanvasMenu.Button.remember {
                                         id = { EditorComponentId("my.package.canvasMenu.button.afterBringForward") }
                                         vectorIcon = null
@@ -70,7 +70,7 @@ fun ModifyListBuilderCanvasMenuSolution(
                                 }
                                 // highlight-modifyListBuilder-addAfter
                                 // highlight-modifyListBuilder-addBefore
-                                addBefore(id = CanvasMenu.Button.Id.sendBackward, failIfNotFound = true) {
+                                addBefore(id = CanvasMenu.Button.Id.sendBackward) {
                                     CanvasMenu.Button.remember {
                                         id = { EditorComponentId("my.package.canvasMenu.button.beforeSendBackward") }
                                         vectorIcon = null
@@ -80,7 +80,7 @@ fun ModifyListBuilderCanvasMenuSolution(
                                 }
                                 // highlight-modifyListBuilder-addBefore
                                 // highlight-modifyListBuilder-replace
-                                replace(id = CanvasMenu.Button.Id.duplicate, failIfNotFound = true) {
+                                replace(id = CanvasMenu.Button.Id.duplicate) {
                                     // Note that it can be replaced with a component that has a different id.
                                     CanvasMenu.Button.rememberDuplicate {
                                         vectorIcon = { IconPack.Music }
@@ -88,7 +88,7 @@ fun ModifyListBuilderCanvasMenuSolution(
                                 }
                                 // highlight-modifyListBuilder-replace
                                 // highlight-modifyListBuilder-remove
-                                remove(id = CanvasMenu.Button.Id.delete, failIfNotFound = true)
+                                remove(id = CanvasMenu.Button.Id.delete)
                                 // highlight-modifyListBuilder-remove
                             }
                             // highlight-modifyListBuilder

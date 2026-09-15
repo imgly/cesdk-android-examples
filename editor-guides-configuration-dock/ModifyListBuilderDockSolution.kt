@@ -58,7 +58,7 @@ fun ModifyListBuilderDockSolution(
                                 }
                                 // highlight-modifyListBuilder-addLast
                                 // highlight-modifyListBuilder-addAfter
-                                addAfter(id = Dock.Button.Id.systemGallery, failIfNotFound = true) {
+                                addAfter(id = Dock.Button.Id.systemGallery) {
                                     Dock.Button.remember {
                                         id = { EditorComponentId("my.package.dock.button.afterSystemGallery") }
                                         vectorIcon = null
@@ -68,7 +68,7 @@ fun ModifyListBuilderDockSolution(
                                 }
                                 // highlight-modifyListBuilder-addAfter
                                 // highlight-modifyListBuilder-addBefore
-                                addBefore(id = Dock.Button.Id.systemCamera, failIfNotFound = true) {
+                                addBefore(id = Dock.Button.Id.systemCamera) {
                                     Dock.Button.remember {
                                         id = { EditorComponentId("my.package.dock.button.beforeSystemCamera") }
                                         vectorIcon = null
@@ -78,17 +78,17 @@ fun ModifyListBuilderDockSolution(
                                 }
                                 // highlight-modifyListBuilder-addBefore
                                 // highlight-modifyListBuilder-replace
-                                replace(id = Dock.Button.Id.textLibrary, failIfNotFound = true) {
+                                replace(id = Dock.Button.Id.textLibrary) {
                                     Dock.Button.remember {
                                         id = { EditorComponentId("my.package.dock.button.replacedTextLibrary") }
                                         vectorIcon = null
-                                        textString = { "Replaced Text Library" }
+                                        text = { "Replaced Text Library" }
                                         onClick = {}
                                     }
                                 }
                                 // highlight-modifyListBuilder-replace
                                 // highlight-modifyListBuilder-remove
-                                remove(id = Dock.Button.Id.shapesLibrary, failIfNotFound = true)
+                                remove(id = Dock.Button.Id.shapesLibrary)
                                 // highlight-modifyListBuilder-remove
                             }
                             // highlight-modifyListBuilder
