@@ -44,13 +44,12 @@ suspend fun VideoConfigurationBuilder.onPostCreateSceneFromReaction(cameraResult
     engine.block.forceLoadAVResource(fill)
     val totalDuration = engine.block.getAVResourceTotalDuration(fill).seconds
 
+    val reactionTrack = engine.block.create(DesignBlockType.Track)
+    engine.block.appendChild(parent = page, child = reactionTrack)
+
     var offsetDuration = Duration.ZERO
     reaction.forEachIndexed { index, recording ->
-        val recordingBlock = engine.addRecording(
-            recording,
-            offsetDuration.toDouble(DurationUnit.SECONDS),
-            page,
-        )
+        val recordingBlock = engine.addRecording(recording, reactionTrack)
 
         // Trim the last recording to match the duration
         if (index == reaction.lastIndex) {
@@ -75,7 +74,6 @@ suspend fun VideoConfigurationBuilder.onPostCreateSceneFromReaction(cameraResult
 
 private fun Engine.addRecording(
     recording: Recording,
-    offset: Double,
     parent: DesignBlock,
 ): DesignBlock {
     val id = block.create(DesignBlockType.Graphic)
@@ -84,7 +82,6 @@ private fun Engine.addRecording(
     block.appendChild(parent, id)
     val video = recording.videos.first()
     block.setFrame(id, video.rect)
-    block.setTimeOffset(id, offset)
     val fill = block.createFill(FillType.Video)
     block.setString(fill, "fill/video/fileURI", video.uri.toString())
     block.setFill(id, fill)

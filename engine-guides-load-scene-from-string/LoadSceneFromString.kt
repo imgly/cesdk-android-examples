@@ -1,40 +1,25 @@
-import kotlinx.coroutines.CoroutineScope
+import android.content.Context
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
-import java.io.ByteArrayOutputStream
-import java.net.URL
 
-fun loadSceneFromString(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1920)
-
-    // highlight-fetch-string
-    val sceneUrl = URL("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
-    val sceneBlob = withContext(Dispatchers.IO) {
-        val outputStream = ByteArrayOutputStream()
-        sceneUrl.openStream().use { inputStream ->
-            outputStream.use(inputStream::copyTo)
-        }
-        outputStream.toByteArray()
+suspend fun loadSceneFromString(
+    engine: Engine,
+    context: Context,
+): DesignBlock {
+    // highlight-android-load-from-string
+    val sceneString = withContext(Dispatchers.IO) {
+        context.assets.open("imgly-assets/ly.img.templates/templates/cesdk_postcard_1.scene")
+            .bufferedReader(Charsets.UTF_8)
+            .use { it.readText() }
     }
-    val blobString = String(sceneBlob, Charsets.UTF_8)
-    // highlight-fetch-string
+    val scene = engine.scene.load(scene = sceneString, waitForResources = true)
+    // highlight-android-load-from-string
 
-    // highlight-load-string
-    val scene = engine.scene.load(scene = blobString)
-    // highlight-load-string
-
-    // highlight-modify-text-string
     val text = engine.block.findByType(DesignBlockType.Text).first()
-    engine.block.setDropShadowEnabled(text, enabled = true)
-    // highlight-modify-text-string
+    engine.block.setDropShadowEnabled(block = text, enabled = true)
 
-    engine.stop()
+    return scene
 }

@@ -1,0 +1,37 @@
+{
+  "version": "3.0.0",
+  "id": "ly.img.caption.presets",
+  "assets": [
+    {
+      "id": "ly.img.caption.presets.neon-glow",
+      "label": { "en": "Neon Glow" },
+      "meta": {
+        "uri": "{{base_url}}/ly.img.caption.presets/presets/neon-glow.preset",
+        "thumbUri": "{{base_url}}/ly.img.caption.presets/thumbnails/neon-glow.png",
+        "mimeType": "application/ubq-blocks-string"
+      },
+      "payload": {
+        "properties": [
+          {
+            "type": "Color",
+            "property": "fill/solid/color",
+            "value": { "r": 0.0, "g": 1.0, "b": 1.0, "a": 1.0 },
+            "defaultValue": { "r": 0.0, "g": 1.0, "b": 1.0, "a": 1.0 }
+          },
+          {
+            "type": "Color",
+            "property": "dropShadow/color",
+            "value": { "r": 0.0, "g": 1.0, "b": 1.0, "a": 0.8 },
+            "defaultValue": { "r": 0.0, "g": 1.0, "b": 1.0, "a": 0.8 }
+          },
+          {
+            "type": "Color",
+            "property": "backgroundColor/color",
+            "value": { "r": 0.0, "g": 0.0, "b": 0.1, "a": 0.7 },
+            "defaultValue": { "r": 0.0, "g": 0.0, "b": 0.1, "a": 0.7 }
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,7 +1,6 @@
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+@file:Suppress("ktlint:standard:filename")
+
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import ly.img.engine.Color
 import ly.img.engine.DesignBlockType
@@ -20,22 +19,11 @@ data class AutoResizeMetrics(
     val backgroundHeightMode: SizeMode,
 )
 
-fun autoResize(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-): Job = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.autoResize")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1920)
-
-    try {
-        runAutoResizeGuide(engine)
-    } finally {
-        engine.stop()
-    }
+suspend fun autoResize(engine: Engine): AutoResizeMetrics = withContext(engine.dispatcher) {
+    runAutoResizeGuide(engine)
 }
 
-suspend fun runAutoResizeGuide(engine: Engine): AutoResizeMetrics {
+private suspend fun runAutoResizeGuide(engine: Engine): AutoResizeMetrics {
     // highlight-android-setup
     val scene = engine.scene.create()
     val page = engine.block.create(DesignBlockType.Page)
@@ -129,6 +117,8 @@ suspend fun runAutoResizeGuide(engine: Engine): AutoResizeMetrics {
     println("Title modes: width=$titleWidthMode, height=$titleHeightMode")
     println("Background modes: width=$backgroundWidthMode, height=$backgroundHeightMode")
     // highlight-android-check-modes
+
+    engine.block.forceLoadResources(listOf(titleBlock, subtitleBlock))
 
     return AutoResizeMetrics(
         titleWidth = titleWidth,

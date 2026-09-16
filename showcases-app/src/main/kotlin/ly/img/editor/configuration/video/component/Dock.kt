@@ -12,8 +12,8 @@ import ly.img.editor.core.component.Dock
 import ly.img.editor.core.component.EditorTrigger
 import ly.img.editor.core.component.remember
 import ly.img.editor.core.component.rememberAudiosLibrary
+import ly.img.editor.core.component.rememberCaptions
 import ly.img.editor.core.component.rememberOverlaysLibrary
-import ly.img.editor.core.component.rememberReorder
 import ly.img.editor.core.component.rememberResizeAll
 import ly.img.editor.core.component.rememberStickersAndShapesLibrary
 import ly.img.editor.core.component.rememberSystemCamera
@@ -61,10 +61,10 @@ fun VideoConfigurationBuilder.rememberDock() = Dock.remember {
             add { Dock.Button.rememberOverlaysLibrary() }
             add { Dock.Button.rememberTextLibrary() }
             add { Dock.Button.rememberStickersAndShapesLibrary() }
+            add { Dock.Button.rememberCaptions() }
             add { Dock.Button.rememberAudiosLibrary() }
             add { Dock.Button.rememberVoiceoverRecord() }
             add { Dock.Button.rememberResizeAll() }
-            add { Dock.Button.rememberReorder() }
         }
         // highlight-starter-kit-imgly-camera
     }

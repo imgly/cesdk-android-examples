@@ -1,10 +1,11 @@
 import androidx.compose.runtime.Composable
 import ly.img.editor.Editor
-import ly.img.editor.core.component.EditorComponentId
 import ly.img.editor.core.component.InspectorBar
 import ly.img.editor.core.component.remember
 import ly.img.editor.core.component.rememberAdjustments
+import ly.img.editor.core.component.rememberAnimations
 import ly.img.editor.core.component.rememberBlur
+import ly.img.editor.core.component.rememberClipSpeed
 import ly.img.editor.core.component.rememberCrop
 import ly.img.editor.core.component.rememberDelete
 import ly.img.editor.core.component.rememberDuplicate
@@ -36,21 +37,15 @@ fun NewListBuilderInspectorBarSolution(
                 inspectorBar = {
                     InspectorBar.remember {
                         listBuilder = {
-                            // highlight-newListBuilder
+                            // highlight-android-new-list-builder
                             InspectorBar.ListBuilder.remember {
-                                add {
-                                    InspectorBar.Button.remember {
-                                        id = { EditorComponentId("my.package.inspectorBar.button.custom") }
-                                        onClick = {}
-                                        vectorIcon = null
-                                        textString = { "Custom Button" }
-                                    }
-                                }
                                 add { InspectorBar.Button.rememberDuplicate() }
                                 add { InspectorBar.Button.rememberDelete() }
+                                add { InspectorBar.Button.rememberAnimations() }
                                 add { InspectorBar.Button.rememberAdjustments() }
                                 add { InspectorBar.Button.rememberEffect() }
                                 add { InspectorBar.Button.rememberBlur() }
+                                add { InspectorBar.Button.rememberClipSpeed() }
                                 add { InspectorBar.Button.rememberReplace() }
                                 add { InspectorBar.Button.rememberEditText() }
                                 add { InspectorBar.Button.rememberFormatText() }
@@ -64,7 +59,7 @@ fun NewListBuilderInspectorBarSolution(
                                 add { InspectorBar.Button.rememberMoveAsClip() }
                                 add { InspectorBar.Button.rememberMoveAsOverlay() }
                             }
-                            // highlight-newListBuilder
+                            // highlight-android-new-list-builder
                         }
                     }
                 }
