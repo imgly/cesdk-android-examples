@@ -16,12 +16,30 @@ import ly.img.editor.core.component.Dock
 import ly.img.editor.core.component.EditorComponent
 import ly.img.editor.core.component.EditorComponentId
 import ly.img.editor.core.component.remember
+import ly.img.editor.core.component.rememberImagesLibrary
 import ly.img.editor.core.event.EditorEvent
+import ly.img.editor.core.iconpack.AddImageForeground
 import ly.img.editor.core.iconpack.IconPack
 import ly.img.editor.core.iconpack.Music
 import ly.img.editor.core.sheet.SheetType
 
-// highlight-dockItems-newButton
+// highlight-android-predefined-button
+@Composable
+fun rememberPredefinedDockButton() = Dock.Button.rememberImagesLibrary()
+// highlight-android-predefined-button
+
+// highlight-android-customize-button
+@Composable
+fun rememberCustomizedDockButton() = Dock.Button.rememberImagesLibrary {
+    textString = { "Brand Images" }
+    vectorIcon = { IconPack.AddImageForeground }
+    contentDescription = { "Open brand images" }
+    enabled = { true }
+    visible = { true }
+}
+// highlight-android-customize-button
+
+// highlight-android-new-button
 @Composable
 fun rememberDockButton() = Dock.Button.remember {
     id = { EditorComponentId("my.package.dock.button.newButton") }
@@ -39,52 +57,22 @@ fun rememberDockButton() = Dock.Button.remember {
         }
     }
     onClick = { editorContext.eventHandler.send(EditorEvent.Sheet.Open(SheetType.Volume())) }
-    // Default value is null
     icon = {
         Icon(
             imageVector = IconPack.Music,
             contentDescription = null,
         )
     }
-    // Default value is null
     text = {
         Text(
-            text = "Hello World",
+            text = "Volume",
         )
     }
     enabled = { true }
 }
-// highlight-dockItems-newButton
+// highlight-android-new-button
 
-// highlight-dockItems-newButton-simple
-@Composable
-fun rememberDockButtonSimple() = Dock.Button.remember {
-    id = { EditorComponentId("my.package.dock.button.newButton") }
-    scope = {
-        remember(this) { Dock.ItemScope(parentScope = this) }
-    }
-    modifier = { Modifier }
-    visible = { true }
-    enterTransition = { EnterTransition.None }
-    exitTransition = { ExitTransition.None }
-    // Default value is { it() }
-    decoration = {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            it()
-        }
-    }
-    onClick = { editorContext.eventHandler.send(EditorEvent.CloseEditor()) }
-    // Default value is null
-    vectorIcon = { IconPack.Music }
-    // Default value is null
-    textString = { "Hello World" }
-    tint = { MaterialTheme.colorScheme.onSurfaceVariant }
-    enabled = { true }
-    contentDescription = null
-}
-// highlight-dockItems-newButton-simple
-
-// highlight-dockItems-newCustomItem
+// highlight-android-custom-item
 @Composable
 fun rememberCustomItem() = EditorComponent.remember {
     id = { EditorComponentId("my.package.dock.newCustomItem") }
@@ -101,15 +89,15 @@ fun rememberCustomItem() = EditorComponent.remember {
                 .fillMaxHeight()
                 .clickable {
                     Toast
-                        .makeText(editorContext.activity, "Hello World Clicked!", Toast.LENGTH_SHORT)
+                        .makeText(editorContext.activity, "Dock action clicked", Toast.LENGTH_SHORT)
                         .show()
                 },
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
-                text = "Hello World",
+                text = "Custom",
             )
         }
     }
 }
-// highlight-dockItems-newCustomItem
+// highlight-android-custom-item

@@ -31,8 +31,8 @@ import coil.request.ImageRequest
 import ly.img.editor.showcases.R
 import ly.img.editor.showcases.Screen
 import ly.img.editor.showcases.ShowcaseItem
-import ly.img.editor.showcases.icon.CustomFunctionalitiesTextToImage
 import ly.img.editor.showcases.icon.IconPack
+import ly.img.editor.showcases.icon.TextToImage
 import ly.img.editor.showcases.ui.modifier.linearGradientBackground
 import ly.img.editor.showcases.ui.preview.PreviewTheme
 
@@ -40,7 +40,7 @@ import ly.img.editor.showcases.ui.preview.PreviewTheme
 fun CustomFunctionalityCard(
     item: ShowcaseItem.CustomFunctionality,
     modifier: Modifier = Modifier,
-    onClick: (String?, clickAction: ShowcaseItem.CarouselContent.ClickAction) -> Unit,
+    onClick: () -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -50,7 +50,7 @@ fun CustomFunctionalityCard(
             )
             .height(152.dp)
             .clip(MaterialTheme.shapes.small)
-            .clickable { onClick(item.actionScene, item.clickAction) },
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
@@ -117,14 +117,13 @@ fun CustomFunctionalityCardPreview() {
         Surface {
             CustomFunctionalityCard(
                 item = ShowcaseItem.CustomFunctionality(
-                    vectorIcon = IconPack.CustomFunctionalitiesTextToImage,
+                    vectorIcon = IconPack.TextToImage,
                     thumbnailRes = R.drawable.custom_functionality_text_to_image,
                     label = R.string.ly_img_showcases_button_custom_ai_text_to_image_title,
                     sublabel = R.string.ly_img_showcases_button_custom_ai_text_to_image_subtitle,
-                    actionScene = null,
-                    actionScreen = Screen.TextToImage,
+                    clickAction = ShowcaseItem.ClickAction(destination = Screen.TextToImage),
                 ),
-                onClick = { _, _ -> },
+                onClick = {},
             )
         }
     }

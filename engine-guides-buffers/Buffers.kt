@@ -1,7 +1,5 @@
 import android.net.Uri
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import java.nio.ByteBuffer
@@ -9,29 +7,22 @@ import java.nio.ByteOrder
 import kotlin.math.PI
 import kotlin.math.sin
 
-fun buffers(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(Dispatchers.Main).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1920)
+suspend fun buffers(engine: Engine) = withContext(engine.dispatcher) {
+    // highlight-android-setup-video-scene
+    val scene = engine.scene.createForVideo()
+    val page = engine.block.create(DesignBlockType.Page)
+    engine.block.appendChild(parent = scene, child = page)
+    engine.block.setWidth(page, value = 1080F)
+    engine.block.setHeight(page, value = 1920F)
+    engine.block.setDuration(page, duration = 2.0)
+    // highlight-android-setup-video-scene
+
+    // highlight-android-create-buffer
+    val bufferUri = engine.editor.createBuffer()
+    // highlight-android-create-buffer
 
     try {
-        // highlight-setup-video-scene
-        val scene = engine.scene.createForVideo()
-        val page = engine.block.create(DesignBlockType.Page)
-        engine.block.appendChild(parent = scene, child = page)
-        engine.block.setWidth(page, value = 1080F)
-        engine.block.setHeight(page, value = 1920F)
-        engine.block.setDuration(page, duration = 2.0)
-        // highlight-setup-video-scene
-
-        // highlight-create-buffer
-        val bufferUri = engine.editor.createBuffer()
-        // highlight-create-buffer
-
-        // highlight-generate-samples
+        // highlight-android-generate-samples
         val sampleRate = 44_100
         val durationSeconds = 2
         val frequencyHz = 440.0
@@ -47,18 +38,18 @@ fun buffers(
             samples[bufferIndex] = sampleValue
             samples[bufferIndex + 1] = sampleValue
         }
-        // highlight-generate-samples
+        // highlight-android-generate-samples
 
-        // highlight-write-buffer
+        // highlight-android-write-buffer
         val bytesPerSample = 2
         val wavDataSize = sampleCount * bytesPerSample
         val wavFileSize = 44 + wavDataSize
         val wavData = ByteBuffer.allocateDirect(wavFileSize).order(ByteOrder.LITTLE_ENDIAN)
 
-        wavData.put("RIFF".toByteArray())
+        "RIFF".forEach { wavData.put(it.code.toByte()) }
         wavData.putInt(wavFileSize - 8)
-        wavData.put("WAVE".toByteArray())
-        wavData.put("fmt ".toByteArray())
+        "WAVE".forEach { wavData.put(it.code.toByte()) }
+        "fmt ".forEach { wavData.put(it.code.toByte()) }
         wavData.putInt(16)
         wavData.putShort(1.toShort())
         wavData.putShort(numChannels.toShort())
@@ -66,7 +57,7 @@ fun buffers(
         wavData.putInt(sampleRate * numChannels * bytesPerSample)
         wavData.putShort((numChannels * bytesPerSample).toShort())
         wavData.putShort((bytesPerSample * 8).toShort())
-        wavData.put("data".toByteArray())
+        "data".forEach { wavData.put(it.code.toByte()) }
         wavData.putInt(wavDataSize)
 
         for (sample in samples) {
@@ -78,55 +69,64 @@ fun buffers(
 
         wavData.flip()
         engine.editor.setBufferData(uri = bufferUri, offset = 0, data = wavData)
-        // highlight-write-buffer
+        // highlight-android-write-buffer
 
-        // highlight-read-buffer
+        // highlight-android-read-buffer
         val header = engine.editor.getBufferData(uri = bufferUri, offset = 0, length = 44)
-        val riff = ByteArray(size = 4)
-        header.get(riff)
-        check(String(riff) == "RIFF")
-        // highlight-read-buffer
+        val riff = buildString {
+            repeat(4) { append(header.get().toInt().toChar()) }
+        }
+        check(riff == "RIFF")
+        // highlight-android-read-buffer
 
-        // highlight-get-buffer-length
+        // highlight-android-get-buffer-length
         val bufferLength = engine.editor.getBufferLength(uri = bufferUri)
         check(bufferLength == wavFileSize)
-        // highlight-get-buffer-length
+        // highlight-android-get-buffer-length
 
-        // highlight-resize-buffer
+        // highlight-android-resize-buffer
         val demoBuffer = engine.editor.createBuffer()
-        val demoData =
-            ByteBuffer.allocateDirect(8).apply {
-                put(byteArrayOf(1, 2, 3, 4, 5, 6, 7, 8))
-                flip()
-            }
-        engine.editor.setBufferData(uri = demoBuffer, offset = 0, data = demoData)
-        engine.editor.setBufferLength(uri = demoBuffer, length = 4)
-        check(engine.editor.getBufferLength(uri = demoBuffer) == 4)
-        engine.editor.destroyBuffer(uri = demoBuffer)
-        // highlight-resize-buffer
+        try {
+            val demoData =
+                ByteBuffer.allocateDirect(8).apply {
+                    for (value in 1..8) put(value.toByte())
+                    flip()
+                }
+            engine.editor.setBufferData(uri = demoBuffer, offset = 0, data = demoData)
+            engine.editor.setBufferLength(uri = demoBuffer, length = 4)
+            check(engine.editor.getBufferLength(uri = demoBuffer) == 4)
+        } finally {
+            engine.editor.destroyBuffer(uri = demoBuffer)
+        }
+        // highlight-android-resize-buffer
 
-        // highlight-assign-buffer-to-audio-block
+        // highlight-android-assign-buffer-to-audio-block
         val audioBlock = engine.block.create(DesignBlockType.Audio)
         engine.block.setUri(block = audioBlock, property = "audio/fileURI", value = bufferUri)
         engine.block.setDuration(audioBlock, duration = durationSeconds.toDouble())
         engine.block.appendChild(parent = page, child = audioBlock)
         engine.block.forceLoadAVResource(audioBlock)
-        // highlight-assign-buffer-to-audio-block
+        // highlight-android-assign-buffer-to-audio-block
 
-        // highlight-find-transient-resources
+        // highlight-android-find-transient-resources
         val transientResources = engine.editor.findAllTransientResources()
         check(transientResources.any { (uri, size) -> uri == bufferUri && size == bufferLength })
-        // highlight-find-transient-resources
+        // highlight-android-find-transient-resources
 
-        // highlight-persist-buffer
+        // highlight-android-persist-buffer
         val relocatedUri = Uri.parse("https://cdn.example.com/audio/generated-tone.wav")
         val persistedData = engine.editor.getBufferData(uri = bufferUri, offset = 0, length = bufferLength)
         check(persistedData.remaining() == bufferLength)
         engine.editor.relocateResource(currentUri = bufferUri, relocatedUri = relocatedUri)
         check(engine.block.getUri(block = audioBlock, property = "audio/fileURI") == relocatedUri)
-        engine.editor.destroyBuffer(uri = bufferUri)
-        // highlight-persist-buffer
+        // highlight-android-persist-buffer
     } finally {
-        engine.stop()
+        engine.block.findByType(DesignBlockType.Audio)
+            .filter(engine.block::isValid)
+            .filter { audioBlock ->
+                engine.block.getUri(audioBlock, property = "audio/fileURI") == bufferUri
+            }
+            .forEach(engine.block::destroy)
+        engine.editor.destroyBuffer(uri = bufferUri)
     }
 }
