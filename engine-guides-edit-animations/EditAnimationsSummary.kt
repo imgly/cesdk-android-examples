@@ -1,0 +1,15 @@
+data class EditAnimationsSummary(
+    val inAnimationType: String,
+    val outAnimationType: String,
+    val loopAnimationType: String,
+    val initialDuration: Double,
+    val updatedDuration: Double,
+    val initialEasing: String,
+    val updatedEasing: String,
+    val easingOptions: List<String>,
+    val slideProperties: List<String>,
+    val slideDirection: Float,
+    val slideFade: Boolean,
+    val replacementType: String,
+    val loopAnimationRemoved: Boolean,
+)

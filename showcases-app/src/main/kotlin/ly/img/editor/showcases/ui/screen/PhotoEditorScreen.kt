@@ -5,25 +5,20 @@ import android.util.SizeF
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.core.net.toUri
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import ly.img.editor.Editor
 import ly.img.editor.configuration.photo.PhotoConfigurationBuilder
 import ly.img.editor.configuration.photo.callback.getOrCreateSceneFromImage
 import ly.img.editor.configuration.photo.callback.onCreate
-import ly.img.editor.configuration.photo.callback.onLoadAssetSources
-import ly.img.editor.configuration.photo.component.rememberNavigationBar
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
+import ly.img.editor.core.configuration.then
 import ly.img.editor.showcases.Screen
 import ly.img.editor.showcases.Secrets
-import ly.img.editor.showcases.ShowcasesViewModel
 import ly.img.editor.showcases.decodeBase64
-import ly.img.editor.showcases.ui.ext.modifiedCloseEditor
+import ly.img.editor.showcases.plugin.ShowcasesPlugin
 
 @Composable
 fun PhotoEditorScreen(
-    viewModel: ShowcasesViewModel,
     baseUri: Uri,
     imageUriAsString: String?,
     sizeAsString: String?,
@@ -49,39 +44,9 @@ fun PhotoEditorScreen(
         configuration = {
             EditorConfiguration.remember(::PhotoConfigurationBuilder) {
                 onCreate = {
-                    onCreate(
-                        createScene = {
-                            getOrCreateSceneFromImage(
-                                imageUri = imageUri,
-                                size = size,
-                            )
-                        },
-                        loadAssetSources = {
-                            coroutineScope {
-                                launch {
-                                    onLoadAssetSources()
-                                }
-                                launch {
-                                    viewModel.addRemoteAssetSources(scope = this@Editor, isVideoScene = false)
-                                }
-                            }
-                        },
-                    )
+                    onCreate(createScene = { getOrCreateSceneFromImage(imageUri = imageUri, size = size) })
                 }
-                assetLibrary = {
-                    remember {
-                        viewModel.getAssetLibrary(isVideoScene = false)
-                    }
-                }
-                colorPalette = {
-                    remember {
-                        viewModel.getColorPalette(sceneUri = null)
-                    }
-                }
-                navigationBar = {
-                    rememberNavigationBar().modifiedCloseEditor()
-                }
-            }
+            }.then(::ShowcasesPlugin)
         },
     ) {
         onBack()

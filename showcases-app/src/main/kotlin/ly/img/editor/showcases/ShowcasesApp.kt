@@ -10,6 +10,9 @@ import coil.decode.SvgDecoder
 import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.crashlytics.crashlytics
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ShowcasesApp :
     Application(),
@@ -19,7 +22,9 @@ class ShowcasesApp :
 
         val isFirebaseActive = FirebaseApp.getApps(this).isNotEmpty()
         if (isFirebaseActive) {
-            Firebase.crashlytics.setCustomKey("build_name", ShowcasesBuildConfig.BUILD_NAME)
+            CoroutineScope(Dispatchers.Default).launch {
+                Firebase.crashlytics.setCustomKey("build_name", BuildMetadata.load(this@ShowcasesApp).buildName)
+            }
         }
 
         StrictMode.setThreadPolicy(
@@ -45,13 +50,16 @@ class ShowcasesApp :
                 .detectActivityLeaks()
                 .detectLeakedRegistrationObjects()
                 .detectFileUriExposure()
+                .detectCleartextNetwork()
                 .apply {
-                    detectCleartextNetwork()
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         detectContentUriWithoutPermission()
                     }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         detectCredentialProtectedWhileLocked()
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                        detectImplicitUriPermissionGrant()
                     }
                     // Note: detectUntaggedSockets() is intentionally excluded because
                     // third-party SDKs don't tag their sockets and we can't fix them.

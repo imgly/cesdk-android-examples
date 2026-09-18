@@ -7,25 +7,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.platform.LocalContext
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 import ly.img.editor.Editor
 import ly.img.editor.configuration.video.VideoConfigurationBuilder
 import ly.img.editor.configuration.video.callback.onCreate
-import ly.img.editor.configuration.video.callback.onLoadAssetSources
-import ly.img.editor.configuration.video.component.rememberNavigationBar
 import ly.img.editor.core.EditorScope
 import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
+import ly.img.editor.core.configuration.then
 import ly.img.editor.core.event.EditorEvent
 import ly.img.editor.core.library.data.AssetSourceType
 import ly.img.editor.showcases.Secrets
-import ly.img.editor.showcases.ShowcasesViewModel
-import ly.img.editor.showcases.ui.ext.modifiedCloseEditor
+import ly.img.editor.showcases.plugin.ShowcasesPlugin
 
 @Composable
 fun EditVideoFromUriScreen(
-    viewModel: ShowcasesViewModel,
     baseUri: Uri,
     videoUri: Uri,
     onBack: () -> Unit,
@@ -54,16 +49,6 @@ fun EditVideoFromUriScreen(
                 onCreate = {
                     val isNewScene = editorContext.engine.scene.get() == null
                     onCreate(
-                        loadAssetSources = {
-                            coroutineScope {
-                                launch {
-                                    onLoadAssetSources()
-                                }
-                                launch {
-                                    viewModel.addRemoteAssetSources(scope = this@Editor, isVideoScene = true)
-                                }
-                            }
-                        },
                         postCreateScene = {
                             if (isNewScene) {
                                 postCreateScene(videoUri, size)
@@ -71,19 +56,8 @@ fun EditVideoFromUriScreen(
                         },
                     )
                 }
-                assetLibrary = {
-                    remember {
-                        viewModel.getAssetLibrary(isVideoScene = true)
-                    }
-                }
-                colorPalette = {
-                    remember {
-                        viewModel.getColorPalette(sceneUri = null)
-                    }
-                }
-                navigationBar = {
-                    rememberNavigationBar().modifiedCloseEditor()
-                }
+            }.then(::ShowcasesPlugin) {
+                this.isVideoScene = true
             }
         },
     ) {

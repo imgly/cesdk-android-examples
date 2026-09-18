@@ -1,34 +1,35 @@
 import android.net.Uri
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import ly.img.engine.DesignBlock
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 
-fun createSceneFromVideoURL(
-    license: String?, // pass null or empty for evaluation mode with watermark
-    userId: String,
-) = CoroutineScope(
-    Dispatchers.Main,
-).launch {
-    val engine = Engine.getInstance(id = "ly.img.engine.example")
-    engine.start(license = license, userId = userId)
-    engine.bindOffscreen(width = 1080, height = 1920)
+private const val SAMPLE_VIDEO_URI = "https://img.ly/static/ubq_video_samples/bbb.mp4"
 
-    // highlight-createFromVideo
-    val videoRemoteUri = Uri.parse("https://img.ly/static/ubq_video_samples/bbb.mp4")
-    val scene = engine.scene.createFromVideo(videoRemoteUri)
-    // highlight-createFromVideo
+suspend fun createSceneFromVideoURL(engine: Engine): DesignBlock = withContext(Dispatchers.Main) {
+    // highlight-android-create-from-video
+    val videoRemoteUri = Uri.parse(SAMPLE_VIDEO_URI)
+    val scene = engine.scene.createFromVideo(videoUri = videoRemoteUri)
+    // highlight-android-create-from-video
 
-    // highlight-findByType
+    // highlight-android-work-with-video-block
     // Find the automatically added graphic block in the scene that contains the video fill.
-    val block = engine.block.findByType(DesignBlockType.Graphic).first()
-    // highlight-findByType
+    val block = engine.block.findByType(type = DesignBlockType.Graphic).first()
+    engine.block.setOpacity(block = block, value = 0.5F)
+    // highlight-android-work-with-video-block
 
-    // highlight-setOpacity
-    // Change its opacity.
-    engine.block.setOpacity(block, value = 0.5F)
-    // highlight-setOpacity
+    val page = engine.scene.getPages().first()
 
-    engine.stop()
+    // highlight-android-control-playback
+    val duration = engine.block.getDuration(block = page)
+
+    if (engine.block.supportsPlaybackTime(block = page) && duration >= 1.0) {
+        engine.block.setPlaybackTime(block = page, time = 1.0)
+        engine.block.setPlaying(block = page, enabled = true)
+        engine.block.setPlaying(block = page, enabled = false)
+    }
+    // highlight-android-control-playback
+
+    scene
 }
