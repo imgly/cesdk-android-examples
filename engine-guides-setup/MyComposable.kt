@@ -1,4 +1,3 @@
-import android.app.Activity
 import android.net.Uri
 import android.view.SurfaceView
 import androidx.compose.runtime.Composable
@@ -6,53 +5,40 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import ly.img.engine.Engine
 
 @Composable
 fun MyComposable() {
-    // highlight-setup
+    // highlight-android-compose-engine
     val engine = remember { Engine.getInstance(id = "ly.img.engine.example") }
-    // highlight-setup
-    val activity = LocalContext.current as Activity
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    val surfaceView = remember { SurfaceView(activity) }
+    // highlight-android-compose-engine
+    // highlight-android-compose-render-target
+    val context = LocalContext.current
+    val surfaceView = remember { SurfaceView(context) }
     val savedStateRegistryOwner = LocalSavedStateRegistryOwner.current
     AndroidView(factory = { surfaceView })
+    // highlight-android-compose-render-target
+    // highlight-android-compose-start
     LaunchedEffect(Unit) {
-        // highlight-start
         engine.start(
             license = null, // pass null or empty for evaluation mode with watermark
             userId = "<your unique user id>",
             savedStateRegistryOwner = savedStateRegistryOwner,
         )
-        // highlight-start
-        // highlight-bind
         engine.bindSurfaceView(surfaceView)
-        // highlight-bind
-        // highlight-work
         engine.scene.get() ?: run {
             val sceneUri = Uri.parse("https://cdn.img.ly/assets/demo/v1/ly.img.template/templates/cesdk_postcard_1.scene")
             engine.scene.load(sceneUri)
         }
-        // highlight-work
     }
+    // highlight-android-compose-start
+    // highlight-android-compose-cleanup
     DisposableEffect(Unit) {
-        val observer = LifecycleEventObserver { _, event ->
-            when {
-                // highlight-stop
-                event == Lifecycle.Event.ON_DESTROY && !activity.isChangingConfigurations -> engine.stop()
-                // highlight-stop
-                // highlight-unbind
-                event == Lifecycle.Event.ON_DESTROY -> engine.unbind()
-                // highlight-unbind
-            }
+        onDispose {
+            engine.stop()
         }
-        lifecycle.addObserver(observer)
-        onDispose { lifecycle.removeObserver(observer) }
     }
+    // highlight-android-compose-cleanup
 }

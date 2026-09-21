@@ -17,36 +17,26 @@ import ly.img.editor.core.configuration.EditorConfiguration
 import ly.img.editor.core.configuration.remember
 import ly.img.editor.core.theme.surface1
 
-// Add this composable to your NavHost
 @Composable
 fun SimpleDockSolution(
     license: String,
     onClose: (Throwable?) -> Unit,
 ) {
     Editor(
-        license = license, // evaluation mode with watermark
+        license = license,
         configuration = {
-            // highlight-dockConfiguration
+            // highlight-android-dock-configuration
             EditorConfiguration.remember {
                 dock = {
                     Dock.remember {
-                        // highlight-dockConfiguration-scope
                         scope = {
                             remember(this) { Dock.Scope(parentScope = this) }
                         }
-                        // highlight-dockConfiguration-scope
-                        // highlight-dockConfiguration-modifier
                         modifier = { Modifier }
-                        // highlight-dockConfiguration-modifier
-                        // highlight-dockConfiguration-visible
                         visible = { true }
-                        // highlight-dockConfiguration-enterTransition
                         enterTransition = { EnterTransition.None }
-                        // highlight-dockConfiguration-exitTransition
                         exitTransition = { ExitTransition.None }
-                        // highlight-dockConfiguration-decoration
                         decoration = {
-                            // Also available via Dock.DefaultDecoration
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -56,23 +46,17 @@ fun SimpleDockSolution(
                                 it()
                             }
                         }
-                        // highlight-dockConfiguration-decoration
-                        // highlight-dockConfiguration-listBuilder
                         listBuilder = { Dock.ListBuilder.remember { /* Add items */ } }
-                        // highlight-dockConfiguration-horizontalArrangement
                         horizontalArrangement = { Arrangement.SpaceEvenly }
-                        // highlight-dockConfiguration-itemDecoration
-                        // Default value is { it() }
                         itemDecoration = {
                             Box(modifier = Modifier.padding(2.dp)) {
                                 it()
                             }
                         }
-                        // highlight-dockConfiguration-itemDecoration
                     }
                 }
             }
-            // highlight-dockConfiguration
+            // highlight-android-dock-configuration
         },
         onClose = onClose,
     )
