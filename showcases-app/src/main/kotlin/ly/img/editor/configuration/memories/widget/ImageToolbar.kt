@@ -3,6 +3,7 @@
 package ly.img.editor.configuration.memories.widget
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
@@ -301,6 +302,7 @@ private fun UnboundedIconButton(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun SelectionCountBadge(
     visible: Boolean,

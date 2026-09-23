@@ -26,6 +26,12 @@ suspend fun colorConversion(engine: Engine): ColorConversionResult = withContext
     )
     // highlight-android-create-colors
 
+    // highlight-android-load-cmyk-profile
+    // A CMYK conversion reads the document CMYK profile, which is a resource. Load it once so the
+    // conversions below do not have to handle COLOR.PROFILE_NOT_LOADED.
+    engine.editor.loadCMYKProfile()
+    // highlight-android-load-cmyk-profile
+
     // highlight-android-convert-to-srgb
     val cmykToSrgb = engine.editor.convertColorToColorSpace(
         color = cmykColor,

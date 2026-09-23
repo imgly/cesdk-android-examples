@@ -8,7 +8,7 @@ import ly.img.engine.RGBAColor
 import ly.img.engine.ShapeType
 import ly.img.engine.SpotColor
 
-fun srgbColors(engine: Engine) {
+suspend fun srgbColors(engine: Engine) {
     val scene = engine.scene.create()
 
     val page = engine.block.create(DesignBlockType.Page)
@@ -103,6 +103,8 @@ fun srgbColors(engine: Engine) {
     // highlight-android-identify-rgba
 
     // highlight-android-convert-to-srgb
+    // Converting CMYK reads the document CMYK profile, which is a resource. Load it once first.
+    engine.editor.loadCMYKProfile()
     val cmykOrange = Color.fromCMYK(c = 0F, m = 0.5F, y = 1F, k = 0F, tint = 1F)
     val convertedToSrgb = engine.editor.convertColorToColorSpace(
         color = cmykOrange,
