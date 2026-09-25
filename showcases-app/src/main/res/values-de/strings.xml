@@ -11,6 +11,8 @@
     <string name="ly_img_showcases_button_apparel_blank_title">Leeres T-Shirt</string>
     <string name="ly_img_showcases_button_custom_ai_text_to_image_subtitle">KI-generierte Bilder\naus einem Textprompt erstellen</string>
     <string name="ly_img_showcases_button_custom_ai_text_to_image_title">Text-zu-Bild-\nGenerierung</string>
+    <string name="ly_img_showcases_button_custom_auto_captions_subtitle">Ein Video transkribieren und\nzeitsynchrone Untertitel hinzufügen</string>
+    <string name="ly_img_showcases_button_custom_auto_captions_title">Automatische Untertitel</string>
     <string name="ly_img_showcases_button_custom_bg_removal_subtitle">Entfernen Sie den Hintergrund eines Bildes direkt im Editor</string>
     <string name="ly_img_showcases_button_custom_bg_removal_title">Hintergrund entfernen</string>
     <string name="ly_img_showcases_button_custom_memories_subtitle">Verwandeln Sie Fotos und Videos in eine teilbare Video-Story</string>
