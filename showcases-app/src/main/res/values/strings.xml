@@ -11,6 +11,8 @@
     <string name="ly_img_showcases_button_apparel_blank_title">Blank T-shirt</string>
     <string name="ly_img_showcases_button_custom_ai_text_to_image_subtitle">Create AI generated\nimages from a text prompt</string>
     <string name="ly_img_showcases_button_custom_ai_text_to_image_title">Text to Image\nGeneration</string>
+    <string name="ly_img_showcases_button_custom_auto_captions_subtitle">Transcribe a video and add\ntime-synced captions</string>
+    <string name="ly_img_showcases_button_custom_auto_captions_title">Auto Captions</string>
     <string name="ly_img_showcases_button_custom_bg_removal_subtitle">Remove the background of any image directly from the editor</string>
     <string name="ly_img_showcases_button_custom_bg_removal_title">Background Removal</string>
     <string name="ly_img_showcases_button_custom_memories_subtitle">Turn photos and videos into a shareable video story</string>

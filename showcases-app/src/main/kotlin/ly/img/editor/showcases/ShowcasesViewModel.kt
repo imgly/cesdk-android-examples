@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import ly.img.editor.core.iconpack.Captions
 import ly.img.editor.plugin.backgroundRemoval.IMGLYBackgroundRemovalConfig
 import ly.img.editor.plugin.backgroundRemoval.iconPack.BackgroundRemoval
 import ly.img.editor.plugin.backgroundRemoval.remover.IMGLYBackgroundRemover
@@ -12,6 +13,7 @@ import ly.img.editor.showcases.ShowcaseItem.ClickAction
 import ly.img.editor.showcases.icon.IconPack
 import ly.img.editor.showcases.icon.Memories
 import ly.img.editor.showcases.icon.TextToImage
+import ly.img.editor.core.iconpack.IconPack as EditorIconPack
 import ly.img.editor.plugin.backgroundRemoval.iconPack.IconPack as BackgroundRemovalIconPack
 
 @Stable
@@ -394,6 +396,16 @@ class ShowcasesViewModel(
                     sublabel = R.string.ly_img_showcases_button_custom_ai_text_to_image_subtitle,
                     clickAction = ClickAction(
                         destination = Screen.TextToImage,
+                        requestApiKey = true,
+                    ),
+                ),
+                ShowcaseItem.CustomFunctionality(
+                    vectorIcon = EditorIconPack.Captions,
+                    thumbnailRes = R.drawable.custom_functionality_auto_captions,
+                    label = R.string.ly_img_showcases_button_custom_auto_captions_title,
+                    sublabel = R.string.ly_img_showcases_button_custom_auto_captions_subtitle,
+                    clickAction = ClickAction(
+                        destination = Screen.AutoCaptions,
                         requestApiKey = true,
                     ),
                 ),
