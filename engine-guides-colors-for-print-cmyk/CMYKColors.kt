@@ -19,7 +19,7 @@ data class CMYKColors(
     val gradientStops: List<GradientColorStop>,
 )
 
-fun cmykColors(engine: Engine): CMYKColors {
+suspend fun cmykColors(engine: Engine): CMYKColors {
     // highlight-android-create-cmyk
     // CMYK components (c, m, y, k) and tint all range from 0F to 1F.
     val cmykCyan = Color.fromCMYK(c = 1F, m = 0F, y = 0F, k = 0F, tint = 1F)
@@ -94,6 +94,9 @@ fun cmykColors(engine: Engine): CMYKColors {
     // highlight-android-read
 
     // highlight-android-convert
+    // Converting CMYK to sRGB reads the document CMYK profile, which is a resource. Load it once
+    // first, so the conversion does not have to handle COLOR.PROFILE_NOT_LOADED.
+    engine.editor.loadCMYKProfile()
     val rgbBlue = Color.fromRGBA(r = 0.2F, g = 0.4F, b = 0.9F, a = 1F)
     val convertedCmyk = engine.editor.convertColorToColorSpace(
         color = rgbBlue,

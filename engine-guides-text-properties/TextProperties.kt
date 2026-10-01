@@ -53,6 +53,22 @@ suspend fun textProperties(engine: Engine) {
     val colorsInRange = engine.block.getTextColors(text, from = 2, to = 5)
     // highlight-android-text-colors
 
+    // highlight-android-text-run-background
+    engine.block.setTextBackgroundColor(text, color = yellow, from = 1, to = 4)
+    // A fully transparent color removes the background again:
+    // engine.block.setTextBackgroundColor(text, color = Color.fromRGBA(r = 0, g = 0, b = 0, a = 0), from = 1, to = 4)
+
+    val allBackgroundColors = engine.block.getTextBackgroundColors(text)
+    val backgroundColorsInRange = engine.block.getTextBackgroundColors(text, from = 2, to = 5)
+
+    // Grow the background around the text and round its corners
+    engine.block.setFloat(text, "text/backgroundPadding/left", 4F)
+    engine.block.setFloat(text, "text/backgroundPadding/right", 4F)
+    engine.block.setFloat(text, "text/backgroundPadding/top", 2F)
+    engine.block.setFloat(text, "text/backgroundPadding/bottom", 2F)
+    engine.block.setFloat(text, "text/backgroundCornerRadius", 4F)
+    // highlight-android-text-run-background
+
     // highlight-android-text-background
     if (engine.block.supportsBackgroundColor(text)) {
         engine.block.setBackgroundColorEnabled(text, enabled = true)

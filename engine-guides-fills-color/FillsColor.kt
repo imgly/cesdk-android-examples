@@ -181,6 +181,7 @@ suspend fun fillsColor(engine: Engine) {
     check(engine.block.getFill(block2) == sharedFill)
 
     // highlight-android-convert-color
+    engine.editor.loadCMYKProfile()
     val rgbColor = Color.fromRGBA(r = 1F, g = 0F, b = 0F, a = 1F)
     val cmykColor = engine.editor.convertColorToColorSpace(
         color = rgbColor,

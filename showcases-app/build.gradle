@@ -1,8 +1,10 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+
 import java.time.LocalDate
 
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
     id 'com.github.gmazzo.buildconfig'
     alias(libs.plugins.compose.compiler)
 }
@@ -216,12 +218,16 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
 
-    kotlinOptions {
-        jvmTarget = '11'
-    }
-
     buildFeatures {
         compose true
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_11
+        languageVersion = KotlinVersion.KOTLIN_1_9
+        apiVersion = KotlinVersion.KOTLIN_1_9
     }
 }
 
@@ -281,12 +287,12 @@ dependencies {
     }
     implementation(libs.imgly.plugin.background.removal.imgly)
     implementation(libs.imgly.plugin.ai.image.generation)
+    implementation(libs.imgly.plugin.auto.captions)
     implementation(libs.imgly.camera) {
         exclude group: 'ly.img', module: 'editor-debug-menu'
     }
 
     implementation platform(libs.firebase.bom)
-    implementation libs.firebase.dynamicLinks
     implementation libs.firebase.analytics
     implementation libs.firebase.crashlytics
     implementation libs.firebase.crashlytics.ndk
@@ -372,17 +378,17 @@ tasks.register('generateUniversalApksArchive', JavaExec) {
         "--mode=universal")
 }
 
-android.applicationVariants.configureEach { variant ->
-    if (variant.buildType.name == 'release') {
+androidComponents {
+    onVariants(selector().withBuildType('release')) { variant ->
         def variantName = variant.name.capitalize()
         def tasks = [
             "assemble$variantName",
             "bundle$variantName"
         ]
-        def uploadSymbolsTaskName = "uploadCrashlyticsSymbolFile${variant.name.capitalize()}"
+        def uploadSymbolsTaskName = "uploadCrashlyticsSymbolFile$variantName"
 
-        tasks.each { taskName ->
-            project.tasks.named(taskName).configure { task ->
+        project.tasks.configureEach { task ->
+            if (task.name in tasks) {
                 task.finalizedBy(uploadSymbolsTaskName)
             }
         }

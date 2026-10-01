@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 import ly.img.camera.core.CameraResult
 import ly.img.editor.core.theme.EditorTheme
 import ly.img.editor.showcases.ui.screen.ApparelEditorScreen
+import ly.img.editor.showcases.ui.screen.AutoCaptionsScreen
 import ly.img.editor.showcases.ui.screen.BackgroundRemovalScreen
 import ly.img.editor.showcases.ui.screen.DesignEditorScreen
 import ly.img.editor.showcases.ui.screen.EditCameraRecordingsScreen
@@ -151,6 +152,13 @@ class ShowcasesActivity : ComponentActivity() {
                             gatewayApiKey = gatewayApiKey,
                             baseUri = baseUri,
                             sceneUri = sceneUri,
+                            onBack = { navController.popBackStack() },
+                        )
+                    }
+                    composable(screen = Screen.AutoCaptions) {
+                        AutoCaptionsScreen(
+                            gatewayApiKey = it.arguments?.getString("gatewayApiKey"),
+                            baseUri = baseUri,
                             onBack = { navController.popBackStack() },
                         )
                     }
@@ -349,6 +357,11 @@ sealed class Screen(
                 defaultValue = null
             },
         ),
+    )
+
+    data object AutoCaptions : Screen(
+        routeScheme = "auto-captions?gatewayApiKey={gatewayApiKey}",
+        arguments = listOf(),
     )
 
     data object BackgroundRemoval : Screen(
