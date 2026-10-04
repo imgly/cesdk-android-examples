@@ -1,0 +1,30 @@
+// Extra dependencies for the Memories starter kit.
+//
+// Applied two ways:
+//   - by the standalone kit's `:starter-kit` build script (see starter-kit/build.gradle.kts), and
+//   - by the showcases-app demo via starter-kits-local.gradle, which merges each kit's
+//     configuration/<name> sources into that app,
+// so the merged configuration/memories sources compile in every host.
+//
+// Plain coordinate strings only — version catalogs (libs.*) are not available in the standalone,
+// deployed starter-kit repository. Versions are pinned to match what showcases-app already
+// resolves (Compose BOM 2023.05.01, coil 2.2.2, activity-compose 1.6.1, lifecycle 2.8.7) so
+// applying this file into that app does not silently upgrade its shared classpath.
+//
+// `api` for things the host app needs transitively; `implementation` for editor-internal-only deps.
+dependencies {
+    // Image loading: Compose thumbnails in the media grid / timeline and the style picker.
+    api "io.coil-kt:coil:2.2.2"
+    api "io.coil-kt:coil-compose:2.2.2"
+
+    // Reading EXIF capture dates from picked images.
+    api "androidx.exifinterface:exifinterface:1.4.2"
+
+    // Compose extras used by the memories UI. lifecycle-viewmodel-compose 2.8.7 brings
+    // Foundation 1.6.1 only at runtime, so make that required Pager API available to hosts
+    // on their compile classpath as well.
+    api "androidx.compose.foundation:foundation:1.6.1"
+    implementation "androidx.compose.material:material-ripple:1.4.3"
+    api "androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7"
+    api "androidx.activity:activity-compose:1.6.1"
+}

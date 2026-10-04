@@ -122,6 +122,22 @@ suspend fun pages(engine: Engine): PagesGuideSummary = withContext(engine.dispat
     val nearestPages = engine.scene.findNearestToViewPortCenterByType(DesignBlockType.Page)
     // highlight-android-pages-find-pages
 
+    // highlight-android-pages-single-page-mode
+    // Enable single page mode and show only the second page.
+    engine.editor.setSettingBoolean("features/singlePageModeEnabled", true)
+    engine.scene.setCurrentPages(listOf(secondPage))
+
+    // Or show more pages. Two pages form a facing pair.
+    engine.scene.setCurrentPages(listOf(firstPage, secondPage))
+
+    // Read the shown pages. The list is empty while the mode is disabled.
+    val currentPages = engine.scene.getCurrentPages()
+    println("Current pages: $currentPages")
+
+    // Turn the mode off to show every page again.
+    engine.editor.setSettingBoolean("features/singlePageModeEnabled", false)
+    // highlight-android-pages-single-page-mode
+
     engine.block.forceLoadResources(listOf(imageBlock, textBlock))
 
     PagesGuideSummary(

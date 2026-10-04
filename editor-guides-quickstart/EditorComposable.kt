@@ -11,7 +11,7 @@ import ly.img.engine.DesignBlockType
 fun EditorComposable(onClose: (Throwable?) -> Unit) {
     val context = LocalContext.current
     Editor(
-        // Get your license from https://img.ly/forms/free-trial
+        // Request a license at https://img.ly/forms/contact-sales/
         // Keep this null for evaluation mode with watermark.
         // Replace it with your license key for production use.
         license = null,
