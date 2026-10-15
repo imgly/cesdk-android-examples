@@ -1,20 +1,9 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
         gradlePluginPortal()
+        google()
+        mavenCentral()
     }
-}
-
-def remoteBuildCache = file("$settingsDir/../../config/gradle/remote-build-cache.settings.gradle")
-if (remoteBuildCache.exists()) {
-    apply from: remoteBuildCache
 }
 
 dependencyResolutionManagement {
@@ -22,36 +11,48 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven {
-            name "IMG.LY Artifactory"
-            url "https://maven.img.ly/maven"
-            mavenContent {
-                includeGroup("ly.img")
-            }
-        }
         exclusiveContent {
             forRepository {
-                ivy {
-                    name = 'BundleTool releases'
-                    url = 'https://github.com/google/bundletool/releases/download/'
-                    patternLayout {
-                        artifact '[revision]/[module](-[classifier])-[revision](.[ext])'
-                    }
-                    metadataSources {
-                        artifact()
-                    }
+                maven {
+                    name = "IMG.LY Artifactory"
+                    url = "https://maven.img.ly/maven"
                 }
             }
             filter {
-                includeGroup('bundletool-github')
+                includeGroup("ly.img")
             }
         }
     }
 }
 
-rootProject.name = "CE.SDK Android Showcases"
-include ':showcases-app'
+rootProject.name = "CE.SDK Android Examples"
+include ':examples-app'
 
-if (file('internal.settings.gradle').exists()) {
-    apply from: 'internal.settings.gradle'
+// Marks this build as the standalone public examples project. examples-app reads this
+// instead of inferring the mode from surrounding directory names, which breaks when a
+// clone (or any sibling directory) is named cesdk_android_examples.
+gradle.ext.ubqStandaloneExamplesProject = true
+
+// Inside the IMG.LY monorepo, build the SDK from local source instead of Maven.
+// Require the expected source checkout structure so an unrelated directory at
+// the same path cannot accidentally enable composite-build substitution.
+def editorDir = file("../../cesdk_android")
+def hasLocalEditorSource = new File(editorDir, "settings.gradle").isFile() &&
+        new File(editorDir, "sources/editor/build.gradle").isFile()
+if (hasLocalEditorSource && System.getenv("UBQ_ANDROID_USE_ARTIFACTS") != "true") {
+    includeBuild(editorDir) {
+        dependencySubstitution {
+            substitute module('ly.img:editor') using project(':editor')
+            substitute module('ly.img:plugin-background-removal') using project(':plugin-background-removal')
+            substitute module('ly.img:plugin-background-removal-imgly') using project(':plugin-background-removal-imgly')
+            substitute module('ly.img:plugin-background-removal-google') using project(':plugin-background-removal-google')
+            substitute module('ly.img:plugin-ai-image-generation') using project(':plugin-ai-image-generation')
+            substitute module('ly.img:plugin-auto-captions') using project(':plugin-auto-captions')
+            substitute module('ly.img:camera') using project(':camera')
+            // Unlike showcases, keep the dummy debug menu: the released artifacts customers
+            // resolve use it, and the real menu changes the SDK modules' classpaths between
+            // the monorepo and composite builds, forcing spurious recompiles.
+            substitute module('ly.img:editor-debug-menu-dummy') using project(':editor-debug-menu-dummy')
+        }
+    }
 }

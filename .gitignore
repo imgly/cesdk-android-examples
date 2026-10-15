@@ -1,14 +1,6 @@
 *.iml
 .gradle
-/local.properties
-!.idea
-.idea/*
-!.idea/codeStyles
-.DS_Store
-/captures
-.externalNativeBuild
-.cxx
+.idea
 local.properties
+**/build/
 android-release.keystore
-**/build
-showcases-app/src/main/assets/imgly-assets/
