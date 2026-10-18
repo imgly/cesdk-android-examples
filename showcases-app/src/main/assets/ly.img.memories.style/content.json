@@ -1,0 +1,50 @@
+{
+  "version": "1.0.0",
+  "id": "ly.img.memories.style",
+  "assets": [
+    {
+      "id": "noir",
+      "label": { "en": "Noir" },
+      "tags": { "en": ["style", "noir"] },
+      "meta": {
+        "uri": "{{base_url}}/ly.img.memories.style/thumbnails/noir.png",
+        "thumbUri": "{{base_url}}/ly.img.memories.style/thumbnails/noir.png",
+        "kind": "image",
+        "fillType": "//ly.img.ubq/fill/image",
+        "mimeType": "image/png",
+        "width": 256,
+        "height": 256
+      }
+    },
+    {
+      "id": "hologram",
+      "label": { "en": "Hologram" },
+      "tags": { "en": ["style", "background", "video"] },
+      "meta": {
+        "uri": "{{base_url}}/ly.img.memories.style/videos/hologram.mp4",
+        "thumbUri": "{{base_url}}/ly.img.memories.style/thumbnails/hologram.png",
+        "kind": "video",
+        "fillType": "//ly.img.ubq/fill/video",
+        "mimeType": "video/mp4",
+        "width": 1080,
+        "height": 1920,
+        "duration": "10"
+      }
+    },
+    {
+      "id": "bubblegum",
+      "label": { "en": "Bubblegum" },
+      "tags": { "en": ["style", "background", "video"] },
+      "meta": {
+        "uri": "{{base_url}}/ly.img.memories.style/videos/bubblegum.mp4",
+        "thumbUri": "{{base_url}}/ly.img.memories.style/thumbnails/bubblegum.png",
+        "kind": "video",
+        "fillType": "//ly.img.ubq/fill/video",
+        "mimeType": "video/mp4",
+        "width": 1080,
+        "height": 1920,
+        "duration": "10"
+      }
+    }
+  ]
+}

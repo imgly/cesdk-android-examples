@@ -6,12 +6,12 @@ plugins {
 // highlight-build-android
 android {
     namespace = "com.example.cesdkapp"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.cesdkapp"
         minSdk = 24
-        targetSdk = 37
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
         ndk {
@@ -41,7 +41,7 @@ android {
 // highlight-dependency
 dependencies {
     // This dependency makes main compose and coroutine APIs available in your project
-    implementation("ly.img:editor:1.84.0")
+    implementation("ly.img:editor:1.82.3-rc.0")
     // Other dependencies here
 }
 // highlight-dependency
