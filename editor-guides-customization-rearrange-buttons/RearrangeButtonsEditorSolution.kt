@@ -44,10 +44,10 @@ fun RearrangeButtonsEditorSolution(
                         remove(id = NavigationBar.Button.Id.undo, failIfNotFound = true)
                         remove(id = NavigationBar.Button.Id.redo, failIfNotFound = true)
                         addFirst(alignment = Alignment.Start) {
-                            NavigationBar.Button.rememberRedo()
+                            NavigationBar.Button.rememberUndo()
                         }
                         addFirst(alignment = Alignment.Start) {
-                            NavigationBar.Button.rememberUndo()
+                            NavigationBar.Button.rememberRedo()
                         }
                     }
                     remember(sourceNavigationBar, updatedListBuilder) {

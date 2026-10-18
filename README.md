@@ -30,32 +30,16 @@ You can run the SDK in evaluation mode by passing `null` or an empty string as t
 
 ### Using a License Key
 
-In order to run the `Examples` application that lives in the `examples-app` module of this
+In order to run the `Showcases` application that lives in the `showcases-app` module of this
 repository with a license key, use the instructions below:
 
-1. Request a license at https://img.ly/forms/contact-sales/.
+1. Get a free trial license at https://img.ly/forms/free-trial.
 2. Copy the license key.
 3. Include the license key in the `local.properties` file:
 
 ```
 license=...
 ```
-
-## Run the Examples App
-
-Open this repository in Android Studio and run the `examples-app` configuration, or install its
-debug build from the command line:
-
-```bash
-./gradlew :examples-app:installDebug
-```
-
-The app lists the curated starter kits and guides used by the documentation previews. The catalog
-shown on the home screen is defined in
-`examples-app/src/main/kotlin/ly/img/editor/examples/Destination.kt`. Guide source files live in
-the corresponding `editor-guides-*`, `camera-guides-*`, and `engine-guides-*` directories at the
-repository root. The catalog app compiles these guides and picks up source changes on the next
-build, except for `editor-guides-quickstart`, which remains a standalone sample.
 
 Source code of the mobile editor and camera can be
 found [here](https://github.com/imgly/cesdk-android).

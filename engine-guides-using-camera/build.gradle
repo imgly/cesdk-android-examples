@@ -1,18 +1,16 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
     namespace "ly.img.editor.camera"
-    compileSdk 37
+    compileSdk 36
 
     defaultConfig {
         applicationId "ly.img.editor.camera"
         minSdk 24
-        targetSdk 37
+        targetSdk 36
         versionCode 1
         versionName "1.0"
         ndk {
@@ -25,25 +23,20 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
-        languageVersion = KotlinVersion.KOTLIN_1_9
-        apiVersion = KotlinVersion.KOTLIN_1_9
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 }
 
 dependencies {
     // highlight-android-dependencies
-    implementation "ly.img:engine-camera:1.84.0"
+    implementation "ly.img:engine-camera:1.82.3"
     implementation "androidx.camera:camera-core:1.5.0-alpha04"
     implementation "androidx.camera:camera-camera2:1.5.0-alpha04"
     implementation "androidx.camera:camera-view:1.5.0-alpha04"
     implementation "androidx.camera:camera-lifecycle:1.5.0-alpha04"
     implementation "androidx.camera:camera-video:1.5.0-alpha04"
-    implementation "ly.img:engine:1.84.0"
+    implementation "ly.img:engine:1.82.3"
     implementation "androidx.activity:activity:1.7.0"
     implementation "androidx.appcompat:appcompat:1.6.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
