@@ -64,6 +64,8 @@ fun VideoConfigurationBuilder.onPreCreateScene() {
         keypath = "page/innerBorderColor",
         value = Color.fromRGBA(0.67f, 0.67f, 0.67f, 0.5f),
     )
+    // Press and hold an image, then drag it onto another image to exchange the two.
+    engine.editor.setSettingBoolean(keypath = "dragToSwapFills/enabled", value = true)
 }
 
 /**

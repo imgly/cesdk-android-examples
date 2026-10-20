@@ -191,6 +191,17 @@ suspend fun gradientFills(engine: Engine): GradientFillsResult {
     check(radialCenterY == 0.5F)
     check(radialRadius == 0.8F)
 
+    // highlight-android-radial-focal-point
+    // Move the first color stop up and to the left of the center.
+    engine.block.setFloat(radialGradient, property = "fill/gradient/radial/focalX", value = -0.2F)
+    engine.block.setFloat(radialGradient, property = "fill/gradient/radial/focalY", value = -0.2F)
+
+    val radialFocalX = engine.block.getFloat(radialGradient, property = "fill/gradient/radial/focalX")
+    val radialFocalY = engine.block.getFloat(radialGradient, property = "fill/gradient/radial/focalY")
+    // highlight-android-radial-focal-point
+    check(radialFocalX == -0.2F)
+    check(radialFocalY == -0.2F)
+
     val previousConicalFill = engine.block.getFill(conicalBlock)
     engine.block.setFill(conicalBlock, fill = conicalGradient)
     if (engine.block.isValid(previousConicalFill)) {
@@ -361,6 +372,8 @@ suspend fun gradientFills(engine: Engine): GradientFillsResult {
         linearEndX = linearEndX,
         linearEndY = linearEndY,
         radialRadius = radialRadius,
+        radialFocalX = radialFocalX,
+        radialFocalY = radialFocalY,
         conicalCenterX = conicalCenterX,
         sharedStops = sharedGradientStops,
         duplicateFillIsIndependent = duplicateFillIsIndependent,

@@ -11,4 +11,6 @@ data class UsingStrokesResult(
     val strokeStyle: StrokeStyle = StrokeStyle.SOLID,
     val strokePosition: StrokePosition = StrokePosition.CENTER,
     val strokeCornerGeometry: StrokeCornerGeometry = StrokeCornerGeometry.MITER,
+    val strokeMiterLimit: Float = 35F,
+    val strokeFillType: String? = null,
 )

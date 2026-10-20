@@ -59,6 +59,16 @@ suspend fun saveDesigns(
     // highlight-android-save-to-string
     check(sceneString.isNotBlank())
 
+    // highlight-android-save-with-data-uris
+    // The default schemes have no "data", so a data: URI fails the save.
+    // Add "data" to keep data: URIs in the string.
+    val sceneWithDataUris = engine.scene.saveToString(
+        scene = scene,
+        allowedResourceSchemes = listOf("blob", "bundle", "data", "file", "http", "https"),
+    )
+    // highlight-android-save-with-data-uris
+    check(sceneWithDataUris.isNotBlank())
+
     // highlight-android-save-to-archive
     val sceneArchive = engine.scene.saveToArchive(scene = scene)
     // highlight-android-save-to-archive

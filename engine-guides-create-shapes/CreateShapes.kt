@@ -5,6 +5,7 @@ import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.GradientColorStop
 import ly.img.engine.ShapeType
+import kotlin.math.abs
 
 suspend fun createShapes(engine: Engine): DesignBlock {
     val scene = engine.scene.create()
@@ -109,6 +110,37 @@ suspend fun createShapes(engine: Engine): DesignBlock {
     // highlight-android-configure-star-properties
     check(engine.block.getInt(starShape, property = "shape/star/points") == 5)
     check(engine.block.getFloat(starShape, property = "shape/star/innerDiameter") == 0.5F)
+
+    // highlight-android-star-radii
+    val roundStarGraphic = engine.block.create(DesignBlockType.Graphic)
+    val roundStarShape = engine.block.createShape(ShapeType.Star)
+    engine.block.setShape(roundStarGraphic, shape = roundStarShape)
+
+    // Radii are fractions of half the frame size. Roundness goes from 0 to 1.
+    engine.block.setFloat(roundStarShape, property = "shape/star/outerRadius", value = 0.9F)
+    engine.block.setFloat(roundStarShape, property = "shape/star/innerRadius", value = 0.45F)
+    engine.block.setFloat(roundStarShape, property = "shape/star/outerRoundness", value = 0.3F)
+    engine.block.setFloat(roundStarShape, property = "shape/star/innerRoundness", value = 0.2F)
+    // Clockwise, in degrees. At 36 degrees a five-point star points down.
+    engine.block.setFloat(roundStarShape, property = "shape/star/rotation", value = 36F)
+
+    // innerDiameter reports the ratio of the inner to the outer radius: 0.5
+    val innerDiameter = engine.block.getFloat(roundStarShape, property = "shape/star/innerDiameter")
+
+    val pinkFill = engine.block.createFill(FillType.Color)
+    engine.block.setFill(roundStarGraphic, fill = pinkFill)
+    engine.block.setFillSolidColor(
+        block = roundStarGraphic,
+        color = Color.fromRGBA(r = 0.95F, g = 0.3F, b = 0.6F, a = 1F),
+    )
+
+    engine.block.setWidth(roundStarGraphic, value = 64F)
+    engine.block.setHeight(roundStarGraphic, value = 64F)
+    engine.block.appendChild(parent = page, child = roundStarGraphic)
+    engine.block.setPositionX(roundStarGraphic, value = 226F)
+    engine.block.setPositionY(roundStarGraphic, value = 82F)
+    // highlight-android-star-radii
+    check(abs(innerDiameter - 0.5F) < 0.001F)
 
     // highlight-android-create-polygon
     val polygonGraphic = engine.block.create(DesignBlockType.Graphic)

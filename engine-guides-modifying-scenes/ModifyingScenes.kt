@@ -46,6 +46,17 @@ suspend fun modifyingScenes(engine: Engine) = withContext(engine.dispatcher) {
     println("Layout: $layout")
     // highlight-android-scene-layout
 
+    // highlight-android-frame-rate-and-markers
+    // The preview motion blur and video exports without a frame rate use this rate
+    engine.block.setFloat(block = scene, property = "scene/frameRate", value = 25F)
+
+    // Markers name points or spans on the scene timeline
+    engine.scene.addMarker(name = "intro", time = 0.0, duration = 2.5)
+    engine.scene.addMarker(name = "beat", time = 4.0)
+    engine.scene.removeMarker(index = 1)
+    println("Markers: ${engine.scene.getMarkers()}") // [SceneMarker(name=intro, time=0.0, duration=2.5)]
+    // highlight-android-frame-rate-and-markers
+
     // highlight-android-page-navigation
     val pages = engine.scene.getPages()
     println("Number of pages: ${pages.size}")

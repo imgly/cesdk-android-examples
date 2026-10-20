@@ -33,6 +33,7 @@ data class BlurEffects(
     val replacementBlurType: String,
     val replacementBlurRadius: Float,
     val oldBlurValidAfterDestroy: Boolean,
+    val badgeBlurMode: String,
     val previewPng: ByteBuffer,
 )
 
@@ -148,6 +149,28 @@ suspend fun blurEffects(engine: Engine): BlurEffects {
     val oldBlurValidAfterDestroy = engine.block.isValid(block = oldBlur)
     // highlight-android-replace-blur
 
+    // highlight-android-block-mode
+    // A uniform blur in Block mode blurs the whole block, its stroke included,
+    // and spreads past its frame
+    val badge = engine.block.create(DesignBlockType.Graphic)
+    engine.block.setShape(block = badge, shape = engine.block.createShape(ShapeType.Rect))
+    engine.block.setFill(block = badge, fill = engine.block.createFill(FillType.Color))
+    engine.block.setWidth(block = badge, value = 160F)
+    engine.block.setHeight(block = badge, value = 100F)
+    engine.block.setPositionX(block = badge, value = 40F)
+    engine.block.setPositionY(block = badge, value = 40F)
+    engine.block.setStrokeEnabled(block = badge, enabled = true)
+    engine.block.setStrokeWidth(block = badge, width = 8F)
+    engine.block.appendChild(parent = page, child = badge)
+
+    val badgeBlur = engine.block.createBlur(type = BlurType.Uniform)
+    engine.block.setFloat(block = badgeBlur, property = "blur/uniform/intensity", value = 0.3F)
+    engine.block.setEnum(block = badgeBlur, property = "blur/uniform/mode", value = "Block")
+    engine.block.setBlur(block = badge, blurBlock = badgeBlur)
+    engine.block.setBlurEnabled(block = badge, enabled = true)
+    val badgeBlurMode = engine.block.getEnum(block = badgeBlur, property = "blur/uniform/mode")
+    // highlight-android-block-mode
+
     return BlurEffects(
         pageSupportsBlur = pageSupportsBlur,
         imageSupportsBlur = imageSupportsBlur,
@@ -168,6 +191,7 @@ suspend fun blurEffects(engine: Engine): BlurEffects {
         replacementBlurType = engine.block.getType(block = replacementBlur),
         replacementBlurRadius = engine.block.getFloat(block = replacementBlur, property = "blur/linear/blurRadius"),
         oldBlurValidAfterDestroy = oldBlurValidAfterDestroy,
+        badgeBlurMode = badgeBlurMode,
         previewPng = previewPng,
     )
 }

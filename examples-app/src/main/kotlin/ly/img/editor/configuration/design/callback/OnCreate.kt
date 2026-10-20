@@ -49,6 +49,8 @@ fun DesignConfigurationBuilder.onPreCreateScene() {
         keypath = "features/pageCarouselEnabled",
         value = true,
     )
+    // Press and hold an image, then drag it onto another image to exchange the two.
+    editorContext.engine.editor.setSettingBoolean(keypath = "dragToSwapFills/enabled", value = true)
 }
 
 /**
