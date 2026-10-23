@@ -55,6 +55,8 @@ fun ApparelConfigurationBuilder.onPreCreateScene() {
         keypath = "ubq://page/dimOutOfPageAreas",
         value = false,
     )
+    // Press and hold an image, then drag it onto another image to exchange the two.
+    editorContext.engine.editor.setSettingBoolean(keypath = "dragToSwapFills/enabled", value = true)
 }
 
 /**

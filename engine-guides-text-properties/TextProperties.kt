@@ -164,4 +164,11 @@ suspend fun textProperties(engine: Engine) {
     engine.block.setTextFontStyle(text, fontStyle = FontStyle.ITALIC)
     val fontStyles = engine.block.getTextFontStyles(text)
     // highlight-android-font-styles
+
+    // highlight-android-baseline-shift
+    // Raise the last character, the exclamation mark, 40 design units
+    val length = engine.block.getString(text, property = "text/text").length
+    engine.block.setTextBaselineShift(text, baselineShift = 40F, from = length - 1, to = length)
+    val baselineShifts = engine.block.getTextBaselineShifts(text) // [0.0, 40.0]
+    // highlight-android-baseline-shift
 }

@@ -23,7 +23,7 @@ fun scriptStyle(
     engine.block.replaceText(text, text = "\$1999 H2O E=mc2")
 
     // highlight-superscript
-    // Raise the cents of the price above the baseline.
+    // Raise the cents of the price above the rest of the line.
     // Superscript text is scaled down and raised automatically.
     engine.block.setTextScriptStyle(text, scriptStyle = ScriptStyle.SUPERSCRIPT, from = 3, to = 5)
 
@@ -32,7 +32,7 @@ fun scriptStyle(
     // highlight-superscript
 
     // highlight-subscript
-    // Lower the "2" of the water formula below the baseline
+    // Lower the "2" of the water formula below the rest of the line
     engine.block.setTextScriptStyle(text, scriptStyle = ScriptStyle.SUBSCRIPT, from = 7, to = 8)
     // highlight-subscript
 
@@ -63,7 +63,7 @@ fun scriptStyle(
     // highlight-adjust
 
     // highlight-reset
-    // Reset a range back to the normal baseline
+    // Reset a range back to regular text
     engine.block.setTextScriptStyle(text, scriptStyle = ScriptStyle.NORMAL, from = 14, to = 15)
     // highlight-reset
 

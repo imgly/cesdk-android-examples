@@ -1,5 +1,6 @@
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -55,6 +56,59 @@ suspend fun exportToPdf(engine: Engine): List<File> {
     )
     val progressPdf = writePdfExport(fileName = "design-with-progress.pdf", buffer = progressData)
     // highlight-android-progress
+
+    // highlight-android-stream
+    // Write the PDF into the file while it is encoded, so the finished
+    // document is never held in memory as a whole. Open the file off the
+    // main thread; the export writes it from its own background thread.
+    val streamedPdf = withContext(Dispatchers.IO) { File.createTempFile("design-streamed", ".pdf") }
+    try {
+        withContext(Dispatchers.IO) { streamedPdf.outputStream() }.use { output ->
+            engine.block.export(
+                block = scene,
+                output = output,
+                mimeType = MimeType.PDF,
+                progressCallback = { progress ->
+                    println("Streamed ${progress.exportedPages} of ${progress.totalPages} pages")
+                },
+            )
+        }
+    } catch (exception: Exception) {
+        // A failed or cancelled export leaves an incomplete document in the file.
+        withContext(NonCancellable + Dispatchers.IO) { streamedPdf.delete() }
+        throw exception
+    }
+    // highlight-android-stream
+
+    // highlight-android-chunk-size
+    // A chunk is the memory held at one time. Raise the bound when each chunk
+    // costs extra work, for example one network request per chunk.
+    val boundedChunksPdf = withContext(Dispatchers.IO) { File.createTempFile("design-bounded-chunks", ".pdf") }
+    withContext(Dispatchers.IO) { boundedChunksPdf.outputStream() }.use { output ->
+        engine.block.export(
+            block = scene,
+            output = output,
+            mimeType = MimeType.PDF,
+            options = ExportOptions(pdfChunkSize = 64 * 1024),
+        )
+    }
+    // highlight-android-chunk-size
+
+    // highlight-android-flow
+    // Collect the chunks as a flow when they feed a coroutine pipeline. Write
+    // each chunk and drop it: a collector that keeps the chunks holds the
+    // whole document in memory again.
+    val flowPdf = withContext(Dispatchers.IO) { File.createTempFile("design-flow", ".pdf") }
+    withContext(Dispatchers.IO) { flowPdf.outputStream() }.use { output ->
+        engine.block.export(block = scene).collect { chunk ->
+            withContext(Dispatchers.IO) {
+                while (chunk.hasRemaining()) {
+                    output.channel.write(chunk)
+                }
+            }
+        }
+    }
+    // highlight-android-flow
 
     // highlight-android-cancel
     // Cancelling the coroutine that runs the export stops the export itself.
@@ -118,7 +172,16 @@ suspend fun exportToPdf(engine: Engine): List<File> {
     val a4Pdf = writePdfExport(fileName = "design-a4.pdf", buffer = a4Data)
     // highlight-android-target-size
 
-    return listOf(defaultPdf, progressPdf, highCompatibilityPdf, underlayerPdf, a4Pdf)
+    return listOf(
+        defaultPdf,
+        progressPdf,
+        streamedPdf,
+        boundedChunksPdf,
+        flowPdf,
+        highCompatibilityPdf,
+        underlayerPdf,
+        a4Pdf,
+    )
 }
 
 // highlight-android-save-pdf

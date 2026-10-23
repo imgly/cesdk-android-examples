@@ -2,6 +2,7 @@ import ly.img.engine.Color
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
+import ly.img.engine.GradientColorStop
 import ly.img.engine.RGBAColor
 import ly.img.engine.ShapeType
 import ly.img.engine.StrokeCornerGeometry
@@ -69,12 +70,46 @@ fun usingStrokes(engine: Engine): UsingStrokesResult? {
     val strokeCornerGeometry = engine.block.getStrokeCornerGeometry(block = block)
     // highlight-android-stroke-corner
 
+    val star = engine.block.create(DesignBlockType.Graphic)
+    engine.block.setShape(star, shape = engine.block.createShape(ShapeType.Star))
+    engine.block.setWidth(star, value = 150F)
+    engine.block.setHeight(star, value = 150F)
+    engine.block.setPositionX(star, value = 630F)
+    engine.block.setPositionY(star, value = 20F)
+    engine.block.setFillEnabled(star, enabled = false)
+    engine.block.setStrokeEnabled(star, enabled = true)
+    engine.block.setStrokeWidth(star, width = 10F)
+    engine.block.appendChild(parent = page, child = star)
+
+    // highlight-android-stroke-miter-limit
+    // Bevel each corner whose miter is longer than 1.5 times the stroke width.
+    engine.block.setStrokeCornerGeometry(block = star, geometry = StrokeCornerGeometry.MITER)
+    engine.block.setFloat(block = star, property = "stroke/miterLimit", value = 1.5F)
+    val strokeMiterLimit = engine.block.getFloat(block = star, property = "stroke/miterLimit")
+    // highlight-android-stroke-miter-limit
+
+    // highlight-android-stroke-fill
+    val strokeGradient = engine.block.createFill(FillType.LinearGradient)
+    engine.block.setGradientColorStops(
+        block = strokeGradient,
+        property = "fill/gradient/colors",
+        colorStops = listOf(
+            GradientColorStop(stop = 0F, color = Color.fromRGBA(r = 0F, g = 0.4F, b = 0.9F, a = 1F)),
+            GradientColorStop(stop = 1F, color = Color.fromRGBA(r = 0.9F, g = 0.2F, b = 0.5F, a = 1F)),
+        ),
+    )
+    engine.block.setStrokeFill(block = star, fill = strokeGradient)
+    val strokeFill = engine.block.getStrokeFill(block = star)
+    // highlight-android-stroke-fill
+
     check(strokeIsEnabled)
     check(strokeColor is RGBAColor)
     check(strokeWidth > 0F)
     check(strokeStyle == StrokeStyle.DASHED)
     check(strokePosition == StrokePosition.OUTER)
     check(strokeCornerGeometry == StrokeCornerGeometry.ROUND)
+    check(strokeMiterLimit == 1.5F)
+    check(strokeFill == strokeGradient)
 
     return UsingStrokesResult(
         canHaveStroke = canHaveStroke,
@@ -84,5 +119,7 @@ fun usingStrokes(engine: Engine): UsingStrokesResult? {
         strokeStyle = engine.block.getStrokeStyle(block = block),
         strokePosition = engine.block.getStrokePosition(block = block),
         strokeCornerGeometry = engine.block.getStrokeCornerGeometry(block = block),
+        strokeMiterLimit = engine.block.getFloat(block = star, property = "stroke/miterLimit"),
+        strokeFillType = strokeFill?.let { engine.block.getType(it) },
     )
 }

@@ -2,12 +2,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ly.img.engine.BlockState
 import ly.img.engine.ContentFillMode
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.HorizontalAlignment
 import ly.img.engine.ShapeType
+import ly.img.engine.Vector2
 
 suspend fun conceptsBlocks(engine: Engine) = withContext(engine.dispatcher) {
     var selectionObserver: Job? = null
@@ -137,6 +139,11 @@ suspend fun conceptsBlocks(engine: Engine) = withContext(engine.dispatcher) {
         engine.block.setEnum(block = graphic, property = "blend/mode", value = "Multiply")
         val blendMode = engine.block.getEnum(block = graphic, property = "blend/mode")
         println("Graphic blend mode: $blendMode")
+
+        // Vec2 properties hold two coordinates, such as the position of a block
+        engine.block.setVec2(block = graphic, property = "position", value = Vector2(200F, 100F))
+        val position = engine.block.getVec2(block = graphic, property = "position")
+        println("Graphic position: ${position.x} ${position.y}")
         // highlight-android-property-accessors
 
         // highlight-android-uuid-identity
@@ -189,6 +196,11 @@ suspend fun conceptsBlocks(engine: Engine) = withContext(engine.dispatcher) {
         // highlight-android-block-state
         val graphicState = engine.block.getState(graphic)
         println("Graphic state: $graphicState")
+
+        // An error state carries the engine error behind it when the engine knows it
+        if (graphicState is BlockState.Error) {
+            graphicState.engineError?.let { println("${it.code}: ${it.message}") }
+        }
 
         stateObserver = launch {
             engine.block.onStateChanged(listOf(graphic)).collect { changedBlocks ->
