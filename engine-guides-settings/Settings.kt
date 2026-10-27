@@ -21,6 +21,8 @@ suspend fun settings(
     val previousSnappingThreshold = engine.editor.getSettingFloat("positionSnappingThreshold")
     val previousTitleSeparator = engine.editor.getSettingString("page/title/separator")
     val previousHighlightColor = engine.editor.getSettingColor("highlightColor")
+    val previousPreviewMotionBlur = engine.editor.getSettingBoolean("features/previewMotionBlurEnabled")
+    val previousFontLineGap = engine.editor.getSettingBoolean("features/fontLineGapEnabled")
     val previousSelectionMode = engine.editor.getSettingEnum("doubleClickSelectionMode")
     val previousRole = engine.editor.getRole()
     val previousMoveScope = engine.editor.getGlobalScope(key = "layer/move")
@@ -55,6 +57,11 @@ suspend fun settings(
 
     engine.editor.setSettingEnum("doubleClickSelectionMode", value = "Direct")
     val selectionMode = engine.editor.getSettingEnum("doubleClickSelectionMode")
+
+    // Show blocks with motion blur sharp while editing; video exports still blur them
+    engine.editor.setSettingBoolean("features/previewMotionBlurEnabled", value = false)
+    // Use the line heights of engine versions before 1.73
+    engine.editor.setSettingBoolean("features/fontLineGapEnabled", value = false)
     // highlight-android-read-write-settings
 
     check(!cropEnabled)
@@ -118,4 +125,6 @@ suspend fun settings(
     engine.editor.setSettingString("page/title/separator", previousTitleSeparator)
     engine.editor.setSettingColor("highlightColor", previousHighlightColor)
     engine.editor.setSettingEnum("doubleClickSelectionMode", previousSelectionMode)
+    engine.editor.setSettingBoolean("features/previewMotionBlurEnabled", previousPreviewMotionBlur)
+    engine.editor.setSettingBoolean("features/fontLineGapEnabled", previousFontLineGap)
 }

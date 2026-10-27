@@ -24,6 +24,7 @@ import ly.img.editor.core.component.rememberFormatText
 import ly.img.editor.core.component.rememberLayer
 import ly.img.editor.core.component.rememberReplace
 import ly.img.editor.core.component.rememberSelectGroup
+import ly.img.editor.core.component.rememberSeparateAudio
 import ly.img.editor.core.component.rememberShape
 import ly.img.editor.core.component.rememberSplit
 import ly.img.editor.core.component.rememberTextBackground
@@ -61,6 +62,7 @@ fun VideoConfigurationBuilder.rememberInspectorBar() = InspectorBar.remember {
             add { InspectorBar.Button.rememberEffect() } // Video, Image
             add { InspectorBar.Button.rememberBlur() } // Video, Image
             add { InspectorBar.Button.rememberShape() } // Video, Image, Shape
+            add { InspectorBar.Button.rememberSeparateAudio() } // Video
             add { InspectorBar.Button.rememberSelectGroup() } // Video, Image, Sticker, Shape, Text
             add { InspectorBar.Button.rememberEnterGroup() } // Group
             add { InspectorBar.Button.rememberLayer() } // Video, Image, Sticker, Shape, Text

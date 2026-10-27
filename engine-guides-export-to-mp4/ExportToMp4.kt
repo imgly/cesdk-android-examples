@@ -42,6 +42,8 @@ suspend fun exportToMp4(engine: Engine): Mp4ExportResult = withContext(Dispatche
     cancelMp4Export(cancelableJob)
     cancelableJob.join()
     val resolutionExport = exportMp4WithResolutionOptions(engine, page, pageDuration)
+    val coverExport = exportMp4WithCover(engine, page, pageDuration)
+    check(coverExport.hasRemaining()) { "cover MP4 export is empty" }
     val configuredExport = exportMp4WithBitrateOptions(engine, page, pageDuration)
     val partialExport = exportPartialTimeline(engine, page)
 
@@ -181,6 +183,22 @@ suspend fun exportMp4WithBitrateOptions(
     return videoBytes
 }
 // highlight-android-bitrate
+
+// highlight-android-cover
+suspend fun exportMp4WithCover(
+    engine: Engine,
+    page: DesignBlock,
+    pageDuration: Double,
+): ByteBuffer = engine.block.exportVideo(
+    block = page,
+    timeOffset = 0.0,
+    duration = pageDuration,
+    mimeType = MimeType.MP4,
+    progressCallback = {},
+    // Override current playback with a cover from the exported video start.
+    options = ExportVideoOptions(coverTimeOffset = 0.0),
+)
+// highlight-android-cover
 
 // highlight-android-partial
 suspend fun exportPartialTimeline(

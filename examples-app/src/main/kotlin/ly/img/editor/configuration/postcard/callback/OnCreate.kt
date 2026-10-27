@@ -47,6 +47,8 @@ suspend fun PostcardConfigurationBuilder.onCreate(
 fun PostcardConfigurationBuilder.onPreCreateScene() {
     showLoading = true
     editorContext.engine.editor.setGlobalScope("editor/add", GlobalScope.DEFER)
+    // Press and hold an image, then drag it onto another image to exchange the two.
+    editorContext.engine.editor.setSettingBoolean(keypath = "dragToSwapFills/enabled", value = true)
 }
 
 /**

@@ -1,6 +1,9 @@
+import android.net.Uri
 import android.util.Log
 import ly.img.engine.CMYKColor
 import ly.img.engine.Color
+import ly.img.engine.ColorRenderingIntent
+import ly.img.engine.ColorSpace
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
@@ -144,4 +147,55 @@ suspend fun colorsBasics(engine: Engine) {
     check(readCmyk is CMYKColor)
     check(readSpot is SpotColor)
     check(readStroke == cmykStroke)
+
+    // highlight-android-convert-colors
+    engine.editor.loadCMYKProfile()
+
+    val swatches = listOf(cmykColor, cmykStroke, Color.fromSpotColor(name = "MyBrand Blue"))
+
+    fun logConversions(step: String) {
+        for (color in swatches) {
+            val srgb = engine.editor.convertColorToColorSpace(
+                color = color,
+                colorSpace = ColorSpace.SRGB,
+            ) as RGBAColor
+            Log.i(TAG, "$step: r=${srgb.r}, g=${srgb.g}, b=${srgb.b}")
+        }
+    }
+
+    logConversions("Bundled default profile")
+    // highlight-android-convert-colors
+
+    // highlight-android-set-profile
+    engine.scene.setCMYKProfile(
+        uri = Uri.parse(
+            "https://cdn.jsdelivr.net/npm/@imgly/plugin-print-ready-pdfs-web@1.83.0/dist/ISOcoated_v2_eci.icc",
+        ),
+    )
+    val contentHash = engine.scene.getCMYKProfileInfo().contentHash
+    Log.i(TAG, "Document profile hash: $contentHash")
+    logConversions("ISOcoated_v2_eci.icc")
+    // highlight-android-set-profile
+    check(contentHash.isNotEmpty())
+
+    // highlight-android-intent-bpc
+    engine.scene.setColorRenderingIntent(ColorRenderingIntent.PERCEPTUAL)
+    engine.scene.setBlackPointCompensationEnabled(false)
+    logConversions("Perceptual intent, black point compensation off")
+    // highlight-android-intent-bpc
+    check(engine.scene.getColorRenderingIntent() == ColorRenderingIntent.PERCEPTUAL)
+    check(!engine.scene.isBlackPointCompensationEnabled())
+
+    // highlight-android-check-mode
+    val mode = engine.block.getEnum(scene, property = "scene/colorConversionMode")
+    Log.i(TAG, "Color conversion mode: $mode")
+    // highlight-android-check-mode
+    check(mode == "Managed")
+
+    // highlight-android-legacy-mode
+    engine.block.setEnum(scene, property = "scene/colorConversionMode", value = "Legacy")
+    logConversions("Legacy mode")
+    engine.block.setEnum(scene, property = "scene/colorConversionMode", value = "Managed")
+    // highlight-android-legacy-mode
+    check(engine.block.getEnum(scene, property = "scene/colorConversionMode") == "Managed")
 }

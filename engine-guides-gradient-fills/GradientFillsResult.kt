@@ -17,6 +17,8 @@ data class GradientFillsResult(
     val linearEndX: Float,
     val linearEndY: Float,
     val radialRadius: Float,
+    val radialFocalX: Float,
+    val radialFocalY: Float,
     val conicalCenterX: Float,
     val sharedStops: List<GradientColorStop>,
     val duplicateFillIsIndependent: Boolean,
