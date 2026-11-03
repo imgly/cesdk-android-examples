@@ -13,6 +13,7 @@ import ly.img.engine.MimeType
 import ly.img.engine.ModifierType
 import ly.img.engine.ShapeType
 import java.nio.ByteBuffer
+import kotlin.math.PI
 
 private const val TAG = "ShapeModifiers"
 
@@ -115,7 +116,7 @@ suspend fun shapeModifiers(engine: Engine): ShapeModifiers {
     // Each copy turns 30 degrees further about the anchor and does not move
     engine.block.setFloat(block = repeater, property = "modifier/repeater/anchorX", value = 20F)
     engine.block.setFloat(block = repeater, property = "modifier/repeater/anchorY", value = 220F)
-    engine.block.setFloat(block = repeater, property = "modifier/repeater/rotation", value = 30F)
+    engine.block.setFloat(block = repeater, property = "modifier/repeater/rotation", value = PI.toFloat() / 6F)
     engine.block.setFloat(block = repeater, property = "modifier/repeater/positionX", value = 0F)
     engine.block.setFloat(block = repeater, property = "modifier/repeater/positionY", value = 0F)
     // The copies fade from full opacity towards 10%
@@ -168,7 +169,7 @@ suspend fun shapeModifiers(engine: Engine): ShapeModifiers {
 
     // Turn the path 45 degrees at the center of the block, less towards the edge
     val twist = engine.block.createModifier(ModifierType.Twist)
-    engine.block.setFloat(block = twist, property = "modifier/twist/angle", value = 45F)
+    engine.block.setFloat(block = twist, property = "modifier/twist/angle", value = PI.toFloat() / 4F)
     engine.block.setFloat(block = twist, property = "modifier/twist/centerX", value = 180F)
     engine.block.setFloat(block = twist, property = "modifier/twist/centerY", value = 180F)
     engine.block.appendModifier(block = flowerShape, modifierBlock = twist)

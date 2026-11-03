@@ -85,7 +85,7 @@ suspend fun anchorSkewAutoOrient(engine: Engine): AnchorSkewAutoOrient {
 
     // highlight-android-skew
     val sign = createRect(1150F, 200F, 240F, 160F, Color.fromRGBA(r = 0.95F, g = 0.7F, b = 0.1F, a = 1F))
-    engine.block.setFloat(block = sign, property = "transform/skew", value = 20F)
+    engine.block.setFloat(block = sign, property = "transform/skew", value = PI.toFloat() / 9F) // 20 degrees
     engine.block.setFloat(block = sign, property = "transform/skewAxis", value = 0F)
     // highlight-android-skew
 
@@ -98,9 +98,9 @@ suspend fun anchorSkewAutoOrient(engine: Engine): AnchorSkewAutoOrient {
         block = blade,
         property = "transform/skew",
         keyframes = listOf(
-            Keyframe(time = 0F, value = KeyframeValue.Float(-20F)),
-            Keyframe(time = 0.5F, value = KeyframeValue.Float(20F)),
-            Keyframe(time = 1F, value = KeyframeValue.Float(-20F)),
+            Keyframe(time = 0F, value = KeyframeValue.Float(-PI.toFloat() / 9F)),
+            Keyframe(time = 0.5F, value = KeyframeValue.Float(PI.toFloat() / 9F)),
+            Keyframe(time = 1F, value = KeyframeValue.Float(-PI.toFloat() / 9F)),
         ),
     )
     // highlight-android-animate-skew

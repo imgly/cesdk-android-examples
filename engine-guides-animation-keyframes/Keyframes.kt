@@ -210,7 +210,7 @@ suspend fun keyframes(engine: Engine): Keyframes {
     engine.block.setDuration(block = bar, duration = 5.0)
     engine.block.setFloat(block = bar, property = "transform/anchor/x", value = 160F)
     engine.block.setFloat(block = bar, property = "transform/anchor/y", value = 40F)
-    engine.block.setFloat(block = bar, property = "transform/skew", value = 20F)
+    engine.block.setFloat(block = bar, property = "transform/skew", value = PI.toFloat() / 9F)
     engine.block.setKeyframes(
         block = bar,
         property = "rotation",

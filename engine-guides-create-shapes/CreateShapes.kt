@@ -5,6 +5,7 @@ import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.GradientColorStop
 import ly.img.engine.ShapeType
+import kotlin.math.PI
 import kotlin.math.abs
 
 suspend fun createShapes(engine: Engine): DesignBlock {
@@ -121,8 +122,8 @@ suspend fun createShapes(engine: Engine): DesignBlock {
     engine.block.setFloat(roundStarShape, property = "shape/star/innerRadius", value = 0.45F)
     engine.block.setFloat(roundStarShape, property = "shape/star/outerRoundness", value = 0.3F)
     engine.block.setFloat(roundStarShape, property = "shape/star/innerRoundness", value = 0.2F)
-    // Clockwise, in degrees. At 36 degrees a five-point star points down.
-    engine.block.setFloat(roundStarShape, property = "shape/star/rotation", value = 36F)
+    // Clockwise, in radians. At π / 5 (36°) a five-point star points down.
+    engine.block.setFloat(roundStarShape, property = "shape/star/rotation", value = PI.toFloat() / 5F)
 
     // innerDiameter reports the ratio of the inner to the outer radius: 0.5
     val innerDiameter = engine.block.getFloat(roundStarShape, property = "shape/star/innerDiameter")

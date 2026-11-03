@@ -11,6 +11,7 @@ import ly.img.engine.MimeType
 import ly.img.engine.ShapeType
 import ly.img.engine.Vector2
 import java.nio.ByteBuffer
+import kotlin.math.PI
 
 private const val TAG = "CompoundShapes"
 
@@ -69,7 +70,7 @@ suspend fun compoundShapes(engine: Engine): CompoundShapes {
     engine.block.setFloat(block = diamond, property = "shape/anchor/y", value = 20F)
     engine.block.setFloat(block = diamond, property = "shape/position/x", value = 50F)
     engine.block.setFloat(block = diamond, property = "shape/position/y", value = 50F)
-    engine.block.setFloat(block = diamond, property = "shape/rotation", value = 45F)
+    engine.block.setFloat(block = diamond, property = "shape/rotation", value = PI.toFloat() / 4F)
     // highlight-android-place-subshape
 
     // highlight-android-combine-mode

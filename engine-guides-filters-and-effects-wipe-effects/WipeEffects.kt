@@ -12,6 +12,7 @@ import ly.img.engine.KeyframeValue
 import ly.img.engine.MimeType
 import ly.img.engine.ShapeType
 import java.nio.ByteBuffer
+import kotlin.math.PI
 
 private const val TAG = "WipeEffects"
 
@@ -73,7 +74,7 @@ suspend fun wipeEffects(engine: Engine): WipeEffects {
     // highlight-android-linear-wipe
     // Hide the left half of the block with a soft edge of 40 design units
     val linearWipe = engine.block.createEffect(EffectType.LinearWipe)
-    engine.block.setFloat(block = linearWipe, property = "effect/linear_wipe/angle", value = 90F)
+    engine.block.setFloat(block = linearWipe, property = "effect/linear_wipe/angle", value = PI.toFloat() / 2F)
     engine.block.setFloat(block = linearWipe, property = "effect/linear_wipe/completion", value = 0.5F)
     engine.block.setFloat(block = linearWipe, property = "effect/linear_wipe/feather", value = 40F)
     engine.block.appendEffect(block = linearWipeBlock, effectBlock = linearWipe)
@@ -95,7 +96,7 @@ suspend fun wipeEffects(engine: Engine): WipeEffects {
     // Hide half of each 60 design unit wide stripe, with the stripes at 45 degrees
     val venetianBlinds = engine.block.createEffect(EffectType.VenetianBlinds)
     engine.block.setFloat(block = venetianBlinds, property = "effect/venetian_blinds/completion", value = 0.5F)
-    engine.block.setFloat(block = venetianBlinds, property = "effect/venetian_blinds/direction", value = 45F)
+    engine.block.setFloat(block = venetianBlinds, property = "effect/venetian_blinds/direction", value = PI.toFloat() / 4F)
     engine.block.setFloat(block = venetianBlinds, property = "effect/venetian_blinds/width", value = 60F)
     engine.block.setFloat(block = venetianBlinds, property = "effect/venetian_blinds/feather", value = 2F)
     engine.block.appendEffect(block = venetianBlindsBlock, effectBlock = venetianBlinds)
