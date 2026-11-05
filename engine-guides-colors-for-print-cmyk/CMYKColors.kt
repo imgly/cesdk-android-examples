@@ -96,7 +96,7 @@ suspend fun cmykColors(engine: Engine): CMYKColors {
     // highlight-android-convert
     // Converting CMYK to sRGB reads the document CMYK profile, which is a resource. Load it once
     // first, so the conversion does not have to handle COLOR.PROFILE_NOT_LOADED.
-    engine.editor.loadCMYKProfile()
+    engine.editor.loadColorProfiles()
     val rgbBlue = Color.fromRGBA(r = 0.2F, g = 0.4F, b = 0.9F, a = 1F)
     val convertedCmyk = engine.editor.convertColorToColorSpace(
         color = rgbBlue,

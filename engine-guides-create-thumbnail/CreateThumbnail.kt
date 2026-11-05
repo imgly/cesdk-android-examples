@@ -18,6 +18,7 @@ data class ThumbnailExportResult(
     val smallJpeg: ByteBuffer,
     val mediumJpeg: ByteBuffer,
     val pngPreview: ByteBuffer,
+    val webpPreview: ByteBuffer,
     val savedMediumJpeg: File,
     val savedPngPreview: File,
 )
@@ -38,6 +39,7 @@ suspend fun createThumbnail(
     val smallJpeg = exportJpegThumbnail(engine, page, smallSize)
     val mediumJpeg = exportJpegThumbnail(engine, page, mediumSize)
     val pngPreview = exportPngThumbnail(engine, page)
+    val webpPreview = exportPreview(engine, page)
     val savedMediumJpeg = saveThumbnailToFile(
         buffer = mediumJpeg.asReadOnlyBuffer(),
         outputFile = File(outputDir, "thumbnail-medium.jpg"),
@@ -51,6 +53,7 @@ suspend fun createThumbnail(
         smallJpeg = smallJpeg,
         mediumJpeg = mediumJpeg,
         pngPreview = pngPreview,
+        webpPreview = webpPreview,
         savedMediumJpeg = savedMediumJpeg,
         savedPngPreview = savedPngPreview,
     )
@@ -100,6 +103,18 @@ suspend fun exportPngThumbnail(
     return thumbnail
 }
 // highlight-android-export-png
+
+// highlight-android-export-preview
+suspend fun exportPreview(
+    engine: Engine,
+    page: DesignBlock,
+): ByteBuffer {
+    val preview = engine.block.exportPreview(block = page)
+
+    check(preview.hasRemaining()) { "Preview is empty" }
+    return preview
+}
+// highlight-android-export-preview
 
 // highlight-android-export-multiple
 suspend fun exportThumbnailSet(
