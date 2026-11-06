@@ -7,7 +7,7 @@ kotlin = "1.9.10"
 composePlugin = "2.2.10"
 okhttp = "4.10.0"
 camera = "1.5.0-alpha04" # Using an alpha version as the last stable version (1.3.4) has a bug where the front camera ouptut is inverted
-engine = "1.85.3"
+engine = "1.86.0-rc.1"
 buildConfig = "6.0.10"
 dropshots = "0.6.0"
 gradleAndroid = "9.1.1"
@@ -32,6 +32,7 @@ cesdk-plugin-ai-image-generation = { group = "ly.img", name = "plugin-ai-image-g
 cesdk-plugin-auto-captions = { group = "ly.img", name = "plugin-auto-captions", version.ref = "engine" }
 cesdk-plugin-background-removal-imgly = { group = "ly.img", name = "plugin-background-removal-imgly", version.ref = "engine" }
 cesdk-plugin-background-removal-google = { group = "ly.img", name = "plugin-background-removal-google", version.ref = "engine" }
+cesdk-plugin-voice-isolation-imgly = { group = "ly.img", name = "plugin-voice-isolation-imgly", version.ref = "engine" }
 
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
 
@@ -91,3 +92,5 @@ data-store = "androidx.datastore:datastore-preferences:1.1.3"
 
 segmentation-selfie = { module = "com.google.mlkit:segmentation-selfie", version.ref = "segmentationSelfie" }
 onnxRuntime = { module = "com.microsoft.onnxruntime:onnxruntime-android", version.ref = "onnxRuntime" }
+onnxRuntimeJvm = { module = "com.microsoft.onnxruntime:onnxruntime", version.ref = "onnxRuntime" }
+jtransforms = "com.github.wendykierp:JTransforms:3.1"
