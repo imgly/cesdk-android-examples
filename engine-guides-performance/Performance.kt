@@ -92,6 +92,10 @@ suspend fun performance(engine: Engine): PerformanceSummary {
     }
     // highlight-android-memory-monitoring
 
+    // highlight-android-release-memory
+    engine.editor.releaseMemory()
+    // highlight-android-release-memory
+
     // highlight-android-export-settings
     val exportOptions = ExportOptions(
         jpegQuality = 0.8F,

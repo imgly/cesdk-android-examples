@@ -153,6 +153,11 @@ sealed class Destination(
         title = "Auto Captions",
     )
 
+    data object GuideVoiceIsolation : Destination(
+        route = "guide-voice-isolation",
+        title = "Voice Isolation",
+    )
+
     data object AutomateWorkflows : Destination(
         route = "guide-automate-workflows",
         title = "Automate Workflows",
@@ -291,6 +296,7 @@ sealed class Destination(
             GuideRecordVoiceover,
             GuideEditCaptions,
             GuideAutoCaptions,
+            GuideVoiceIsolation,
             AutomateWorkflows,
             GuideEditorState,
             GuideTemplating,

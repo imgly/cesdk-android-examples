@@ -7,6 +7,9 @@ import ly.img.engine.ColorSpace
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
+import ly.img.engine.ProfileColorSpace
+import ly.img.engine.ProfileRole
+import ly.img.engine.ProfileSlot
 import ly.img.engine.RGBAColor
 import ly.img.engine.ShapeType
 import ly.img.engine.SpotColor
@@ -149,7 +152,7 @@ suspend fun colorsBasics(engine: Engine) {
     check(readStroke == cmykStroke)
 
     // highlight-android-convert-colors
-    engine.editor.loadCMYKProfile()
+    engine.editor.loadColorProfiles()
 
     val swatches = listOf(cmykColor, cmykStroke, Color.fromSpotColor(name = "MyBrand Blue"))
 
@@ -167,12 +170,14 @@ suspend fun colorsBasics(engine: Engine) {
     // highlight-android-convert-colors
 
     // highlight-android-set-profile
-    engine.scene.setCMYKProfile(
+    val defaultCMYK = ProfileSlot(ProfileRole.DEFAULT, ProfileColorSpace.CMYK)
+    engine.scene.setDocumentColorProfile(
+        slot = defaultCMYK,
         uri = Uri.parse(
             "https://cdn.jsdelivr.net/npm/@imgly/plugin-print-ready-pdfs-web@1.83.0/dist/ISOcoated_v2_eci.icc",
         ),
     )
-    val contentHash = engine.scene.getCMYKProfileInfo().contentHash
+    val contentHash = engine.scene.getDocumentColorProfileInfo(defaultCMYK).contentHash
     Log.i(TAG, "Document profile hash: $contentHash")
     logConversions("ISOcoated_v2_eci.icc")
     // highlight-android-set-profile

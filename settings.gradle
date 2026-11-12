@@ -48,6 +48,8 @@ if (hasLocalEditorSource && System.getenv("UBQ_ANDROID_USE_ARTIFACTS") != "true"
             substitute module('ly.img:plugin-background-removal-google') using project(':plugin-background-removal-google')
             substitute module('ly.img:plugin-ai-image-generation') using project(':plugin-ai-image-generation')
             substitute module('ly.img:plugin-auto-captions') using project(':plugin-auto-captions')
+            substitute module('ly.img:plugin-voice-isolation') using project(':plugin-voice-isolation')
+            substitute module('ly.img:plugin-voice-isolation-imgly') using project(':plugin-voice-isolation-imgly')
             substitute module('ly.img:camera') using project(':camera')
             // Unlike showcases, keep the dummy debug menu: the released artifacts customers
             // resolve use it, and the real menu changes the SDK modules' classpaths between

@@ -104,7 +104,7 @@ fun colors(
         check(currentShadowColor == spotPartialYellow)
 
         // highlight-android-convert-color
-        engine.editor.loadCMYKProfile()
+        engine.editor.loadColorProfiles()
         val cmykBlueConverted = engine.editor.convertColorToColorSpace(
             color = rgbaBlue,
             colorSpace = ColorSpace.CMYK,

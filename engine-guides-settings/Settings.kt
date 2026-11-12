@@ -23,6 +23,7 @@ suspend fun settings(
     val previousHighlightColor = engine.editor.getSettingColor("highlightColor")
     val previousPreviewMotionBlur = engine.editor.getSettingBoolean("features/previewMotionBlurEnabled")
     val previousFontLineGap = engine.editor.getSettingBoolean("features/fontLineGapEnabled")
+    val previousLockedClickThrough = engine.editor.getSettingBoolean("features/transformLockedClickThroughEnabled")
     val previousSelectionMode = engine.editor.getSettingEnum("doubleClickSelectionMode")
     val previousRole = engine.editor.getRole()
     val previousMoveScope = engine.editor.getGlobalScope(key = "layer/move")
@@ -62,6 +63,8 @@ suspend fun settings(
     engine.editor.setSettingBoolean("features/previewMotionBlurEnabled", value = false)
     // Use the line heights of engine versions before 1.73
     engine.editor.setSettingBoolean("features/fontLineGapEnabled", value = false)
+    // Let clicks, taps, hover and marquee selection pass over blocks with a locked transform
+    engine.editor.setSettingBoolean("features/transformLockedClickThroughEnabled", value = true)
     // highlight-android-read-write-settings
 
     check(!cropEnabled)
@@ -127,4 +130,5 @@ suspend fun settings(
     engine.editor.setSettingEnum("doubleClickSelectionMode", previousSelectionMode)
     engine.editor.setSettingBoolean("features/previewMotionBlurEnabled", previousPreviewMotionBlur)
     engine.editor.setSettingBoolean("features/fontLineGapEnabled", previousFontLineGap)
+    engine.editor.setSettingBoolean("features/transformLockedClickThroughEnabled", previousLockedClickThrough)
 }
