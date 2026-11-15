@@ -19,7 +19,7 @@ suspend fun ContentModerationConfigurationBuilder.onLoaded() = coroutineScope {
  * call the moderation service again instead of reusing the previous results.
  */
 private suspend fun ContentModerationConfigurationBuilder.observeSceneChanges() {
-    editorContext.engine.editor.onHistoryUpdated().collect {
+    editorContext.engine.editor.onHistoryUpdatedWithKind().collect {
         resultsFresh = false
         editGeneration += 1
     }

@@ -128,6 +128,7 @@ kotlin {
 }
 
 buildConfig {
+    useKotlinOutput { internalVisibility = false }
     className "ExamplesBuildConfig"
     packageName "ly.img.editor.examples"
     buildConfigField String, "LICENSE", System.env.CESDK_APP_STORE_LICENSE ?: getLocalProperty("license") ?: ""

@@ -22,7 +22,6 @@ data class PerformanceSummary(
     val usedMemoryBytes: Long,
     val availableMemoryBytes: Long,
     val maxExportSize: Int,
-    val maxExportSizeIsKnownLimit: Boolean,
     val exportWithinSizeLimit: Boolean,
     val exportedJpeg: ByteBuffer,
     val assetBasePath: String,
@@ -106,11 +105,8 @@ suspend fun performance(engine: Engine): PerformanceSummary {
 
     // highlight-android-max-export-size
     val maxExportSize = engine.editor.getMaxExportSize()
-    val maxExportSizeIsKnownLimit = maxExportSize != Int.MAX_VALUE
 
-    val exportWithinSizeLimit = if (!maxExportSizeIsKnownLimit) {
-        true
-    } else if (
+    val exportWithinSizeLimit = if (
         engine.scene.getDesignUnit() == DesignUnit.PIXEL &&
         engine.block.getWidthMode(page) == SizeMode.ABSOLUTE &&
         engine.block.getHeightMode(page) == SizeMode.ABSOLUTE
@@ -144,7 +140,6 @@ suspend fun performance(engine: Engine): PerformanceSummary {
         usedMemoryBytes = usedMemory,
         availableMemoryBytes = availableMemory,
         maxExportSize = maxExportSize,
-        maxExportSizeIsKnownLimit = maxExportSizeIsKnownLimit,
         exportWithinSizeLimit = exportWithinSizeLimit,
         exportedJpeg = exportedJpeg.asReadOnlyBuffer(),
         assetBasePath = engine.editor.getSettingString("basePath"),

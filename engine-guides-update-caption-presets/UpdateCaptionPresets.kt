@@ -89,7 +89,8 @@ suspend fun runUpdateCaptionPresets(
         engine.bindOffscreen(width = 1280, height = 720)
 
         // highlight-android-create-text-block
-        val scene = engine.scene.createForVideo()
+        val scene = engine.scene.create()
+        engine.block.setEnum(scene, "scene/mode", "Video")
         val page = engine.block.create(DesignBlockType.Page)
         engine.block.appendChild(parent = scene, child = page)
         engine.block.setWidth(page, value = 1280F)
@@ -129,9 +130,10 @@ suspend fun runUpdateCaptionPresets(
 
         // highlight-android-style-background
         engine.block.setBackgroundColorEnabled(block = textBlock, enabled = true)
-        engine.block.setBackgroundColor(
+        engine.block.setColor(
             block = textBlock,
-            color = Color.fromRGBA(r = 0F, g = 0F, b = 0.1F, a = 0.7F),
+            property = "backgroundColor/color",
+            value = Color.fromRGBA(r = 0F, g = 0F, b = 0.1F, a = 0.7F),
         )
         // highlight-android-style-background
 

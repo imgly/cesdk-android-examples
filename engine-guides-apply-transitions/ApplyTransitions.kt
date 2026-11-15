@@ -16,7 +16,8 @@ private suspend fun waitForScheduledEngineUpdate() = yield()
 
 suspend fun applyTransitions(engine: Engine): TransitionSummary {
     // highlight-android-setup
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
 
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.setWidth(block = page, value = 1280F)
@@ -54,8 +55,8 @@ suspend fun applyTransitions(engine: Engine): TransitionSummary {
     // highlight-android-create-clips
 
     // highlight-android-check-support
-    // Individual clips placed directly in a video track support transitions, no matter whether they
-    // show a video, an image, a shape, a sticker or text.
+    // Clips placed directly in a video track support transitions, no matter whether they show a
+    // video, an image, a shape, a sticker, text or a group of blocks.
     val clipsSupportTransitions =
         engine.block.supportsTransition(clipA) && engine.block.supportsTransition(clipB)
     Log.i(TAG, "Clips support transitions: $clipsSupportTransitions")

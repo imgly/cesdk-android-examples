@@ -60,7 +60,7 @@ suspend fun variableBindings(engine: Engine): VariableBindings {
     )
     engine.variable.setColor(key = "accent", value = Color.fromRGBA(r = 0.48F, g = 0.23F, b = 0.93F, a = 1F))
     engine.variable.setNumber(key = "cornerRadius", value = 40F)
-    engine.variable.setImage(key = "heroImage", uri = "https://img.ly/static/ubq_samples/sample_1.jpg")
+    engine.variable.setImage(key = "heroImage", uri = Uri.parse("https://img.ly/static/ubq_samples/sample_1.jpg"))
     engine.variable.setTypeface(key = "headline", typeface = brandTypeface)
     engine.variable.set(key = "title", value = "Summer Sale")
     // highlight-android-create-variables
@@ -126,7 +126,7 @@ suspend fun variableBindings(engine: Engine): VariableBindings {
     // Every bound property follows the new values
     engine.variable.setColor(key = "accent", value = Color.fromRGBA(r = 0.05F, g = 0.55F, b = 0.55F, a = 1F))
     engine.variable.setNumber(key = "cornerRadius", value = 24F)
-    engine.variable.setImage(key = "heroImage", uri = "https://img.ly/static/ubq_samples/sample_2.jpg")
+    engine.variable.setImage(key = "heroImage", uri = Uri.parse("https://img.ly/static/ubq_samples/sample_2.jpg"))
     val updatedCardColor = engine.block.getColor(block = cardFill, property = "fill/color/value")
     // highlight-android-update-variables
 

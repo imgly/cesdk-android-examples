@@ -12,7 +12,8 @@ import kotlin.math.abs
 private const val TAG = "AudioGuide"
 
 suspend fun audio(engine: Engine): String {
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = scene, child = page)
     engine.block.setWidth(page, value = 1280F)

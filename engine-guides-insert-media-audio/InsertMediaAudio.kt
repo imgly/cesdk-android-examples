@@ -24,7 +24,8 @@ suspend fun insertMediaAudio(
     engine: Engine,
     assetBaseUri: Uri,
 ): InsertMediaAudio {
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = scene, child = page)
     engine.block.setWidth(block = page, value = 1920F)

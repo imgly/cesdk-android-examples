@@ -24,7 +24,7 @@ fun VideoConfigurationBuilder.rememberNavigationBar() = NavigationBar.remember {
             editorContext.engine.scene.onActiveChanged()
         }
         val historyTrigger by EditorTrigger.remember(activeSceneTrigger) {
-            editorContext.engine.editor.onHistoryUpdated()
+            editorContext.engine.editor.onHistoryUpdatedWithKind()
         }
         // Update NavigationBar whenever the active scene or editor history changes.
         remember(this, historyTrigger) {

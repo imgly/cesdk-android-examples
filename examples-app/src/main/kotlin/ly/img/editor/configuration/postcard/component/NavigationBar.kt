@@ -35,7 +35,7 @@ fun PostcardConfigurationBuilder.rememberNavigationBar() = NavigationBar.remembe
             editorContext.engine.scene.onActiveChanged()
         }
         val historyTrigger by EditorTrigger.remember(activeSceneTrigger) {
-            editorContext.engine.editor.onHistoryUpdated()
+            editorContext.engine.editor.onHistoryUpdatedWithKind()
         }
         val pageIndex by remember(this, activeSceneTrigger) {
             if (editorContext.engine.scene.get() == null) return@remember emptyFlow()

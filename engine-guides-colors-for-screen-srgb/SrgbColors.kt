@@ -63,7 +63,7 @@ suspend fun srgbColors(engine: Engine) {
 
     // highlight-android-apply-background
     engine.block.setBackgroundColorEnabled(block = textBlock, enabled = true)
-    engine.block.setBackgroundColor(block = textBlock, color = rgbaOrange)
+    engine.block.setColor(block = textBlock, property = "backgroundColor/color", value = rgbaOrange)
     // highlight-android-apply-background
 
     check(engine.block.isBackgroundColorEnabled(textBlock))
@@ -78,7 +78,7 @@ suspend fun srgbColors(engine: Engine) {
     // highlight-android-get-color
     val currentFillColor = engine.block.getFillSolidColor(block)
     val currentTextColors = engine.block.getTextColors(block = textBlock)
-    val currentBackgroundColor = engine.block.getBackgroundColor(textBlock)
+    val currentBackgroundColor = engine.block.getColor(block = textBlock, property = "backgroundColor/color")
     val currentStrokeColor = engine.block.getStrokeColor(block)
     val currentShadowColor = engine.block.getDropShadowColor(block)
     // highlight-android-get-color

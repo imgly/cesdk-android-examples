@@ -19,7 +19,8 @@ fun usingAnimations(
     engine.bindOffscreen(width = 1080, height = 1920)
 
     // highlight-setup
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
 
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.setWidth(page, value = 800F)

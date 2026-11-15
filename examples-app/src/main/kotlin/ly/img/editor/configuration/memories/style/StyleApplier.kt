@@ -3,6 +3,7 @@ package ly.img.editor.configuration.memories.style
 import android.util.Log
 import ly.img.editor.configuration.memories.scene.backgroundBlock
 import ly.img.editor.configuration.memories.scene.findTracks
+import ly.img.editor.configuration.memories.scene.fitSoundtrack
 import ly.img.editor.configuration.memories.scene.hasTitleCard
 import ly.img.editor.configuration.memories.scene.imageBlocksInOrder
 import ly.img.editor.configuration.memories.scene.reflowedEndTime
@@ -53,6 +54,7 @@ suspend fun applyStyleToSlideshow(
         ?.let { reflowedEndTime(engine, it, clips, hasTitleCard(engine, tracks)) }
         ?: engine.block.getDuration(page)
     engine.block.setDuration(page, duration)
+    fitSoundtrack(engine, page, duration)
 
     backgroundBlock(engine, page)?.let { applyStyleBackground(engine, it, style, duration) }
 
