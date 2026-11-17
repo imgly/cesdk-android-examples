@@ -144,7 +144,6 @@ dependencies {
         implementation project(':plugin-auto-captions')
         implementation project(':plugin-background-removal-imgly')
         implementation project(':plugin-background-removal-google')
-        implementation project(':plugin-voice-isolation-imgly')
     } else {
         implementation libs.cesdk.editor
         implementation libs.cesdk.camera
@@ -152,7 +151,6 @@ dependencies {
         implementation libs.cesdk.plugin.auto.captions
         implementation libs.cesdk.plugin.background.removal.imgly
         implementation libs.cesdk.plugin.background.removal.google
-        implementation libs.cesdk.plugin.voice.isolation.imgly
     }
     implementation libs.cesdk.engine
     implementation libs.cesdk.engine.camera

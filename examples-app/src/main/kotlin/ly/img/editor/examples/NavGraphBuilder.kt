@@ -41,7 +41,6 @@ import UiEventsEditorSolution
 import UserInterfaceAssetLibraryEditorSolution
 import UserUploadEditorSolution
 import VariableFontsEditorSolution
-import VoiceIsolationEditorSolution
 import android.net.Uri
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.runtime.Composable
@@ -228,12 +227,6 @@ fun NavGraphBuilder.build(navController: NavHostController) {
         AutoCaptionsPluginSolution(
             license = Secrets.license,
             gatewayApiKey = Secrets.gatewayApiKey,
-            onClose = { navController.popBackStack() },
-        )
-    }
-    composable(destination = Destination.GuideVoiceIsolation) {
-        VoiceIsolationEditorSolution(
-            license = Secrets.license,
             onClose = { navController.popBackStack() },
         )
     }

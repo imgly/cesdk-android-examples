@@ -250,7 +250,6 @@ private suspend fun writeToCacheFile(
         MimeType.TGA -> "tga"
         MimeType.SVG -> "svg"
         MimeType.MP4 -> "mp4"
-        MimeType.WEBM -> "webm"
         MimeType.BINARY -> "bin"
         MimeType.PDF -> "pdf"
     }

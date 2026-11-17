@@ -25,8 +25,7 @@ suspend fun importLottie(
     archiveUri: Uri,
 ): ImportLottie {
     // highlight-android-load-archive
-    // The load restores the variables that the importer created for the slots. overrideEditorConfig = true also
-    // restores the editor settings of the archive.
+    // overrideEditorConfig = true also loads the variables that the importer created for the slots.
     engine.scene.load(
         sceneUri = archiveUri,
         overrideEditorConfig = true,
