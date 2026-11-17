@@ -7,7 +7,7 @@ kotlin = "1.9.10"
 composePlugin = "2.2.10"
 okhttp = "4.10.0"
 camera = "1.5.0-alpha04" # Using an alpha version as the last stable version (1.3.4) has a bug where the front camera ouptut is inverted
-engine = "1.86.2"
+engine = "1.87.0-rc.1"
 buildConfig = "6.0.10"
 dropshots = "0.6.0"
 gradleAndroid = "9.1.1"
@@ -71,6 +71,7 @@ camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", versi
 camera-video = { group = "androidx.camera", name = "camera-video", version.ref = "camera" }
 
 test-androidx-runner = { group = "androidx.test", name = "runner", version.strictly = "1.5.2" }
+test-androidx-orchestrator = { group = "androidx.test", name = "orchestrator", version = "1.4.2" }
 
 media3-exoplayer = { module = "androidx.media3:media3-exoplayer", version.ref = "exoplayerVersion" }
 
@@ -86,6 +87,9 @@ uiautomator = "androidx.test.uiautomator:uiautomator:2.3.0"
 junit = "junit:junit:4.13.2"
 # `org.json` is stubbed in android.jar; unit tests that parse JSON need the real implementation.
 json = "org.json:json:20231013"
+robolectric = "org.robolectric:robolectric:4.17"
+test-androidx-core = "androidx.test:core-ktx:1.7.0"
+test-appcompat = "androidx.appcompat:appcompat:1.6.1"
 
 
 data-store = "androidx.datastore:datastore-preferences:1.1.3"

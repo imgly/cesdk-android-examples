@@ -74,8 +74,8 @@ suspend fun textProperties(engine: Engine) {
         engine.block.setBackgroundColorEnabled(text, enabled = true)
         val backgroundColorEnabled = engine.block.isBackgroundColorEnabled(text)
 
-        val backgroundColor = engine.block.getBackgroundColor(text)
-        engine.block.setBackgroundColor(text, color = Color.fromRGBA(r = 242, g = 242, b = 242))
+        val backgroundColor = engine.block.getColor(text, property = "backgroundColor/color")
+        engine.block.setColor(text, property = "backgroundColor/color", value = Color.fromRGBA(r = 242, g = 242, b = 242))
 
         engine.block.setFloat(text, property = "backgroundColor/paddingLeft", value = 10F)
         engine.block.setFloat(text, property = "backgroundColor/paddingRight", value = 10F)

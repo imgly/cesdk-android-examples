@@ -237,7 +237,8 @@ suspend fun writeMp4ToTempFile(videoBytes: ByteBuffer): File = withContext(Dispa
 // highlight-android-write-file
 
 private fun createVideoPage(engine: Engine): DesignBlock {
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.setWidth(page, value = 640F)
     engine.block.setHeight(page, value = 360F)

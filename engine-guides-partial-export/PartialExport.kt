@@ -1,3 +1,4 @@
+import android.graphics.RectF
 import ly.img.engine.Color
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
@@ -12,6 +13,7 @@ data class PartialExport(
     val groupedElements: ByteBuffer,
     val selection: ByteBuffer,
     val currentPage: ByteBuffer,
+    val pageArea: ByteBuffer,
     val allPages: List<ByteBuffer>,
     val resizedPage: ByteBuffer,
     val jpegPage: ByteBuffer,
@@ -20,7 +22,7 @@ data class PartialExport(
     val availableMemory: Long,
 ) {
     val pngExports: List<ByteBuffer>
-        get() = listOf(individualGraphic, groupedElements, selection, currentPage, resizedPage) + allPages
+        get() = listOf(individualGraphic, groupedElements, selection, currentPage, pageArea, resizedPage) + allPages
 }
 
 suspend fun partialExport(engine: Engine): PartialExport {
@@ -146,6 +148,23 @@ suspend fun partialExport(engine: Engine): PartialExport {
     checkNotNull(currentPageData) { "scene has no current page" }
     check(currentPageData.hasRemaining()) { "current page export is empty" }
 
+    // highlight-android-export-area
+    val areaPage = engine.scene.getCurrentPage() ?: error("Scene has no current page")
+    val areaWidth = engine.block.getWidth(areaPage) / 2
+    val areaHeight = engine.block.getHeight(areaPage) / 2
+    val areaOptions = ExportOptions(
+        targetWidth = areaWidth * 2,
+        targetHeight = areaHeight * 2,
+        exportArea = RectF(0F, 0F, areaWidth, areaHeight),
+    )
+    val areaData = engine.block.export(
+        block = areaPage,
+        mimeType = MimeType.PNG,
+        options = areaOptions,
+    )
+    // highlight-android-export-area
+    check(areaData.hasRemaining()) { "page area export is empty" }
+
     // highlight-android-target-size
     val page = engine.scene.getCurrentPage() ?: error("Scene has no current page")
     val resizedOptions = ExportOptions(
@@ -222,6 +241,7 @@ suspend fun partialExport(engine: Engine): PartialExport {
         groupedElements = groupData.copyForVerification(),
         selection = selectionData.copyForVerification(),
         currentPage = currentPageData.copyForVerification(),
+        pageArea = areaData.copyForVerification(),
         allPages = pageData.map(ByteBuffer::copyForVerification),
         resizedPage = resizedData.copyForVerification(),
         jpegPage = jpegData.copyForVerification(),

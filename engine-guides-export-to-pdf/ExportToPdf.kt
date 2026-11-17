@@ -172,6 +172,16 @@ suspend fun exportToPdf(engine: Engine): List<File> {
     val a4Pdf = writePdfExport(fileName = "design-a4.pdf", buffer = a4Data)
     // highlight-android-target-size
 
+    // highlight-android-cover-time
+    // Show each page at 2 seconds, whatever its playback time is.
+    engine.block.findByType(DesignBlockType.Page).forEach { coverPage ->
+        engine.block.setDouble(coverPage, property = "playback/coverTime", value = 2.0)
+        engine.block.setBoolean(coverPage, property = "playback/coverTimeEnabled", value = true)
+    }
+    val coverTimeData = engine.block.export(block = scene, mimeType = MimeType.PDF)
+    val coverTimePdf = writePdfExport(fileName = "design-cover-time.pdf", buffer = coverTimeData)
+    // highlight-android-cover-time
+
     return listOf(
         defaultPdf,
         progressPdf,
@@ -181,6 +191,7 @@ suspend fun exportToPdf(engine: Engine): List<File> {
         highCompatibilityPdf,
         underlayerPdf,
         a4Pdf,
+        coverTimePdf,
     )
 }
 

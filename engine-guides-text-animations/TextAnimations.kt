@@ -4,7 +4,8 @@ import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 
 suspend fun textAnimations(engine: Engine): TextAnimationSummary {
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
 
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.setWidth(block = page, value = 1920F)

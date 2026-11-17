@@ -45,6 +45,7 @@ suspend fun PostcardConfigurationBuilder.onCreate(
  * The callback that is invoked before the scene is created.
  */
 fun PostcardConfigurationBuilder.onPreCreateScene() {
+    editorContext.engine.editor.setSettingBoolean(keypath = "clip/defaultTransitionOverlapEnabled", value = false)
     showLoading = true
     editorContext.engine.editor.setGlobalScope("editor/add", GlobalScope.DEFER)
     // Press and hold an image, then drag it onto another image to exchange the two.

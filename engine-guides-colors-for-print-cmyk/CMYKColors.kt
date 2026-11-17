@@ -5,6 +5,7 @@ import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FillType
 import ly.img.engine.GradientColorStop
+import ly.img.engine.ProfileColorSpace
 import ly.img.engine.RGBAColor
 import ly.img.engine.ShapeType
 
@@ -129,6 +130,21 @@ suspend fun cmykColors(engine: Engine): CMYKColors {
         colorStops = gradientStops,
     )
     // highlight-android-gradient
+
+    val previousProofEnabled = engine.editor.isSoftProofEnabled()
+    val previousProofSpace = engine.editor.getSoftProofColorSpace()
+
+    // highlight-android-soft-proof-cmyk
+    engine.editor.setSoftProofColorSpace(ProfileColorSpace.CMYK)
+    engine.editor.setSoftProofEnabled(true)
+    // highlight-android-soft-proof-cmyk
+
+    // highlight-android-soft-proof-rgb
+    engine.editor.setSoftProofColorSpace(ProfileColorSpace.RGB)
+    // highlight-android-soft-proof-rgb
+
+    engine.editor.setSoftProofColorSpace(previousProofSpace)
+    engine.editor.setSoftProofEnabled(previousProofEnabled)
 
     return CMYKColors(
         fillColor = engine.block.getColor(fill, property = "fill/color/value") as CMYKColor,

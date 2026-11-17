@@ -9,7 +9,8 @@ import kotlin.math.sin
 
 suspend fun buffers(engine: Engine) = withContext(engine.dispatcher) {
     // highlight-android-setup-video-scene
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = scene, child = page)
     engine.block.setWidth(page, value = 1080F)

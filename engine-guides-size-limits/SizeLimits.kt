@@ -68,8 +68,8 @@ suspend fun sizeLimits(engine: Engine): ByteBuffer = withContext(Dispatchers.Mai
 
         // highlight-android-max-export-size
         // The engine reports the maximum export size supported on the current device.
-        // The value is an upper bound. Exports may still fail for memory or other
-        // reasons. When the limit is unknown, the engine returns Int.MAX_VALUE.
+        // The value is an upper bound of at most 23170 px. Exports may still fail
+        // for memory or other reasons.
         val maxExportSize = engine.editor.getMaxExportSize()
         // highlight-android-max-export-size
         check(maxExportSize > 0)

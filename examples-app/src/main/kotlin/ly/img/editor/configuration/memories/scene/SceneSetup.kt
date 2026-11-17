@@ -11,7 +11,8 @@ import ly.img.engine.ShapeType
 
 /** Build the slideshow scene in code (no serialized blob): a video scene with one sized page. */
 internal fun createSlideshowScene(engine: Engine): DesignBlock {
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = scene, child = page)
     engine.block.setWidth(page, PAGE_WIDTH)
