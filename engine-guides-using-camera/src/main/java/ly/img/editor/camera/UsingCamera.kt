@@ -73,7 +73,8 @@ suspend fun recordVideoFromCamera(
     // highlight-android-setup-camera
 
     // highlight-android-create-preview
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = scene, child = page)
     // Request a 16:9 FHD preview target. CameraX may choose the closest supported size.

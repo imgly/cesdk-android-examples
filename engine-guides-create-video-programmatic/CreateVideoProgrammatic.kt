@@ -14,7 +14,8 @@ import java.io.File
 
 suspend fun createVideoProgrammatic(engine: Engine): File = withContext(Dispatchers.Main) {
     // highlight-android-create-scene
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
 
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.setWidth(page, value = 1280F)

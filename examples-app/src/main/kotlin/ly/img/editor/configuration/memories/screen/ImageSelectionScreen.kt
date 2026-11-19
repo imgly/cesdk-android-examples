@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -50,13 +49,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.launch
 import ly.img.editor.configuration.memories.MemoriesViewModel
-import ly.img.editor.configuration.memories.iconPack.Info
 import ly.img.editor.configuration.memories.model.ImageItem
 import ly.img.editor.configuration.memories.util.buildImageItems
 import ly.img.editor.configuration.memories.widget.CenteredAddImageButton
 import ly.img.editor.configuration.memories.widget.ImageGrid
 import ly.img.editor.configuration.memories.widget.ImageToolbar
-import ly.img.editor.core.iconpack.IconPack
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -133,8 +130,6 @@ fun ImageSelectionScreen(
                 },
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            // Title with a standalone informational icon to its right (its hint is exposed via
-            // contentDescription for accessibility).
             Row(
                 modifier = Modifier
                     .defaultMinSize(minHeight = 48.dp)
@@ -148,16 +143,6 @@ fun ImageSelectionScreen(
                     textAlign = TextAlign.Start,
                     modifier = Modifier.weight(1f),
                 )
-
-                // Only show the drag/select hint once there are images to act on
-                if (selectedImages.isNotEmpty()) {
-                    Icon(
-                        imageVector = IconPack.Info,
-                        contentDescription = "Drag and drop images by long pressing; tap to select for deletion.",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(12.dp),
-                    )
-                }
             }
 
             Spacer(Modifier.height(8.dp))

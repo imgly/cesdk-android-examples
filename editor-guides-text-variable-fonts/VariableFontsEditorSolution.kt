@@ -21,6 +21,8 @@ import ly.img.engine.FontWeight
 import ly.img.engine.HorizontalAlignment
 import ly.img.engine.SizeMode
 import ly.img.engine.Typeface
+import ly.img.engine.VariationAxis
+import ly.img.engine.VariationAxisValue
 
 private const val VARIABLE_TYPEFACE_SOURCE_ID = "my-variable-fonts"
 private const val JOST_TYPEFACE_ASSET_ID = "ly.img.typeface.jost"
@@ -213,6 +215,37 @@ private fun switchHeadlineWeight(
 }
 // highlight-android-switch-weight
 
+// highlight-android-variation-axes
+
+/**
+ * Sets the `wght` axis of the first word directly. A `wght` value can lie between the
+ * named weights, such as 450 between Regular (400) and Medium (500).
+ */
+private fun setHeadlineAxes(
+    engine: Engine,
+    headline: DesignBlock,
+): List<List<VariationAxisValue>> {
+    engine.block.setTextVariationAxes(
+        block = headline,
+        axes = listOf(VariationAxisValue(tag = "wght", value = 450F)),
+        from = 0,
+        to = 8, // "Variable"
+    )
+    // [[VariationAxisValue(tag=wght, value=450.0)], []]
+    return engine.block.getTextVariationAxes(block = headline)
+}
+// highlight-android-variation-axes
+
+// highlight-android-font-axes
+
+/**
+ * Reads the axes of the font file and the range of each axis. For Jost:
+ * `[VariationAxis(tag=wght, minValue=100.0, defaultValue=400.0, maxValue=900.0)]`
+ */
+private suspend fun readFontAxes(engine: Engine): List<VariationAxis> =
+    engine.editor.getFontInfo(fontFileUri = JOST_VARIABLE_FONT_URI.toString()).variationAxes
+// highlight-android-font-axes
+
 /**
  * Demo scaffolding: builds the sample page and the headline the weight-switching snippet
  * operates on. Replace this with your own scene setup.
@@ -286,6 +319,8 @@ fun VariableFontsEditorSolution(
                     val (page, headline) = createSampleScene(engine = engine, typeface = typeface)
                     createWeightSamples(engine = engine, page = page, typeface = typeface)
                     switchHeadlineWeight(engine = engine, headline = headline)
+                    setHeadlineAxes(engine = engine, headline = headline)
+                    readFontAxes(engine = engine)
                     engine.scene.zoomToBlock(
                         block = page,
                         paddingLeft = 40F,

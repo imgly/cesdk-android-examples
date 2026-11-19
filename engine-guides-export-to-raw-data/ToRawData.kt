@@ -20,7 +20,6 @@ data class ToRawDataResult(
     val height: Int,
     val maxExportSize: Int,
     val rawByteCount: Int,
-    val centerPixel: RgbaPixel,
     val rawFile: File,
     val thumbnailByteCount: Int,
 )
@@ -74,12 +73,6 @@ suspend fun toRawData(
             waitForBackgroundExportEngine()
         },
     )
-    val centerPixel = readPixel(
-        rawData = rawData,
-        width = width,
-        x = width / 2,
-        y = height / 2,
-    )
     val rawFile = saveRawDataFile(
         rawData = rawData,
         outputFile = File(outputDir, "design.rgba"),
@@ -97,7 +90,6 @@ suspend fun toRawData(
         height = height,
         maxExportSize = maxExportSize,
         rawByteCount = rawData.remaining(),
-        centerPixel = centerPixel,
         rawFile = rawFile,
         thumbnailByteCount = thumbnailData.remaining(),
     )

@@ -3,7 +3,8 @@ import ly.img.engine.Engine
 
 suspend fun createAudioAdjustSpeed(engine: Engine) {
     // highlight-android-create-video-scene
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = scene, child = page)
     engine.block.setWidth(block = page, value = 1280F)

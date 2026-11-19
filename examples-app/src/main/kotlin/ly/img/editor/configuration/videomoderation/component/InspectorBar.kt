@@ -1,0 +1,74 @@
+@file:Suppress("UnusedReceiverParameter")
+
+package ly.img.editor.configuration.videomoderation.component
+
+import androidx.compose.runtime.Composable
+import ly.img.editor.configuration.videomoderation.VideoModerationConfigurationBuilder
+import ly.img.editor.core.component.InspectorBar
+import ly.img.editor.core.component.remember
+import ly.img.editor.core.component.rememberAdjustments
+import ly.img.editor.core.component.rememberAnimations
+import ly.img.editor.core.component.rememberBlur
+import ly.img.editor.core.component.rememberCaptionStyle
+import ly.img.editor.core.component.rememberClipSpeed
+import ly.img.editor.core.component.rememberCrop
+import ly.img.editor.core.component.rememberDelete
+import ly.img.editor.core.component.rememberDuplicate
+import ly.img.editor.core.component.rememberEditCaptions
+import ly.img.editor.core.component.rememberEditText
+import ly.img.editor.core.component.rememberEffect
+import ly.img.editor.core.component.rememberEnterGroup
+import ly.img.editor.core.component.rememberFillStroke
+import ly.img.editor.core.component.rememberFilter
+import ly.img.editor.core.component.rememberFormatText
+import ly.img.editor.core.component.rememberLayer
+import ly.img.editor.core.component.rememberReplace
+import ly.img.editor.core.component.rememberSelectGroup
+import ly.img.editor.core.component.rememberSeparateAudio
+import ly.img.editor.core.component.rememberShape
+import ly.img.editor.core.component.rememberSplit
+import ly.img.editor.core.component.rememberTextBackground
+import ly.img.editor.core.component.rememberTextOnPath
+import ly.img.editor.core.component.rememberTextPresets
+import ly.img.editor.core.component.rememberTransition
+import ly.img.editor.core.component.rememberVoiceover
+import ly.img.editor.core.component.rememberVolume
+
+/**
+ * The configuration of the component that is displayed as horizontal list of items at the
+ * bottom of the editor when a design block is selected.
+ */
+@Composable
+fun VideoModerationConfigurationBuilder.rememberInspectorBar() = InspectorBar.remember {
+    listBuilder = {
+        InspectorBar.ListBuilder.remember {
+            add { InspectorBar.Button.rememberVoiceover() } // Voiceover Audio
+            add { InspectorBar.Button.rememberReplace() } // Video, Image, Sticker, Audio
+            add { InspectorBar.Button.rememberEditCaptions() } // Caption
+            add { InspectorBar.Button.rememberCaptionStyle() } // Caption
+            add { InspectorBar.Button.rememberEditText() } // Text
+            add { InspectorBar.Button.rememberTextPresets() } // Text
+            add { InspectorBar.Button.rememberFormatText() } // Text
+            add { InspectorBar.Button.rememberFillStroke() } // Page, Video, Image, Shape, Text
+            add { InspectorBar.Button.rememberTextBackground() } // Text
+            add { InspectorBar.Button.rememberTextOnPath() } // Text
+            add { InspectorBar.Button.rememberVolume() } // Video, Audio
+            add { InspectorBar.Button.rememberClipSpeed() } // Video
+            add { InspectorBar.Button.rememberCrop() } // Video, Image
+            add { InspectorBar.Button.rememberAnimations() } // Video, Image, Sticker, Shape, Text
+            add { InspectorBar.Button.rememberTransition() } // Video, Image
+            add { InspectorBar.Button.rememberAdjustments() } // Video, Image
+            add { InspectorBar.Button.rememberFilter() } // Video, Image
+            add { InspectorBar.Button.rememberEffect() } // Video, Image
+            add { InspectorBar.Button.rememberBlur() } // Video, Image
+            add { InspectorBar.Button.rememberShape() } // Video, Image, Shape
+            add { InspectorBar.Button.rememberSeparateAudio() } // Video
+            add { InspectorBar.Button.rememberSelectGroup() } // Video, Image, Sticker, Shape, Text
+            add { InspectorBar.Button.rememberEnterGroup() } // Group
+            add { InspectorBar.Button.rememberLayer() } // Video, Image, Sticker, Shape, Text
+            add { InspectorBar.Button.rememberSplit() } // Video, Image, Sticker, Shape, Text, Audio
+            add { InspectorBar.Button.rememberDuplicate() } // Video, Image, Sticker, Shape, Text
+            add { InspectorBar.Button.rememberDelete() } // Video, Image, Sticker, Shape, Text
+        }
+    }
+}

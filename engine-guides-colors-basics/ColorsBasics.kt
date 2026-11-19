@@ -6,7 +6,10 @@ import ly.img.engine.ColorRenderingIntent
 import ly.img.engine.ColorSpace
 import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
+import ly.img.engine.ExportOptions
 import ly.img.engine.FillType
+import ly.img.engine.MimeType
+import ly.img.engine.OutputProfileMode
 import ly.img.engine.ProfileColorSpace
 import ly.img.engine.ProfileRole
 import ly.img.engine.ProfileSlot
@@ -203,4 +206,27 @@ suspend fun colorsBasics(engine: Engine) {
     engine.block.setEnum(scene, property = "scene/colorConversionMode", value = "Managed")
     // highlight-android-legacy-mode
     check(engine.block.getEnum(scene, property = "scene/colorConversionMode") == "Managed")
+
+    // highlight-android-export-output-profile
+    val outputCMYK = ProfileSlot(ProfileRole.OUTPUT, ProfileColorSpace.CMYK)
+    engine.scene.setDocumentColorProfile(
+        slot = outputCMYK,
+        uri = Uri.parse("bundle://ly.img.cesdk/colorprofiles/CGATS001Compat-v2-micro.icc"),
+    )
+    val printPdf = engine.block.export(
+        page,
+        mimeType = MimeType.PDF,
+        options = ExportOptions(
+            outputColorSpace = ProfileColorSpace.CMYK,
+            outputProfileMode = OutputProfileMode.CONVERT,
+            embedProfiles = true,
+            preserveBlack = true,
+        ),
+    )
+    Log.i(TAG, "Print PDF bytes: ${printPdf.remaining()}")
+    // highlight-android-export-output-profile
+    check(printPdf.hasRemaining())
+    val pdfText = Charsets.ISO_8859_1.decode(printPdf.asReadOnlyBuffer()).toString()
+    check(pdfText.contains("/OutputIntents"))
+    check(!pdfText.contains("/DefaultCMYK"))
 }

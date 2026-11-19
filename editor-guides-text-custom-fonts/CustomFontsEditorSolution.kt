@@ -16,6 +16,8 @@ import ly.img.engine.DesignBlockType
 import ly.img.engine.Engine
 import ly.img.engine.FindAssetsQuery
 import ly.img.engine.Font
+import ly.img.engine.FontRequest
+import ly.img.engine.FontResolverResult
 import ly.img.engine.FontStyle
 import ly.img.engine.FontWeight
 import ly.img.engine.SizeMode
@@ -26,6 +28,7 @@ private const val CUSTOM_TYPEFACE_SOURCE_ID = "my-custom-typefaces"
 private const val BRAND_TYPEFACE_ASSET_ID = "ly.img.typeface.brand_sans"
 private const val BRAND_SANS_REGULAR_FILE = "BrandSans-Regular.ttf"
 private const val BRAND_SANS_BOLD_FILE = "BrandSans-Bold.ttf"
+private const val UPLOADED_FONT_URI = "https://fonts.gstatic.com/s/codystar/v19/FwZY7-Q1xVk-40qxOt6A.ttf"
 
 private fun brandFontUri(fileName: String): Uri = "file:///android_asset"
     .let(Uri::parse)
@@ -84,6 +87,37 @@ private fun createCustomTypefaceSource(
 }
 // highlight-android-register-source
 
+// highlight-android-register-font-file
+private suspend fun addFontFileToSource(
+    engine: Engine,
+    sourceId: String,
+    fontFileUri: Uri,
+): Typeface {
+    val info = engine.editor.getFontInfo(fontFileUri = fontFileUri.toString())
+    val typeface = Typeface(
+        name = info.family,
+        fonts = listOf(
+            Font(
+                uri = fontFileUri,
+                subFamily = info.subFamily,
+                weight = info.fontWeight,
+                style = info.style,
+            ),
+        ),
+    )
+    engine.asset.addAsset(
+        sourceId = sourceId,
+        asset = AssetDefinition(
+            id = fontFileUri.toString(),
+            label = mapOf("en" to info.family),
+            payload = AssetPayload(typeface = typeface),
+        ),
+    )
+    engine.asset.assetSourceContentsChanged(sourceId = sourceId)
+    return typeface
+}
+// highlight-android-register-font-file
+
 // highlight-android-update-library
 private fun replaceEditorTypefaceSource(engine: Engine) {
     createCustomTypefaceSource(
@@ -139,11 +173,68 @@ private fun applyBrandTypefaceToText(
 }
 // highlight-android-apply-font
 
+// highlight-android-font-request
+private suspend fun applyStoredFontRequest(
+    engine: Engine,
+    text: DesignBlock,
+    typeface: Typeface,
+    sourceId: String,
+) {
+    val font = typeface.fonts.first()
+    engine.editor.setTypefaceResolver { request ->
+        if (request.family == typeface.name) FontResolverResult(typeface, font) else null
+    }
+    try {
+        val request = FontRequest(
+            family = typeface.name,
+            subFamily = font.subFamily,
+            weight = font.weight,
+            style = font.style,
+            assetSourceId = sourceId,
+            assetId = BRAND_TYPEFACE_ASSET_ID,
+        )
+        engine.block.setFontRequest(text, request)
+        engine.block.forceLoadResources(listOf(text))
+        check(engine.block.getFontRequests(text) == listOf(request))
+    } finally {
+        engine.editor.setTypefaceResolver(null)
+    }
+}
+// highlight-android-font-request
+
+// highlight-android-render-diagnostics
+private suspend fun inspectTextRendering(
+    engine: Engine,
+    text: DesignBlock,
+) {
+    // Wait for font resources when the application needs a settled snapshot.
+    engine.block.forceLoadResources(listOf(text))
+    val diagnostics = engine.block.getTextRenderDiagnostics(text)
+    println("Rendered text: ${diagnostics.fontUsage.text}; state: ${diagnostics.fontUsage.state}")
+    diagnostics.fontUsage.runs.forEach { run ->
+        println(
+            "[${run.from}, ${run.to}): ${run.requestedFontFileUri} -> ${run.actualFontFileUri}; " +
+                "${run.status}; effective font size: ${run.effectiveFontSize}",
+        )
+    }
+    println("Missing glyph ranges: ${diagnostics.missingGlyphRanges}")
+    diagnostics.layout?.let { layout ->
+        println(
+            "Lines: ${layout.visibleLineCount}/${layout.totalLineCount} visible, " +
+                "${layout.clippedLineCount} clipped; required height: ${layout.requiredHeight}; " +
+                "font scale: ${layout.fontScale}; overshoot: ${layout.overshoot}",
+        )
+    }
+}
+// highlight-android-render-diagnostics
+
 data class CustomFontsResult(
     val sourceId: String,
     val queriedTypefaceName: String,
     val appliedTypefaceName: String,
     val rangeTypefaceNames: List<String>,
+    val uploadedTypefaceName: String,
+    val uploadedFont: Font,
 )
 
 suspend fun customFonts(
@@ -153,6 +244,11 @@ suspend fun customFonts(
     createCustomTypefaceSource(
         engine = engine,
         sourceId = sourceId,
+    )
+    val uploadedTypeface = addFontFileToSource(
+        engine = engine,
+        sourceId = sourceId,
+        fontFileUri = Uri.parse(UPLOADED_FONT_URI),
     )
 
     val typeface = brandTypeface()
@@ -176,6 +272,8 @@ suspend fun customFonts(
         text = text,
         typeface = typeface,
     )
+    applyStoredFontRequest(engine, text, typeface, sourceId)
+    inspectTextRendering(engine, text)
     engine.block.setSelected(block = text, selected = true)
     engine.scene.zoomToBlock(
         block = page,
@@ -197,6 +295,8 @@ suspend fun customFonts(
         rangeTypefaceNames = engine.block
             .getTypefaces(block = text, from = 0, to = 5)
             .map { it.name },
+        uploadedTypefaceName = uploadedTypeface.name,
+        uploadedFont = uploadedTypeface.fonts.single(),
     )
 }
 
@@ -236,6 +336,7 @@ fun CustomFontsEditorSolution(
                         text = text,
                         typeface = typeface,
                     )
+                    inspectTextRendering(engine, text)
                     engine.block.setSelected(block = text, selected = true)
                     engine.scene.zoomToBlock(
                         block = page,

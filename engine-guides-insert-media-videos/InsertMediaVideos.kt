@@ -8,7 +8,8 @@ import ly.img.engine.ShapeType
 import kotlin.math.abs
 
 suspend fun insertMediaVideos(engine: Engine): InsertMediaVideosResult {
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
 
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.setWidth(page, value = 1280F)
