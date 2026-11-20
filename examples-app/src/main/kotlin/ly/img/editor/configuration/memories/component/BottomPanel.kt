@@ -48,7 +48,7 @@ fun bottomPanelConfiguration(viewModel: MemoriesViewModel): @Composable (EditorS
         EditorComponent.remember {
             scope = {
                 val historyTrigger by EditorTrigger.remember {
-                    editorContext.engine.editor.onHistoryUpdated()
+                    editorContext.engine.editor.onHistoryUpdatedWithKind()
                 }
                 remember(this, historyTrigger) {
                     NavigationBar.Scope(parentScope = this)

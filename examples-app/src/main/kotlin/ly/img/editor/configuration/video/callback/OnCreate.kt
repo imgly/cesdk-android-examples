@@ -49,6 +49,7 @@ suspend fun VideoConfigurationBuilder.onCreate(
 fun VideoConfigurationBuilder.onPreCreateScene() {
     showLoading = true
     val engine = editorContext.engine
+    engine.editor.setSettingBoolean(keypath = "clip/defaultTransitionOverlapEnabled", value = false)
     engine.editor.setSettingEnum(keypath = "touch/pinchAction", value = "Scale")
     engine.editor.setSettingBoolean(
         keypath = "controlGizmo/showRotateHandles",

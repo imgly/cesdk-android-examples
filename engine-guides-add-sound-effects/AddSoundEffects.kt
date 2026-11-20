@@ -94,7 +94,8 @@ data class SoundEffectsSummary(
 )
 
 suspend fun addSoundEffects(engine: Engine): SoundEffectsSummary {
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = scene, child = page)
     engine.block.setWidth(page, value = 1920F)

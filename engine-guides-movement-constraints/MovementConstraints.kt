@@ -58,7 +58,7 @@ fun movementConstraints(
 
     // highlight-movement-constraint-read
     // Read the resolved constraint, walking the priority chain:
-    // block > parent page > blockType > scene-wide.
+    // block > page slice > parent page > blockType > scene-wide.
     val active = engine.editor.getMovementConstraint(block)
     // highlight-movement-constraint-read
 

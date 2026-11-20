@@ -2,9 +2,8 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.net.Uri
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -51,7 +50,8 @@ suspend fun thumbnailPreviews(
         .appendPath("far_from_home.m4a")
         .build()
 
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = scene, child = page)
     engine.block.setWidth(page, value = 1280F)
@@ -257,15 +257,18 @@ suspend fun cancelFilmstripEarly(
             timeBegin = 0.0,
             timeEnd = sourceDuration,
             numberOfFrames = 120,
-        ).collect { received += 1 }
+        ).collect {
+            received += 1
+            // There is no cancel method on the API. Cancelling the collecting coroutine closes the
+            // Flow, so the collector gets no frame after the 10th. A video fill that is already
+            // decoding still decodes its remaining frames in the engine.
+            if (received == 10) cancel()
+        }
     }
 
-    delay(timeMillis = 250)
-
-    // There is no cancel method on the API. Cancelling the collecting Job closes the Flow,
-    // which cancels the native request. Do this before requesting a new sequence for the
-    // same block, otherwise the new request waits for the old one to finish.
-    job.cancelAndJoin()
+    // Wait until the collector has stopped. A new request for the same block still waits until
+    // the engine has decoded the remaining frames of this one.
+    job.join()
 
     received
 }

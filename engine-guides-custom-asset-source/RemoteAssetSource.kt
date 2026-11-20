@@ -107,7 +107,7 @@ class RemoteAssetSource(
         designBlock: DesignBlock,
         asset: Asset,
     ) {
-        if (asset.meta?.get("duration") != null || !hasFill(designBlock)) return
+        if (asset.meta?.get("duration") != null || !supportsFill(designBlock)) return
         val fill = getFill(designBlock)
         if (FillType.getOrNull(getType(fill)) != FillType.Video) return
         forceLoadAVResource(fill)

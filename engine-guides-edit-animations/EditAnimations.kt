@@ -7,7 +7,8 @@ import ly.img.engine.FillType
 import ly.img.engine.ShapeType
 
 suspend fun editAnimations(engine: Engine): EditAnimationsSummary {
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
 
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = scene, child = page)

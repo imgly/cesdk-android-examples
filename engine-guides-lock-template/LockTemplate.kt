@@ -58,7 +58,7 @@ fun lockTemplate(engine: Engine) {
     engine.block.setPositionY(headline, value = 404F)
     engine.block.replaceText(headline, text = "Spring Launch")
     engine.block.setTextColor(headline, color = Color.fromHex("#FF11203A"))
-    engine.block.setBackgroundColor(headline, color = Color.fromRGBA(231, 240, 255, 255))
+    engine.block.setColor(headline, property = "backgroundColor/color", value = Color.fromRGBA(231, 240, 255, 255))
     engine.block.setBackgroundColorEnabled(headline, enabled = true)
     engine.block.setFloat(headline, property = "backgroundColor/paddingLeft", value = 24F)
     engine.block.setFloat(headline, property = "backgroundColor/paddingTop", value = 20F)

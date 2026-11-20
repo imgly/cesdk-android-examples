@@ -100,7 +100,7 @@ internal fun createEditingWorkflowTemplate(engine: Engine): EditingWorkflowTempl
     engine.block.setPositionY(attendeeName, value = 404F)
     engine.block.replaceText(attendeeName, text = "Alex Morgan")
     engine.block.setTextColor(attendeeName, color = Color.fromHex("#FF0B1220"))
-    engine.block.setBackgroundColor(attendeeName, color = Color.fromRGBA(231, 240, 255, 255))
+    engine.block.setColor(attendeeName, property = "backgroundColor/color", value = Color.fromRGBA(231, 240, 255, 255))
     engine.block.setBackgroundColorEnabled(attendeeName, enabled = true)
     engine.block.setFloat(attendeeName, property = "backgroundColor/paddingLeft", value = 24F)
     engine.block.setFloat(attendeeName, property = "backgroundColor/paddingTop", value = 20F)

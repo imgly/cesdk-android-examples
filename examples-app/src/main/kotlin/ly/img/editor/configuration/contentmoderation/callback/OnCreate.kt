@@ -43,6 +43,7 @@ suspend fun ContentModerationConfigurationBuilder.onCreate(
  * The callback that is invoked before the scene is created.
  */
 fun ContentModerationConfigurationBuilder.onPreCreateScene() {
+    editorContext.engine.editor.setSettingBoolean(keypath = "clip/defaultTransitionOverlapEnabled", value = false)
     showLoading = true
     // Enable horizontal sliding between pages
     editorContext.engine.editor.setSettingBoolean(

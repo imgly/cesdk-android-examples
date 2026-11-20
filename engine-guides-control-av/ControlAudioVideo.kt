@@ -9,7 +9,8 @@ private const val TAG = "ControlAudioVideo"
 private const val SAMPLE_VIDEO_URI = "https://img.ly/static/ubq_video_samples/bbb.mp4"
 
 suspend fun controlAudioVideo(engine: Engine) {
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.setWidth(page, value = 1920F)
     engine.block.setHeight(page, value = 1080F)

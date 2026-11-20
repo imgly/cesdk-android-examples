@@ -152,9 +152,9 @@ suspend fun textAnimators(engine: Engine): TextAnimators {
         block = countdown,
         property = "text/text",
         keyframes = listOf(
-            Keyframe(time = 0F, value = KeyframeValue.Discrete(DiscreteValue.Text("3"))),
-            Keyframe(time = 0.33F, value = KeyframeValue.Discrete(DiscreteValue.Text("2"))),
-            Keyframe(time = 0.67F, value = KeyframeValue.Discrete(DiscreteValue.Text("1"))),
+            Keyframe(time = 0F, value = KeyframeValue.Discrete(DiscreteValue.String("3"))),
+            Keyframe(time = 0.33F, value = KeyframeValue.Discrete(DiscreteValue.String("2"))),
+            Keyframe(time = 0.67F, value = KeyframeValue.Discrete(DiscreteValue.String("1"))),
         ),
     )
     // highlight-android-text-content

@@ -253,6 +253,10 @@ private suspend fun writeToCacheFile(
         MimeType.WEBM -> "webm"
         MimeType.BINARY -> "bin"
         MimeType.PDF -> "pdf"
+        MimeType.WEBP -> "webp"
+        MimeType.AUDIO_WAV -> "wav"
+        MimeType.AUDIO_MP4 -> "m4a"
+        MimeType.AUDIO_WEBM -> "webm"
     }
     val outputFile = File.createTempFile(UUID.randomUUID().toString(), ".$extension", directory)
     val sourceBuffer = byteBuffer.asReadOnlyBuffer()
