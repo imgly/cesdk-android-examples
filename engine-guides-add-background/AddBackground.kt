@@ -50,9 +50,10 @@ suspend fun addBackground(engine: Engine) = withContext(engine.dispatcher) {
     // highlight-android-background-color
     if (engine.block.supportsBackgroundColor(textBlock)) {
         engine.block.setBackgroundColorEnabled(textBlock, enabled = true)
-        engine.block.setBackgroundColor(
+        engine.block.setColor(
             block = textBlock,
-            color = Color.fromRGBA(r = 1F, g = 1F, b = 1F, a = 1F),
+            property = "backgroundColor/color",
+            value = Color.fromRGBA(r = 1F, g = 1F, b = 1F, a = 1F),
         )
         engine.block.setFloat(textBlock, property = "backgroundColor/paddingLeft", value = 16F)
         engine.block.setFloat(textBlock, property = "backgroundColor/paddingRight", value = 16F)

@@ -305,6 +305,12 @@ suspend fun keyframes(engine: Engine): Keyframes {
     Log.i(TAG, "$animatedProperties, ${opacityKeyframes[1].easing}, $positionMode")
     // highlight-android-read-back
 
+    // highlight-android-animated-value
+    // At 50% of the duration, after the fade-in ends at 40%: KeyframeValue.Float(1F)
+    val opacityAtHalfTime = engine.block.getAnimatedValue(block = block, property = "opacity", time = 0.5F)
+    Log.i(TAG, "opacity at 50%: $opacityAtHalfTime")
+    // highlight-android-animated-value
+
     // highlight-android-static-value
     // Changes the static value only. The absolute opacity track still replaces it.
     engine.block.setOpacity(block = block, value = 0.5F)

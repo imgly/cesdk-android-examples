@@ -591,10 +591,33 @@ suspend fun applyDraftToTracks(
     // page that runs the un-overlapped length. The style pass re-wires the same spec afterwards,
     // which changes nothing, and this way a style that fails still leaves the montage blended.
     wireTransitions(engine, clips, transition)
-    engine.block.setDuration(page, reflowedEndTime(engine, track, clips, hasTitle))
+    val duration = reflowedEndTime(engine, track, clips, hasTitle)
+    engine.block.setDuration(page, duration)
+    fitSoundtrack(engine, page, duration)
 
     // Checkpoint the post-edit state so this whole batch of track edits is undoable as one step.
     // Safe now that features/removeForegroundTracksOnSceneLoad is forced false in onCreate — without
     // that, restoring this snapshot would flatten the slideshow.
     engine.editor.addUndoStep()
+}
+
+/**
+ * The editor trims a new soundtrack to the page, so it is stretched again whenever the montage
+ * changes length, otherwise the music ends before the slideshow. A song shorter than the page
+ * keeps its own length.
+ */
+fun fitSoundtrack(
+    engine: Engine,
+    page: Int,
+    duration: Double,
+) {
+    engine.block.getChildren(page)
+        .filter { engine.block.getType(it) == DesignBlockType.Audio.key }
+        .forEach { audio ->
+            val length = (duration - engine.block.getTimeOffset(audio)).coerceAtLeast(0.0)
+            val source = runCatching { engine.block.getAVResourceTotalDuration(audio) }.getOrDefault(0.0)
+            val available = if (source > 0) source - engine.block.getTrimOffset(audio) else length
+            engine.block.setTrimLength(audio, min(length, available))
+            engine.block.setDuration(audio, min(length, available))
+        }
 }

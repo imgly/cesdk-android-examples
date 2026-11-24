@@ -22,7 +22,7 @@ import ly.img.editor.core.component.rememberUndo
 fun ApparelConfigurationBuilder.rememberNavigationBar() = NavigationBar.remember {
     scope = {
         val historyTrigger by EditorTrigger.remember {
-            editorContext.engine.editor.onHistoryUpdated()
+            editorContext.engine.editor.onHistoryUpdatedWithKind()
         }
         // Update NavigationBar whenever the editor history changes
         remember(this, historyTrigger) {

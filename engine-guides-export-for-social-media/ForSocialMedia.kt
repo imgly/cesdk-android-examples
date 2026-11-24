@@ -19,7 +19,8 @@ suspend fun exportForSocialMedia(
     progressObserver: (ExportVideoProgress) -> Unit = {},
 ): File = withContext(Dispatchers.Main) {
     // highlight-android-create-scene
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     engine.scene.setDesignUnit(DesignUnit.PIXEL)
 
     val page = engine.block.create(DesignBlockType.Page)

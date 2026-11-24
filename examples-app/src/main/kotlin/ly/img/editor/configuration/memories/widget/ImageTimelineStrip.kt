@@ -131,7 +131,7 @@ fun ImageTimelineStrip(
     val latestBuild by rememberUpdatedState(buildItems)
     var items by remember { mutableStateOf(latestBuild()) }
     LaunchedEffect(Unit) {
-        engine.editor.onHistoryUpdated().collect {
+        engine.editor.onHistoryUpdatedWithKind().collect {
             items = latestBuild()
         }
     }

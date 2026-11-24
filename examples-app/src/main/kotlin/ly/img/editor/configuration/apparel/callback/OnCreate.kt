@@ -50,6 +50,7 @@ suspend fun ApparelConfigurationBuilder.onCreate(
  * The callback that is invoked before the scene is created.
  */
 fun ApparelConfigurationBuilder.onPreCreateScene() {
+    editorContext.engine.editor.setSettingBoolean(keypath = "clip/defaultTransitionOverlapEnabled", value = false)
     showLoading = true
     editorContext.engine.editor.setSettingBoolean(
         keypath = "ubq://page/dimOutOfPageAreas",

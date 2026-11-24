@@ -17,7 +17,8 @@ private const val TAG = "CaptionsGuide"
 
 suspend fun editVideoCaptions(engine: Engine): ByteBuffer = withContext(Dispatchers.Main) {
     // highlight-android-setup-scene
-    val scene = engine.scene.createForVideo()
+    val scene = engine.scene.create()
+    engine.block.setEnum(scene, "scene/mode", "Video")
     val page = engine.block.create(DesignBlockType.Page)
     engine.block.appendChild(parent = scene, child = page)
     engine.block.setWidth(page, value = 1280F)
@@ -107,8 +108,8 @@ suspend fun editVideoCaptions(engine: Engine): ByteBuffer = withContext(Dispatch
     engine.block.setDropShadowEnabled(caption1, enabled = true)
     engine.block.setDropShadowColor(caption1, color = Color.fromRGBA(0F, 0F, 0F, 0.8F))
     engine.block.setBackgroundColorEnabled(caption1, enabled = true)
-    engine.block.setBackgroundColor(caption1, color = Color.fromRGBA(0F, 0F, 0F, 0.7F))
-    // Use property-keyed setters for caption automatic font sizing properties.
+    // Use property-keyed setters for the background color and the caption automatic font sizing properties.
+    engine.block.setColor(caption1, property = "backgroundColor/color", value = Color.fromRGBA(0F, 0F, 0F, 0.7F))
     engine.block.setBoolean(caption1, property = "caption/automaticFontSizeEnabled", value = true)
     engine.block.setFloat(caption1, property = "caption/minAutomaticFontSize", value = 24F)
     engine.block.setFloat(caption1, property = "caption/maxAutomaticFontSize", value = 72F)

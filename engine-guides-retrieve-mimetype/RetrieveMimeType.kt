@@ -86,6 +86,14 @@ suspend fun retrieveMimeType(engine: Engine): RetrieveMimeTypeResult {
         check(transientResources.any { (uri, _) -> uri == imageBufferUri })
         check(transientResources.any { (uri, _) -> uri == assetImageUri })
 
+        // highlight-android-file-support
+        val formats = engine.editor.getFileFormats()
+        check(formats.any { format -> format.mimeType == "image/png" })
+        val support = engine.editor.checkFileSupport(uri = imageBufferUri)
+        check(support.inspection == "metadata")
+        check(support.uses.single { use -> use.kind == "image" }.status == "supported")
+        // highlight-android-file-support
+
         // highlight-android-get-mime-type
         val resourcesWithMimeType =
             transientResources.map { (uri, size) ->

@@ -29,7 +29,7 @@ import ly.img.editor.core.event.EditorEvent
 fun ContentModerationConfigurationBuilder.rememberNavigationBar() = NavigationBar.remember {
     scope = {
         val historyTrigger by EditorTrigger.remember {
-            editorContext.engine.editor.onHistoryUpdated()
+            editorContext.engine.editor.onHistoryUpdatedWithKind()
         }
         // Update NavigationBar whenever the editor history changes
         remember(this, historyTrigger) {

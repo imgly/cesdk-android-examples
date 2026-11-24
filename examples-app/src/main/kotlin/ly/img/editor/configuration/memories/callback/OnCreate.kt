@@ -19,14 +19,28 @@ import ly.img.editor.core.EditorScope
 import ly.img.editor.core.component.data.Insets
 import ly.img.editor.core.event.EditorEvent
 
+/**
+ * The slideshow is edited through the dock and the timeline strip, so the canvas does not pan, zoom
+ * or rotate. The editor sets its own touch settings before onCreate, so these override them.
+ */
+private fun EditorScope.lockCanvas() {
+    with(editorContext.engine.editor) {
+        setSettingBoolean("touch/singlePointPanning", false)
+        setSettingEnum("touch/pinchAction", "None")
+        setSettingEnum("touch/rotateAction", "None")
+    }
+}
+
 private fun EditorScope.applyCanvasPadding() {
     editorContext.eventHandler.send(EditorEvent.Insets.SetExtra(insets = Insets(CANVAS_PADDING_DP.dp)))
 }
 
 fun MemoriesConfiguration.onCreateConfiguration(viewModel: MemoriesViewModel): (suspend EditorScope.() -> Unit) = onCreate@{
     val engine = editorContext.engine
+    engine.editor.setSettingBoolean("clip/defaultTransitionOverlapEnabled", false)
     showLoading = true
     viewModel.setEditorContext(editorContext)
+    lockCanvas()
 
     val page = createSlideshowScene(engine)
     onLoadAssetSources()
